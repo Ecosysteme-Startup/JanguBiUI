@@ -23,6 +23,32 @@ export const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get('redirectTo');
 
+  // Le compte est créé INACTIF : seul le lien envoyé par email l'active
+  // (`apps/users/services.py`). Rediriger vers l'application after inscription
+  // renvoyait donc l'utilisateur sur un formulaire de connexion vide, sans la
+  // moindre explication — et une tentative de connexion lui répondait « e-mail
+  // ou mot de passe incorrect », ce qui est faux et l'envoyait réinitialiser un
+  // mot de passe parfaitement valide (audit beta 2026-07-20).
+  if (registering.isSuccess) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+          <p className="font-semibold">Votre compte a été créé.</p>
+          <p className="mt-1">
+            Un email de vérification vient de vous être envoyé. Ouvrez-le et
+            cliquez sur le lien pour activer votre compte, puis connectez-vous.
+          </p>
+        </div>
+        <NextLink
+          href={paths.auth.login.getHref(redirectTo)}
+          className="text-sm font-semibold text-primary hover:underline"
+        >
+          Aller à la connexion
+        </NextLink>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Form

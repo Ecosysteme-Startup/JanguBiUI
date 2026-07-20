@@ -1,5 +1,6 @@
 import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
+import { flattenApiError } from '@/utils/flatten-api-error';
 
 export class ApiError extends Error {
   constructor(
@@ -391,11 +392,14 @@ async function fetchApi<T>(
       string,
       unknown
     >;
-    // DRF renvoie l'erreur sous `detail` ({"detail": "..."}). On lit `detail`
-    // en priorité, puis `message` (autres backends), puis le statut HTTP.
+    // DRF renvoie l'erreur sous `detail`, qui vaut soit une chaîne, soit un
+    // OBJET d'erreurs par champ ({"detail": {"phone_number": ["…"]}}). Le
+    // transtypage `as string` d'origine mentait : l'objet finissait rendu comme
+    // enfant React et faisait sauter l'écran entier. `flattenApiError` en tire
+    // toujours une chaîne.
     let message =
-      (body.detail as string | undefined) ||
-      (body.message as string | undefined) ||
+      flattenApiError(body.detail) ||
+      flattenApiError(body.message) ||
       response.statusText;
     // Message clair et en français pour un échec d'authentification au login
     // (SimpleJWT renvoie un message anglais peu parlant pour le fidèle).
