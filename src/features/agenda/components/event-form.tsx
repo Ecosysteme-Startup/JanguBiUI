@@ -4,8 +4,10 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button/button';
 import { useNotifications } from '@/components/ui/notifications';
+import { useUser } from '@/lib/auth';
 
 import { CreateEventInput, useCreateEvent } from '../api/create-event';
+import { availableEventScopes, EventScopeType } from '../utils/event-scopes';
 
 const EVENT_TYPES = [
   { value: 'mass', label: 'Messe' },
@@ -25,6 +27,13 @@ interface EventFormProps {
 
 export function EventForm({ onSuccess }: EventFormProps) {
   const { addNotification } = useNotifications();
+  const { data: user } = useUser();
+  const scopeOptions = availableEventScopes(user);
+  // La portée la plus étroite dont dispose l'utilisateur : un curé publie pour
+  // sa paroisse, pas pour la plateforme entière.
+  const [scopeType, setScopeType] = useState<EventScopeType | ''>('');
+  const selectedScope =
+    scopeOptions.find((o) => o.value === scopeType) ?? scopeOptions[0] ?? null;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [eventType, setEventType] = useState('mass');
@@ -69,6 +78,9 @@ export function EventForm({ onSuccess }: EventFormProps) {
       end_at: endAt,
       location: location.trim(),
       max_participants: maxParticipants ? parseInt(maxParticipants, 10) : null,
+      ...(selectedScope
+        ? { scope_type: selectedScope.value, scope_id: selectedScope.scopeId }
+        : {}),
     };
     createEvent(payload);
   }
@@ -88,6 +100,26 @@ export function EventForm({ onSuccess }: EventFormProps) {
           required
         />
       </div>
+
+      {scopeOptions.length > 1 && (
+        <div>
+          <label htmlFor="evt-scope" className={labelClass}>
+            Visible par
+          </label>
+          <select
+            id="evt-scope"
+            value={selectedScope?.value ?? ''}
+            onChange={(e) => setScopeType(e.target.value as EventScopeType)}
+            className={inputClass}
+          >
+            {scopeOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label htmlFor="evt-type" className={labelClass}>

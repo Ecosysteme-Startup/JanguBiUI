@@ -6,6 +6,7 @@ import { ReactNode, useEffect } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { useUser } from '@/lib/auth';
 import { getRoleHomePath } from '@/lib/get-role-home-path';
+import { safeRedirect } from '@/utils/safe-redirect';
 
 type LayoutProps = {
   children: ReactNode;
@@ -51,9 +52,9 @@ export const AuthLayout = ({ children }: LayoutProps) => {
   // (même destination que LoginPage → plus de course vers app.root).
   useEffect(() => {
     if (user.data) {
-      router.replace(
-        redirectTo ? decodeURIComponent(redirectTo) : getRoleHomePath(user.data),
-      );
+      // safeRedirect neutralise les destinations externes (`?redirectTo=https://…`) ;
+      // son repli est l'accueil du rôle, comme quand aucune destination n'est fournie.
+      router.replace(safeRedirect(redirectTo, getRoleHomePath(user.data)));
     }
   }, [user.data, router, redirectTo]);
 

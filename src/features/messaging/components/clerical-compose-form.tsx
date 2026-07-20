@@ -36,7 +36,9 @@ const schema = z.object({
     'province_bishops',
   ]),
   scope_id: z.number().optional(),
-  individual_recipient_id: z.number().optional(),
+  // UUID de BaseUser (`priest.user_id`), PAS l'entier `priest.id` qui est la PK
+  // de PriestProfile. Le backend attend l'identifiant de l'utilisateur.
+  individual_recipient_id: z.string().optional(),
 });
 
 type FormInput = z.infer<typeof schema>;
@@ -88,7 +90,9 @@ export function ClericalComposeForm({
       body: data.body,
       recipient_scope: data.recipient_scope,
       scope_id: data.scope_id ?? null,
-      individual_recipient_id: data.individual_recipient_id ?? null,
+      // `||` et non `??` : l'option « — Choisir un prêtre — » vaut la chaîne
+      // vide, que `??` laisserait passer telle quelle au backend.
+      individual_recipient_id: data.individual_recipient_id || null,
     });
   };
 
@@ -107,14 +111,12 @@ export function ClericalComposeForm({
       {scope === 'individual' && (
         <Select
           label="Destinataire"
-          registration={register('individual_recipient_id', {
-            valueAsNumber: true,
-          })}
+          registration={register('individual_recipient_id')}
           options={[
             { label: '— Choisir un prêtre —', value: '' },
             ...priests.map((priest) => ({
               label: priest.full_name,
-              value: priest.id,
+              value: priest.user_id,
             })),
           ]}
         />

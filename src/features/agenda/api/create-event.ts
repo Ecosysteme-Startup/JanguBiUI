@@ -12,6 +12,15 @@ export type CreateEventInput = {
   end_at: string;
   location: string;
   max_participants?: number | null;
+  /**
+   * Portée territoriale. À défaut, le backend applique `global`, réservé aux
+   * administrateurs province/national — un curé recevait donc un 400
+   * systématique. Cf. `../utils/event-scopes`.
+   */
+  scope_type?: 'parish' | 'diocese' | 'church' | 'global';
+  /** Id de la paroisse ou du diocèse visé, désambiguïsé par `scope_type`. */
+  scope_id?: number | null;
+  scope_church_id?: number | null;
 };
 
 export const useCreateEvent = ({

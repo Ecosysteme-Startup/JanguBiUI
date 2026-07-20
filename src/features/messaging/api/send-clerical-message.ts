@@ -9,7 +9,8 @@ export type SendClericalMessageInput = {
   body: string;
   recipient_scope: string;
   scope_id?: number | null;
-  individual_recipient_id?: number | null;
+  /** UUID de BaseUser (`priest.user_id`) — pas la PK entière de PriestProfile. */
+  individual_recipient_id?: string | null;
 };
 
 export const useSendClericalMessage = ({
