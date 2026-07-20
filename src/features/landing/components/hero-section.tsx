@@ -1,33 +1,9 @@
+import NextLink from 'next/link';
+
+import { paths } from '@/config/paths';
+
 import { PhoneShowcase } from './phone-showcase';
 import { StarField } from './star-field';
-
-const AppleIcon = () => (
-  <svg
-    className="size-[26px] shrink-0"
-    viewBox="-1 -1 28 28"
-    fill="none"
-    overflow="visible"
-  >
-    <path
-      d="M21.5 19.2c-.5 1.1-1 2.1-1.8 3-.9 1.1-1.9 1.7-3 1.7-1 0-2-.5-3.1-.5-1.1 0-2.2.5-3.2.5-1.1 0-2-.6-2.9-1.7-2.2-2.7-3.5-6.8-3.5-10.7C4 6.5 6.8 4 9.5 4c1.1 0 2.2.5 3 .5.7 0 1.9-.6 3.2-.6 1.4 0 3.6.7 4.9 2.8-3.5 2.1-2.9 6.8.4 8.6-.5 1.3-1 2.8-1.5 3.9zM16.5 2c.1 1.3-.4 2.6-1.1 3.5-.8 1-2 1.8-3.1 1.7-.1-1.2.4-2.5 1.1-3.4.8-1 2.1-1.7 3.1-1.8z"
-      fill="#1D1D1F"
-    />
-  </svg>
-);
-
-const GoogleIcon = () => (
-  <svg
-    className="size-[26px] shrink-0"
-    viewBox="-1 -1 28 28"
-    fill="none"
-    overflow="visible"
-  >
-    <path d="M3 4.5L14.2 13 3 21.5V4.5z" fill="#4285F4" />
-    <path d="M3 4.5l13.5 8.5L23 8.5 7 2 3 4.5z" fill="#34A853" />
-    <path d="M3 21.5l13.5-8.5L23 17.5 7 24l-4-2.5z" fill="#FBBC04" />
-    <path d="M16.5 13L23 8.5v9L16.5 13z" fill="#EA4335" />
-  </svg>
-);
 
 export function HeroSection() {
   return (
@@ -45,7 +21,7 @@ export function HeroSection() {
           {/* Eyebrow */}
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-[0.6875rem] font-bold uppercase tracking-[.14em] text-primary">
             <span className="inline-block size-[5px] animate-[twinkle_2s_ease-in-out_infinite] rounded-full bg-primary" />
-            Nouveau · Disponible maintenant au Sénégal
+            Bêta · Ouverte aux paroisses du Sénégal
           </div>
 
           {/* Headline */}
@@ -61,49 +37,25 @@ export function HeroSection() {
             Quête en ligne — tout en une seule application.
           </p>
 
-          {/* Store buttons */}
+          {/* Appels à l'action — l'application est un service WEB.
+              Les badges App Store / Google Play ont été retirés avant
+              l'ouverture beta : ils pointaient vers `#` et promettaient des
+              applications mobiles qui n'existent pas. */}
           <div className="mb-11 flex flex-wrap justify-center gap-3.5">
-            <a
-              href="#"
-              className="flex min-w-[168px] items-center gap-3 rounded-[14px] border border-foreground/20 bg-white px-6 py-3 transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(20,40,80,.12)] dark:hover:shadow-[0_16px_40px_rgba(255,255,255,.12)]"
+            <NextLink
+              href={paths.auth.register.getHref()}
+              className="min-w-[168px] rounded-[14px] bg-primary px-7 py-3.5 text-center text-[0.9375rem] font-bold text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(20,40,80,.18)]"
             >
-              <AppleIcon />
-              <div className="flex flex-col text-left">
-                <span className="text-[0.625rem] font-medium leading-none text-gray-500">
-                  Download on the
-                </span>
-                <span className="text-[0.9375rem] font-bold leading-none text-gray-900">
-                  App Store
-                </span>
-              </div>
-            </a>
-            <a
-              href="#"
-              className="flex min-w-[168px] items-center gap-3 rounded-[14px] border border-foreground/20 bg-white px-6 py-3 transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(20,40,80,.12)] dark:hover:shadow-[0_16px_40px_rgba(255,255,255,.12)]"
+              Créer mon compte
+            </NextLink>
+            <NextLink
+              href={paths.auth.login.getHref()}
+              className="min-w-[168px] rounded-[14px] border border-foreground/20 px-7 py-3.5 text-center text-[0.9375rem] font-bold text-foreground transition-all hover:-translate-y-0.5 hover:border-foreground/40"
             >
-              <GoogleIcon />
-              <div className="flex flex-col text-left">
-                <span className="text-[0.625rem] font-medium leading-none text-gray-500">
-                  Get it on
-                </span>
-                <span className="text-[0.9375rem] font-bold leading-none text-gray-900">
-                  Google Play
-                </span>
-              </div>
-            </a>
+              Se connecter
+            </NextLink>
           </div>
 
-          {/* Social proof */}
-          <div className="flex items-center justify-center gap-4">
-            <span className="text-[0.875rem] tracking-[.05em] text-accent">
-              ★★★★★
-            </span>
-            <span className="text-[0.8125rem] text-muted-foreground">
-              <strong className="text-foreground/80">4.8</strong> ·{' '}
-              <strong className="text-foreground/80">2 400+</strong> fidèles ·{' '}
-              <strong className="text-foreground/80">50+</strong> paroisses
-            </span>
-          </div>
         </div>
 
         {/* Phone showcase */}

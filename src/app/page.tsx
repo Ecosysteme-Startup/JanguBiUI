@@ -5,8 +5,6 @@ import { HeroSection } from '@/features/landing/components/hero-section';
 import { LandingFooter } from '@/features/landing/components/landing-footer';
 import { LandingNav } from '@/features/landing/components/landing-nav';
 import { PourQuiSection } from '@/features/landing/components/pour-qui-section';
-import { StatsSection } from '@/features/landing/components/stats-section';
-import { TestimonialsSection } from '@/features/landing/components/testimonials-section';
 
 const HomePage = () => {
   // La landing suit le thème (clair/sombre) piloté par next-themes : le bouton
@@ -17,12 +15,16 @@ const HomePage = () => {
     <div className="bg-background text-foreground">
       <LandingNav />
       <main>
+        {/* StatsSection et TestimonialsSection retirées avant l'ouverture beta :
+            leur contenu était entièrement inventé — chiffres d'adoption animés
+            comme des métriques temps réel sur un produit sans utilisateurs, et
+            trois témoignages nominatifs dont un attribué à un évêque nommé d'un
+            diocèse réel, avec une statistique de collecte fabriquée. À
+            réintroduire seulement avec des données et des accords réels. */}
         <HeroSection />
-        <StatsSection />
         <FeaturesSection />
         <AlternatingSection />
         <PourQuiSection />
-        <TestimonialsSection />
         <CtaSection />
       </main>
       <LandingFooter />

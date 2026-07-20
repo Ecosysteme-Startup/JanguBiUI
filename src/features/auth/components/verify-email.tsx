@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button/button';
 import { paths } from '@/config/paths';
 import { useVerifyEmail } from '@/lib/auth';
 
+import { ResendVerificationForm } from './resend-verification-form';
+
 export const VerifyEmail = () => {
   const searchParams = useSearchParams();
   const token = searchParams?.get('token') ?? '';
@@ -55,6 +57,9 @@ export const VerifyEmail = () => {
         <p className="text-sm font-medium text-foreground">
           Le lien de vérification est invalide ou a expiré.
         </p>
+        {/* Le lien expire au bout de 24 h et la réinscription est refusée : sans
+            renvoi, l'utilisateur est bloqué pour de bon. */}
+        <ResendVerificationForm />
         <NextLink
           href={paths.auth.login.getHref()}
           className="text-sm font-medium text-primary hover:text-primary/80"

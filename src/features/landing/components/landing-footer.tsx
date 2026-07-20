@@ -1,3 +1,7 @@
+import NextLink from 'next/link';
+
+import { paths } from '@/config/paths';
+
 const LogoMark = () => (
   <svg
     width="26"
@@ -29,65 +33,66 @@ export function LandingFooter() {
             </p>
           </div>
 
-          {/* Fonctionnalités */}
+          {/* Fonctionnalités — destinations réelles (l'accès demande une
+              connexion, le middleware redirige vers /auth/login). */}
           <div>
             <p className="mb-4 text-[0.625rem] font-bold uppercase tracking-[.1em] text-muted-foreground">
               Fonctionnalités
             </p>
             <ul className="flex flex-col gap-2.5">
               {[
-                'Bible',
-                'Rosaire',
-                'Liturgie',
-                'Actualités',
-                'Messagerie',
-                'Dons & Quêtes',
+                { label: 'Bible', href: paths.app.bible.getHref() },
+                { label: 'Rosaire', href: paths.app.chapelet.getHref() },
+                { label: 'Liturgie', href: paths.app.spirituelLiturgie.getHref() },
+                { label: 'Actualités', href: paths.app.actus.getHref() },
+                { label: 'Messagerie', href: paths.app.messages.getHref() },
+                { label: 'Dons & Quêtes', href: paths.app.dons.getHref() },
               ].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
+                <li key={item.label}>
+                  <NextLink
+                    href={item.href}
                     className="text-[0.875rem] text-muted-foreground transition-colors hover:text-primary"
                   >
-                    {item}
-                  </a>
+                    {item.label}
+                  </NextLink>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Paroisses */}
+          {/* Paroisses & Légal — ces pages n'existent pas encore. Elles étaient
+              rendues en `href="#"` : des liens d'apparence cliquable qui ne
+              menaient nulle part. Tant qu'elles ne sont pas écrites, on les
+              affiche en texte simple plutôt que de promettre une destination.
+              ⚠️ Les CGU sont un cas sensible : la messagerie fait ACCEPTER des
+              conditions que l'utilisateur ne peut donc pas lire. */}
           <div>
             <p className="mb-4 text-[0.625rem] font-bold uppercase tracking-[.1em] text-muted-foreground">
               Paroisses
             </p>
             <ul className="flex flex-col gap-2.5">
               {['Annuaire', 'Rejoindre', 'Contact'].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="text-[0.875rem] text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    {item}
-                  </a>
+                <li
+                  key={item}
+                  className="text-[0.875rem] text-muted-foreground/60"
+                >
+                  {item} <span className="text-[0.75rem]">· bientôt</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Légal */}
           <div>
             <p className="mb-4 text-[0.625rem] font-bold uppercase tracking-[.1em] text-muted-foreground">
               Légal
             </p>
             <ul className="flex flex-col gap-2.5">
               {['CGU', 'Confidentialité', 'Mentions légales'].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="text-[0.875rem] text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    {item}
-                  </a>
+                <li
+                  key={item}
+                  className="text-[0.875rem] text-muted-foreground/60"
+                >
+                  {item} <span className="text-[0.75rem]">· bientôt</span>
                 </li>
               ))}
             </ul>
