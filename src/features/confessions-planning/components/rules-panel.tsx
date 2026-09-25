@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { IconButton } from '@/components/ui/icon-button';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
-import { apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorMessage } from '@/utils/api-errors';
 import { clockLabel } from '@/utils/availability-label';
 
 import { usePlaces } from '../api/get-places';

@@ -14,6 +14,10 @@ import { installProseMirrorPolyfill } from '@/testing/prosemirror-polyfill';
 import { renderApp } from '@/testing/test-utils';
 
 import { scheduledAt } from '../annonce-editor';
+import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f8aHandlers));
 
 const nodeId = ids.saintDominique;
 const listHref = `/espace/${nodeId}/annonces`;

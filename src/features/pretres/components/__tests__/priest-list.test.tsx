@@ -13,6 +13,10 @@ import {
 import { server } from '@/testing/mocks/server';
 import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
+import { f7PretreHandlers } from '@/testing/mocks/handlers/f7-pretre';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f7PretreHandlers));
 
 beforeEach(() => {
   resetF7State();

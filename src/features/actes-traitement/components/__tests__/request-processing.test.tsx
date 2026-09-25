@@ -5,6 +5,11 @@ import { RequestProcessing } from '@/features/actes-traitement/components/reques
 import { ids } from '@/testing/mocks/db';
 import { ACTE_IDS, actesState, resetActes } from '@/testing/mocks/db-f6-actes';
 import { renderApp } from '@/testing/test-utils';
+import { actesHandlers } from '@/testing/mocks/handlers/f6-actes';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...actesHandlers));
 
 beforeEach(() => resetActes());
 

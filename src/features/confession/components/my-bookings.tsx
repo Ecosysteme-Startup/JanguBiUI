@@ -8,7 +8,7 @@ import { Modal } from '@/components/ui/modal';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
-import { apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorMessage } from '@/utils/api-errors';
 import { dayjs, hour } from '@/utils/dates';
 
 import { useCancelBooking } from '../api/cancel-booking';

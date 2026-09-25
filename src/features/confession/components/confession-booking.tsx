@@ -13,7 +13,7 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
-import { apiErrorCode, apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorCode, apiErrorMessage } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
 import { dayjs, hour } from '@/utils/dates';
 

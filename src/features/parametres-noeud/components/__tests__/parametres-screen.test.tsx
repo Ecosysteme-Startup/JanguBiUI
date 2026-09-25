@@ -10,6 +10,10 @@ import { f8aState, resetF8a } from '@/testing/mocks/db-f8a';
 import { f8aOverrides, v1Error } from '@/testing/mocks/handlers/f8a';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
+import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f8aHandlers));
 
 /** Chancelier du diocèse : `structure.gerer` héritée sur la paroisse. */
 const grantsStructure: Grant[] = [...grantsSecretaire, { ...grantsSecretaire[0], capacite: 'structure.gerer', office: 'chancelier' }];

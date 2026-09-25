@@ -6,6 +6,10 @@ import { ChapeletView } from '@/features/chapelet/components/chapelet-view';
 import { apiUrl } from '@/testing/mocks/api-url';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
+import { paroleHandlers } from '@/testing/mocks/handlers/parole';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...paroleHandlers));
 
 const beadsList = () => screen.getByRole('list', { name: /progression de la dizaine/i });
 

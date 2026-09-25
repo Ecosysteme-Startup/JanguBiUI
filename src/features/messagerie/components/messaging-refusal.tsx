@@ -2,7 +2,7 @@ import NextLink from 'next/link';
 
 import { Notice } from '@/components/ui/notice';
 import { paths } from '@/config/paths';
-import { apiErrorCode, apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorCode, apiErrorMessage } from '@/utils/api-errors';
 
 /**
  * Refus expliqué (RG-13) : messagerie réservée aux personnes majeures. Le texte vient du

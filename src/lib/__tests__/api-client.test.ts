@@ -39,3 +39,12 @@ describe('api-client', () => {
     expect((error as ApiError).message).toMatch(/pas de connexion/i);
   });
 });
+
+describe('errorMessageOf', () => {
+  it('lit l’enveloppe V1 {error: {message}}', async () => {
+    const { errorMessageOf } = await import('@/lib/api-client');
+    expect(errorMessageOf({ error: { code: 'slot_taken', message: 'Ce créneau vient d’être pris.' } }, 409)).toBe(
+      'Ce créneau vient d’être pris.',
+    );
+  });
+});

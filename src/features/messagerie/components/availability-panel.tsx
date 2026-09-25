@@ -9,7 +9,7 @@ import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
-import { apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorMessage } from '@/utils/api-errors';
 import {
   availabilityStatus,
   isAbsent,

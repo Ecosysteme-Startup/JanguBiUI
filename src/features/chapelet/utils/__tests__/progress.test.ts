@@ -1,5 +1,10 @@
 import { progressReducer, START } from '@/features/chapelet/utils/progress';
 import { beadsOf, decadeOf } from '@/features/chapelet/utils/rosary';
+import { paroleHandlers } from '@/testing/mocks/handlers/parole';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...paroleHandlers));
 
 const reduce = progressReducer([3, 3]);
 

@@ -37,10 +37,14 @@ const buildUrl = (path: string, params?: Params) => {
   return url.toString();
 };
 
-/** DRF renvoie `{detail}`, `{message}` ou un dictionnaire de champs : on garde un message lisible. */
+/**
+ * Formats d'erreur de l'API : enveloppe V1 `{error: {code, message}}` (SRS §7), ancien `{detail}`
+ * ou `{message}`, ou dictionnaire de champs DRF. On garde un message lisible et sûr.
+ */
 export const errorMessageOf = (body: unknown, status: number): string => {
   if (body && typeof body === 'object') {
-    const record = body as Record<string, unknown>;
+    const outer = body as Record<string, unknown>;
+    const record = outer.error && typeof outer.error === 'object' ? (outer.error as Record<string, unknown>) : outer;
     for (const key of ['message', 'detail']) {
       if (typeof record[key] === 'string') return record[key] as string;
     }

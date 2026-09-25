@@ -1,4 +1,9 @@
 import { calendarLine, closingFormula, dayWindow, parseIsoDate, readingLabel, rosaryOfDay } from '@/features/parole/utils/liturgy';
+import { paroleHandlers } from '@/testing/mocks/handlers/parole';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...paroleHandlers));
 
 describe('utilitaires de la Parole', () => {
   it('nomme les lectures d’après leur type', () => {

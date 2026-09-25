@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Notice } from '@/components/ui/notice';
 import { Select } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
-import { apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorMessage } from '@/utils/api-errors';
 
 import { type RuleCreateBody, useCreateRule } from '../api/rules';
 import type { Place } from '../api/schemas';

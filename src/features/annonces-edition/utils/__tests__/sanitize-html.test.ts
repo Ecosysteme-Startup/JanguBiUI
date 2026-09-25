@@ -1,5 +1,10 @@
 import { htmlToText, readingStats, sanitizeArticleHtml, textToHtml } from '../sanitize-html';
 import { isSunday, nextSundays } from '../sundays';
+import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f8aHandlers));
 
 describe('sanitizeArticleHtml', () => {
   it('retire scripts, gestionnaires d’événements et liens dangereux', () => {

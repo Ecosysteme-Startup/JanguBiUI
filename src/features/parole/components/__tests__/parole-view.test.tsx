@@ -7,6 +7,10 @@ import { apiUrl } from '@/testing/mocks/api-url';
 import { paroleDay } from '@/testing/mocks/db-parole';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
+import { paroleHandlers } from '@/testing/mocks/handlers/parole';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...paroleHandlers));
 
 const serveToday = (body: JsonBodyType = paroleDay, status = 200) =>
   server.use(http.get(apiUrl('/liturgy/today/'), () => HttpResponse.json(body, { status })));

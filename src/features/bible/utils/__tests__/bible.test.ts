@@ -1,5 +1,10 @@
 import { findBook, neighbours } from '@/features/bible/utils/bible';
 import { testaments } from '@/testing/mocks/db-parole';
+import { paroleHandlers } from '@/testing/mocks/handlers/parole';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...paroleHandlers));
 
 describe('utilitaires de la Bible', () => {
   it('trouve un livre par slug ou par nom, sans tenir compte des accents', () => {

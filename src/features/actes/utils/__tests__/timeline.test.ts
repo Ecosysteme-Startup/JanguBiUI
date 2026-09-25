@@ -1,5 +1,10 @@
 import { requestSchema } from '../../types/request';
 import { buildTimeline, messagesOf, pendingInfoRequest } from '../timeline';
+import { actesHandlers } from '@/testing/mocks/handlers/f6-actes';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...actesHandlers));
 
 const request = (over: Record<string, unknown>) =>
   requestSchema.parse({

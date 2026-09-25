@@ -1,4 +1,9 @@
 import { inMonth, monthTitle, monthWeeks, onDay } from '../calendar';
+import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f8aHandlers));
 
 describe('calendrier', () => {
   it('découpe le mois en semaines du lundi au dimanche', () => {

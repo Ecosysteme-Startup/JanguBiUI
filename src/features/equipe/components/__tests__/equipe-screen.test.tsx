@@ -12,6 +12,10 @@ import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
 import { withoutAccess } from '../nomination-form';
+import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f8aHandlers));
 
 const grantsCure: Grant[] = ['offices.nommer', 'tableau_bord.voir', 'actes.traiter'].map((capacite) => ({
   capacite,

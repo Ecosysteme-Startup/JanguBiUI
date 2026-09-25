@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
-import { apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorMessage } from '@/utils/api-errors';
 import { hour } from '@/utils/dates';
 
 import { useCancelSlot } from '../api/cancel-slot';

@@ -11,7 +11,7 @@ import { Notice } from '@/components/ui/notice';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
-import { apiErrorCode, apiErrorMessage } from '@/utils/api-error-details';
+import { apiErrorCode, apiErrorMessage } from '@/utils/api-errors';
 import { availabilityStatus, isAbsent } from '@/utils/availability-label';
 import { cn } from '@/utils/cn';
 
