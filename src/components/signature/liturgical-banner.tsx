@@ -34,7 +34,7 @@ export const LiturgicalColorPill = ({ color, compact }: { color: string; compact
 };
 
 /** Ex. « Jeudi de la 25e semaine… » : met le « e » des ordinaux en exposant. */
-const Ordinals = ({ text }: { text: string }) => (
+export const Ordinals = ({ text }: { text: string }) => (
   <>
     {text.split(/(\d+(?:e|re|er))/g).map((part, i) => {
       const m = /^(\d+)(e|re|er)$/.exec(part);
