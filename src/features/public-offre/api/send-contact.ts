@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
+import type { RequestBody } from '@/types/api-contract';
 
 export const FONCTIONS = [
   { value: 'cure', label: 'Curé' },
@@ -15,21 +16,8 @@ export const FONCTIONS = [
 
 export type Fonction = (typeof FONCTIONS)[number]['value'];
 
-/**
- * Corps de `POST /public/contact/` (contrat du lot, pas encore dans `schema.yml` : écrit à la
- * main). Réponse 201 `{ received: true }` ; 400 `{ champ: [messages] }`.
- */
-export type ContactBody = {
-  full_name: string;
-  fonction: Fonction;
-  paroisse: string;
-  diocese_node_id: string | null;
-  telephone: string;
-  email: string;
-  message?: string;
-  consentement: true;
-  cure_informe: boolean;
-};
+/** Corps de `POST /public/contact/`, dérivé du contrat. Réponse 201 `{ received: true }` ; 400 `{ champ: [messages] }`. */
+export type ContactBody = RequestBody<'public_contact_create'>;
 
 const responseSchema = z.object({ received: z.literal(true) });
 

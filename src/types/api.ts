@@ -2111,6 +2111,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/accounts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Comptes de la plateforme, du plus récemment actif au plus ancien
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["platform_accounts_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/accounts/{account_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fiche d'un compte : MFA, sessions, offices
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["platform_accounts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/accounts/{account_id}/lock/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verrouiller un compte (désactivé dans Keycloak, sessions fermées)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["platform_accounts_lock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/accounts/{account_id}/logout-sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fermer toutes les sessions d'un compte
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["platform_accounts_logout_sessions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/accounts/{account_id}/require-mfa/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Exiger la configuration d'un second facteur à la prochaine connexion
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["platform_accounts_require_mfa"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/accounts/{account_id}/unlock/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Déverrouiller un compte
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["platform_accounts_unlock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/contact/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Demander une présentation de Jàngu Bi (formulaire « Pour les paroisses »)
+         * @description Formulaire « Pour les paroisses ». Public : aucune authentification n'est lue.
+         */
+        post: operations["public_contact_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/nodes/": {
         parameters: {
             query?: never;
@@ -2870,6 +3010,79 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccountDetailOutput: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+            full_name: string;
+            realm_role: components["schemas"]["AccountRealmRoleEnum"];
+            mfa: components["schemas"]["AccountMfaEnum"];
+            /**
+             * Format: date-time
+             * @description Dernière activité connue
+             */
+            last_login: string | null;
+            status: components["schemas"]["AccountStatusEnum"];
+            /** @description Nœud de la nomination principale, ou paroisse suivie */
+            node_label: string | null;
+            keycloak_id: string | null;
+            email_verified: boolean;
+            offices: components["schemas"]["AccountOffice"][];
+            sessions: components["schemas"]["AccountSession"][];
+        };
+        /**
+         * @description * `totp` - totp
+         *     * `webauthn` - webauthn
+         *     * `facultative` - facultative
+         * @enum {string}
+         */
+        AccountMfaEnum: "totp" | "webauthn" | "facultative";
+        AccountOffice: {
+            office_label: string;
+            node_name: string;
+            /** Format: date */
+            start_date: string;
+            capabilities: string[];
+        };
+        AccountOutput: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+            full_name: string;
+            realm_role: components["schemas"]["AccountRealmRoleEnum"];
+            mfa: components["schemas"]["AccountMfaEnum"];
+            /**
+             * Format: date-time
+             * @description Dernière activité connue
+             */
+            last_login: string | null;
+            status: components["schemas"]["AccountStatusEnum"];
+            /** @description Nœud de la nomination principale, ou paroisse suivie */
+            node_label: string | null;
+        };
+        /**
+         * @description * `fidele` - fidele
+         *     * `staff` - staff
+         *     * `platform_admin` - platform_admin
+         * @enum {string}
+         */
+        AccountRealmRoleEnum: "fidele" | "staff" | "platform_admin";
+        AccountSession: {
+            id: string;
+            client: string;
+            ip: string | null;
+            /** Format: date-time */
+            started_at: string | null;
+        };
+        /**
+         * @description * `actif` - actif
+         *     * `verrouille` - verrouille
+         *     * `a_confirmer` - a_confirmer
+         * @enum {string}
+         */
+        AccountStatusEnum: "actif" | "verrouille" | "a_confirmer";
         /**
          * @description * `terminer` - terminer
          *     * `annuler` - annuler
@@ -3206,6 +3419,17 @@ export interface components {
             given_at: string | null;
             required: boolean;
         };
+        /**
+         * @description * `cure` - Curé
+         *     * `vicaire` - Vicaire
+         *     * `secretaire` - Secrétaire paroissial
+         *     * `referent_numerique` - Référent numérique
+         *     * `chancelier` - Chancelier
+         *     * `eveque` - Évêque
+         *     * `autre` - Autre
+         * @enum {string}
+         */
+        ContactFonctionEnum: "cure" | "vicaire" | "secretaire" | "referent_numerique" | "chancelier" | "eveque" | "autre";
         /**
          * @description * `text` - Texte brut
          *     * `html` - HTML riche
@@ -3768,6 +3992,14 @@ export interface components {
             /** Hérite sur le sous-arbre */
             inherits_down?: boolean;
         };
+        PaginatedAccountOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["AccountOutput"][];
+        };
         PaginatedArticleListOutputList: {
             limit: number;
             offset: number;
@@ -4072,6 +4304,48 @@ export interface components {
             language?: string;
             text: string;
             source?: string;
+        };
+        PresentationRequestInput: {
+            /** @description Nom et prénom */
+            full_name: string;
+            /**
+             * @description Fonction dans la paroisse ou le diocèse
+             *
+             *     * `cure` - Curé
+             *     * `vicaire` - Vicaire
+             *     * `secretaire` - Secrétaire paroissial
+             *     * `referent_numerique` - Référent numérique
+             *     * `chancelier` - Chancelier
+             *     * `eveque` - Évêque
+             *     * `autre` - Autre
+             */
+            fonction: components["schemas"]["ContactFonctionEnum"];
+            /** @description Nom de la paroisse */
+            paroisse: string;
+            /**
+             * Format: uuid
+             * @description Nœud de type diocèse, ou null
+             */
+            diocese_node_id?: string | null;
+            /** @description Téléphone */
+            telephone: string;
+            /**
+             * Format: email
+             * @description Adresse e-mail de contact
+             */
+            email: string;
+            /**
+             * @description Message libre (1 000 caractères max.)
+             * @default
+             */
+            message: string;
+            /** @description Consentement au traitement des données (doit être vrai) */
+            consentement: boolean;
+            /** @description Le curé est informé de la démarche */
+            cure_informe: boolean;
+        };
+        PresentationRequestOutput: {
+            received: boolean;
         };
         /** @description Vue de la paroisse : identité complète, registre, lieu de retrait. */
         ProcessorOutput: {
@@ -7837,6 +8111,227 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["NotificationUnreadCount"];
                 };
+            };
+        };
+    };
+    platform_accounts_list: {
+        parameters: {
+            query?: {
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /**
+                 * @description MFA configurée ou non
+                 *
+                 *     * `active` - active
+                 *     * `facultative` - facultative
+                 */
+                mfa?: "active" | "facultative";
+                /** @description Décalage */
+                offset?: number;
+                /** @description E-mail, prénom ou nom */
+                q?: string;
+                /**
+                 * @description Rôle de realm
+                 *
+                 *     * `fidele` - fidele
+                 *     * `staff` - staff
+                 *     * `platform_admin` - platform_admin
+                 */
+                role?: "fidele" | "staff" | "platform_admin";
+                /**
+                 * @description Statut du compte
+                 *
+                 *     * `actif` - actif
+                 *     * `verrouille` - verrouille
+                 *     * `a_confirmer` - a_confirmer
+                 */
+                status?: "actif" | "verrouille" | "a_confirmer";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAccountOutputList"];
+                };
+            };
+        };
+    };
+    platform_accounts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDetailOutput"];
+                };
+            };
+        };
+    };
+    platform_accounts_lock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDetailOutput"];
+                };
+            };
+            /** @description Keycloak injoignable : action non effectuée */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    platform_accounts_logout_sessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDetailOutput"];
+                };
+            };
+            /** @description Keycloak injoignable : action non effectuée */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    platform_accounts_require_mfa: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDetailOutput"];
+                };
+            };
+            /** @description Keycloak injoignable : action non effectuée */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    platform_accounts_unlock: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDetailOutput"];
+                };
+            };
+            /** @description Keycloak injoignable : action non effectuée */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    public_contact_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresentationRequestInput"];
+                "multipart/form-data": components["schemas"]["PresentationRequestInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["PresentationRequestInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresentationRequestOutput"];
+                };
+            };
+            /** @description Erreurs par champ : { champ: [messages] } */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Trop de demandes depuis cette adresse */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -94,7 +94,7 @@ describe('Formulaire de demande de présentation', () => {
 
     await screen.findByRole('status');
     expect(contactState.last).toMatchObject({ diocese_node_id: null, telephone: '+33 6 12 34 56 78', cure_informe: false });
-    expect(contactState.last).not.toHaveProperty('message');
+    expect(contactState.last).toMatchObject({ message: '' });
   });
 
   it('rattache au champ une erreur renvoyée par le serveur', async () => {

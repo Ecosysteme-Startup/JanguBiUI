@@ -63,7 +63,7 @@ export const toContactBody = (values: ContactValues): ContactBody => {
     diocese_node_id: values.diocese === OTHER_DIOCESE ? null : values.diocese,
     telephone: telephone.startsWith('+') ? telephone : `+221 ${telephone}`,
     email: values.email.trim(),
-    message: values.message.trim() || undefined,
+    message: values.message.trim(),
     consentement: true,
     cure_informe: values.cure_informe,
   };
