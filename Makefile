@@ -6,7 +6,7 @@
 
 .DEFAULT_GOAL := help
 .PHONY: help install dev build start lint lint-fix format check-types test test-watch \
-        generate-api ci-list ci act ci-docker ci-docker-act
+        generate-api ci-list ci act ci-docker ci-docker-act hooks
 
 help: ## Affiche cette aide
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) \
@@ -72,6 +72,10 @@ ci: ## Lance le job lint-and-typecheck via act (push)
 
 # Alias pratique.
 act: ci
+
+hooks: ## Installe le hook pre-push (make act vers develop/stage/main)
+	git config core.hooksPath scripts/git-hooks
+	chmod +x scripts/git-hooks/pre-push
 
 # Valide EN LOCAL le build de l'image de production (dernier stage = runner).
 # NE POUSSE PAS — pour débugger le Dockerfile avant un tag/push.

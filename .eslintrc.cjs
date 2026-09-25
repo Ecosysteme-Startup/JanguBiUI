@@ -81,7 +81,6 @@ module.exports = {
         'plugin:prettier/recommended',
         'plugin:testing-library/react',
         'plugin:jest-dom/recommended',
-        'plugin:tailwindcss/recommended',
         'plugin:vitest/legacy-recommended',
       ],
       rules: {
@@ -158,19 +157,18 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': ['off'],
         '@typescript-eslint/no-empty-function': ['off'],
         '@typescript-eslint/no-explicit-any': ['off'],
-        'tailwindcss/no-custom-classname': 'off',
-        'tailwindcss/classnames-order': 'off',
-        // Sacred Editorial — interdit la palette Tailwind brute (cassée en dark /
-        // off-brand). Utiliser les tokens sémantiques : text-foreground,
-        // text-muted-foreground, text-primary, bg-card, bg-success|warning|info|
-        // destructive|accent/…. Exceptions documentées dans l'override ci-dessous.
+        // Charte V1 (CLAUDE.md §3) : tokens --jb-* uniquement. Interdit la palette
+        // Tailwind brute et les couleurs arbitraires (hex, rgb) dans les classes.
         'no-restricted-syntax': [
           'error',
           {
             selector:
-              "Literal[value=/(text|bg|border|ring|from|to|via|fill|stroke|divide|placeholder|decoration|shadow|outline|caret|accent)-(gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|[1-9]00|950)/]",
-            message:
-              'Palette Tailwind brute interdite (Sacred Editorial). Utilise un token sémantique : text-foreground/-muted-foreground, text-primary, bg-card, bg-success|warning|info|destructive|accent/…',
+              "Literal[value=/(text|bg|border|ring|from|to|via|fill|stroke|divide|placeholder|decoration|shadow|outline|caret|accent)-(gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)(-(50|[1-9]00|950))?\\b/]",
+            message: 'Palette Tailwind brute interdite : utiliser les tokens --jb-* (bg-paper, text-ink, text-primary…).',
+          },
+          {
+            selector: "Literal[value=/-\\[(#|rgb|hsl)/]",
+            message: 'Couleur arbitraire interdite : utiliser les tokens --jb-*.',
           },
         ],
         // Formatage géré par Prettier CLI (`yarn format`), pas par ESLint :
@@ -181,15 +179,7 @@ module.exports = {
       },
     },
     {
-      // Exceptions à la règle anti-palette : la landing a une direction
-      // artistique « dark forcé » avec surfaces fixes intentionnelles (badges
-      // de store sur fond blanc) ; les stories et la page démo Sentry ne sont
-      // pas du code applicatif livré.
-      files: [
-        'src/features/landing/**/*',
-        '**/*.stories.tsx',
-        'src/app/sentry-example-page/**/*',
-      ],
+      files: ['**/*.stories.tsx'],
       rules: {
         'no-restricted-syntax': 'off',
       },
