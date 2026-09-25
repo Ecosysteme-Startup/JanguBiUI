@@ -55,7 +55,7 @@ export const me = {
   incardination: null,
   institut: null,
   paroisse_suivie: { id: ids.saintDominique, name: 'Saint-Dominique', code: 'SD', type: 'paroisse' },
-  consent: {},
+  consent: { current_version: '2026-09', given_version: '2026-09', given_at: '2026-09-21T10:14:00+00:00', required: false },
 };
 
 export const liturgyToday = {
@@ -83,4 +83,16 @@ export const liturgyToday = {
   ],
   audio_url: null,
   meditation: null,
+};
+
+export const parishes = [
+  { id: ids.saintDominique, name: 'Saint-Dominique', code: 'SD', city: 'Dakar', address: 'Point E', is_active_on_platform: true },
+  { id: 'b1000000-0000-4000-8000-000000000010', name: 'Cathédrale Notre-Dame-des-Victoires', code: 'CAT', city: 'Dakar', address: 'Plateau', is_active_on_platform: false },
+  { id: 'b1000000-0000-4000-8000-000000000011', name: 'Sainte-Thérèse de Grand-Dakar', code: 'STG', city: 'Dakar', address: 'Grand-Dakar', is_active_on_platform: false },
+];
+
+export const onboardingState: { paroisse: string | null; consent: string | null; annonces: boolean | null } = {
+  paroisse: null,
+  consent: null,
+  annonces: null,
 };

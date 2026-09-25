@@ -6,6 +6,7 @@ import { FideleHeader } from '@/components/layouts/fidele-header';
 import { FideleSidebar } from '@/components/layouts/fidele-sidebar';
 import { LiturgyBannerSlot } from '@/components/layouts/liturgy-banner-slot';
 import { MobileMenu } from '@/components/layouts/mobile-menu';
+import { OnboardingGate } from '@/components/layouts/onboarding-gate';
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 
@@ -15,6 +16,7 @@ import { paths } from '@/config/paths';
  */
 export const FideleShell = ({ children }: { children: ReactNode }) => (
   <div className="flex min-h-dvh flex-col bg-paper">
+    <OnboardingGate />
     <a href="#contenu" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-paper focus:p-3">
       Aller au contenu
     </a>
