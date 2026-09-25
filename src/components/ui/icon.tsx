@@ -5,6 +5,9 @@ import type { SVGProps } from 'react';
  * Décoratives par défaut ; passer `label` pour une icône porteuse de sens.
  */
 const PATHS = {
+  'menu': (
+    <><path d="M4 7h16M4 12h16M4 17h16" /></>
+  ),
   'accueil': (
     <><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z" /></>
   ),

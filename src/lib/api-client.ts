@@ -1,0 +1,99 @@
+import { env } from '@/config/env';
+
+/** Erreur HTTP de l'API : le message est sûr à afficher (aucun détail interne). */
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+    readonly body: unknown = null,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+type AccessTokenProvider = () => Promise<string | null>;
+type UnauthorizedHandler = () => void;
+
+// Branchés par la couche d'authentification (F3) : aucun jeton n'est stocké ici.
+let accessToken: AccessTokenProvider = async () => null;
+let onUnauthorized: UnauthorizedHandler = () => {};
+
+export const configureApiAuth = (options: { accessToken: AccessTokenProvider; onUnauthorized: UnauthorizedHandler }) => {
+  accessToken = options.accessToken;
+  onUnauthorized = options.onUnauthorized;
+};
+
+type Params = Record<string, string | number | boolean | null | undefined>;
+type RequestOptions = { params?: Params; signal?: AbortSignal; body?: unknown };
+
+const GENERIC_ERROR = 'Le service ne répond pas. Réessayez dans un instant.';
+
+const buildUrl = (path: string, params?: Params) => {
+  const url = new URL(`${env.API_URL}${path.startsWith('/') ? path : `/${path}`}`);
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
+  });
+  return url.toString();
+};
+
+/** DRF renvoie `{detail}`, `{message}` ou un dictionnaire de champs : on garde un message lisible. */
+export const errorMessageOf = (body: unknown, status: number): string => {
+  if (body && typeof body === 'object') {
+    const record = body as Record<string, unknown>;
+    for (const key of ['message', 'detail']) {
+      if (typeof record[key] === 'string') return record[key] as string;
+    }
+  }
+  if (status === 403) return 'Vous n’avez pas accès à cette action.';
+  if (status === 404) return 'Élément introuvable.';
+  return GENERIC_ERROR;
+};
+
+async function request<T>(method: string, path: string, { params, signal, body }: RequestOptions = {}): Promise<T> {
+  const token = await accessToken();
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
+
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(path, params), {
+      method,
+      headers,
+      signal,
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+    });
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') throw error;
+    throw new ApiError(0, 'Pas de connexion. Vérifiez votre réseau puis réessayez.');
+  }
+
+  if (response.status === 204) return undefined as T;
+  const text = await response.text();
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+  if (!response.ok) {
+    if (response.status === 401) onUnauthorized();
+    throw new ApiError(response.status, errorMessageOf(data, response.status), data);
+  }
+  return data as T;
+}
+
+export const api = {
+  get: <T>(path: string, options?: Omit<RequestOptions, 'body'>) => request<T>('GET', path, options),
+  post: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('POST', path, { ...options, body }),
+  patch: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PATCH', path, { ...options, body }),
+  put: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PUT', path, { ...options, body }),
+  delete: <T>(path: string, options?: RequestOptions) => request<T>('DELETE', path, options),
+};
+
+/** Réponse paginée DRF (LimitOffsetPagination). */
+export type Paginated<T> = { count: number; next: string | null; previous: string | null; results: T[] };

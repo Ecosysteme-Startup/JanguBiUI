@@ -3152,6 +3152,8 @@ export interface components {
             /** Format: uuid */
             node_id: string | null;
             node_name: string;
+            /** @description Code du type de nœud ; « plateforme » hors arbre. */
+            node_type: string;
             herite: boolean;
             office: string;
         };
