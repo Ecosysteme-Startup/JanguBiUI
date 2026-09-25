@@ -8,6 +8,8 @@ const PublicEnv = z.object({
   WS_URL: z.string().default('ws://localhost:8001'),
   PALETTE: z.enum(PALETTES).default('ciel'),
   SENTRY_DSN: z.string().optional(),
+  /** Console d'administration Keycloak (lien externe de PLA-Comptes) ; absente : lien masqué. */
+  KEYCLOAK_CONSOLE_URL: z.string().url().optional(),
 });
 
 /** Variables publiques (intégrées au bundle au build). Aucun secret ici. */
@@ -16,4 +18,5 @@ export const env = PublicEnv.parse({
   WS_URL: process.env.NEXT_PUBLIC_WS_URL || undefined,
   PALETTE: process.env.NEXT_PUBLIC_PALETTE || undefined,
   SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN || undefined,
+  KEYCLOAK_CONSOLE_URL: process.env.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL || undefined,
 });
