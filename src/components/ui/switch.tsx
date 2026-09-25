@@ -32,7 +32,7 @@ export const Switch = ({ checked, onCheckedChange, label, description, disabled,
         disabled={disabled}
         onClick={() => onCheckedChange(!checked)}
         className={cn(
-          'relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60',
+          'hit h-6 w-11 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60',
           checked ? 'bg-primary-fill' : 'bg-line',
         )}
       >

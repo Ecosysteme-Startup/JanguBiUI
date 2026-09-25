@@ -22,7 +22,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       title={label}
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded text-ink transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:text-ink-3',
-        size === 'md' ? 'size-10' : 'size-9',
+        'hit', size === 'md' ? 'size-10' : 'size-9',
         bordered && 'border border-line',
         className,
       )}

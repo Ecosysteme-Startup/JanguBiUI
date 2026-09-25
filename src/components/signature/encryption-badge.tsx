@@ -9,7 +9,7 @@ export const EncryptionBadge = ({ correspondent }: { correspondent?: string }) =
   <p className="tnum m-0 flex items-center justify-center gap-2 text-center text-meta text-ok">
     <Icon name="cadenas" size={14} />
     {correspondent
-      ? `Messages chiffrés · seuls vous et ${correspondent} les lisez, aucun administrateur`
-      : 'Messages chiffrés · aucun administrateur ne les lit'}
+      ? `Messages chiffrés · échange privé avec ${correspondent}, aucun administrateur n\u2019y a accès`
+      : 'Messages chiffrés · aucun administrateur n\u2019y a accès'}
   </p>
 );

@@ -17,8 +17,8 @@ export const Pagination = ({ offset, limit, total, onChange, className }: Pagina
   const current = Math.floor(offset / limit);
   const first = offset + 1;
   const last = Math.min(offset + limit, total);
-  const window = Array.from({ length: pages }, (_, i) => i).filter((i) => Math.abs(i - current) <= 2 || i === 0 || i === pages - 1);
-  const square = 'inline-flex size-9 items-center justify-center rounded tnum text-xs';
+  const visiblePages = Array.from({ length: pages }, (_, i) => i).filter((i) => Math.abs(i - current) <= 2 || i === 0 || i === pages - 1);
+  const square = 'hit inline-flex size-9 items-center justify-center rounded tnum text-xs';
   return (
     <nav aria-label="Pagination" className={cn('flex items-center justify-between border-t border-line pt-3', className)}>
       <span className="tnum text-meta text-ink-3">
@@ -34,9 +34,9 @@ export const Pagination = ({ offset, limit, total, onChange, className }: Pagina
         >
           <Icon name="chevron-gauche" size={18} />
         </button>
-        {window.map((page, index) => (
+        {visiblePages.map((page, index) => (
           <span key={page} className="flex items-center gap-1">
-            {index > 0 && page - window[index - 1] > 1 && <span className="px-1 text-ink-3">…</span>}
+            {index > 0 && page - visiblePages[index - 1] > 1 && <span className="px-1 text-ink-3">…</span>}
             <button
               type="button"
               aria-current={page === current ? 'page' : undefined}

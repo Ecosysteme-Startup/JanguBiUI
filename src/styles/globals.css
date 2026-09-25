@@ -42,6 +42,20 @@
 }
 
 @layer utilities {
+  /* Zone tactile ≥ 44 px sans changer le rendu (WCAG 2.5.5, cibles denses du DS). */
+  .hit {
+    position: relative;
+  }
+  .hit::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
   /* Chiffres tabulaires pour les données (DS-Fondations §02). */
   .tnum {
     font-variant-numeric: tabular-nums;
