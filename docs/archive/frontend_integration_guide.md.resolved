@@ -1,0 +1,153 @@
+# Guide d'Intégration Frontend - API JanguBi
+
+Ce document est destiné à l'équipe Frontend. Il recense l'ensemble des fonctionnalités, endpoints, filtres, et formats de données disponibles sur l'API Backend pour l'application JanguBi.
+
+> **Note générale  :**
+> - Tous les endpoints sont préfixés par `/api/v1/`.
+> - La pagination par défaut utilise `limit` et `offset` (ex: `?limit=20&offset=0`).
+> - Le format de retour paginé standard est :
+>   ```json
+>   {
+>     "count": 100,
+>     "next": "http://api.../?limit=20&offset=20",
+>     "previous": null,
+>     "results": [ ... ]
+>   }
+>   ```
+
+---
+
+## 1. Module BIBLE (`/api/v1/bible/`)
+
+Ce module gère la lecture et la recherche dans la Bible.
+
+### 1.1 Navigation (Testaments, Livres, Chapitres, Versets)
+
+*   **Lister les Testaments (avec leurs livres respectifs) :**
+    *   `GET /api/v1/bible/testaments/`
+    *   *Retourne :* Liste des testaments (Ancien & Nouveau) incluant la liste des livres imbriquée.
+*   **Lister les Livres (Paginé) :**
+    *   `GET /api/v1/bible/books/`
+    *   *Filtres disponibles :* [testament](file:///home/sosza/PycharmProjects/JanguBi/apps/bible/services/import_service.py#46-54) (slug), [search](file:///home/sosza/PycharmProjects/JanguBi/apps/bible/services/search_service.py#22-43) (recherche textuelle sur le nom).
+*   **Détail d'un Livre :**
+    *   `GET /api/v1/bible/books/<book_id>/`
+    *   *Paramètre optionnel :* `?expand=chapters` pour inclure la liste complète des chapitres du livre dans la réponse.
+*   **Lister les Chapitres d'un Livre :**
+    *   `GET /api/v1/bible/books/<book_id>/chapters/`
+*   **Lister les Versets d'un Chapitre (Paginé 100 par 100) :**
+    *   `GET /api/v1/bible/books/<book_id>/chapters/<chapter_number>/verses/`
+    *   *Filtres disponibles :* 
+        *   `verses` : Pour filtrer des versets spécifiques (ex: `?verses=5` ou `?verses=5-10`).
+        *   `excerpt` (booléen) : Si `true`, tronque le texte des versets à 250 caractères.
+
+### 1.2 Moteur de Recherche Biblique (Hybride)
+
+*   **Rechercher dans toute la Bible :**
+    *   `GET /api/v1/bible/search/`
+    *   *Paramètres :*
+        *   `q` (obligatoire) : Le texte ou concept recherché.
+        *   [hybrid](file:///home/sosza/PycharmProjects/JanguBi/apps/bible/services/search_service.py#71-119) (booléen, défaut=false) : **TRÈS IMPORTANT**. Mettre à `true` pour activer la recherche **Sémantique/IA (Vectorielle)**.
+        *   [testament](file:///home/sosza/PycharmProjects/JanguBi/apps/bible/services/import_service.py#46-54) (slug, optionnel)
+        *   `book_slug` (slug, optionnel)
+        *   `chapter_number` (int, optionnel)
+        *   `limit` (int, défaut=50)
+
+---
+
+## 2. Module ROSAIRE (`/api/v1/rosary/`)
+
+Ce module gère la prière du Rosaire, avec les mystères et les audios associés.
+
+*   **Rosaire du Jour (Raccourci) :**
+    *   `GET /api/v1/rosary/today/`
+    *   *Retourne :* Le groupe de mystères (Joyeux, Douloureux, etc.) correspondant au jour actuel de la semaine. Inclut l'URL du fichier audio s'il existe.
+*   **Lister les Groupes de Mystères :**
+    *   `GET /api/v1/rosary/groups/`
+    *   *Filtres :* [day](file:///home/sosza/PycharmProjects/JanguBi/apps/rosary/models.py#86-94) (ex: LUNDI, MARDI...).
+    *   *Composants Front :* Idéal pour un slider ou une liste affichant les 4 séries de mystères et leur lecteur audio (`audio_file`).
+*   **Lister tous les Mystères :**
+    *   `GET /api/v1/rosary/mysteries/`
+*   **Détail d'un Mystère :**
+    *   `GET /api/v1/rosary/mysteries/<id>/`
+    *   *Retourne :* Le mystère *et* toutes les prières (Notre Père, Je vous salue Marie x10, etc.) associées dans l'ordre.
+*   **Recherche dans le Rosaire :**
+    *   `GET /api/v1/rosary/search/?q=...`
+
+---
+
+## 3. Module LITURGIE (AELF) (`/api/v1/liturgy/`)
+
+Donne accès aux textes liturgiques officiels du jour (Messe, Laudes, Vêpres, etc.).
+
+*   **Obtenir les textes d'un Office :**
+    *   `GET /api/v1/liturgy/daily-office/`
+    *   *Paramètres :*
+        *   `target_date` (format YYYY-MM-DD, défaut: aujourd'hui)
+        *   `office_type` (messes, laudes, vepres, complies... défaut: messes)
+    *   *Retourne :* Les lectures du jour (1ère lecture, Psaume, Évangile, etc.) avec le vrai texte.
+    *   *Propriété magique :* Si l'API a réussi à faire le lien avec notre base de données locale biblique, une propriété `matched_verses` est incluse avec les IDs des versets locaux correspondants !
+
+---
+
+## 4. Module DISPONIBILITÉS (`/api/v1/availability/`)
+
+Pour gérer et prendre rendez-vous avec les ministres (Prêtres, Soeurs) dans les différentes paroisses.
+
+### 4.1 Côté Utilisateur Public (Lecture)
+*   **Rechercher les Ministres Disponibles :**
+    *   `GET /api/v1/availability/available/?date=YYYY-MM-DD&service=confession`
+    *   *Retourne :* Les ministres qui ont des créneaux libres ce jour-là pour ce service précis.
+*   **Voir les créneaux horaires d'un Ministre :**
+    *   `GET /api/v1/availability/ministers/<slug>/available/?date=YYYY-MM-DD`
+    *   *Retourne :* Liste des horaires de rendez-vous possibles (ex: 14:00 à 14:15, 14:15 à 14:30...).
+*   **Voir le Calendrier Mensuel d'un Ministre :**
+    *   `GET /api/v1/availability/calendar/<slug>/?month=YYYY-MM`
+    *   *Retourne :* `available_days`, `full_days`, `partial_days` pour afficher un joli calendrier coloré côté frontend.
+
+### 4.2 Côté Admin (CRUD complet)
+*L'utilisateur connecté doit avoir les droits d'administration ou être le ministre concerné.*
+
+*   **Paroisses (Parishes) :**
+    *   `GET / POST` sur `/api/v1/availability/parishes/`
+    *   `GET / PUT / PATCH / DELETE` sur `/api/v1/availability/parishes/<slug>/`
+*   **Types de Services (Confession, Accompagnement...) :**
+    *   `GET / POST` sur `/api/v1/availability/services/`
+    *   `GET / PUT / PATCH / DELETE` sur `/api/v1/availability/services/<slug>/`
+*   **Ministres (Ministers) :**
+    *   `GET / POST` sur `/api/v1/availability/ministers/`
+    *   `GET / PUT / PATCH / DELETE` sur `/api/v1/availability/ministers/<slug>/`
+    *   *Notes pour la création/modification de profil Ministre :*
+        *   `slug` : Ne pas envoyer (il est Read-Only, auto-généré).
+        *   `user_id` : Optionnel (défaut à `null`).
+        *   `photo` : Si vous envoyez une image, faites-le via une requête `multipart/form-data` native (et non du JSON strict).
+
+---
+
+## 5. Module RAG / L'Assistant IA (`/api/v1/rag/`)
+
+C'est l'endpoint qui fait la magie du Chatbot intelligent. Il agit comme un routeur vocal/texte pour toute l'application.
+
+*   **Poser une question à l'IA :**
+    *   `POST /api/v1/rag/query/`
+    *   *Payload (Corps JSON) :*
+        ```json
+        {
+          "query": "Que dit la Bible sur l'anxiété ?"
+        }
+        ```
+    *   *Structure de la Réponse :*
+        ```json
+        {
+          "answer": "La réponse générée par l'IA en français formaté...",
+          "context": "Le contexte brut trouvé en base de données (pour débug du front ou info source)",
+          "intent": {
+            "intent": "BIBLE",
+            "domains": ["BIBLE"],
+            "entities": {
+              "topic": "l'anxiété",
+              "date": null
+            }
+          }
+        }
+        ```
+    *   *Composants Front attendus :* Une interface type "Chat" (ChatGPT). On envoie un message, on attend quelques secondes, et la réponse s'affiche avec idéalement un petit badge indiquant le domaine utilisé (ex: 📖 Bible, 📿 Rosaire, 📅 Disponibilités) grâce à l'information remontée dans l'`intent`.

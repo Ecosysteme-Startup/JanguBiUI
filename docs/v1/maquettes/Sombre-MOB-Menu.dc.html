@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Menu mobile (sombre)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085E90 !important;border-color:#7CC3EE !important;color:#F5F9FC !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#3A4757 !important;color:#F5F9FC !important}
+.jb-btn-t:hover{color:#A8D8F5 !important;border-color:#7CC3EE !important}
+.jb-btn-d:hover{background:#B8392F !important;color:#F5F9FC !important;border-color:#E0776C !important}
+.jb-nav:hover{color:#7CC3EE !important}
+.jb-side:hover{background:#18232F !important;color:#E8EEF5 !important}
+.jb-row:hover{background:#18232F}
+.jb-chip:hover{border-color:#C7D2DE !important}
+.jb-icon:hover{background:#18232F !important}
+.jb-card:hover{border-color:#C7D2DE !important}
+.jb-slot:hover{border-color:#7CC3EE !important;color:#7CC3EE !important}
+.jb-foot:hover{color:#F5F9FC !important}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 8px 0 20px; box-sizing: border-box;">
+    <a href="Sombre-MOB-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: flex; align-items: baseline; gap: 8px; color: #E8EEF5;">
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+    </a>
+    <div style="display: flex; align-items: center;">
+      <a href="Sombre-FID-Notifications.dc.html" class="jb-icon" aria-label="Notifications, 3 non lues" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #E8EEF5; border-radius: 2px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+        <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3; border: 1.5px solid #0B1118;"></span>
+      </a>
+      <a href="Sombre-MOB-Accueil.dc.html" class="jb-icon" aria-label="Fermer le menu" aria-expanded="true" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #18232F; color: #E8EEF5; border-radius: 2px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+      </a>
+    </div>
+  </header>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 36px; margin: 0 20px; border-top: 1px solid #C7D2DE; border-bottom: 3px double #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #E8EEF5; font-variant-numeric: tabular-nums;">
+    <span>Jeu. 24 sept. · 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> sem. du T.O.</span>
+    <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px 0 7px; border: 1px solid #5FAA74; border-radius: 999px; color: #86C596; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4F9B63;"></span>Vert</span>
+  </div>
+
+  <main style="padding: 8px 20px 96px 20px; box-sizing: border-box;">
+    <h1 style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); margin: 0;">Menu</h1>
+
+    <!-- Profil -->
+    <a href="Sombre-FID-Profil.dc.html" class="jb-row" style="display: grid; grid-template-columns: 48px minmax(0, 1fr) 20px; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid #C7D2DE; color: #E8EEF5;">
+      <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; border: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 14px; color: #E8EEF5; font-variant-numeric: tabular-nums;">MD</span>
+      <span>
+        <span style="display: block; font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1.1;">Marie-Thérèse Diouf</span>
+        <span style="display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; color: #BAC6D3;">Paroisse suivie : Saint-Dominique</span>
+      </span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+    </a>
+
+    <nav aria-label="Menu complet">
+      <!-- La Parole -->
+      <p style="margin: 0; padding: 12px 0 4px 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;"><span style="color: #7CC3EE;">01</span> — La Parole</p>
+      <ul style="list-style: none; margin: 0; padding: 0;">
+        <li><a href="Sombre-FID-Bible.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M5.5 3.5h13v17h-13A1.5 1.5 0 0 1 4 19V5a1.5 1.5 0 0 1 1.5-1.5z"></path><path d="M4 17.5h14.5M11.5 7v6.5M9 9.5h5"></path></svg><span style="flex: 1;">Bible</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #92A2B4; font-variant-numeric: tabular-nums;">Segond 1910</span></a></li>
+        <li><a href="Sombre-FID-Chapelet.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><circle cx="12" cy="8.5" r="5.5" stroke-dasharray="0.1 2.6" stroke-width="2.2"></circle><path d="M12 14v7.5M9.5 17.5h5"></path></svg><span style="flex: 1;">Chapelet</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #92A2B4; font-variant-numeric: tabular-nums;">Mystères lumineux</span></a></li>
+      </ul>
+
+      <!-- Ma paroisse -->
+      <p style="margin: 0; padding: 12px 0 4px 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;"><span style="color: #7CC3EE;">02</span> — Ma paroisse</p>
+      <ul style="list-style: none; margin: 0; padding: 0;">
+        <li><a href="Sombre-FID-Evenement.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><rect x="3.5" y="5" width="17" height="15.5" rx="1"></rect><path d="M3.5 9.5h17M8 3v4M16 3v4"></path></svg><span style="flex: 1;">Agenda paroissial</span></a></li>
+        <li><a href="Sombre-MOB-Confession.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg><span style="flex: 1;">Mes rendez-vous</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; letter-spacing: 0.01em; color: #7CC3EE; font-variant-numeric: tabular-nums;">Sam. 26.09 · 16 h 20</span></a></li>
+      </ul>
+
+      <!-- Compte -->
+      <p style="margin: 0; padding: 12px 0 4px 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;"><span style="color: #7CC3EE;">03</span> — Mon compte</p>
+      <ul style="list-style: none; margin: 0; padding: 0;">
+        <li><a href="Sombre-FID-Notifications.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg><span style="flex: 1;">Notifications</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #7CC3EE; font-variant-numeric: tabular-nums;">3 non lues</span></a></li>
+        <li><a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 8px 0; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px; box-sizing: border-box;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><circle cx="8" cy="15" r="4"></circle><path d="m11 12 8.5-8.5M16.5 6.5 19 9M14.5 8.5l2 2"></path></svg><span style="flex: 1;"><span style="display: block;">Sécuriser mes messages</span><span style="display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 14px; font-weight: 600; color: #E6B865;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #D49B36;"></span>Clé de récupération à sauvegarder</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 6 6 6-6 6"></path></svg></a></li>
+        <li><a href="Sombre-FID-Profil.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"></path><circle cx="15" cy="7" r="2"></circle><circle cx="9" cy="17" r="2"></circle></svg><span style="flex: 1;">Paramètres</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #92A2B4; font-variant-numeric: tabular-nums;">Texte grand</span></a></li>
+        <li><a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 16px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 11v5.5M12 7.8v.1"></path></svg><span style="flex: 1;">Aide et contact</span></a></li>
+      </ul>
+    </nav>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px;">
+      <a href="Sombre-PUB-Connexion.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 12px; height: 44px; color: #F2958B; font-size: 16px; font-weight: 500;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"></path></svg>Se déconnecter</a>
+      <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Jàngu Bi 1.0 · Numerisen</span>
+    </div>
+  </main>
+
+  <nav aria-label="Navigation principale" style="position: absolute; left: 0; right: 0; bottom: 0; height: 72px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: #0B1118; border-top: 1px solid #C7D2DE; box-sizing: border-box;">
+    <a href="Sombre-MOB-Accueil.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z"></path></svg>Accueil
+    </a>
+    <a href="Sombre-MOB-Parole.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7.5 4.5 3.5 4.5v13c4 0 6.5.5 8.5 2 2-1.5 4.5-2 8.5-2v-13c-4 0-6.5.5-8.5 2z"></path><path d="M12 6.5v13"></path></svg>Parole
+    </a>
+    <a href="Sombre-MOB-Ma-Paroisse.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5v4M10 4.5h4M5.5 21v-8.5L12 8l6.5 4.5V21M3 21h18M10 21v-3.5a2 2 0 0 1 4 0V21"></path></svg>Paroisse
+    </a>
+    <a href="Sombre-MOB-Demande-Suivi.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7M9 18.5h4"></path></svg>Demandes
+    </a>
+    <a href="Sombre-MOB-Conversation.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11h-9l-4.5 3.5V16H4z"></path></svg>Prêtre
+    </a>
+  </nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

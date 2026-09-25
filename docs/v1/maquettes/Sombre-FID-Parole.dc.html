@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Lectures du jour (sombre)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085E90 !important;border-color:#7CC3EE !important;color:#F5F9FC !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#3A4757 !important;color:#F5F9FC !important}
+.jb-btn-t:hover{color:#A8D8F5 !important;border-color:#7CC3EE !important}
+.jb-btn-d:hover{background:#B8392F !important;color:#F5F9FC !important;border-color:#E0776C !important}
+.jb-nav:hover{color:#7CC3EE !important}
+.jb-side:hover{background:#18232F !important;color:#E8EEF5 !important}
+.jb-row:hover{background:#18232F}
+.jb-chip:hover{border-color:#C7D2DE !important}
+.jb-icon:hover{background:#18232F !important}
+.jb-card:hover{border-color:#C7D2DE !important}
+.jb-slot:hover{border-color:#7CC3EE !important;color:#7CC3EE !important}
+.jb-foot:hover{color:#F5F9FC !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1700px; box-sizing: border-box; overflow: hidden; position: relative; display: flex; flex-direction: column; background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; height: 64px; flex: none; padding: 0 32px; box-sizing: border-box; border-bottom: 1px solid #243142;">
+    <a href="Sombre-FID-Accueil.dc.html" aria-label="Jàngu Bi, accueil de mon espace" style="display: flex; align-items: baseline; gap: 12px; color: #E8EEF5;">
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+      <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Espace fidèle</span>
+    </a>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <label for="fid-recherche" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Rechercher dans Jàngu Bi</label>
+      <div style="display: flex; align-items: center; gap: 8px; width: 360px; height: 40px; padding: 0 12px; background: #111A24; border: 1px solid #243142; border-radius: 2px; color: #92A2B4; box-sizing: border-box;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5.5 5.5"></path></svg>
+        <input id="fid-recherche" type="search" placeholder="Un verset, une annonce, un prêtre…" style="flex: 1; min-width: 0; height: 36px; border: 0; background: transparent; font-size: 14px; color: #E8EEF5; outline: none;">
+      </div>
+      <a href="Sombre-FID-Notifications.dc.html" class="jb-icon" aria-label="Notifications, 3 non lues" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #E8EEF5; border: 1px solid #243142; border-radius: 2px; box-sizing: border-box;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+        <span style="position: absolute; top: 6px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: #0A6BA3; border: 1.5px solid #0B1118;"></span>
+      </a>
+      <a href="Sombre-FID-Profil.dc.html" aria-label="Mon profil : Marie-Thérèse Diouf" style="display: flex; align-items: center; gap: 12px; padding-left: 12px; color: #E8EEF5;">
+        <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;">MD</span>
+        <span style="font-size: 14px; font-weight: 500;">Marie-Thérèse</span>
+      </a>
+    </div>
+  </header>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 40px; flex: none; padding: 0 32px; box-sizing: border-box; border-bottom: 3px double #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #E8EEF5; font-variant-numeric: tabular-nums;">
+    <span style="display: flex; align-items: center; gap: 16px;">
+      <span>Jeudi 24 septembre 2026</span>
+      <span style="color: #92A2B4;">Jour 267</span>
+    </span>
+    <span style="display: flex; align-items: center; gap: 12px;">
+      <span>Jeudi de la 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire</span>
+      <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #5FAA74; border-radius: 999px; color: #86C596; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4F9B63;"></span>Vert</span>
+    </span>
+    <a href="Sombre-FID-Parole.dc.html" class="jb-btn-t" style="color: #7CC3EE; border-bottom: 1px solid #26618F; padding-bottom: 1px;">Ec 1, 2-11 · Ps 89 (90) · Lc 9, 7-9</a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 264px minmax(0, 1fr); flex: 1; min-height: 0;">
+
+    <aside style="display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid #243142; box-sizing: border-box;">
+      <nav aria-label="Espace fidèle" style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="Sombre-FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #BAC6D3; font-size: 15px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z"></path></svg>Accueil
+        </a>
+        <div>
+          <a href="Sombre-FID-Parole.dc.html" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; background: #18232F; color: #7CC3EE; font-size: 15px; font-weight: 600;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7.5 4.5 3.5 4.5v13c4 0 6.5.5 8.5 2 2-1.5 4.5-2 8.5-2v-13c-4 0-6.5.5-8.5 2z"></path><path d="M12 6.5v13"></path></svg>La Parole
+          </a>
+          <a href="Sombre-FID-Parole.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; font-weight: 600; color: #7CC3EE;"><span style="width: 4px; height: 4px; border-radius: 50%; background: #0A6BA3;"></span>Lectures du jour</a>
+          <a href="Sombre-FID-Bible.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Bible</a>
+          <a href="Sombre-FID-Chapelet.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Chapelet</a>
+        </div>
+        <div>
+          <a href="Sombre-FID-Ma-Paroisse.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #BAC6D3; font-size: 15px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5v4M10 4.5h4M5.5 21v-8.5L12 8l6.5 4.5V21M3 21h18M10 21v-3.5a2 2 0 0 1 4 0V21"></path></svg>Ma paroisse
+          </a>
+          <a href="Sombre-FID-Ma-Paroisse.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span><span style="flex: 1;">Annonces</span><span style="padding-right: 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #7CC3EE; font-variant-numeric: tabular-nums;">3</span></a>
+          <a href="Sombre-FID-Ma-Paroisse.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Horaires</a>
+          <a href="Sombre-FID-Evenement.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Agenda</a>
+        </div>
+        <a href="Sombre-FID-Demandes.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #BAC6D3; font-size: 15px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7M9 18.5h4"></path></svg><span style="flex: 1;">Mes demandes</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #7CC3EE; font-variant-numeric: tabular-nums;">1</span>
+        </a>
+        <div>
+          <a href="Sombre-FID-Pretres.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #BAC6D3; font-size: 15px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11h-9l-4.5 3.5V16H4z"></path></svg>Parler à un prêtre
+          </a>
+          <a href="Sombre-FID-Pretres.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span><span style="flex: 1;">Conversations</span><span style="padding-right: 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #7CC3EE; font-variant-numeric: tabular-nums;">1</span></a>
+          <a href="Sombre-FID-Confession-RDV.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #BAC6D3;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Rendez-vous de confession</a>
+        </div>
+        <a href="Sombre-FID-Profil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #BAC6D3; font-size: 15px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"></circle><path d="M4.5 20.5c1-3.8 4-5.5 7.5-5.5s6.5 1.7 7.5 5.5"></path></svg>Profil
+        </a>
+      </nav>
+      <div style="margin-top: auto; padding: 16px 12px 0 12px; border-top: 1px solid #C7D2DE;">
+        <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Paroisse suivie</p>
+        <p style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 22px; line-height: 1.1;">Saint-Dominique</p>
+        <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #BAC6D3;">Point E · Archidiocèse de Dakar</p>
+        <p style="margin: 12px 0 0 0; font-size: 14px; line-height: 1.5; color: #BAC6D3;">Prochaine messe : <strong style="font-weight: 600; color: #E8EEF5;">ce soir, 18 h 30</strong></p>
+        <a href="Sombre-PUB-Connexion.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 8px; height: 40px; margin-top: 16px; font-size: 14px; color: #92A2B4;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"></path></svg>Se déconnecter
+        </a>
+      </div>
+    </aside>
+
+    <div style="display: flex; flex-direction: column; min-width: 0;">
+      <main style="flex: 1; min-height: 0; padding: 32px 64px 48px 56px; box-sizing: border-box;">
+
+        <a href="Sombre-FID-Accueil.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; margin-bottom: 24px; font-size: 14px; font-weight: 500; color: #7CC3EE;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12h-15M10.5 6l-6 6 6 6"></path></svg>Retour · Accueil
+        </a>
+
+        <!-- EN-TÊTE + NAVIGATION JOURS -->
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;">
+          <div>
+            <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;"><span style="color: #7CC3EE;">01</span> — La Parole · jeudi 24 septembre 2026</p>
+            <h1 style="margin: 12px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 50px; line-height: 1; letter-spacing: -0.015em;">Les lectures du <em style="font-style: italic; color: #7CC3EE;">jour</em></h1>
+          </div>
+          <nav aria-label="Changer de jour" style="display: flex; align-items: center; gap: 8px;">
+            <a href="#" class="jb-icon" aria-label="Jour précédent" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #E8EEF5; border: 1px solid #243142; border-radius: 2px; box-sizing: border-box;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></a>
+            <a href="#" class="jb-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; color: #BAC6D3;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; font-variant-numeric: tabular-nums;">Mar.</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1;">22</span></a>
+            <a href="#" class="jb-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; color: #BAC6D3;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; font-variant-numeric: tabular-nums;">Mer.</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1;">23</span></a>
+            <a href="Sombre-FID-Parole.dc.html" aria-current="date" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; border-bottom: 2px solid #7CC3EE; box-sizing: border-box; color: #E8EEF5;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7CC3EE; font-variant-numeric: tabular-nums;">Jeu.</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1;">24</span></a>
+            <a href="#" class="jb-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; color: #BAC6D3;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; font-variant-numeric: tabular-nums;">Ven.</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1;">25</span></a>
+            <a href="#" class="jb-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; color: #BAC6D3;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; font-variant-numeric: tabular-nums;">Sam.</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1;">26</span></a>
+            <a href="#" class="jb-nav" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; color: #BAC6D3;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; font-variant-numeric: tabular-nums;">Dim.</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1;">27</span></a>
+            <a href="#" class="jb-icon" aria-label="Jour suivant" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #E8EEF5; border: 1px solid #243142; border-radius: 2px; box-sizing: border-box;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg></a>
+          </nav>
+        </div>
+
+        <!-- BARRE LITURGIQUE + TAILLE DU TEXTE -->
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 24px; padding: 8px 0; border-top: 1px solid #C7D2DE; border-bottom: 1px solid #243142;">
+          <p style="display: flex; align-items: center; gap: 12px; margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #E8EEF5; font-variant-numeric: tabular-nums;">
+            <span title="Couleur liturgique : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #5FAA74; border-radius: 999px; color: #86C596; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4F9B63;"></span>Vert</span>
+            <span>Férie · 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire · année paire</span>
+            <span style="color: #92A2B4;">Segond 1910</span>
+          </p>
+          <div role="group" aria-label="Taille du texte" style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Taille du texte</span>
+            <button type="button" class="jb-chip" aria-pressed="false" aria-label="Texte normal" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: transparent; color: #E8EEF5; border: 1px solid #243142; border-radius: 2px; font-family: 'Source Serif 4', Georgia, serif; font-size: 16px; cursor: pointer;">A</button>
+            <button type="button" aria-pressed="true" aria-label="Texte grand" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #3A4757; color: #F5F9FC; border: 1px solid #C7D2DE; border-radius: 2px; font-family: 'Source Serif 4', Georgia, serif; font-size: 21px; cursor: pointer;">A</button>
+            <button type="button" class="jb-chip" aria-pressed="false" aria-label="Texte très grand" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: transparent; color: #E8EEF5; border: 1px solid #243142; border-radius: 2px; font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; cursor: pointer;">A</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; margin-top: 40px;">
+
+          <!-- LECTURES -->
+          <article aria-label="Lectures de la messe du jeudi 24 septembre 2026" style="grid-column: span 8; display: flex; flex-direction: column; gap: 32px;">
+
+            <section id="premiere-lecture" aria-labelledby="lec-1">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+                <span><span style="color: #7CC3EE;">01</span> — Première lecture</span><span>Ec 1, 2-11</span>
+              </div>
+              <h2 id="lec-1" style="margin: 16px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 29px; line-height: 1.1; letter-spacing: -0.01em;">Livre de l'Ecclésiaste</h2>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 24px; max-width: 68ch;">
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">2</span><span>Vanité des vanités, dit l'Ecclésiaste, vanité des vanités, tout est vanité.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: #92A2B4;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.75; font-variant-numeric: tabular-nums;">3</span><span aria-label="Verset 3 non reproduit">…</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">4</span><span>Une génération s'en va, une autre vient, et la terre subsiste toujours.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: #92A2B4;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.75; font-variant-numeric: tabular-nums;">5-8</span><span aria-label="Versets 5 à 8 non reproduits">…</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">9</span><span>Ce qui a été, c'est ce qui sera, et ce qui s'est fait, c'est ce qui se fera, il n'y a rien de nouveau sous le soleil.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: #92A2B4;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.75; font-variant-numeric: tabular-nums;">10-11</span><span aria-label="Versets 10 et 11 non reproduits">…</span></p>
+              </div>
+              <p style="margin: 16px 0 0 40px; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 20px; line-height: 1.3; color: #BAC6D3;">— Parole du Seigneur.</p>
+            </section>
+
+            <section id="psaume" aria-labelledby="lec-2">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+                <span><span style="color: #7CC3EE;">02</span> — Psaume</span><span>Ps 89 (90), 3-6, 12-14.17</span>
+              </div>
+              <h2 id="lec-2" style="margin: 16px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 29px; line-height: 1.1; letter-spacing: -0.01em;">Psaume 89 (90)</h2>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 24px; max-width: 68ch;">
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: #92A2B4;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.75; font-variant-numeric: tabular-nums;">3-6</span><span aria-label="Versets 3 à 6 non reproduits">…</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">12</span><span>Enseigne-nous à bien compter nos jours, afin que nous appliquions notre cœur à la sagesse.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: #92A2B4;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.75; font-variant-numeric: tabular-nums;">13</span><span aria-label="Verset 13 non reproduit">…</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">14</span><span>Rassasie-nous chaque matin de ta bonté, et nous serons toute notre vie dans la joie et l'allégresse.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: #92A2B4;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.75; font-variant-numeric: tabular-nums;">17</span><span aria-label="Verset 17 non reproduit">…</span></p>
+              </div>
+            </section>
+
+            <section id="evangile" aria-labelledby="lec-3">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+                <span><span style="color: #7CC3EE;">03</span> — Évangile</span><span>Lc 9, 7-9</span>
+              </div>
+              <h2 id="lec-3" style="margin: 16px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 29px; line-height: 1.1; letter-spacing: -0.01em;">Évangile de Jésus-Christ selon saint Luc</h2>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 24px; max-width: 68ch;">
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">7</span><span>Hérode le tétrarque entendit parler de tout ce qui se passait, et il ne savait que penser.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">8</span><span>Car les uns disaient que Jean était ressuscité des morts ; d'autres, qu'Élie était apparu ; et d'autres, qu'un des anciens prophètes était ressuscité.</span></p>
+                <p style="display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 8px; margin: 0; font-size: 18px; line-height: 1.7;"><span style="padding-top: 6px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">9</span><span>Mais Hérode dit : J'ai fait décapiter Jean ; qui donc est celui-ci, dont j'entends dire de telles choses ? Et il cherchait à le voir.</span></p>
+              </div>
+              <p style="margin: 16px 0 0 40px; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 20px; line-height: 1.3; color: #BAC6D3;">— Acclamons la Parole de Dieu.</p>
+            </section>
+          </article>
+
+          <!-- COLONNE D'APPUI -->
+          <aside aria-label="Autour des lectures" style="grid-column: span 4; display: flex; flex-direction: column; gap: 40px;">
+
+            <nav aria-labelledby="som-titre">
+              <div style="padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;"><span id="som-titre">Dans ces lectures</span></div>
+              <ol style="list-style: none; margin: 8px 0 0 0; padding: 0;">
+                <li><a href="#premiere-lecture" class="jb-row" style="display: flex; align-items: center; justify-content: space-between; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 15px;"><span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #7CC3EE; font-variant-numeric: tabular-nums;">01</span>&nbsp;&nbsp;Première lecture</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #92A2B4; font-variant-numeric: tabular-nums;">Ec 1, 2-11</span></a></li>
+                <li><a href="#psaume" class="jb-row" style="display: flex; align-items: center; justify-content: space-between; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 15px;"><span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #7CC3EE; font-variant-numeric: tabular-nums;">02</span>&nbsp;&nbsp;Psaume</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #92A2B4; font-variant-numeric: tabular-nums;">Ps 89 (90)</span></a></li>
+                <li><a href="#evangile" class="jb-row" style="display: flex; align-items: center; justify-content: space-between; height: 48px; border-bottom: 1px solid #243142; color: #E8EEF5; font-size: 15px;"><span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #7CC3EE; font-variant-numeric: tabular-nums;">03</span>&nbsp;&nbsp;Évangile</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #92A2B4; font-variant-numeric: tabular-nums;">Lc 9, 7-9</span></a></li>
+              </ol>
+              <p style="margin: 12px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 1.5; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Traduction : Bible Segond 1910 (domaine public). Versets marqués «&nbsp;…&nbsp;» : à lire en entier dans la <a href="Sombre-FID-Bible.dc.html" style="color: #7CC3EE; border-bottom: 1px solid #26618F;">Bible</a>.</p>
+            </nav>
+
+            <section aria-labelledby="medit-titre" style="padding: 24px; background: #111A24; border: 1px solid #243142; border-radius: 2px;">
+              <p id="medit-titre" style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Méditation du jour</p>
+              <p style="margin: 16px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1.18; letter-spacing: -0.005em;">Compter nos jours, chercher le Christ.</p>
+              <p style="margin: 12px 0 0 0; font-size: 16px; line-height: 1.6; color: #E8EEF5;">L'Ecclésiaste ne méprise pas le monde : il nous apprend à ne pas lui demander ce qu'il ne peut pas donner. Hérode, lui, veut voir Jésus par curiosité, sans se laisser déranger. Demandons aujourd'hui la grâce de chercher le Christ pour le suivre, et non pour le voir passer.</p>
+              <div style="display: flex; align-items: center; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #243142;">
+                <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid #1B4466; background: #13304A; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #7CC3EE; font-variant-numeric: tabular-nums;">AN</span>
+                <div>
+                  <p style="margin: 0; font-size: 15px; font-weight: 600;">Abbé Augustin Ndiaye</p>
+                  <p style="margin: 2px 0 0 0; font-size: 14px; color: #BAC6D3;">Curé de Saint-Dominique</p>
+                </div>
+              </div>
+            </section>
+
+            <section aria-labelledby="prier-titre">
+              <div style="padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;"><span id="prier-titre">Prolonger la prière</span></div>
+              <a href="Sombre-FID-Bible.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid #243142; color: #E8EEF5;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M5.5 3.5h13v17h-13A1.5 1.5 0 0 1 4 19V5a1.5 1.5 0 0 1 1.5-1.5z"></path><path d="M4 17.5h14.5M11.5 7v6.5M9 9.5h5"></path></svg>
+                <span style="flex: 1;"><span style="display: block; font-size: 15px; font-weight: 600;">Ouvrir l'Ecclésiaste, chapitre 1</span><span style="display: block; margin-top: 2px; font-size: 14px; color: #BAC6D3;">Dans la Bible, avec vos signets</span></span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+              </a>
+              <a href="Sombre-FID-Chapelet.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid #243142; color: #E8EEF5;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><circle cx="12" cy="8.5" r="5.5" stroke-dasharray="0.1 2.6" stroke-width="2.2"></circle><path d="M12 14v7.5M9.5 17.5h5"></path></svg>
+                <span style="flex: 1;"><span style="display: block; font-size: 15px; font-weight: 600;">Chapelet du jeudi</span><span style="display: block; margin-top: 2px; font-size: 14px; color: #BAC6D3;">Mystères lumineux, repris au 2<sup style="font-size: 0.62em;">e</sup> mystère</span></span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+              </a>
+            </section>
+
+            <section aria-labelledby="partage-titre">
+              <div style="padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;"><span id="partage-titre">Partager les lectures</span></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px;">
+                <button type="button" class="jb-btn-s" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px; background: transparent; color: #E8EEF5; border: 1px solid #C7D2DE; border-radius: 2px; font-size: 15px; font-weight: 500; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 3.5 10 14M20.5 3.5 14 20.5l-4-6.5-6.5-4z"></path></svg>Envoyer sur WhatsApp</button>
+                <button type="button" class="jb-icon" aria-label="Copier le lien des lectures" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: transparent; color: #E8EEF5; border: 1px solid #243142; border-radius: 2px; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 11.5-8 8a5 5 0 0 1-7-7l8.5-8.5a3.5 3.5 0 0 1 5 5L10 17.5a2 2 0 0 1-3-3l7.5-7.5"></path></svg></button>
+              </div>
+              <p style="margin: 12px 0 0 0; font-size: 14px; line-height: 1.5; color: #92A2B4;">Dimanche 27 septembre : 26<sup style="font-size: 0.62em;">e</sup> dimanche du temps ordinaire (A). Les lectures seront en ligne samedi.</p>
+            </section>
+          </aside>
+        </div>
+
+      </main>
+
+      <footer style="display: flex; align-items: center; justify-content: space-between; height: 56px; flex: none; padding: 0 64px 0 56px; border-top: 1px solid #243142; box-sizing: border-box; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">
+        <span>Jàngu Bi · Numerisen · 2026</span>
+        <span style="display: flex; gap: 24px;"><a href="#" class="jb-nav" style="color: #92A2B4;">Confidentialité</a><a href="#" class="jb-nav" style="color: #92A2B4;">Aide</a><a href="#" class="jb-nav" style="color: #92A2B4;">Signaler un problème</a></span>
+      </footer>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

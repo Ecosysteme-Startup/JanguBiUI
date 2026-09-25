@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Inscription · compte (sombre)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085E90 !important;border-color:#7CC3EE !important;color:#F5F9FC !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#3A4757 !important;color:#F5F9FC !important}
+.jb-btn-t:hover{color:#A8D8F5 !important;border-color:#7CC3EE !important}
+.jb-btn-d:hover{background:#B8392F !important;color:#F5F9FC !important;border-color:#E0776C !important}
+.jb-nav:hover{color:#7CC3EE !important}
+.jb-side:hover{background:#18232F !important;color:#E8EEF5 !important}
+.jb-row:hover{background:#18232F}
+.jb-chip:hover{border-color:#C7D2DE !important}
+.jb-icon:hover{background:#18232F !important}
+.jb-card:hover{border-color:#C7D2DE !important}
+.jb-slot:hover{border-color:#7CC3EE !important;color:#7CC3EE !important}
+.jb-foot:hover{color:#F5F9FC !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; overflow: hidden; position: relative; display: flex; flex-direction: column; background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif;">
+
+  <!-- BANDEAU LITURGIQUE -->
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 40px; flex: none; padding: 0 64px; box-sizing: border-box; border-bottom: 3px double #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #E8EEF5; font-variant-numeric: tabular-nums;">
+    <span style="display: flex; align-items: center; gap: 16px;">
+      <span>Jeudi 24 septembre 2026</span>
+      <span style="color: #92A2B4;">Jour 267</span>
+    </span>
+    <span style="display: flex; align-items: center; gap: 12px;">
+      <span>Jeudi de la 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire</span>
+      <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #5FAA74; border-radius: 999px; color: #86C596; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4F9B63;"></span>Vert</span>
+    </span>
+    <a href="Sombre-PUB-Parole-du-jour.dc.html" class="jb-btn-t" style="color: #7CC3EE; border-bottom: 1px solid #26618F; padding-bottom: 1px;">Ec 1, 2-11 · Ps 89 (90) · Lc 9, 7-9</a>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: 480px minmax(0, 1fr);">
+
+    <!-- PANNEAU ÉDITORIAL -->
+    <aside style="position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 48px 56px; background: #061826; color: #D9EBF7; box-sizing: border-box;">
+      <svg viewBox="0 0 480 860" width="480" height="860" aria-hidden="true" style="position: absolute; top: 0; left: 0; display: block;">
+        <path d="M90 860V470a150 150 0 0 1 300 0v390" fill="none" stroke="#082438" stroke-width="1.5"></path>
+        <path d="M240 320v540" stroke="#082438" stroke-width="1"></path>
+      </svg>
+      <a href="Sombre-Main.dc.html" aria-label="Jàngu Bi, page d'accueil" style="position: relative; display: flex; align-items: baseline; gap: 12px; color: #F5F9FC;">
+        <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 36px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+        <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7FC0E8; font-variant-numeric: tabular-nums;">La Leçon</span>
+      </a>
+      <div style="position: relative;">
+        <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7FC0E8; font-variant-numeric: tabular-nums;">Évangile du jour</p>
+        <p style="margin: 20px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 40px; line-height: 1.1; color: #F5F9FC;">«&nbsp;Et il cherchait à le voir.&nbsp;»</p>
+        <p style="margin: 20px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 13px; letter-spacing: 0.01em; color: #B3D8F0; font-variant-numeric: tabular-nums;">Lc 9, 9 · traduction Louis Segond</p>
+        <ul style="list-style: none; margin: 48px 0 0 0; padding: 0; font-size: 15px; line-height: 1.5; color: #D9EBF7;">
+          <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #1B4466;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#26618F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Gratuit, sans publicité</li>
+          <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #1B4466;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#26618F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Vos données ne sont jamais publiées</li>
+          <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #1B4466; border-bottom: 1px solid #1B4466;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#26618F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Trois minutes pour s'inscrire</li>
+        </ul>
+      </div>
+      <p style="position: relative; margin: 0; font-size: 15px; color: #B3D8F0;">Déjà inscrit&nbsp;? <a href="Sombre-PUB-Connexion.dc.html" class="jb-foot" style="color: #F5F9FC; border-bottom: 1px solid #26618F;">Se connecter</a></p>
+    </aside>
+
+    <!-- FORMULAIRE -->
+    <main style="padding: 40px 64px 32px 64px; box-sizing: border-box;">
+      <div style="width: 640px; margin: 0 auto;">
+        <ol aria-label="Étapes de l'inscription" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+          <li aria-current="step" style="padding-top: 12px; border-top: 2px solid #C7D2DE;">
+            <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #E8EEF5; font-variant-numeric: tabular-nums;">01 · En cours</span>
+            <span style="display: block; margin-top: 4px; font-size: 15px; font-weight: 600; color: #E8EEF5;">Votre compte</span>
+          </li>
+          <li style="padding-top: 12px; border-top: 2px solid #243142;">
+            <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">02 · À venir</span>
+            <span style="display: block; margin-top: 4px; font-size: 15px; color: #92A2B4;">Votre paroisse</span>
+          </li>
+          <li style="padding-top: 12px; border-top: 2px solid #243142;">
+            <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">03 · À venir</span>
+            <span style="display: block; margin-top: 4px; font-size: 15px; color: #92A2B4;">Consentements</span>
+          </li>
+        </ol>
+
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-top: 40px;">
+          <div>
+            <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7CC3EE; font-variant-numeric: tabular-nums;">Étape 1 sur 3</p>
+            <h1 style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1.02; letter-spacing: -0.01em;">Créer mon compte</h1>
+          </div>
+          <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;"><span style="color: #F2958B;">*</span> champ obligatoire</p>
+        </div>
+        <p style="margin: 8px 0 0 0; font-size: 15px; line-height: 1.5; color: #BAC6D3;">Votre paroisse vous reconnaîtra grâce à ces informations. Elles ne sont jamais affichées publiquement.</p>
+
+        <form aria-label="Informations du compte" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; margin-top: 24px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label for="i-prenom" style="font-size: 14px; font-weight: 600;">Prénom <span style="color: #F2958B;" aria-hidden="true">*</span></label>
+            <input id="i-prenom" type="text" value="Marie-Thérèse" autocomplete="given-name" style="height: 48px; padding: 0 14px; background: #111A24; border: 1px solid #5F7085; border-radius: 2px; font-size: 16px; color: #E8EEF5; box-sizing: border-box;">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label for="i-nom" style="font-size: 14px; font-weight: 600;">Nom <span style="color: #F2958B;" aria-hidden="true">*</span></label>
+            <input id="i-nom" type="text" value="Diouf" autocomplete="family-name" style="height: 48px; padding: 0 14px; background: #111A24; border: 1px solid #5F7085; border-radius: 2px; font-size: 16px; color: #E8EEF5; box-sizing: border-box;">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label for="i-mail" style="font-size: 14px; font-weight: 600;">Adresse e-mail <span style="color: #F2958B;" aria-hidden="true">*</span></label>
+            <input id="i-mail" type="email" value="marie-therese.diouf@gmail.com" autocomplete="email" aria-describedby="i-mail-ok" style="height: 48px; padding: 0 14px; background: #111A24; border: 1px solid #5FB8A2; border-radius: 2px; font-size: 16px; color: #E8EEF5; box-sizing: border-box;">
+            <p id="i-mail-ok" style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; color: #7CCBB6;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Adresse valide, un lien de confirmation suivra.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label for="i-tel" style="font-size: 14px; font-weight: 600;">Téléphone mobile <span style="color: #F2958B;" aria-hidden="true">*</span></label>
+            <div style="display: flex;">
+              <span style="display: inline-flex; align-items: center; height: 48px; padding: 0 12px; background: #18232F; border: 1px solid #5F7085; border-right: 0; border-radius: 2px 0 0 2px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #BAC6D3; box-sizing: border-box; font-variant-numeric: tabular-nums;">+221</span>
+              <input id="i-tel" type="tel" value="77 412 36 58" autocomplete="tel-national" aria-describedby="i-tel-aide" style="flex: 1; min-width: 0; height: 48px; padding: 0 14px; background: #111A24; border: 1px solid #5F7085; border-radius: 0 2px 2px 0; font-size: 16px; color: #E8EEF5; box-sizing: border-box;">
+            </div>
+            <p id="i-tel-aide" style="margin: 0; font-size: 14px; color: #92A2B4;">Pour les rappels de rendez-vous, par SMS.</p>
+          </div>
+          <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px;">
+            <label for="i-mdp" style="font-size: 14px; font-weight: 600;">Mot de passe <span style="color: #F2958B;" aria-hidden="true">*</span></label>
+            <div style="position: relative;">
+              <input id="i-mdp" type="password" value="Popenguine2026" autocomplete="new-password" aria-describedby="i-mdp-regles" style="width: 100%; height: 48px; padding: 0 52px 0 14px; background: #111A24; border: 1px solid #5F7085; border-radius: 2px; font-size: 16px; color: #E8EEF5; box-sizing: border-box;">
+              <button type="button" class="jb-icon" aria-label="Afficher le mot de passe" style="position: absolute; top: 4px; right: 4px; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: transparent; color: #BAC6D3; border: 0; border-radius: 2px; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+              <div aria-hidden="true" style="flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px;">
+                <span style="height: 4px; background: #0A6BA3;"></span><span style="height: 4px; background: #0A6BA3;"></span><span style="height: 4px; background: #0A6BA3;"></span><span style="height: 4px; background: #243142;"></span>
+              </div>
+              <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7CC3EE; font-variant-numeric: tabular-nums;">Robuste</span>
+            </div>
+            <ul id="i-mdp-regles" aria-label="Règles du mot de passe" style="list-style: none; margin: 4px 0 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 24px; font-size: 14px;">
+              <li style="display: flex; align-items: center; gap: 8px; color: #E8EEF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7CCBB6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Au moins 10 caractères</li>
+              <li style="display: flex; align-items: center; gap: 8px; color: #E8EEF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7CCBB6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Une majuscule et une minuscule</li>
+              <li style="display: flex; align-items: center; gap: 8px; color: #E8EEF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7CCBB6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Au moins un chiffre</li>
+              <li style="display: flex; align-items: center; gap: 8px; color: #92A2B4;"><span aria-hidden="true" style="display: inline-block; width: 10px; height: 10px; margin: 0 3px; border-radius: 50%; border: 1.5px solid #5F7085; box-sizing: border-box;"></span>Recommandé : un signe (! ? @ #)</li>
+            </ul>
+          </div>
+          <div style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 20px; border-top: 1px solid #243142;">
+            <a href="Sombre-Main.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; color: #7CC3EE; font-size: 15px; font-weight: 500;"><span style="border-bottom: 1px solid #7CC3EE; padding-bottom: 2px;">Annuler</span></a>
+            <a href="Sombre-PUB-Inscription-Paroisse.dc.html" class="jb-btn-p" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 28px; background: #0A6BA3; color: #F5F9FC; border: 1px solid #7CC3EE; border-radius: 2px; font-size: 16px; font-weight: 500; box-sizing: border-box;">Continuer : ma paroisse<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"></path></svg></a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

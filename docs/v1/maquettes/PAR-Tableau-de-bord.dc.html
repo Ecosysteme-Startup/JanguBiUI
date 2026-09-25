@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Tableau de bord paroisse</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085887 !important;border-color:#085887 !important;color:#F7FAFD !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#0E1A2B !important;color:#FFFFFF !important}
+.jb-btn-t:hover{color:#085887 !important;border-color:#085887 !important}
+.jb-btn-d:hover{background:#A12A22 !important;color:#F7FAFD !important;border-color:#A12A22 !important}
+.jb-nav:hover{color:#0A6BA3 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-row:hover{background:#EDF3F9}
+.jb-chip:hover{border-color:#0E1A2B !important}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-card:hover{border-color:#0E1A2B !important}
+.jb-slot:hover{border-color:#0A6BA3 !important;color:#0A6BA3 !important}
+.jb-foot:hover{color:#F7FAFD !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1200px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 272px minmax(0, 1fr); background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif;">
+
+  <!-- SIDEBAR -->
+  <aside style="display: flex; flex-direction: column; padding: 24px 16px 16px 16px; background: #F7FAFD; border-right: 1px solid #0E1A2B; box-sizing: border-box; min-height: 0;">
+    <a href="PAR-Tableau-de-bord.dc.html" aria-label="Jàngu Bi, espace paroisse" style="display: block; padding: 0 12px; color: #0E1A2B;">
+      <span style="display: block; font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+      <span style="display: block; margin-top: 8px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Espace paroisse</span>
+    </a>
+    <button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Changer de contexte : Paroisse Saint-Dominique" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; margin-top: 24px; padding: 12px; background: #FFFFFF; border: 1px solid #8391A4; border-radius: 2px; text-align: left; color: #0E1A2B; cursor: pointer; box-sizing: border-box;">
+      <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+        <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Paroisse</span>
+        <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 21px; line-height: 1.05;">Saint-Dominique</span>
+        <span style="font-size: 13px; color: #3A4859;">Archidiocèse de Dakar</span>
+      </span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m6 9 6 6 6-6"></path></svg>
+    </button>
+    <nav aria-label="Espace paroisse" style="display: flex; flex-direction: column; margin-top: 8px;">
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Pilotage</p>
+      <a href="PAR-Tableau-de-bord.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; background: #EDF3F9; color: #0A6BA3; font-size: 15px; font-weight: 600;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z"></path></svg>Tableau de bord
+      </a>
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Vie paroissiale</p>
+      <a href="PAR-Annonces.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h13V19a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 19z"></path><path d="M17 9h3v10a1.5 1.5 0 0 1-3 0M7.5 9h6M7.5 12.5h6M7.5 16h4"></path></svg>Annonces
+      </a>
+      <a href="PAR-Horaires.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Horaires et lieux de culte
+      </a>
+      <a href="PAR-Agenda.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="1"></rect><path d="M3.5 9.5h17M8 3v4M16 3v4"></path></svg>Agenda
+      </a>
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Sacrements et accueil</p>
+      <a href="PAR-Demandes.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7M9 18.5h4"></path></svg><span style="flex: 1;">Demandes d'actes</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums;"><span style="color: #A12A22;">2</span> · 17</span>
+      </a>
+      <a href="PAR-Messagerie.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11h-9l-4.5 3.5V16H4z"></path></svg><span style="flex: 1;">Messagerie</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums;">9</span>
+      </a>
+      <a href="PAR-Confessions.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21M3.5 21h17"></path><path d="M9.5 7.5h5v4h-5zM12 7.5v4M15 15v1.5"></path></svg><span style="flex: 1;">Confessions</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums;">12</span>
+      </a>
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Administration</p>
+      <a href="PAR-Equipe.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.25"></circle><path d="M3 19.5c.8-3.2 3.2-4.8 6-4.8s5.2 1.6 6 4.8M15.5 5.5a3.25 3.25 0 0 1 0 6.3M17.5 14.9c1.8.6 3 2.1 3.5 4.6"></path></svg>Équipe et nominations
+      </a>
+      <a href="PAR-Parametres.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"></path><circle cx="15" cy="7" r="2"></circle><circle cx="9" cy="17" r="2"></circle></svg>Paramètres
+      </a>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 12px; margin-top: auto; padding: 16px 0 0 12px; border-top: 1px solid #DDE5EE;">
+      <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;">GF</span>
+      <div style="flex: 1; min-width: 0;">
+        <p style="margin: 0; font-size: 14px; font-weight: 600;">Mme Germaine Faye</p>
+        <p style="margin: 2px 0 0 0; font-size: 13px; color: #3A4859;">Secrétaire paroissiale</p>
+        <p style="display: flex; align-items: center; gap: 4px; margin: 4px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #1F6B5C; font-variant-numeric: tabular-nums;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 19 6v5.5c0 4.5-3 7.8-7 9.5-4-1.7-7-5-7-9.5V6z"></path><path d="m9 12 2 2 4-4"></path></svg>MFA active</p>
+      </div>
+      <a href="PUB-Connexion.dc.html" class="jb-icon" aria-label="Se déconnecter" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; color: #3A4859; border-radius: 2px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"></path></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- COLONNE PRINCIPALE -->
+  <div style="display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; flex: none; padding: 0 40px; border-bottom: 1px solid #DDE5EE; box-sizing: border-box;">
+      <nav aria-label="Fil d'Ariane" style="font-size: 14px; color: #586677;">
+        <a href="PAR-Tableau-de-bord.dc.html" class="jb-nav" style="color: #586677;">Saint-Dominique</a>
+        <span aria-hidden="true" style="margin: 0 8px;">/</span>
+        <span aria-current="page" style="color: #0E1A2B; font-weight: 500;">Tableau de bord</span>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <label for="bo-recherche" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Rechercher un fidèle, une référence, une annonce</label>
+        <div style="display: flex; align-items: center; gap: 8px; width: 320px; height: 40px; padding: 0 12px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; color: #586677; box-sizing: border-box;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5.5 5.5"></path></svg>
+          <input id="bo-recherche" type="search" placeholder="Fidèle, JB-2026-…, annonce" style="flex: 1; min-width: 0; height: 36px; border: 0; background: transparent; font-size: 14px; color: #0E1A2B; outline: none;">
+          <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #586677; font-variant-numeric: tabular-nums;">Ctrl K</span>
+        </div>
+        <button type="button" class="jb-icon" aria-label="Notifications, 4 nouvelles" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: transparent; color: #0E1A2B; border: 1px solid #DDE5EE; border-radius: 2px; cursor: pointer;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+          <span style="position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; background: #0A6BA3; color: #F7FAFD; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 18px; text-align: center; box-sizing: border-box; font-variant-numeric: tabular-nums;">4</span>
+        </button>
+        <a href="FID-Accueil.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; height: 40px; padding-left: 8px; font-size: 14px; font-weight: 500; color: #0A6BA3;">Voir l'espace fidèle</a>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 36px; flex: none; padding: 0 40px; box-sizing: border-box; border-bottom: 3px double #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0E1A2B; font-variant-numeric: tabular-nums;">
+      <span>Jeudi 24 septembre 2026</span>
+      <span style="display: flex; align-items: center; gap: 12px;">
+        <span>Jeudi de la 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire</span>
+        <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #2E6B3F; border-radius: 999px; color: #2E6B3F; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2E6B3F;"></span>Vert</span>
+      </span>
+      <span style="color: #3A4859;">Dimanche 27 : 26<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> dimanche (A)</span>
+    </div>
+
+    <main style="flex: 1; min-height: 0; padding: 32px 40px 40px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px;">
+
+      <!-- EN-TÊTE -->
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+        <div>
+          <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span style="color: #0A6BA3;">Sem. 39</span> — Du lundi 21 au dimanche 27 septembre</p>
+          <h1 style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1; letter-spacing: -0.015em;">Cette semaine à <em style="font-style: italic; color: #0A6BA3;">Saint-Dominique</em></h1>
+          <p style="margin: 8px 0 0 0; font-size: 14px; line-height: 1.5; color: #586677;">Vous agissez comme secrétaire paroissiale, nommée le 1<sup style="font-size: 0.62em;">er</sup> septembre 2025 · annonces, horaires, agenda, demandes d'actes et créneaux de confession</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; flex: none;">
+          <a href="PAR-Demandes.dc.html" class="jb-btn-s" style="display: inline-flex; align-items: center; height: 44px; padding: 0 20px; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 15px; font-weight: 500; box-sizing: border-box;">File des demandes</a>
+          <a href="PAR-Annonce-Editeur.dc.html" class="jb-btn-p" style="display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 20px; background: #0A6BA3; color: #F7FAFD; border: 1px solid #0A6BA3; border-radius: 2px; font-size: 15px; font-weight: 500; box-sizing: border-box;">Préparer l'annonce du dimanche<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"></path></svg></a>
+        </div>
+      </div>
+
+      <!-- RANGÉE 1 : à traiter + confessions -->
+      <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px;">
+
+        <section aria-labelledby="tb-traiter" style="grid-column: span 7;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+            <span id="tb-traiter"><span style="color: #0A6BA3;">01</span> — À traiter aujourd'hui</span>
+            <span style="color: #586677;">4 points · mis à jour à 9 h 52</span>
+          </div>
+          <ol style="list-style: none; margin: 8px 0 0 0; padding: 0;">
+            <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid #DDE5EE;">
+              <span style="padding-top: 3px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #A12A22; font-variant-numeric: tabular-nums;">01</span>
+              <div>
+                <p style="display: flex; align-items: baseline; gap: 12px; margin: 0; font-size: 16px; font-weight: 600;">2 demandes d'actes en retard <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.01em; color: #A12A22; font-variant-numeric: tabular-nums;">Délai indicatif dépassé</span></p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0E1A2B; font-variant-numeric: tabular-nums;">JB-2026-00402</span> · Pierre Ndour · extrait d'acte de baptême, pour mariage · <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #A12A22; font-variant-numeric: tabular-nums;">9 j</span></p>
+                <p style="margin: 2px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0E1A2B; font-variant-numeric: tabular-nums;">JB-2026-00405</span> · Cécile Coly · attestation de confirmation · <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #A12A22; font-variant-numeric: tabular-nums;">8 j</span></p>
+              </div>
+              <a href="PAR-Demande-Detail.dc.html" class="jb-btn-s" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 14px; font-weight: 500; box-sizing: border-box;">Traiter</a>
+            </li>
+            <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid #DDE5EE;">
+              <span style="padding-top: 3px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">02</span>
+              <div>
+                <p style="margin: 0; font-size: 16px; font-weight: 600;">Complément reçu de Jean-Baptiste Sène</p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;"><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0E1A2B; font-variant-numeric: tabular-nums;">JB-2026-00415</span> · attestation de confirmation · date et lieu de la confirmation ajoutés ce matin à 8 h 12</p>
+              </div>
+              <a href="PAR-Demande-Detail.dc.html" class="jb-btn-s" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 14px; font-weight: 500; box-sizing: border-box;">Reprendre</a>
+            </li>
+            <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid #DDE5EE;">
+              <span style="padding-top: 3px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">03</span>
+              <div>
+                <p style="margin: 0; font-size: 16px; font-weight: 600;">3 messages non lus pour les prêtres</p>
+                <p style="display: flex; align-items: center; gap: 8px; margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><rect x="5" y="10.5" width="14" height="10" rx="1"></rect><path d="M8 10.5v-3a4 4 0 0 1 8 0v3M12 14.5v2.5"></path></svg>Abbé Augustin Ndiaye 2 · Père Emmanuel Tine 1 · contenu chiffré, lisible par les seuls prêtres</p>
+              </div>
+              <button type="button" class="jb-btn-t" style="display: inline-flex; align-items: center; height: 36px; padding: 0; background: transparent; border: 0; color: #0A6BA3; font-size: 14px; font-weight: 500; cursor: pointer;"><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Prévenir les prêtres</span></button>
+            </li>
+            <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid #DDE5EE;">
+              <span style="padding-top: 3px; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">04</span>
+              <div>
+                <p style="display: flex; align-items: baseline; gap: 12px; margin: 0; font-size: 16px; font-weight: 600;">Annonce du dimanche 27 à publier <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.01em; color: #8A5A0B; font-variant-numeric: tabular-nums;">Avant samedi 12 h</span></p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">Brouillon de l'Abbé Augustin Ndiaye · « Quête impérée pour le Grand Séminaire de Brin »</p>
+              </div>
+              <a href="PAR-Annonce-Editeur.dc.html" class="jb-btn-s" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 14px; font-weight: 500; box-sizing: border-box;">Relire</a>
+            </li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="tb-conf" style="grid-column: span 5;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+            <span id="tb-conf"><span style="color: #0A6BA3;">02</span> — Confessions · samedi 26.09</span>
+            <a href="PAR-Confessions.dc.html" style="color: #0A6BA3;">Gérer</a>
+          </div>
+          <p style="display: flex; align-items: baseline; gap: 12px; margin: 16px 0 0 0;"><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 58px; line-height: 1; letter-spacing: -0.02em;">12</span><span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 25px; line-height: 1; color: #586677;">/ 18 créneaux pris</span></p>
+          <p style="margin: 8px 0 0 0; font-size: 14px; color: #3A4859;">16 h-18 h · 3 prêtres · créneaux de 20 minutes · 6 encore libres</p>
+          <div role="img" aria-label="Occupation des créneaux : Abbé Augustin Ndiaye 5 sur 6, Père Emmanuel Tine 4 sur 6, Abbé Robert Sagna 3 sur 6" style="display: grid; grid-template-columns: 120px repeat(6, minmax(0, 1fr)); gap: 4px; align-items: center; margin-top: 16px;">
+            <span></span>
+            <span style="grid-column: span 3; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #586677; font-variant-numeric: tabular-nums;">16 h 00</span>
+            <span style="grid-column: span 3; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #586677; font-variant-numeric: tabular-nums;">17 h 00</span>
+            <span style="font-size: 13px; color: #0E1A2B;">Abbé A. Ndiaye</span>
+            <span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span>
+            <span style="font-size: 13px; color: #0E1A2B;">Père E. Tine</span>
+            <span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span>
+            <span style="font-size: 13px; color: #0E1A2B;">Abbé R. Sagna</span>
+            <span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span><span style="height: 24px; background: #0A6BA3; border-radius: 2px;"></span><span style="height: 24px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span>
+          </div>
+          <p style="display: flex; align-items: center; gap: 16px; margin: 12px 0 0 0; font-size: 13px; color: #3A4859;">
+            <span style="display: inline-flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 12px; height: 12px; background: #0A6BA3; border-radius: 2px;"></span>Pris · 12</span>
+            <span style="display: inline-flex; align-items: center; gap: 8px;"><span style="display: inline-block; width: 12px; height: 12px; border: 1px solid #8391A4; border-radius: 2px; box-sizing: border-box;"></span>Libre · 6</span>
+          </p>
+          <p style="display: flex; align-items: center; gap: 8px; margin: 12px 0 0 0; padding-top: 12px; border-top: 1px solid #DDE5EE; font-size: 14px; color: #3A4859;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>Église Saint-Dominique, confessionnal côté sacristie</p>
+          <p style="margin: 4px 0 0 24px; font-size: 13px; color: #586677;">Le nom des pénitents n'est visible que du prêtre concerné.</p>
+        </section>
+      </div>
+
+      <!-- RANGÉE 2 : indicateurs éditoriaux -->
+      <section aria-labelledby="tb-ind" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0 24px;">
+        <div style="grid-column: span 12; display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+          <span id="tb-ind"><span style="color: #0A6BA3;">03</span> — Indicateurs · septembre 2026</span>
+          <span style="color: #586677;">Données de la paroisse seule · pilote depuis le 15.09</span>
+        </div>
+        <dl style="grid-column: span 4; margin: 16px 0 0 0;">
+          <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Fidèles rattachés</dt>
+          <dd style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 72px; line-height: 1; letter-spacing: -0.02em;">214</dd>
+          <dd style="margin: 8px 0 0 0; max-width: 32ch; font-size: 15px; line-height: 1.5; color: #3A4859;">dont <strong style="font-weight: 600; color: #0E1A2B;">131 actifs</strong> cette semaine, soit 61 %. Huit nouveaux rattachements depuis dimanche.</dd>
+          <dd style="margin: 12px 0 0 0;">
+            <span role="img" aria-label="131 fidèles actifs sur 214" style="display: flex; height: 4px; background: #DDE5EE;"><span style="width: 61%; height: 4px; background: #0A6BA3;"></span></span>
+          </dd>
+        </dl>
+        <div style="grid-column: span 8; margin-top: 16px; border-left: 1px solid #DDE5EE; padding-left: 24px;">
+          <dl style="margin: 0;">
+            <div style="display: grid; grid-template-columns: 168px 104px minmax(0, 1fr) 112px; gap: 16px; align-items: center; height: 60px; border-bottom: 1px solid #DDE5EE;">
+              <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Lectures d'annonces</dt>
+              <dd style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 36px; line-height: 1; letter-spacing: -0.02em;">1 480</dd>
+              <dd style="margin: 0; font-size: 14px; line-height: 1.45; color: #3A4859;">3 annonces publiées cette semaine, la plus lue : catéchisme 2026-2027</dd>
+              <dd style="margin: 0;"><svg width="112" height="32" viewBox="0 0 112 32" role="img" aria-label="Lectures par semaine, en hausse sur 8 semaines, de 610 à 1 480"><rect x="0" y="19" width="10" height="13" fill="#B3D8F0"></rect><rect x="14" y="17" width="10" height="15" fill="#B3D8F0"></rect><rect x="28" y="14" width="10" height="18" fill="#B3D8F0"></rect><rect x="42" y="13" width="10" height="19" fill="#B3D8F0"></rect><rect x="56" y="10" width="10" height="22" fill="#B3D8F0"></rect><rect x="70" y="7" width="10" height="25" fill="#B3D8F0"></rect><rect x="84" y="4" width="10" height="28" fill="#B3D8F0"></rect><rect x="98" y="0" width="10" height="32" fill="#0A6BA3"></rect></svg></dd>
+            </div>
+            <div style="display: grid; grid-template-columns: 168px 104px minmax(0, 1fr) 112px; gap: 16px; align-items: center; height: 60px; border-bottom: 1px solid #DDE5EE;">
+              <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Demandes d'actes</dt>
+              <dd style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 36px; line-height: 1; letter-spacing: -0.02em;">17</dd>
+              <dd style="margin: 0; font-size: 14px; line-height: 1.45; color: #3A4859;">délai moyen de 4,2 jours · <strong style="font-weight: 600; color: #A12A22;">2 en retard</strong></dd>
+              <dd style="margin: 0;"><svg width="112" height="32" viewBox="0 0 112 32" role="img" aria-label="Demandes par semaine sur 8 semaines : 2, 3, 1, 4, 3, 5, 4, 5"><path d="M0 31.5h112" stroke="#DDE5EE" stroke-width="1"></path><polyline points="4,20 18,15 32,25 46,10 60,15 74,5 88,10 102,5" fill="none" stroke="#0A6BA3" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline><circle cx="102" cy="5" r="3" fill="#0A6BA3" stroke="#FFFFFF" stroke-width="2"></circle></svg></dd>
+            </div>
+            <div style="display: grid; grid-template-columns: 168px 104px minmax(0, 1fr) 112px; gap: 16px; align-items: center; height: 60px; border-bottom: 1px solid #DDE5EE;">
+              <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Conversations ouvertes</dt>
+              <dd style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 36px; line-height: 1; letter-spacing: -0.02em;">9</dd>
+              <dd style="margin: 0; font-size: 14px; line-height: 1.45; color: #3A4859;">première réponse d'un prêtre en 5 h (médiane), contre 9 h en août</dd>
+              <dd style="margin: 0;"><svg width="112" height="32" viewBox="0 0 112 32" role="img" aria-label="Délai médian de première réponse, de 9 h à 5 h sur 8 semaines"><path d="M0 31.5h112" stroke="#DDE5EE" stroke-width="1"></path><polyline points="4,4 18,7 32,9 46,11 60,15 74,16 88,18 102,21" fill="none" stroke="#0A6BA3" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></polyline><circle cx="102" cy="21" r="3" fill="#0A6BA3" stroke="#FFFFFF" stroke-width="2"></circle></svg></dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- RANGÉE 3 : activité + CEB -->
+      <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px;">
+        <section aria-labelledby="tb-act" style="grid-column: span 8;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+            <span id="tb-act"><span style="color: #0A6BA3;">04</span> — Activité · 8 dernières semaines</span>
+            <span style="display: flex; align-items: center; gap: 16px; text-transform: none; letter-spacing: 0.02em; font-size: 12px; color: #3A4859;">
+              <span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="20" height="8" viewBox="0 0 20 8" aria-hidden="true"><path d="M0 4h20" stroke="#0A6BA3" stroke-width="2"></path></svg>Fidèles actifs dans la semaine</span>
+              <span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="20" height="8" viewBox="0 0 20 8" aria-hidden="true"><path d="M0 4h20" stroke="#586677" stroke-width="1.5" stroke-dasharray="4 3"></path></svg>Fidèles rattachés (cumul)</span>
+            </span>
+          </div>
+          <svg viewBox="0 0 716 212" width="100%" height="212" role="img" aria-label="Du 3 août au 21 septembre, les fidèles rattachés passent de 142 à 214 et les fidèles actifs dans la semaine de 64 à 131" style="display: block; margin-top: 12px; font-family: 'Libre Franklin', sans-serif; font-variant-numeric: tabular-nums;">
+            <g stroke="#DDE5EE" stroke-width="1">
+              <path d="M36 12.5h680"></path><path d="M36 46.5h680"></path><path d="M36 80.5h680"></path><path d="M36 115.5h680"></path><path d="M36 149.5h680"></path>
+            </g>
+            <path d="M36 184.5h680" stroke="#0E1A2B" stroke-width="1"></path>
+            <g font-size="12" fill="#586677" text-anchor="end">
+              <text x="28" y="16">250</text><text x="28" y="50">200</text><text x="28" y="84">150</text><text x="28" y="119">100</text><text x="28" y="153">50</text><text x="28" y="188">0</text>
+            </g>
+            <path d="M508 12v172" stroke="#8391A4" stroke-width="1" stroke-dasharray="2 3"></path>
+            <text x="500" y="26" font-size="12" fill="#3A4859" text-anchor="end">07.09 · notifications activées</text>
+            <polyline points="48,86.3 140,80.1 232,71.9 324,65.7 416,57.4 508,49.8 600,42.3 692,36.8" fill="none" stroke="#586677" stroke-width="1.5" stroke-dasharray="4 3" stroke-linejoin="round"></polyline>
+            <polyline points="48,140 140,135.2 232,130.3 324,124.8 416,117.3 508,109.7 600,102.1 692,93.9" fill="none" stroke="#0A6BA3" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>
+            <circle cx="692" cy="36.8" r="4" fill="#586677" stroke="#FFFFFF" stroke-width="2"></circle>
+            <circle cx="692" cy="93.9" r="4" fill="#0A6BA3" stroke="#FFFFFF" stroke-width="2"></circle>
+            <text x="680" y="58" font-size="12" fill="#0E1A2B" text-anchor="end">214 rattachés</text>
+            <text x="680" y="84" font-size="12" fill="#0E1A2B" text-anchor="end">131 actifs</text>
+            <g font-size="12" fill="#586677" text-anchor="middle">
+              <text x="48" y="204">03.08</text><text x="140" y="204">10.08</text><text x="232" y="204">17.08</text><text x="324" y="204">24.08</text><text x="416" y="204">31.08</text><text x="508" y="204">07.09</text><text x="600" y="204">14.09</text><text x="692" y="204" fill="#0E1A2B">21.09</text>
+            </g>
+          </svg>
+        </section>
+
+        <section aria-labelledby="tb-ceb" style="grid-column: span 4;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+            <span id="tb-ceb"><span style="color: #0A6BA3;">05</span> — Fidèles par CEB</span>
+            <span style="color: #586677;">214</span>
+          </div>
+          <ul style="list-style: none; margin: 8px 0 0 0; padding: 0;">
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; border-bottom: 1px solid #DDE5EE; font-size: 14px;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Saint-Charles-Lwanga <span style="color: #586677;">· Point E</span></span><span style="display: block; height: 6px;"><span style="display: block; width: 100%; height: 6px; background: #0A6BA3;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">48</span></li>
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; border-bottom: 1px solid #DDE5EE; font-size: 14px;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sainte-Bakhita <span style="color: #586677;">· Cité U</span></span><span style="display: block; height: 6px;"><span style="display: block; width: 85%; height: 6px; background: #0A6BA3;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">41</span></li>
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; border-bottom: 1px solid #DDE5EE; font-size: 14px;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Saint-Augustin <span style="color: #586677;">· Fann-Résidence</span></span><span style="display: block; height: 6px;"><span style="display: block; width: 77%; height: 6px; background: #0A6BA3;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">37</span></li>
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; border-bottom: 1px solid #DDE5EE; font-size: 14px;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sainte-Monique <span style="color: #586677;">· Amitié</span></span><span style="display: block; height: 6px;"><span style="display: block; width: 60%; height: 6px; background: #0A6BA3;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">29</span></li>
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; border-bottom: 1px solid #DDE5EE; font-size: 14px;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Saint-Paul <span style="color: #586677;">· Sicap Karack</span></span><span style="display: block; height: 6px;"><span style="display: block; width: 54%; height: 6px; background: #0A6BA3;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">26</span></li>
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; border-bottom: 1px solid #DDE5EE; font-size: 14px;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Saint-Jean <span style="color: #586677;">· Zone B</span></span><span style="display: block; height: 6px;"><span style="display: block; width: 40%; height: 6px; background: #0A6BA3;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">19</span></li>
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) 88px 28px; gap: 12px; align-items: center; height: 32px; font-size: 14px; color: #3A4859;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sans CEB déclarée</span><span style="display: block; height: 6px;"><span style="display: block; width: 29%; height: 6px; background: #8391A4;"></span></span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums;">14</span></li>
+          </ul>
+          <a href="PAR-Parametres.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; height: 36px; margin-top: 4px; color: #0A6BA3; font-size: 14px; font-weight: 500;"><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Voir les CEB rattachées</span></a>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
