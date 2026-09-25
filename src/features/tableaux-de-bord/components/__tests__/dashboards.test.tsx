@@ -9,6 +9,10 @@ import { nodeDashboard, resetF8b } from '@/testing/mocks/db-f8b';
 import { f8bOverrides } from '@/testing/mocks/handlers/f8b';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
+import { f8bHandlers } from '@/testing/mocks/handlers/f8b';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f8bHandlers));
 
 beforeEach(() => {
   resetF8b();

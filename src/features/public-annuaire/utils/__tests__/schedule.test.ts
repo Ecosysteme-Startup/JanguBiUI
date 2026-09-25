@@ -1,5 +1,10 @@
 import type { Occurrence } from '@/features/public-annuaire/api/get-node-week';
 import { formatTime, nextMassToday, occurrenceLabel, scheduleByPlace } from '@/features/public-annuaire/utils/schedule';
+import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f4PublicHandlers));
 
 const occ = (partial: Partial<Occurrence>): Occurrence => ({
   date: '2026-09-27',

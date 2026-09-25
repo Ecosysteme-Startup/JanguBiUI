@@ -5,6 +5,11 @@ import { OnboardingForm } from '@/features/onboarding/components/onboarding-form
 import { ids, onboardingState } from '@/testing/mocks/db';
 import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
+import { onboardingHandlers } from '@/testing/mocks/handlers/onboarding';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...onboardingHandlers));
 
 beforeEach(() => {
   Object.assign(onboardingState, { paroisse: null, consent: null, annonces: null });

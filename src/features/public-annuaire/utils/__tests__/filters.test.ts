@@ -1,4 +1,9 @@
 import { EMPTY_FILTERS, filtersToParams, filtersToSearch, parseFilters } from '@/features/public-annuaire/utils/filters';
+import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f4PublicHandlers));
 
 const DIOCESE = '0b7b1f0e-0000-4000-8000-000000000002';
 const DOYENNE = 'd0000000-0000-4000-8000-000000000101';

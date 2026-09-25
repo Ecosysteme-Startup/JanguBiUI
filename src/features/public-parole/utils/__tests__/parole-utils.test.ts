@@ -1,5 +1,10 @@
 import { nextSunday, parseDateParam, shiftDay, weekOf } from '@/features/public-parole/utils/days';
 import { readingAnchor, readingExcerpt, readingLabel, sanitizeReadingHtml } from '@/features/public-parole/utils/readings';
+import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f4PublicHandlers));
 
 describe('dates de la Parole', () => {
   it('n’accepte qu’une date valide au format AAAA-MM-JJ', () => {

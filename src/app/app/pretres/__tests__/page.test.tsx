@@ -3,6 +3,11 @@ import { screen, within } from '@testing-library/react';
 import PretresPage from '@/app/app/pretres/page';
 import { resetF7State } from '@/testing/mocks/db-f7-pretre';
 import { renderApp } from '@/testing/test-utils';
+import { f7PretreHandlers } from '@/testing/mocks/handlers/f7-pretre';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f7PretreHandlers));
 
 beforeEach(() => resetF7State());
 

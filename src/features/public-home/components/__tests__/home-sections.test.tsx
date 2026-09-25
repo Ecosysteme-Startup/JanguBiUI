@@ -4,6 +4,11 @@ import { HomeFaq } from '@/features/public-home/components/home-faq';
 import { HomeHero } from '@/features/public-home/components/home-hero';
 import { HomeTrust } from '@/features/public-home/components/home-trust';
 import { HomeUses } from '@/features/public-home/components/home-uses';
+import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f4PublicHandlers));
 
 describe('Accueil public', () => {
   it('propose l’inscription et l’annuaire', () => {

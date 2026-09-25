@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { NotificationsCenter } from '@/features/notifications/components/notifications-center';
 import { f5bState, resetF5bState } from '@/testing/mocks/db-f5b';
 import { renderApp } from '@/testing/test-utils';
+import { f5bHandlers } from '@/testing/mocks/handlers/f5b';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f5bHandlers));
 
 /** WebSocket simulé : le socket de notifications reçoit des trames poussées par le test. */
 class FakeWebSocket {

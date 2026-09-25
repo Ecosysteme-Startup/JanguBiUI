@@ -9,6 +9,10 @@ import { contactState } from '@/testing/mocks/db-f4';
 import { directoryHandler } from '@/testing/mocks/handlers/f4-public';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
+import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f4PublicHandlers));
 
 beforeEach(() => {
   server.use(directoryHandler);

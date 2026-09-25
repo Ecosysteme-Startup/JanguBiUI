@@ -3,6 +3,11 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import { ParoleDuJour } from '@/features/public-parole/components/parole-du-jour';
 import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
+import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f4PublicHandlers));
 
 beforeEach(() => navigation.push.mockReset());
 

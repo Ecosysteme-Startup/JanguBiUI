@@ -5,6 +5,11 @@ import { ProfilePage } from '@/features/profil/components/profile-page';
 import { onboardingState } from '@/testing/mocks/db';
 import { f5bState, resetF5bState } from '@/testing/mocks/db-f5b';
 import { renderApp } from '@/testing/test-utils';
+import { f5bHandlers } from '@/testing/mocks/handlers/f5b';
+import { server } from '@/testing/mocks/server';
+
+// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
+beforeEach(() => server.use(...f5bHandlers));
 
 const ACCOUNT_URL = 'https://auth.example.sn/realms/jangubi/account';
 
