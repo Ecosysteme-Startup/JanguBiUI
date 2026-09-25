@@ -1,647 +1,874 @@
-# Graph Report - /home/sosza/PycharmProjects/Numerisen/JanguBiUI  (2026-05-21)
+# Graph Report - .  (2026-07-18)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- Large corpus: 591 files · ~205,079 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder.
 
 ## Summary
-- 1939 nodes · 3621 edges · 145 communities (133 shown, 12 thin omitted)
-- Extraction: 97% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 10 edges (avg confidence: 0.8)
-- Token cost: 0 input · 0 output
+- 2699 nodes · 6191 edges · 197 communities (177 shown, 20 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 85 edges (avg confidence: 0.82)
+- Token cost: 823,569 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
-- [[_COMMUNITY_Community 1|Community 1]]
-- [[_COMMUNITY_Community 2|Community 2]]
-- [[_COMMUNITY_Community 3|Community 3]]
-- [[_COMMUNITY_Community 4|Community 4]]
-- [[_COMMUNITY_Community 5|Community 5]]
-- [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 7|Community 7]]
-- [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 9|Community 9]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
-- [[_COMMUNITY_Community 12|Community 12]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 14|Community 14]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 16|Community 16]]
-- [[_COMMUNITY_Community 17|Community 17]]
-- [[_COMMUNITY_Community 18|Community 18]]
-- [[_COMMUNITY_Community 19|Community 19]]
-- [[_COMMUNITY_Community 20|Community 20]]
-- [[_COMMUNITY_Community 21|Community 21]]
-- [[_COMMUNITY_Community 22|Community 22]]
-- [[_COMMUNITY_Community 23|Community 23]]
-- [[_COMMUNITY_Community 24|Community 24]]
-- [[_COMMUNITY_Community 25|Community 25]]
-- [[_COMMUNITY_Community 26|Community 26]]
-- [[_COMMUNITY_Community 27|Community 27]]
-- [[_COMMUNITY_Community 28|Community 28]]
-- [[_COMMUNITY_Community 29|Community 29]]
-- [[_COMMUNITY_Community 30|Community 30]]
-- [[_COMMUNITY_Community 31|Community 31]]
-- [[_COMMUNITY_Community 32|Community 32]]
-- [[_COMMUNITY_Community 33|Community 33]]
-- [[_COMMUNITY_Community 34|Community 34]]
-- [[_COMMUNITY_Community 35|Community 35]]
-- [[_COMMUNITY_Community 36|Community 36]]
-- [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
-- [[_COMMUNITY_Community 39|Community 39]]
-- [[_COMMUNITY_Community 40|Community 40]]
-- [[_COMMUNITY_Community 41|Community 41]]
-- [[_COMMUNITY_Community 42|Community 42]]
-- [[_COMMUNITY_Community 43|Community 43]]
-- [[_COMMUNITY_Community 44|Community 44]]
-- [[_COMMUNITY_Community 45|Community 45]]
-- [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 48|Community 48]]
-- [[_COMMUNITY_Community 49|Community 49]]
-- [[_COMMUNITY_Community 50|Community 50]]
-- [[_COMMUNITY_Community 51|Community 51]]
-- [[_COMMUNITY_Community 52|Community 52]]
-- [[_COMMUNITY_Community 53|Community 53]]
-- [[_COMMUNITY_Community 54|Community 54]]
-- [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
-- [[_COMMUNITY_Community 57|Community 57]]
-- [[_COMMUNITY_Community 58|Community 58]]
-- [[_COMMUNITY_Community 59|Community 59]]
-- [[_COMMUNITY_Community 60|Community 60]]
-- [[_COMMUNITY_Community 61|Community 61]]
-- [[_COMMUNITY_Community 62|Community 62]]
-- [[_COMMUNITY_Community 63|Community 63]]
-- [[_COMMUNITY_Community 64|Community 64]]
-- [[_COMMUNITY_Community 65|Community 65]]
-- [[_COMMUNITY_Community 66|Community 66]]
-- [[_COMMUNITY_Community 67|Community 67]]
-- [[_COMMUNITY_Community 68|Community 68]]
-- [[_COMMUNITY_Community 69|Community 69]]
-- [[_COMMUNITY_Community 70|Community 70]]
-- [[_COMMUNITY_Community 71|Community 71]]
-- [[_COMMUNITY_Community 72|Community 72]]
-- [[_COMMUNITY_Community 73|Community 73]]
-- [[_COMMUNITY_Community 74|Community 74]]
-- [[_COMMUNITY_Community 75|Community 75]]
-- [[_COMMUNITY_Community 76|Community 76]]
-- [[_COMMUNITY_Community 77|Community 77]]
-- [[_COMMUNITY_Community 78|Community 78]]
-- [[_COMMUNITY_Community 79|Community 79]]
-- [[_COMMUNITY_Community 80|Community 80]]
-- [[_COMMUNITY_Community 81|Community 81]]
-- [[_COMMUNITY_Community 82|Community 82]]
-- [[_COMMUNITY_Community 83|Community 83]]
-- [[_COMMUNITY_Community 84|Community 84]]
-- [[_COMMUNITY_Community 85|Community 85]]
-- [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
-- [[_COMMUNITY_Community 88|Community 88]]
-- [[_COMMUNITY_Community 89|Community 89]]
-- [[_COMMUNITY_Community 90|Community 90]]
-- [[_COMMUNITY_Community 91|Community 91]]
-- [[_COMMUNITY_Community 92|Community 92]]
-- [[_COMMUNITY_Community 93|Community 93]]
-- [[_COMMUNITY_Community 94|Community 94]]
-- [[_COMMUNITY_Community 95|Community 95]]
-- [[_COMMUNITY_Community 96|Community 96]]
-- [[_COMMUNITY_Community 97|Community 97]]
-- [[_COMMUNITY_Community 98|Community 98]]
-- [[_COMMUNITY_Community 99|Community 99]]
-- [[_COMMUNITY_Community 100|Community 100]]
-- [[_COMMUNITY_Community 101|Community 101]]
-- [[_COMMUNITY_Community 102|Community 102]]
-- [[_COMMUNITY_Community 103|Community 103]]
-- [[_COMMUNITY_Community 104|Community 104]]
-- [[_COMMUNITY_Community 105|Community 105]]
-- [[_COMMUNITY_Community 106|Community 106]]
-- [[_COMMUNITY_Community 107|Community 107]]
-- [[_COMMUNITY_Community 108|Community 108]]
-- [[_COMMUNITY_Community 109|Community 109]]
-- [[_COMMUNITY_Community 110|Community 110]]
-- [[_COMMUNITY_Community 111|Community 111]]
-- [[_COMMUNITY_Community 112|Community 112]]
-- [[_COMMUNITY_Community 113|Community 113]]
-- [[_COMMUNITY_Community 114|Community 114]]
-- [[_COMMUNITY_Community 115|Community 115]]
-- [[_COMMUNITY_Community 116|Community 116]]
-- [[_COMMUNITY_Community 117|Community 117]]
-- [[_COMMUNITY_Community 118|Community 118]]
-- [[_COMMUNITY_Community 119|Community 119]]
-- [[_COMMUNITY_Community 120|Community 120]]
-- [[_COMMUNITY_Community 121|Community 121]]
-- [[_COMMUNITY_Community 122|Community 122]]
-- [[_COMMUNITY_Community 123|Community 123]]
-- [[_COMMUNITY_Community 124|Community 124]]
-- [[_COMMUNITY_Community 126|Community 126]]
-- [[_COMMUNITY_Community 144|Community 144]]
+- [[_COMMUNITY_Org Admin API Routes|Org Admin API Routes]]
+- [[_COMMUNITY_Package Dependencies (dev)|Package Dependencies (dev)]]
+- [[_COMMUNITY_Confirmation Dialog Component|Confirmation Dialog Component]]
+- [[_COMMUNITY_Admin Events & User Toggle|Admin Events & User Toggle]]
+- [[_COMMUNITY_Admin ArticleDocument Lists|Admin Article/Document Lists]]
+- [[_COMMUNITY_Donations UI Components|Donations UI Components]]
+- [[_COMMUNITY_Document Detail Timeline|Document Detail Timeline]]
+- [[_COMMUNITY_Package Dependencies (runtime)|Package Dependencies (runtime)]]
+- [[_COMMUNITY_Landing Page Sections|Landing Page Sections]]
+- [[_COMMUNITY_Admin Dashboard Routing (RBAC)|Admin Dashboard Routing (RBAC)]]
+- [[_COMMUNITY_Clergy Invitation & Org Create|Clergy Invitation & Org Create]]
+- [[_COMMUNITY_Auth Login Form|Auth Login Form]]
+- [[_COMMUNITY_MSW Mock Handlers (tests)|MSW Mock Handlers (tests)]]
+- [[_COMMUNITY_Clergé Pages & Analytics|Clergé Pages & Analytics]]
+- [[_COMMUNITY_Messaging CGU Acceptance|Messaging CGU Acceptance]]
+- [[_COMMUNITY_MSW Mock Handlers (docsmessaging)|MSW Mock Handlers (docs/messaging)]]
+- [[_COMMUNITY_Rosary Groups + Audio Player|Rosary Groups + Audio Player]]
+- [[_COMMUNITY_TablePagination UI Primitives|Table/Pagination UI Primitives]]
+- [[_COMMUNITY_UI Redesign Mockups|UI Redesign Mockups]]
+- [[_COMMUNITY_Parish Transfer API|Parish Transfer API]]
+- [[_COMMUNITY_Test Fixtures (donsmessaging)|Test Fixtures (dons/messaging)]]
+- [[_COMMUNITY_ArticleInvitation Mutations|Article/Invitation Mutations]]
+- [[_COMMUNITY_WebSocket Chat Client|WebSocket Chat Client]]
+- [[_COMMUNITY_Admin Articles API|Admin Articles API]]
+- [[_COMMUNITY_Liturgy of the Day API|Liturgy of the Day API]]
+- [[_COMMUNITY_Conversations Page + Settings|Conversations Page + Settings]]
+- [[_COMMUNITY_App Navigation (topbottom bar)|App Navigation (top/bottom bar)]]
+- [[_COMMUNITY_Conversations API|Conversations API]]
+- [[_COMMUNITY_Bible Books API|Bible Books API]]
+- [[_COMMUNITY_Archevêque Dashboard|Archevêque Dashboard]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_components.json|components.json]]
+- [[_COMMUNITY_tsconfig.json|tsconfig.json]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_package.json|package.json]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  hooks|src / hooks]]
+- [[_COMMUNITY_src  config|src / config]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_public  mockServiceWorker.js|public / mockServiceWorker.js]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_JanguBiUI  CLAUDE|JanguBiUI / CLAUDE.md]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_docs  assets|docs / assets]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_src  lib|src / lib]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_package.json|package.json]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_JanguBiUI  JanguBi API.yaml|JanguBiUI / JanguBi API.yaml]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_src  lib|src / lib]]
+- [[_COMMUNITY_src  lib|src / lib]]
+- [[_COMMUNITY_src  lib|src / lib]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_mocks    zustand.ts|  mocks   / zustand.ts]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  hooks|src / hooks]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_src  types|src / types]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_qa-shots.mjs|qa-shots.mjs]]
+- [[_COMMUNITY_qa-overflow.mjs|qa-overflow.mjs]]
+- [[_COMMUNITY_src  components|src / components]]
+- [[_COMMUNITY_src  features|src / features]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_qa-net.mjs|qa-net.mjs]]
+- [[_COMMUNITY_qa-probe.mjs|qa-probe.mjs]]
+- [[_COMMUNITY_.vscode  settings.json|.vscode / settings.json]]
+- [[_COMMUNITY_.claude  settings.json|.claude / settings.json]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_JanguBiUI  .github|JanguBiUI / .github]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_.mcp.json|.mcp.json]]
+- [[_COMMUNITY_lint-staged.config.mjs|lint-staged.config.mjs]]
+- [[_COMMUNITY_src  app|src / app]]
+- [[_COMMUNITY_.storybook  preview.tsx|.storybook / preview.tsx]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_JanguBiUI  docs|JanguBiUI / docs]]
+- [[_COMMUNITY_JanguBiUI  index.html|JanguBiUI / index.html]]
+- [[_COMMUNITY_JanguBiUI  README|JanguBiUI / README.md]]
+- [[_COMMUNITY_next.config.mjs|next.config.mjs]]
+- [[_COMMUNITY_qa-doc.mjs|qa-doc.mjs]]
+- [[_COMMUNITY_e2e  tests|e2e / tests]]
+- [[_COMMUNITY_.vscode  extensions.json|.vscode / extensions.json]]
+- [[_COMMUNITY_JanguBiUI  lint-output.txt|JanguBiUI / lint-output.txt]]
+- [[_COMMUNITY_JanguBiUI  public|JanguBiUI / public]]
+- [[_COMMUNITY_public  logo.svg|public / logo.svg]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `TanStack Query (react-query)` - 81 edges
-2. `api` - 75 edges
-3. `useUser()` - 64 edges
-4. `MSW (Mock Service Worker)` - 29 edges
-5. `env` - 28 edges
-6. `cn()` - 27 edges
-7. `paths` - 25 edges
-8. `cn()` - 25 edges
-9. `PageHeader()` - 23 edges
-10. `Button` - 22 edges
+1. `cn()` - 154 edges
+2. `api` - 104 edges
+3. `useUser()` - 97 edges
+4. `env` - 54 edges
+5. `renderApp()` - 50 edges
+6. `Button` - 47 edges
+7. `server` - 46 edges
+8. `useRegisterPageMeta()` - 45 edges
+9. `paths` - 41 edges
+10. `Card` - 40 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `cn()` --calls--> `clsx`  [INFERRED]
   src/utils/cn.ts → package.json
-- `cn()` --calls--> `clsx`  [INFERRED]
-  src/lib/utils.ts → package.json
-- `src/app (App Layer)` ----> `src/features/`  [1.0]
-  project-structure.md → CLAUDE.md
-- `react-query-auth` ----> `TanStack Query (react-query)`  [0.9]
-  security.md → state-management.md
-- `formatDate()` --calls--> `dayjs`  [INFERRED]
-  src/utils/format.ts → package.json
+- `ArticleForm()` --calls--> `register()`  [INFERRED]
+  src/features/news/components/article-form.tsx → instrumentation.ts
+- `VideoForm()` --calls--> `register()`  [INFERRED]
+  src/features/tv/components/video-form.tsx → instrumentation.ts
+- `TransferRequestForm()` --calls--> `register()`  [INFERRED]
+  src/features/transfert-paroissial/components/transfer-request-form.tsx → instrumentation.ts
+- `InvitationForm()` --calls--> `register()`  [INFERRED]
+  src/features/clergy-accounts/components/invitation-form.tsx → instrumentation.ts
 
-## Communities (145 total, 12 thin omitted)
+## Hyperedges (group relationships)
+- **Bulletproof React architecture pattern instantiated in JanguBiUI** — jangubiui_claude_bulletproof_react, docs_project_structure_src_layout, docs_project_structure_feature_folder, docs_api_layer_single_client [INFERRED 0.85]
+- **JanguBi frontend CI/CD pipeline (lint/typecheck/build → docker build/push → deploy trigger)** — workflows_nextjs_ci_pipeline, workflows_nextjs_docker_build, workflows_nextjs_trigger_deploy [EXTRACTED 1.00]
+- **JanguBi's dual role dimensions scoped by territorial hierarchy** — docs_jangubi_srs_complet_pastoral_roles, docs_jangubi_srs_complet_admin_roles, docs_jangubi_srs_complet_territorial_scope [INFERRED 0.85]
+- **Refonte UI/UX JanguBiUI — plan + maquettes avant/après** — redesign_plan_redesign_plan, mockups_00_index_doc, mockups_01_shell_nav_doc, mockups_02_article_detail_doc, mockups_03_agenda_detail_doc, mockups_04_role_dashboard_doc [EXTRACTED 1.00]
+- **Les 7 phases forment le plan de refonte phasé** — redesign_plan_redesign_phase_1_shell, redesign_plan_redesign_phase_2_design_system, redesign_plan_redesign_phase_3_article, redesign_plan_redesign_phase_4_agenda, redesign_plan_redesign_phase_5_responsive, redesign_plan_redesign_phase_6_placements, redesign_plan_redesign_phase_7_states_a11y [EXTRACTED 1.00]
 
-### Community 0 - "Community 0"
-Cohesion: 0.05
-Nodes (52): useDepositDocument(), useRejectDocument(), useRequestInfo(), useStartVerification(), useValidateDocument(), useDeleteArticle(), usePublishArticle(), useUnpublishArticle() (+44 more)
+## Communities (197 total, 20 thin omitted)
 
-### Community 1 - "Community 1"
-Cohesion: 0.06
-Nodes (37): CreateArticleInput, useCreateArticle(), AdminArticlesParams, AdminArticlesResponse, getAdminArticlesQueryOptions(), useAdminArticles(), getArticleDetailQueryOptions(), useArticleDetail() (+29 more)
-
-### Community 2 - "Community 2"
-Cohesion: 0.03
-Nodes (60): devDependencies, autoprefixer, cors, dotenv, eslint, eslint-config-next, eslint-config-prettier, @eslint/eslintrc (+52 more)
-
-### Community 3 - "Community 3"
-Cohesion: 0.06
-Nodes (19): RevertEmailInput, useRevertEmailChange(), metadata, AuthLayout(), LayoutProps, LoginForm(), LoginFormProps, RegisterForm() (+11 more)
-
-### Community 4 - "Community 4"
-Cohesion: 0.05
-Nodes (43): dependencies, ai, @ai-sdk/react, class-variance-authority, clsx, dayjs, eslint-plugin-check-file, @hookform/resolvers (+35 more)
-
-### Community 5 - "Community 5"
-Cohesion: 0.07
-Nodes (27): getLiturgyQueryOptions(), LiturgicalDate, LiturgicalTodayResponse, LiturgyOffice, LiturgyReading, useLiturgyToday(), BibleContent(), getCurrentOfficeName() (+19 more)
-
-### Community 6 - "Community 6"
-Cohesion: 0.06
-Nodes (19): AlternatingSection(), CtaSection(), Feature, FEATURES, FeaturesSection(), HeroSection(), LandingFooter(), LandingNav() (+11 more)
-
-### Community 7 - "Community 7"
-Cohesion: 0.09
-Nodes (24): pretresData, tools, env, server, ResizeObserverMock, renderApp(), backBtn, mockRouterBack (+16 more)
-
-### Community 8 - "Community 8"
-Cohesion: 0.10
-Nodes (22): getMyIntentionsQueryOptions(), intentionSchema, IntentionsResponse, MassIntention, useMyIntentions(), getParishIntentionsQueryOptions(), IntentionsResponse, useParishIntentions() (+14 more)
-
-### Community 9 - "Community 9"
-Cohesion: 0.09
-Nodes (12): getConversationsQueryOptions(), useConversations(), AssistantChat(), ConversationList(), SpirituelContent(), buildNavItems(), AppShell(), AppShellProps (+4 more)
-
-### Community 10 - "Community 10"
-Cohesion: 0.11
-Nodes (19): DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSubContent, DropdownMenuSubTrigger (+11 more)
-
-### Community 11 - "Community 11"
-Cohesion: 0.09
-Nodes (25): alloPretreHandlers, mockMinisters, mockParishes, mockServices, mockArticleDetails, mockCategory, mockGlobalArticles, mockParishArticles (+17 more)
-
-### Community 12 - "Community 12"
-Cohesion: 0.11
-Nodes (23): AvailabilityAdminPage(), ADMIN_ITEM, COMMON_ITEMS, NavItem, ADMIN_ROLES, CLERGY_ROLES, User, UserRole (+15 more)
-
-### Community 13 - "Community 13"
-Cohesion: 0.12
-Nodes (17): getParishes(), getParishesQueryOptions(), parishesResponseSchema, ParishFilters, parishSchema, useParishes(), CreateParishInput, Parish (+9 more)
-
-### Community 14 - "Community 14"
-Cohesion: 0.12
-Nodes (20): Error(), ErrorProps, FieldWrapper(), FieldWrapperPassThroughProps, FieldWrapperProps, Form(), AsFormDrawer, Default (+12 more)
-
-### Community 15 - "Community 15"
-Cohesion: 0.12
-Nodes (18): ClergicalMessage, clergicalMessageSchema, getClericalInboxQueryOptions(), InboxResponse, useClericalInbox(), SendClericalMessageInput, useSendClericalMessage(), ClericalComposeForm() (+10 more)
-
-### Community 16 - "Community 16"
+### Community 0 - "Org Admin API Routes"
 Cohesion: 0.08
-Nodes (16): getRefreshToken(), setAccessToken(), setRefreshToken(), AuthResponse, ConfirmEmailChangeInput, ConfirmPasswordResetInput, LoginInput, logout() (+8 more)
+Nodes (30): pretresData, tools, env, server, renderApp(), confirmButton, activityPayload, payload (+22 more)
 
-### Community 17 - "Community 17"
+### Community 1 - "Package Dependencies (dev)"
+Cohesion: 0.03
+Nodes (64): devDependencies, autoprefixer, cors, dotenv, eslint, eslint-config-next, eslint-config-prettier, @eslint/eslintrc (+56 more)
+
+### Community 2 - "Confirmation Dialog Component"
 Cohesion: 0.09
-Nodes (18): buttonVariants, PaginationContent, PaginationItem, PaginationLink(), PaginationLinkProps, TablePagination(), TablePaginationProps, BaseEntity (+10 more)
+Nodes (44): ConfirmationDialog(), ConfirmationDialogProps, Danger, Info, meta, Story, DialogContent, DialogDescription (+36 more)
 
-### Community 18 - "Community 18"
+### Community 3 - "Admin Events & User Toggle"
+Cohesion: 0.09
+Nodes (32): EVENT_TYPE_FILTERS, useToggleUserActive(), STATUS_FILTERS, Button, ButtonProps, Card, CardContent, CardEyebrow (+24 more)
+
+### Community 4 - "Admin Article/Document Lists"
+Cohesion: 0.06
+Nodes (35): useDeleteEvent(), useRevokeInvitation(), AdminArticleListProps, ArticleRowActionsProps, STATUS_CONFIG, AdminDocumentList(), AdminDocumentListProps, AdminEventList() (+27 more)
+
+### Community 5 - "Donations UI Components"
+Cohesion: 0.07
+Nodes (36): Badge(), BadgeProps, badgeVariants, CampaignCard(), CampaignCardProps, DONATION_TYPE_LABELS, formatDate(), CampaignsSkeleton() (+28 more)
+
+### Community 6 - "Document Detail Timeline"
+Cohesion: 0.07
+Nodes (34): useSubmitSupplement(), buildTimelineSteps(), DocumentDetail(), DocumentDetailProps, NOMINAL_PATH, TERMINAL_STATUSES, DOCUMENT_STATUS_CONFIG, DocumentStatusBadge() (+26 more)
+
+### Community 7 - "Package Dependencies (runtime)"
+Cohesion: 0.04
+Nodes (47): dependencies, ai, @ai-sdk/react, class-variance-authority, clsx, eslint-plugin-check-file, @hookform/resolvers, isomorphic-dompurify (+39 more)
+
+### Community 8 - "Landing Page Sections"
+Cohesion: 0.06
+Nodes (20): HomePage(), AlternatingSection(), CtaSection(), Feature, FEATURES, FeaturesSection(), HeroSection(), LandingFooter() (+12 more)
+
+### Community 9 - "Admin Dashboard Routing (RBAC)"
+Cohesion: 0.09
+Nodes (37): AdminDashboardPage(), AdminSection, AdminAgendaPage(), canManageAgenda(), AdminArticleList(), HomeRouter(), ADMIN_ROLES, CLERGY_ROLES (+29 more)
+
+### Community 10 - "Clergy Invitation & Org Create"
+Cohesion: 0.08
+Nodes (29): useCreateInvitation(), InvitationForm(), InvitationFormProps, InvitationFormValues, schema, CreateDioceseInput, CreateDioceseDialog(), useCreateDiocese() (+21 more)
+
+### Community 11 - "Auth Login Form"
+Cohesion: 0.07
+Nodes (22): LoginForm(), LoginFormProps, ROLE_LABELS, ROLE_TONES, RoleKey, AuthResponse, ConfirmEmailChangeInput, ConfirmPasswordResetInput (+14 more)
+
+### Community 12 - "MSW Mock Handlers (tests)"
+Cohesion: 0.09
+Nodes (31): bibleHandlers, mockLiturgyDay, mockRosaryGroups, mockRosaryToday, createArticle(), createArticleCategory(), createArticleDetail(), createDocumentRequest() (+23 more)
+
+### Community 13 - "Clergé Pages & Analytics"
 Cohesion: 0.11
-Nodes (16): CreateDocumentInput, useCreateDocument(), uploadDocumentFile(), UploadDocumentFileResponse, useUploadDocumentFile(), AttachmentStepProps, DOCUMENT_TYPES, FormValues (+8 more)
+Nodes (27): AnalytiquePage(), CLERGE_SECTIONS, ClergePage(), CommunautairePage(), AnalyticsDashboard(), CommunityRosaryList(), DocumentsPage(), Tab (+19 more)
 
-### Community 19 - "Community 19"
+### Community 14 - "Messaging CGU Acceptance"
+Cohesion: 0.09
+Nodes (28): cguStatusSchema, MessagingCguStatus, useAcceptMessagingCgu(), useMessagingCguStatus(), useGetMessages(), useLoadOlderMessages(), useMarkRead(), useSendMessage() (+20 more)
+
+### Community 15 - "MSW Mock Handlers (docs/messaging)"
+Cohesion: 0.07
+Nodes (22): authHandlers, documentsHandlers, mockDocuments, handlers, messagingHandlers, mockConversations, mockMessages, mockAdminArticleDetails (+14 more)
+
+### Community 16 - "Rosary Groups + Audio Player"
+Cohesion: 0.10
+Nodes (22): getRosaryGroupsQueryOptions(), RosaryGroup, useRosaryGroups(), AudioPlayer(), AudioPlayerProps, formatTime(), ChapeletContent(), ChapeletGuide() (+14 more)
+
+### Community 17 - "Table/Pagination UI Primitives"
+Cohesion: 0.07
+Nodes (28): buttonVariants, Pagination(), PaginationContent, PaginationEllipsis(), PaginationItem, PaginationLink(), PaginationLinkProps, PaginationNext() (+20 more)
+
+### Community 18 - "UI Redesign Mockups"
+Cohesion: 0.15
+Nodes (30): 00-index.html — Index des maquettes avant/après, 01-shell-nav.html — Maquette Shell & Navigation (avant/après), 02-article-detail.html — Maquette Lecture d'article (avant/après), 03-agenda-detail.html — Maquette Agenda carte → détail (avant/après), 04-role-dashboard.html — Maquette Dashboard prêtre (avant/après), AdminPageLayout component, <Button> shared component, <Card> shared component (+22 more)
+
+### Community 19 - "Parish Transfer API"
+Cohesion: 0.11
+Nodes (19): AdminTransfersResponse, adminTransfersResponseSchema, getAdminTransfersQueryOptions(), useAdminTransfers(), getMyTransferQueryOptions(), useMyTransfer(), TRANSFER_PROGRESS_ORDER, TRANSFER_STATUS_CONFIG (+11 more)
+
+### Community 20 - "Test Fixtures (dons/messaging)"
+Cohesion: 0.07
+Nodes (23): createAdminUser(), createClergyUser(), createUser(), activeRosary, body, onJoin, beneficiary, cash (+15 more)
+
+### Community 21 - "Article/Invitation Mutations"
+Cohesion: 0.10
+Nodes (15): CreateInvitationInput, useDeleteArticle(), getInvitationsQueryOptions(), InvitationsParams, InvitationsResponse, useInvitations(), MakeDonationInput, useMakeDonation() (+7 more)
+
+### Community 22 - "WebSocket Chat Client"
+Cohesion: 0.13
+Nodes (22): AUTH_CLOSE_CODES, RECONNECT_DELAYS, RECONNECT_DELAYS, buildFetchInit(), buildUrlWithParams(), clearAccessToken(), clearRefreshToken(), decodeJwtExpMs() (+14 more)
+
+### Community 23 - "Admin Articles API"
+Cohesion: 0.11
+Nodes (14): CreateArticleInput, AdminArticlesParams, AdminArticlesResponse, getCategoriesQueryOptions(), useCategories(), usePublishArticle(), UnpublishArticleInput, useUnpublishArticle() (+6 more)
+
+### Community 24 - "Liturgy of the Day API"
+Cohesion: 0.13
+Nodes (15): getLiturgyQueryOptions(), LiturgicalDate, LiturgicalTodayResponse, LiturgyOffice, useLiturgyToday(), BibleContent(), resolveTab(), TabValue (+7 more)
+
+### Community 25 - "Conversations Page + Settings"
+Cohesion: 0.10
+Nodes (21): useGetConversation(), permissions, allow, DonsPage(), ConversationPage(), ConversationPageProps, OnboardingGuard(), OnboardingGuardProps (+13 more)
+
+### Community 26 - "App Navigation (top/bottom bar)"
+Cohesion: 0.13
+Nodes (18): buildBottomNavItems(), buildNavItems(), buildOverflowNavItems(), isNavActive(), NavItem, AppTopBar(), AppTopBarProps, TopNavLink() (+10 more)
+
+### Community 27 - "Conversations API"
 Cohesion: 0.12
-Nodes (13): ArticlesResponse, GetArticlesParams, getDioceseArticlesQueryOptions(), getGlobalArticlesQueryOptions(), getParishArticlesQueryOptions(), useDioceseArticles(), useGlobalArticles(), useParishArticles() (+5 more)
+Nodes (14): CreateConversationInput, ConversationsResponse, getConversationsQueryOptions(), useConversations(), parseMessages(), OptimisticContext, SendMessageInput, Conversation (+6 more)
 
-### Community 20 - "Community 20"
+### Community 28 - "Bible Books API"
+Cohesion: 0.12
+Nodes (14): Book, BookList, GetBooksOptions, getBooksQueryOptions(), useBooks(), SearchBibleOptions, searchBibleQueryOptions(), SearchResult (+6 more)
+
+### Community 29 - "Archevêque Dashboard"
+Cohesion: 0.10
+Nodes (17): getAdminArticlesQueryOptions(), useAdminArticles(), AdminArticlesPage(), ArchevequeDashboard(), ArchevequeHero(), formatXof(), QUICK_ACTIONS, DraftArticlesSectionProps (+9 more)
+
+### Community 30 - "src / features"
+Cohesion: 0.18
+Nodes (12): EVENT_SCOPE_LABELS, EVENT_TYPE_COLORS, EVENT_TYPE_LABELS, formatEventDate(), Event, useRegisterEvent(), useUnregisterEvent(), EventCard() (+4 more)
+
+### Community 31 - "src / features"
 Cohesion: 0.13
-Nodes (13): Book, BookList, GetBooksOptions, getBooksQueryOptions(), useBooks(), SearchBibleOptions, searchBibleQueryOptions(), SearchResult (+5 more)
+Nodes (15): useCreateConversation(), getPriestsQueryOptions(), Priest, priestListSchema, priestSchema, usePriests(), NewConversation(), PriestRow() (+7 more)
 
-### Community 21 - "Community 21"
-Cohesion: 0.09
-Nodes (22): 1.1 Accueil (`/app`), 1.2 Actualités (`/app/actus`) ⬜, 1.3 Spirituel (`/app/spirituel`) 🔨, 1.4 Messagerie (`/app/messages`) ⬜, 1.5 Mes Documents (`/app/documents`) ⬜, 1.6 Profil (`/app/profil`) ⬜, 2.1 Shared Admin Shell, 2.2 Parish / Church Admin (`/admin/paroisse`) (+14 more)
+### Community 32 - "src / features"
+Cohesion: 0.14
+Nodes (16): getOfficeQueryOptions(), hymnSchema, intercessionSchema, Office, OfficeKey, officeSchema, psalmSchema, useOffice() (+8 more)
 
-### Community 22 - "Community 22"
-Cohesion: 0.11
-Nodes (14): authHandlers, handlers, messagingHandlers, mockConversations, mockMessages, mockNotifications, notificationsHandlers, app (+6 more)
+### Community 33 - "src / features"
+Cohesion: 0.12
+Nodes (14): AssistantChat(), AppMessage, AssistantContent(), ChatMessage(), ChatMessageProps, ContentSegment, parseAssistantContent(), SECTION_LABELS (+6 more)
 
-### Community 23 - "Community 23"
-Cohesion: 0.09
-Nodes (21): Agents Claude à utiliser — Frontend, Architecture — Bulletproof React (CRITIQUE), Authentification, Autorisation — `src/lib/authorization.ts`, CLAUDE.md — JanguBiUI (Frontend Next.js), code:bash (# Depuis JanguBiUI/), code:block2 (src/), code:block3 (src/features/<nom>/) (+13 more)
+### Community 34 - "src / features"
+Cohesion: 0.14
+Nodes (13): DailyReadings, liturgyTodaySchema, readingSchema, useDailyReadings(), DailyReadingCard(), FideleDashboard(), HomeContent(), HomeContentProps (+5 more)
 
-### Community 24 - "Community 24"
-Cohesion: 0.13
-Nodes (12): inter, metadata, playfair, RootLayout(), viewport, AppProvider(), AppProviderProps, MainErrorFallback() (+4 more)
+### Community 35 - "src / components"
+Cohesion: 0.14
+Nodes (15): ClericalComposeFormProps, FormInput, ParishOption, schema, SCOPE_OPTIONS, Error(), ErrorProps, FieldWrapper() (+7 more)
 
-### Community 25 - "Community 25"
-Cohesion: 0.16
-Nodes (13): getServicesQueryOptions(), useServices(), CreateServiceInput, ServiceType, UpdateServiceInput, useCreateService(), useUpdateService(), AdminServices() (+5 more)
-
-### Community 26 - "Community 26"
+### Community 36 - "src / features"
 Cohesion: 0.17
-Nodes (16): SendMessageInput, AUTH_CLOSE_CODES, getFreshToken(), RECONNECT_DELAYS, buildFetchInit(), buildUrlWithParams(), clearAccessToken(), clearRefreshToken() (+8 more)
+Nodes (12): getMyTodayReflectionQueryOptions(), useMyTodayReflection(), getTodayReflectionQueryOptions(), useTodayReflection(), SaveReflectionInput, useSaveReflection(), PastoralReflectionComposer(), PastoralReflectionWidget() (+4 more)
 
-### Community 27 - "Community 27"
-Cohesion: 0.15
-Nodes (13): getTvCategoriesQueryOptions(), responseSchema, TvCategoriesResponse, useTvCategories(), getTvVideosQueryOptions(), responseSchema, TvVideosResponse, useTvVideos() (+5 more)
+### Community 37 - "src / features"
+Cohesion: 0.12
+Nodes (15): Analytics, AnalyticsFilters, analyticsSchema, bucketSchema, getAnalyticsQueryOptions(), namedTotalSchema, useAnalytics(), ACTIVE_UNITS_LABEL (+7 more)
 
-### Community 28 - "Community 28"
-Cohesion: 0.15
-Nodes (14): getOfficeQueryOptions(), hymnSchema, intercessionSchema, Office, OfficeKey, officeSchema, psalmSchema, useOffice() (+6 more)
+### Community 38 - "src / features"
+Cohesion: 0.18
+Nodes (14): CreateReadingPlanInput, useCreateReadingPlan(), getReadingPlansQueryOptions(), PlansResponse, ReadingPlan, readingPlanSchema, useReadingPlans(), useSubscribeReadingPlan() (+6 more)
 
-### Community 29 - "Community 29"
+### Community 39 - "components.json"
 Cohesion: 0.10
 Nodes (19): aliases, components, hooks, lib, ui, utils, iconLibrary, registries (+11 more)
 
-### Community 30 - "Community 30"
-Cohesion: 0.18
-Nodes (15): getMinistersQueryOptions(), Minister, useMinisters(), createMinister(), CreateMinisterInput, toFormData(), updateMinister(), UpdateMinisterInput (+7 more)
-
-### Community 31 - "Community 31"
+### Community 40 - "tsconfig.json"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
-### Community 32 - "Community 32"
+### Community 41 - "src / features"
+Cohesion: 0.12
+Nodes (14): useCreateDocument(), uploadDocumentFile(), UploadDocumentFileResponse, useUploadDocumentFile(), AttachmentStepProps, DOCUMENT_TYPES, FormValues, NewDocumentForm() (+6 more)
+
+### Community 42 - "src / components"
 Cohesion: 0.13
 Nodes (14): icons, Notification(), NotificationProps, Error, Info, meta, Story, Success (+6 more)
 
-### Community 33 - "Community 33"
-Cohesion: 0.12
-Nodes (10): AlloPretreContent(), Pretre, PretreType, DonDialogProps, suggestedAmounts, FiltersState, PretreFiltersProps, typeOptions (+2 more)
-
-### Community 34 - "Community 34"
+### Community 43 - "src / features"
 Cohesion: 0.16
-Nodes (12): useCreateConversation(), getPriestsQueryOptions(), Priest, priestListSchema, priestSchema, usePriests(), getInitials(), NewConversation() (+4 more)
+Nodes (11): useDeleteVideo(), useTvCategories(), useTvVideos(), AdminVideosSection(), VideoRowActionsProps, VideoThumb(), CategorySection, TvContent() (+3 more)
 
-### Community 35 - "Community 35"
-Cohesion: 0.13
-Nodes (9): Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, LiturgicalInfo, Office (+1 more)
+### Community 44 - "src / features"
+Cohesion: 0.15
+Nodes (11): getAdminArticleDetailQueryOptions(), useAdminArticleDetail(), getArticleDetailQueryOptions(), useArticleDetail(), ArticleDetail(), ArticleDetailProps, formatDate(), scopeLabel (+3 more)
 
-### Community 36 - "Community 36"
+### Community 45 - "src / features"
+Cohesion: 0.14
+Nodes (14): GetArticlesParams, ALL_SCOPE, buildScopeFilterOptions(), dedupeRefs(), NewsScopeFilter(), NewsScopeFilterProps, ScopeFilterOption, ScopeFilterValue (+6 more)
+
+### Community 46 - "src / features"
+Cohesion: 0.14
+Nodes (13): ArticleTypeBadge(), ArticleTypeBadgeProps, CONTENT_TYPE_CONFIG, Tone, articleMeta(), ArticlesFeed(), TYPE_TABS, TypeFilter (+5 more)
+
+### Community 47 - "src / features"
 Cohesion: 0.18
-Nodes (9): AppMessage, ChatMessage(), ChatMessageProps, SuggestionChips(), SuggestionChipsProps, suggestions, PageHeaderProps, cn() (+1 more)
+Nodes (13): useCreateArticle(), useUpdateArticle(), UploadCoverImageResponse, useUploadCoverImage(), ArticleForm(), ArticleFormProps, articleFormSchema, ArticleFormValues (+5 more)
 
-### Community 37 - "Community 37"
+### Community 48 - "src / app"
 Cohesion: 0.17
-Nodes (11): CreateConversationInput, getConversationQueryOptions(), useGetConversation(), ConversationsResponse, getConversations(), ConversationPage(), ConversationPageProps, Conversation (+3 more)
+Nodes (8): RegisterForm(), RegisterFormProps, titleOptions, VerifyEmail(), paths, registerInputSchema, useRegister(), useVerifyEmail()
 
-### Community 38 - "Community 38"
-Cohesion: 0.18
-Nodes (12): CreateInvitationInput, useRevokeInvitation(), InvitationList(), InvitationListProps, ROLE_LABELS, InvitationStatusBadge(), InvitationStatusBadgeProps, statusConfig (+4 more)
-
-### Community 39 - "Community 39"
-Cohesion: 0.18
-Nodes (11): AgendaPage(), EVENT_TYPES, Event, eventSchema, EventsResponse, getEventsQueryOptions(), useEvents(), useRegisterEvent() (+3 more)
-
-### Community 40 - "Community 40"
-Cohesion: 0.16
-Nodes (13): getProvincesQueryOptions(), provinceSchema, provincesResponseSchema, useProvinces(), ParishSelector(), ParishSelectorProps, SelectContent, SelectItem (+5 more)
-
-### Community 41 - "Community 41"
+### Community 49 - "JanguBiUI / docs"
 Cohesion: 0.12
-Nodes (14): msw, vitest, MSW (Mock Service Worker), MSW Mandatory for API Tests, renderApp() Test Helper, src/testing/, Testing Library, capturedBodies (+6 more)
+Nodes (18): Application State, Component State, State Management (docs/state-management.md), Form State, React Hook Form, react-query (TanStack Query), Server Cache State, URL State (+10 more)
 
-### Community 42 - "Community 42"
-Cohesion: 0.20
-Nodes (11): CreateCategoryInput, useCreateCategory(), CreateVideoInput, useCreateVideo(), useDeleteVideo(), UpdateVideoInput, useUpdateVideo(), canManageTV() (+3 more)
+### Community 50 - "src / components"
+Cohesion: 0.17
+Nodes (13): Breadcrumb(), BreadcrumbProps, buildBreadcrumbs(), Crumb, PATH_LABELS, SUFFIX_LABELS, AppHeader(), PageMetaProvider() (+5 more)
 
-### Community 43 - "Community 43"
+### Community 51 - "src / app"
+Cohesion: 0.15
+Nodes (9): metadata, viewport, ConversationList(), useNotificationsSocket(), AppShell(), AppShellLayout(), AppShellProps, MessagingStore (+1 more)
+
+### Community 52 - "JanguBiUI / docs"
+Cohesion: 0.17
+Nodes (17): Phase 1 — Fidèle Core (Accueil, Actualités, Spirituel, Messagerie, Mes Documents, Profil), The 9 platform modules (Liturgie & Prière, Bible & Chapelet, Communication Pastorale, Actualités, Documents Officiels, Agenda & Événements, Intentions de Messe, Dons & Quêtes, Jangu Bi TV), Actualités 3 content formats (Annonce/Article/Lettre Pastorale) with publisher role + max scope constraints, Agenda & Événements: automatic liturgical calendar (from AELF) + clergy-created pastoral events with live-TV pre-notification, Per-role dashboards (Fidèle, Prêtre, Évêque, Archevêque, Super Admin) with distinct content blocks, Development priorities table P1-P6 (territorial model + Liturgie des Heures first, Dons/TV last), docs/JanguBi_SRS_Complet.md (JanguBiUI copy — likely duplicate of JanguBi backend SRS document), Documents Officiels: 8 document types, 3-level validation workflow, digital vault, parish transfer workflow, SLA auto-escalation (+9 more)
+
+### Community 53 - "src / components"
+Cohesion: 0.12
+Nodes (13): Alert, AlertDescription, AlertTitle, alertVariants, SheetContent, SheetContentProps, SheetDescription, SheetFooter() (+5 more)
+
+### Community 54 - "src / features"
+Cohesion: 0.17
+Nodes (11): useAcceptIntention(), useCelebrateIntention(), useDeclineIntention(), useProposeDate(), ClergyIntentionList(), PendingIntentionCard(), PendingIntentionsSectionProps, PretreHero() (+3 more)
+
+### Community 55 - "src / features"
 Cohesion: 0.18
-Nodes (10): getLectioSessionsQueryOptions(), lectioDivinaSchema, LectioDivinaSession, SessionsResponse, useLectioSessions(), MakeDonationInput, SaveLectioInput, SubmitIntentionInput (+2 more)
+Nodes (13): LiturgyReading, extractMeta(), ReadingMeta, ReadingPanel(), ReadingPanelProps, ReadingsSwiper(), ReadingsSwiperProps, firstTab (+5 more)
 
-### Community 44 - "Community 44"
+### Community 56 - "src / features"
+Cohesion: 0.17
+Nodes (12): getGlobalDashboardQueryOptions(), GlobalDashboard, globalDashboardSchema, useGlobalDashboard(), formatXof(), GlobalStatsSection(), QueueCard(), QueueCardProps (+4 more)
+
+### Community 57 - "src / components"
 Cohesion: 0.13
 Nodes (12): FormControl, FormDescription, FormFieldContext, FormFieldContextValue, FormItem, FormItemContext, FormItemContextValue, FormLabel (+4 more)
 
-### Community 45 - "Community 45"
-Cohesion: 0.17
-Nodes (12): useCreateInvitation(), dioceseSchema, diocesesResponseSchema, getDiocesesQueryOptions(), useDioceses(), InvitationForm(), InvitationFormProps, InvitationFormValues (+4 more)
+### Community 58 - "src / components"
+Cohesion: 0.19
+Nodes (10): DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut(), DropdownMenuSubContent (+2 more)
 
-### Community 46 - "Community 46"
+### Community 59 - "src / components"
+Cohesion: 0.20
+Nodes (12): DrawerContent, DrawerContentProps, DrawerDescription, DrawerFooter(), DrawerHeader(), DrawerOverlay, DrawerTitle, drawerVariants (+4 more)
+
+### Community 60 - "package.json"
+Cohesion: 0.12
+Nodes (16): scripts, build, build-storybook, check-types, dev, format, generate, generate-api (+8 more)
+
+### Community 61 - "src / features"
+Cohesion: 0.14
+Nodes (11): CardDescription, SectionCard(), SectionCardProps, sections, SectionTone, SpirituelContent(), SpirituelSection, TONE_TILE (+3 more)
+
+### Community 62 - "src / features"
 Cohesion: 0.16
-Nodes (11): getTestamentsQueryOptions(), Testament, useTestaments(), postRagQuery(), RagQuery, RagResponse, components, $defs (+3 more)
+Nodes (10): CreateCategoryInput, useCreateCategory(), useSendClericalMessage(), CategoryForm(), CategoryFormProps, CategoryFormValues, categorySchema, ClericalComposeForm() (+2 more)
 
-### Community 47 - "Community 47"
-Cohesion: 0.25
-Nodes (8): CommunityRosary, communityRosarySchema, getCommunityRosariesQueryOptions(), useCommunityRosaries(), StartRosaryInput, useStartCommunityRosary(), CommunityRosaryList(), CommunityRosaryListProps
+### Community 63 - "src / components"
+Cohesion: 0.15
+Nodes (10): FormDrawer(), FormDrawerProps, Form(), AsFormDrawer, Default, meta, Story, Input (+2 more)
 
-### Community 48 - "Community 48"
+### Community 64 - "src / features"
 Cohesion: 0.21
 Nodes (10): ChangePasswordInput, UpdateProfileInput, useChangePassword(), useUpdateProfile(), PasswordFormValues, passwordSchema, ProfilContent(), ProfileFormValues (+2 more)
 
-### Community 49 - "Community 49"
-Cohesion: 0.20
-Nodes (11): useGetMessages(), useMarkRead(), useSendMessage(), ChatWindow(), ChatWindowProps, getInitials(), useChatSocket(), capturedBodies (+3 more)
-
-### Community 50 - "Community 50"
-Cohesion: 0.17
-Nodes (6): DocumentsResponse, getDocumentRequestsQueryOptions(), useDocumentRequests(), DocumentsList(), statusStripe, documentRequestSchema
-
-### Community 51 - "Community 51"
-Cohesion: 0.19
-Nodes (9): getRosaryTodayQueryOptions(), TodayRosary, useRosaryToday(), HomePage(), DailyMysteryCard(), HomeContent(), HomeContentProps, QuickAccessGrid() (+1 more)
-
-### Community 52 - "Community 52"
-Cohesion: 0.14
-Nodes (13): Abstract shared components into a component library, Avoid large components with nested rendering functions, code:javascript (// this is very difficult to maintain as soon as the compone), Colocate things as close as possible to where it's being used, Component libraries, 🧱 Components And Styling, Components Best Practices, Fully featured component libraries: (+5 more)
-
-### Community 53 - "Community 53"
-Cohesion: 0.22
-Nodes (10): WelcomeBanner(), InvitePage(), OnboardingGuard(), OnboardingGuardProps, getUserQueryOptions(), useUser(), canManageClergy(), isEvequeOrAbove() (+2 more)
-
-### Community 54 - "Community 54"
-Cohesion: 0.21
-Nodes (8): getReadingPlansQueryOptions(), PlansResponse, ReadingPlan, readingPlanSchema, useReadingPlans(), ReadingPlanList(), isPretre(), Skeleton()
-
-### Community 55 - "Community 55"
-Cohesion: 0.20
-Nodes (10): AdminUser, adminUserSchema, getAdminUsersQueryOptions(), responseSchema, useAdminUsers(), useToggleUserActive(), AdminUsersPage(), FILTER_ROLES (+2 more)
-
-### Community 56 - "Community 56"
-Cohesion: 0.19
-Nodes (10): campaignSchema, CampaignsResponse, DonationCampaign, getCampaignsQueryOptions(), useCampaigns(), useMakeDonation(), DONATION_TYPE_LABELS, DonsPage() (+2 more)
-
-### Community 57 - "Community 57"
+### Community 65 - "src / features"
 Cohesion: 0.18
-Nodes (11): AudioPlayer(), AudioPlayerProps, formatTime(), MysterySelector(), MysterySelectorProps, defaultProps, groupWithAudio, groupWithoutAudio (+3 more)
+Nodes (10): AgendaPage(), getEventQueryOptions(), useEvent(), eventSchema, EventsParams, EventsResponse, eventsResponseSchema, getEventsQueryOptions() (+2 more)
 
-### Community 58 - "Community 58"
+### Community 66 - "src / app"
+Cohesion: 0.17
+Nodes (9): fraunces, inter, AppProvider(), AppProviderProps, MainErrorFallback(), ThemeProvider(), ApiFnReturnType, MutationConfig (+1 more)
+
+### Community 67 - "src / features"
+Cohesion: 0.21
+Nodes (10): getHomilyNotesQueryOptions(), HomilyNote, homilyNoteSchema, NotesResponse, useHomilyNotes(), SaveHomilyNoteInput, useSaveHomilyNote(), FormValues (+2 more)
+
+### Community 68 - "src / features"
+Cohesion: 0.16
+Nodes (11): getTestamentsQueryOptions(), Testament, useTestaments(), postRagQuery(), RagQuery, RagResponse, components, $defs (+3 more)
+
+### Community 69 - "src / features"
 Cohesion: 0.15
-Nodes (13): scripts, build, build-storybook, check-types, dev, generate, lint, prepare (+5 more)
+Nodes (5): axisProps, RANKING_TITLE, SERIES_COLORS, formatXof(), GRANULARITY_LABELS
 
-### Community 59 - "Community 59"
+### Community 70 - "src / features"
+Cohesion: 0.19
+Nodes (11): Activity, activitySchema, byStatusSchema, getActivityQueryOptions(), useActivity(), ActivityRow, ActivitySection(), GRAIN_COLUMN_HEADER (+3 more)
+
+### Community 71 - "src / hooks"
+Cohesion: 0.21
+Nodes (10): Notification, notificationSchema, useMarkNotificationRead(), useNotifications(), EVENT_LABELS, formatEventLabel(), formatRelativeTime(), NotificationBell() (+2 more)
+
+### Community 72 - "src / config"
+Cohesion: 0.14
+Nodes (13): ITEM_ACCUEIL, ITEM_ACCUEIL_ADMIN, ITEM_ACTUS, ITEM_ADMIN, ITEM_AGENDA, ITEM_ANALYTIQUE, ITEM_CLERGE, ITEM_DOCUMENTS (+5 more)
+
+### Community 73 - "src / components"
+Cohesion: 0.23
+Nodes (11): ChurchCascadeSelector(), ChurchCascadeSelectorProps, useParishes(), ParishSelectorProps, SelectContent, SelectItem, SelectLabel, SelectScrollDownButton (+3 more)
+
+### Community 74 - "src / features"
+Cohesion: 0.24
+Nodes (9): useApproveClergy(), useRejectClergyAccount(), PendingClergyCard(), PendingClergyList(), PendingClergyListProps, roleLabel(), roleTone(), RoleBadge() (+1 more)
+
+### Community 75 - "src / features"
+Cohesion: 0.18
+Nodes (8): ArticlesResponse, getDioceseArticlesQueryOptions(), getFeedArticlesQueryOptions(), getGlobalArticlesQueryOptions(), ScopeTypeFilter, useDioceseArticles(), useFeedArticles(), useGlobalArticles()
+
+### Community 77 - "public / mockServiceWorker.js"
 Cohesion: 0.24
 Nodes (12): activeClientIds, clientId, getResponse(), handleRequest(), IS_MOCKED_RESPONSE, remainingClients, requestId, requestInterceptedAt (+4 more)
 
-### Community 60 - "Community 60"
+### Community 78 - "src / features"
 Cohesion: 0.21
-Nodes (8): Switch, ScrollArea, ScrollBar, Separator, TabsContent, TabsList, TabsTrigger, cn()
+Nodes (8): getMyIntentionsQueryOptions(), IntentionsResponse, useMyIntentions(), INTENTION_STATUS_CONFIG, IntentionStatusBadge(), IntentionStatusBadgeProps, MyIntentionsSection(), IntentionsPage()
 
-### Community 61 - "Community 61"
-Cohesion: 0.19
-Nodes (9): AdminDocumentList(), AdminDocumentListProps, DOC_TYPE_LABELS, DocumentStatusBadge(), DocumentStatusBadgeProps, statusConfig, badge, statuses (+1 more)
+### Community 79 - "src / app"
+Cohesion: 0.15
+Nodes (5): CardHeader, LiturgicalInfo, LiturgiePage(), Office, Reading
 
-### Community 62 - "Community 62"
-Cohesion: 0.17
-Nodes (11): createAdminUser(), createUser(), allRead, manyUnread, mockNotifications, readIds, setupAuthenticatedUser(), found (+3 more)
-
-### Community 63 - "Community 63"
-Cohesion: 0.23
-Nodes (12): Bulletproof React Architecture, DocumentStatus Colors, ESLint Import Constraint, Feature: bible, Feature: documents, Feature: liturgy, Feature Module Pattern, Feature: news (actus) (+4 more)
-
-### Community 64 - "Community 64"
-Cohesion: 0.17
-Nodes (9): Application State, Feature: messaging, zustand, create, { create: actualCreate, createStore: actualCreateStore }, createStore, storeResetFns, src/stores (Global Stores) (+1 more)
-
-### Community 65 - "Community 65"
-Cohesion: 0.18
-Nodes (10): Absolute imports, code:json ("compilerOptions": {), code:json ("compilerOptions": {), code:js ('check-file/filename-naming-convention': [), ESLint, File naming conventions, Husky, Prettier (+2 more)
-
-### Community 66 - "Community 66"
-Cohesion: 0.18
-Nodes (10): E2E, Integration Tests, [MSW](https://mswjs.io), [Playwright](https://playwright.dev), Recommended Tooling:, 🧪 Testing, [Testing Library](https://testing-library.com/), Types of tests: (+2 more)
-
-### Community 67 - "Community 67"
-Cohesion: 0.24
-Nodes (8): buildBottomNavItems(), BottomNav(), BottomNavProps, Link(), LinkProps, Default, meta, Story
-
-### Community 68 - "Community 68"
+### Community 80 - "JanguBiUI / CLAUDE.md"
 Cohesion: 0.20
-Nodes (11): Code Splitting Strategy, JanguBiUI Frontend App, src/main.tsx, Next.js 14 App Router, src/config/paths.ts, Phase 0 — Foundation (Done), Phase 2 — Admin Back-office (Todo), shadcn/ui (+3 more)
+Nodes (12): docs/security.md, PBAC (permission/policy-based access control) pattern for resource-ownership checks, RBAC (role-based access control) authorization pattern, JWT token storage trade-off: localStorage (XSS-vulnerable) vs HttpOnly cookie — recommends HttpOnly cookie; JanguBiUI's CLAUDE.md documents storing JWT in localStorage, the riskier option this doc warns against, Frontend Claude agents/skills usage table (react-feature-architect, react-tdd-assistant, react-reviewer, react-error-handler), Auth pattern: useUser(), JWT stored in localStorage, 401 redirect loop guard on /auth/ paths, src/lib/authorization.ts role helper functions (isAdmin, isClergy, isPretre, isEvequeOrAbove, canProcessDocuments...), Pre-push local CI gate: lint + check-types + test + build must all be clean before pushing (+4 more)
 
-### Community 69 - "Community 69"
-Cohesion: 0.24
-Nodes (11): Cross-Feature Import Ban, ESLint import/no-restricted-paths, PBAC (Permission-Based Access Control), Project Structure Guide, RBAC (Role-Based Access Control), Security Guide, src/app (App Layer), src/components (Shared Components) (+3 more)
+### Community 81 - "src / features"
+Cohesion: 0.33
+Nodes (8): useDepositDocument(), useRejectDocument(), useRequestInfo(), useStartVerification(), useValidateDocument(), DocumentStatusActions(), DocumentStatusActionsProps, Textarea
 
-### Community 70 - "Community 70"
-Cohesion: 0.25
-Nodes (7): AdminDocumentsParams, AdminDocumentsResponse, getAdminDocumentsQueryOptions(), useAdminDocuments(), AdminDocumentsPage(), STATUS_FILTERS, canProcessDocuments()
+### Community 82 - "src / features"
+Cohesion: 0.26
+Nodes (8): MassIntention, getIntentionTypeLabel(), INTENTION_TYPE_META, IntentionTypeMeta, formatDate(), MassIntentionCard(), MassIntentionCardProps, { rerender }
 
-### Community 71 - "Community 71"
-Cohesion: 0.27
-Nodes (6): useDocumentRequest(), SubmitSupplementInput, useSubmitSupplement(), DocumentDetail(), DocumentDetailProps, formatDate()
-
-### Community 72 - "Community 72"
-Cohesion: 0.25
-Nodes (7): useSelectParish(), Button, ButtonProps, Default, meta, Story, OnboardingPage()
-
-### Community 73 - "Community 73"
-Cohesion: 0.18
-Nodes (8): documentsHandlers, mockDocuments, createDocumentRequest(), capturedBodies, mockRouterBack, mockRouterPush, submitBtn, user
-
-### Community 74 - "Community 74"
+### Community 83 - "src / features"
 Cohesion: 0.20
-Nodes (9): Children as the most basic optimization, Code Splitting, code:javascript (// instead of this which would be executed on every re-rende), code:javascript (// Not optimized example), Component and state optimizations, Data prefetching, Image optimizations, 🚄 Performance (+1 more)
+Nodes (7): getPendingClergyQueryOptions(), PASTORAL_ROLES, PendingClergyAccount, PendingClergyResponse, pendingClergySchema, usePendingClergy(), account
 
-### Community 75 - "Community 75"
-Cohesion: 0.22
-Nodes (10): API Layer Guide, API Request Declaration Pattern, Component State, Feature Internal Structure, Form State, Server Cache State, Single API Client Instance, State Management Guide (+2 more)
-
-### Community 76 - "Community 76"
+### Community 84 - "docs / assets"
 Cohesion: 0.29
-Nodes (4): AcceptInvitationContent(), AcceptInvitationContentProps, ROLE_LABELS, useAcceptInvitation()
+Nodes (11): application, comments, components, discussions, features, hooks, lib, shared (+3 more)
 
-### Community 77 - "Community 77"
+### Community 85 - "src / features"
+Cohesion: 0.25
+Nodes (8): CreateVideoInput, useCreateVideo(), UpdateVideoInput, useUpdateVideo(), VideoForm(), VideoFormProps, VideoFormValues, videoSchema
+
+### Community 86 - "JanguBiUI / docs"
+Cohesion: 0.18
+Nodes (11): Generic CDN deployment options (Vercel, Netlify, AWS CloudFront, Cloudflare) — template guidance, superseded in practice by JanguBi's self-hosted Docker/Traefik pipeline, docs/deployment.md, API error interceptor pattern: toast notifications, forced logout, token refresh, docs/error-handling.md, Multiple localized React error boundaries pattern (vs one single app-wide boundary), Sentry error tracking recommendation with source-map upload, 3-job CI/CD pipeline: lint-and-typecheck → build-docker → trigger-deploy, .github/workflows/nextjs.yml (CI/CD JanguBi Frontend) (+3 more)
+
+### Community 87 - "src / lib"
+Cohesion: 0.36
+Nodes (8): useLogout(), OnboardingPage(), SelectedChurch, MembershipManager(), AddMembershipsInput, useAddMemberships(), useRemoveMembership(), useSetPrimaryMembership()
+
+### Community 88 - "src / components"
+Cohesion: 0.20
+Nodes (9): addChurch(), cascadeHandlers, CHURCHES, DIOCESES, itemA, itemB, list, PARISHES (+1 more)
+
+### Community 89 - "package.json"
+Cohesion: 0.18
+Nodes (10): msw, workerDirectory, name, private, resolutions, @radix-ui/react-dismissable-layer, @radix-ui/react-focus-guards, @radix-ui/react-focus-scope (+2 more)
+
+### Community 90 - "src / features"
+Cohesion: 0.25
+Nodes (8): donationFlowSchema, getMyParishDashboardQueryOptions(), ParishDashboard, parishDashboardSchema, useMyParishDashboard(), formatXof(), ParishStatsSection(), StatTone
+
+### Community 91 - "src / features"
 Cohesion: 0.24
-Nodes (8): bibleHandlers, mockLiturgyDay, mockRosaryGroups, mockRosaryToday, createRosaryDay(), createRosaryGroup(), rosaryDay, spinner
+Nodes (7): ClergicalMessage, clergicalMessageSchema, getClericalInboxQueryOptions(), InboxResponse, useClericalInbox(), SendClericalMessageInput, ClericalInboxList()
 
-### Community 78 - "Community 78"
+### Community 92 - "src / features"
+Cohesion: 0.24
+Nodes (8): AdminUser, adminUserSchema, AdminUsersFilters, AdminUsersResponse, getAdminUsersQueryOptions(), responseSchema, useAdminUsers(), ToggleContext
+
+### Community 93 - "src / features"
+Cohesion: 0.20
+Nodes (9): getConversations(), createConversation(), conv, mockUser, capturedUrls, conv, conv1, conv2 (+1 more)
+
+### Community 94 - "src / features"
+Cohesion: 0.25
+Nodes (6): getRosaryTodayQueryOptions(), TodayRosary, useRosaryToday(), DailyMysteryCard(), toFrenchWeekday(), WEEKDAY_FR
+
+### Community 95 - "src / features"
+Cohesion: 0.29
+Nodes (7): DioceseDashboard, dioceseDashboardSchema, getMyDioceseDashboardQueryOptions(), useMyDioceseDashboard(), DioceseStatsSection(), formatXof(), StatTone
+
+### Community 96 - "src / features"
+Cohesion: 0.24
+Nodes (8): SubmitIntentionInput, useSubmitIntention(), IntentionType, FormInput, schema, SubmitIntentionForm(), SubmitIntentionFormProps, TYPE_OPTIONS
+
+### Community 97 - "JanguBiUI / docs"
 Cohesion: 0.22
-Nodes (6): AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogOverlay, AlertDialogTitle
+Nodes (10): #70CBFF dark-mode / #1A8FCC light-mode primary color tokens matching the landing page, docs/FRONTEND_PLAN.md, Document status → badge color mapping (submitted/under_verification/info_requested/validated/rejected/document_deposited), cites DESIGN.md §4.3, Phase 0 — Foundation (Next.js scaffold, color tokens, UserRole types, auth layer, API client, UI primitives) — done, Phase 2 — Admin Back-office (parish/church, diocese, province, super admin dashboards), Phase 3 — Polish (theme toggle, skeleton loaders, error boundaries, PWA manifest, E2E, Storybook), Role → Route access matrix (fidele/church_admin/parish_admin/diocese_admin/province_admin/super_admin), Planned route map (/app/*, /admin/*) for Jàngu Bi frontend (+2 more)
 
-### Community 79 - "Community 79"
-Cohesion: 0.28
-Nodes (7): getInfiniteVersesQueryOptions(), GetVersesOptions, getVersesQueryOptions(), useInfiniteVerses(), useVerses(), Verse, VerseReadingSection()
+### Community 98 - "src / features"
+Cohesion: 0.27
+Nodes (6): getLectioSessionsQueryOptions(), lectioDivinaSchema, LectioDivinaSession, SessionsResponse, useLectioSessions(), SaveLectioInput
 
-### Community 80 - "Community 80"
+### Community 99 - "src / features"
 Cohesion: 0.22
-Nodes (8): Auth, Authentication, Authorization, Handling user data, `localStorage` vs cookie for storing tokens, PBAC (Permission based access control), RBAC (Role based access control), 🔐 Security
+Nodes (8): capturedBodies, MEMBERSHIPS, mockRouterBack, mockRouterPush, navigateToConsent(), navigateToSearch(), submitBtn, user
 
-### Community 81 - "Community 81"
+### Community 100 - "src / features"
+Cohesion: 0.24
+Nodes (7): ReadingView(), ReadingViewProps, decreaseBtn, defaultProps, increaseBtn, ReadingSurface(), ReadingSurfaceProps
+
+### Community 101 - "src / components"
+Cohesion: 0.22
+Nodes (7): Default, FullWidth, meta, Sizes, Story, Variants, WithIcon
+
+### Community 102 - "src / features"
+Cohesion: 0.33
+Nodes (6): FideleDashboard, fideleDashboardSchema, getFideleDashboardQueryOptions(), useFideleDashboard(), FideleSummarySection(), formatXof()
+
+### Community 103 - "src / components"
 Cohesion: 0.28
-Nodes (7): getMessages(), parseMessages(), messages, minimal, msg, raw, result
+Nodes (5): Link(), LinkProps, Default, meta, Story
 
-### Community 82 - "Community 82"
-Cohesion: 0.31
-Nodes (9): API: /api/v1/availability/, src/lib/auth.tsx, src/lib/api-client.ts, Feature: allo-pretre, Feature: auth, JanguBi REST API, MinisterDetail Schema, MinisterList Schema (+1 more)
+### Community 104 - "JanguBiUI / JanguBi API.yaml"
+Cohesion: 0.25
+Nodes (9): Bible & Chapelet module: Mode Prière, Lectio Divina (4 steps), homily notes, reading plans, communautaire chapelet sessions, Bible API resource group (testaments, books, chapters, verses, search) — /api/v1/bible, JanguBi API.yaml (OpenAPI schema), Errors reporting API (trigger/exception/unique) — /api/v1/errors, Files upload API (direct + standard strategies) — /api/v1/files, Liturgy API resource group (today, date, offices, readings) — /api/v1/liturgy, RAG query API — /api/v1/rag/query/, Rosary API resource group (mysteries, prayers, groups, day, vector_search) — /api/v1/rosary (+1 more)
 
-### Community 83 - "Community 83"
+### Community 105 - "JanguBiUI / docs"
+Cohesion: 0.22
+Nodes (9): docs/api-layer.md, API request declaration pattern: types/schema + fetcher function + react-query hook, colocated per endpoint, Single pre-configured API client instance pattern (axios/graphql-request/apollo-client), children-as-prop re-render optimization pattern, Route-level code splitting strategy, avoiding excessive fragmentation, queryClient.prefetchQuery data prefetching pattern (@tanstack/react-query), docs/performance.md, State colocation + lazy state-initializer function pattern (useState(() => expensiveFn())) (+1 more)
+
+### Community 106 - "src / features"
+Cohesion: 0.25
+Nodes (6): DocumentsParams, DocumentsResponse, getDocumentRequestsQueryOptions(), useDocumentRequests(), DocumentsList(), VaultContent()
+
+### Community 107 - "src / features"
+Cohesion: 0.28
+Nodes (6): CreateDocumentInput, attachmentSchema, DocumentAttachment, DocumentRequest, documentRequestSchema, documentStatusSchema
+
+### Community 108 - "src / components"
 Cohesion: 0.25
 Nodes (7): sizes, Spinner(), SpinnerProps, Default, meta, Story, variants
 
-### Community 84 - "Community 84"
-Cohesion: 0.28
-Nodes (6): getDocumentRequestQueryOptions(), attachmentSchema, DocumentAttachment, DocumentRequestDetail, documentRequestDetailSchema, documentStatusSchema
-
-### Community 85 - "Community 85"
-Cohesion: 0.25
-Nodes (7): ChapeletGuide(), ChapeletGuideProps, guideSteps, meditations, MysteryCategory, mysteryNames, Progress
-
-### Community 86 - "Community 86"
+### Community 109 - "src / features"
 Cohesion: 0.31
-Nodes (5): getInvitationsQueryOptions(), InvitationsParams, InvitationsResponse, useInvitations(), InvitationsPage()
+Nodes (6): CommunityRosary, communityRosarySchema, getCommunityRosariesQueryOptions(), useCommunityRosaries(), StartRosaryInput, useStartCommunityRosary()
 
-### Community 87 - "Community 87"
+### Community 110 - "src / features"
+Cohesion: 0.31
+Nodes (7): getParishArticlesQueryOptions(), useParishArticles(), ArticleCard(), ArticleCardProps, formatDate(), scopeLabel, ParishNewsSection()
+
+### Community 111 - "src / features"
+Cohesion: 0.22
+Nodes (8): capturedBodies, confirmPasswordInput, currentPasswordInput, emptyProfileUser, heading, mockUser, newPasswordInput, userWithoutProfile
+
+### Community 112 - "src / app"
+Cohesion: 0.25
+Nodes (8): addChurch(), captured, CHURCHES, DIOCESES, itemB, PARISHES, pickOption(), replace
+
+### Community 113 - "src / features"
+Cohesion: 0.28
+Nodes (7): getInfiniteVersesQueryOptions(), GetVersesOptions, getVersesQueryOptions(), useInfiniteVerses(), useVerses(), Verse, VerseReadingSection()
+
+### Community 114 - "src / app"
+Cohesion: 0.32
+Nodes (4): AcceptInvitationContent(), AcceptInvitationContentProps, ROLE_LABELS, useAcceptInvitation()
+
+### Community 115 - "src / app"
 Cohesion: 0.29
-Nodes (6): Application State, Component State, Form State, Server Cache State, 🗃️ State Management, URL State
+Nodes (4): metadata, AuthLayout(), LayoutProps, PAGE_TITLES
 
-### Community 88 - "Community 88"
+### Community 116 - "src / features"
+Cohesion: 0.32
+Nodes (7): useSaveLectioSession(), FormValues, LectioDivina(), LectioDivinaProps, StepKey, STEPS, useStepTimer()
+
+### Community 117 - "src / features"
 Cohesion: 0.29
-Nodes (6): msw, workerDirectory, name, private, type, version
+Nodes (7): CreateTransferInput, useCreateTransfer(), FormValues, schema, TransferRequestForm(), TransferRequestFormProps, Textarea
 
-### Community 89 - "Community 89"
+### Community 118 - "e2e / tests"
+Cohesion: 0.25
+Nodes (4): continuerBtn, DOCUMENT_CREATED_RESPONSE, EMPTY_DOCUMENTS_RESPONSE, newRequestBtn
+
+### Community 119 - "src / lib"
+Cohesion: 0.29
+Nodes (6): churchesResponseSchema, ChurchFilters, churchSchema, getChurchesQueryOptions(), useChurches(), Church
+
+### Community 120 - "src / lib"
+Cohesion: 0.29
+Nodes (5): getParishes(), parishesResponseSchema, ParishFilters, parishSchema, offset
+
+### Community 121 - "src / lib"
+Cohesion: 0.29
+Nodes (6): getProvincesQueryOptions(), provinceSchema, provincesResponseSchema, useProvinces(), ParishSelector(), Harness()
+
+### Community 122 - "src / features"
+Cohesion: 0.29
+Nodes (5): AdminDocumentsParams, AdminDocumentsResponse, getAdminDocumentsQueryOptions(), useAdminDocuments(), AdminDocumentsPage()
+
+### Community 123 - "src / features"
+Cohesion: 0.29
+Nodes (5): intentionSchema, getParishIntentionsQueryOptions(), IntentionsResponse, useParishIntentions(), PretreeDashboard()
+
+### Community 124 - "src / features"
+Cohesion: 0.29
+Nodes (5): campaignSchema, CampaignsResponse, DonationCampaign, getCampaignsQueryOptions(), useCampaigns()
+
+### Community 125 - "src / features"
+Cohesion: 0.29
+Nodes (6): DioceseSummary, dioceseSummarySchema, getMyProvinceDashboardQueryOptions(), ProvinceDashboard, provinceDashboardSchema, useMyProvinceDashboard()
+
+### Community 126 - "src / features"
+Cohesion: 0.29
+Nodes (5): DeleteContext, getTvVideosQueryOptions(), responseSchema, TvVideosResponse, tvVideoSchema
+
+### Community 127 - "src / features"
+Cohesion: 0.36
+Nodes (3): RevertEmailInput, useRevertEmailChange(), RevertEmail()
+
+### Community 128 - "JanguBiUI / docs"
+Cohesion: 0.29
+Nodes (7): Communication Pastorale: Allo-Prêtre minister directory + secured fidèle-clergy messaging (Fernet E2E) + inter-clergy channel, check-types baseline gate methodology: compare absolute error count (not git-stash delta) since tests are in tsconfig scope, docs/known-issues.md, check-types baseline historical archaeology (Lot1→7c): error counts fluctuate 9→3→9→12→3 across regenerations of api.ts, LOT2-001 baseline: 3 TS2339 errors in features/allo-pretre because the availability backend app isn't wired into apps/api/urls.py — dead code (api + 3 orphan admin components) accepted as baseline until availability is reintegrated, Known debt: Allo-Prêtre feature not built, org CRUD missing backend PATCH/DELETE, ESLint legacy eslintrc config (ESLint 8), Availability API resource group (ministers, parishes, services, calendar) — /api/v1/availability
+
+### Community 129 - "  mocks   / zustand.ts"
+Cohesion: 0.29
+Nodes (4): create, { create: actualCreate, createStore: actualCreateStore }, createStore, storeResetFns
+
+### Community 130 - "src / components"
 Cohesion: 0.33
 Nodes (5): MDPreview(), MDPreviewProps, Default, meta, Story
 
-### Community 90 - "Community 90"
-Cohesion: 0.29
-Nodes (7): API Error Interceptor, React Error Boundary, Error Handling Guide, HttpOnly Cookie Token Storage, JWT Authentication, react-query-auth, Sentry Error Tracking
+### Community 131 - "src / features"
+Cohesion: 0.43
+Nodes (5): CreateEventInput, useCreateEvent(), EVENT_TYPES, EventForm(), EventFormProps
 
-### Community 91 - "Community 91"
-Cohesion: 0.33
-Nodes (6): useSaveLectioSession(), FormValues, LectioDivina(), LectioDivinaProps, STEPS, handleSubmit
-
-### Community 92 - "Community 92"
-Cohesion: 0.29
-Nodes (6): data, Default, meta, Story, User, Table()
-
-### Community 93 - "Community 93"
-Cohesion: 0.48
-Nodes (4): getRosaryGroupsQueryOptions(), RosaryGroup, useRosaryGroups(), ChapeletContent()
-
-### Community 94 - "Community 94"
+### Community 132 - "src / hooks"
 Cohesion: 0.33
 Nodes (4): useIsMobile(), MediaQueryListenerFn, { result }, { unmount }
 
-### Community 95 - "Community 95"
-Cohesion: 0.33
-Nodes (6): createConversation(), capturedUrls, conv, conv1, conv2, makeConv()
+### Community 133 - "src / features"
+Cohesion: 0.29
+Nodes (6): getMessages(), messages, minimal, msg, raw, result
 
-### Community 96 - "Community 96"
-Cohesion: 0.33
-Nodes (5): code:sh (src), code:sh (src/features/awesome-feature), code:js ('import/no-restricted-paths': [), code:js ('import/no-restricted-paths': [), 🗄️ Project Structure
+### Community 134 - "src / features"
+Cohesion: 0.29
+Nodes (5): DIOCESES, onSuccess, orgHandlers, PARISHES, PROVINCES
 
-### Community 97 - "Community 97"
-Cohesion: 0.33
-Nodes (4): continuerBtn, DOCUMENT_CREATED_RESPONSE, EMPTY_DOCUMENTS_RESPONSE, newRequestBtn
-
-### Community 98 - "Community 98"
-Cohesion: 0.33
-Nodes (5): code:bash (git clone https://github.com/alan2207/bulletproof-react.git), Get Started, Next.js App Application, `yarn dev`, `yarn run-mock-server`
-
-### Community 99 - "Community 99"
+### Community 135 - "src / features"
 Cohesion: 0.40
-Nodes (3): DailyReadingCard(), todayReadings, links
+Nodes (4): getDocumentRequestQueryOptions(), useDocumentRequest(), DocumentRequestDetail, documentRequestDetailSchema
 
-### Community 100 - "Community 100"
+### Community 136 - "src / components"
+Cohesion: 0.33
+Nodes (4): RichTextEditor(), RichTextEditorProps, ToolbarButton(), ToolbarButtonProps
+
+### Community 137 - "src / features"
 Cohesion: 0.40
-Nodes (4): TodayTab(), liturgyDay, monthName, today
+Nodes (4): SuggestionChips(), SuggestionChipsProps, suggestions, onSelect
 
-### Community 101 - "Community 101"
+### Community 138 - "src / features"
+Cohesion: 0.47
+Nodes (4): useAcknowledgeTransfer(), useApproveTransfer(), useRejectTransfer(), AdminTransferList()
+
+### Community 139 - "src / features"
+Cohesion: 0.33
+Nodes (4): getTvCategoriesQueryOptions(), responseSchema, TvCategoriesResponse, tvCategorySchema
+
+### Community 140 - "src / features"
+Cohesion: 0.33
+Nodes (5): body, current, download, skeletonItems, timeline
+
+### Community 141 - "src / types"
 Cohesion: 0.33
 Nodes (5): components, $defs, operations, paths, webhooks
 
-### Community 102 - "Community 102"
-Cohesion: 0.40
-Nodes (5): AWS CloudFront, CDN Deployment, Deployment Guide, Netlify, Vercel
+### Community 142 - "src / components"
+Cohesion: 0.33
+Nodes (4): dayjs, RelativeTime(), RelativeTimeProps, formatDate()
 
-### Community 103 - "Community 103"
+### Community 143 - "JanguBiUI / docs"
 Cohesion: 0.50
-Nodes (4): ArticleCard(), ArticleCardProps, formatDate(), scopeLabel
+Nodes (5): docs/project-structure.md, Feature folder internal structure: api/assets/components/hooks/stores/types/utils, ESLint import/no-restricted-paths rules: no cross-feature imports + unidirectional shared→features→app flow, src/ folder layout: app, components, config, features, hooks, lib, stores, testing, types, utils, Bulletproof React architecture (feature-based, unidirectional imports)
 
-### Community 104 - "Community 104"
-Cohesion: 0.40
-Nodes (4): Alert, AlertDescription, AlertTitle, alertVariants
-
-### Community 105 - "Community 105"
-Cohesion: 0.40
-Nodes (4): 📚 Additional Resources, Best Practices, JavaScript, React
-
-### Community 106 - "Community 106"
-Cohesion: 0.40
-Nodes (4): API Errors, ⚠️ Error Handling, Error Tracking, In App Errors
-
-### Community 107 - "Community 107"
+### Community 144 - "e2e / tests"
 Cohesion: 0.40
 Nodes (4): ARTICLE_DETAIL, ARTICLES_RESPONSE, EMPTY_ARTICLES, firstArticleLink
 
-### Community 108 - "Community 108"
+### Community 145 - "qa-shots.mjs"
+Cohesion: 0.40
+Nodes (4): after, BPS, results, THEMES
+
+### Community 146 - "qa-overflow.mjs"
+Cohesion: 0.40
+Nodes (4): card, offenders, page, r
+
+### Community 147 - "src / components"
+Cohesion: 0.50
+Nodes (4): getParishesQueryOptions(), ParishPicker(), ParishPickerProps, PickedParish
+
+### Community 149 - "e2e / tests"
 Cohesion: 0.40
 Nodes (4): LITURGY_STUB, ROSARY_GROUPS_STUB, ROSARY_TODAY_STUB, tab
 
-### Community 109 - "Community 109"
+### Community 150 - "JanguBiUI / docs"
 Cohesion: 0.50
-Nodes (3): 📡 API Layer, Define and Export Request Declarations, Use a Single Instance of the API Client
+Nodes (4): Absolute import alias convention (@/* → src/*), docs/project-standards.md, kebab-case file/folder naming convention enforced via check-file ESLint plugin, ESLint + Prettier + TypeScript + Husky tooling standards
 
-### Community 110 - "Community 110"
+### Community 151 - "e2e / tests"
 Cohesion: 0.50
-Nodes (3): 💻 Application Overview, Data model, Get Started
+Nodes (3): beneficiary, ME_WITH_TWO_CHURCHES, provider
 
-### Community 111 - "Community 111"
+### Community 152 - "e2e / tests"
 Cohesion: 0.50
 Nodes (3): composeLink, CONVERSATIONS_WITH_DATA, EMPTY_CONVERSATIONS_RESPONSE
 
-### Community 112 - "Community 112"
+### Community 153 - "qa-net.mjs"
+Cohesion: 0.50
+Nodes (3): hits, page, u
+
+### Community 155 - ".vscode / settings.json"
 Cohesion: 0.50
 Nodes (3): editor.codeActionsOnSave, source.fixAll.eslint, editor.formatOnSave
 
-### Community 113 - "Community 113"
-Cohesion: 1.00
-Nodes (3): src/lib/authorization.ts, Route-Role Access Matrix, UserRole (6 roles)
-
-### Community 119 - "Community 119"
+### Community 157 - "JanguBiUI / docs"
 Cohesion: 0.67
-Nodes (3): App Icon 192x192 PNG, App Icon 512x512 PNG, JanguBiUI Logo SVG
+Nodes (3): Component best practices: colocation, no nested render functions, prop-limit via composition, wrap 3rd-party components, docs/components-and-styling.md, Component/styling library options survey (Chakra, AntD, MUI, Mantine, Radix, Headless UI, Tailwind, shadcn/ui, Storybook)
+
+### Community 158 - "JanguBiUI / .github"
+Cohesion: 0.67
+Nodes (3): .github/dependabot.yml, Dependabot blocks eslint-plugin-react-hooks major version bumps because v6+ enables React Compiler rules (set-state-in-effect, incompatible-library) that break lint on valid SSR-hydration-guard / matchMedia / WebSocket-sync code, Dependabot npm/github-actions update grouping (minor+patch grouped into one PR, majors isolated; weekly/monthly schedule)
+
+## Ambiguous Edges - Review These
+- `CLAUDE.md (JanguBiUI)` → `Bulletproof-react template README: mock server on :8080/api, apps/nextjs-app clone instructions — stale, does not match actual JanguBiUI backend at :8001`  [AMBIGUOUS]
+  JanguBiUI/README.md · relation: conceptually_related_to
+- `CLAUDE.md (JanguBiUI)` → `Vite-style index.html referencing src/main.tsx and 'Bulletproof React Application' — stale template artifact inconsistent with the actual Next.js App Router project`  [AMBIGUOUS]
+  JanguBiUI/index.html · relation: conceptually_related_to
+- `no-restricted-syntax anti-palette ESLint rule forbidding raw Tailwind palette (bg-blue-500...) outside features/landing (dark forced)` → `Dependabot blocks eslint-plugin-react-hooks major version bumps because v6+ enables React Compiler rules (set-state-in-effect, incompatible-library) that break lint on valid SSR-hydration-guard / matchMedia / WebSocket-sync code`  [AMBIGUOUS]
+  JanguBiUI/.github/dependabot.yml · relation: conceptually_related_to
+- `JanguBi API.yaml (OpenAPI schema)` → `Document status → badge color mapping (submitted/under_verification/info_requested/validated/rejected/document_deposited), cites DESIGN.md §4.3`  [AMBIGUOUS]
+  JanguBiUI/docs/FRONTEND_PLAN.md · relation: references
+- `Users API (list, create, detail, update) — /api/v1/users` → `Generic bulletproof-react demo data model: User(ADMIN/USER)/Team/Discussion/Comment — template demo app, not JanguBi's actual parish/document domain model`  [AMBIGUOUS]
+  JanguBiUI/docs/application-overview.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **776 isolated node(s):** `app`, `@acme`, `config`, `name`, `version` (+771 more)
+- **1000 isolated node(s):** `BPS`, `THEMES`, `after`, `results`, `page` (+995 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `TanStack Query (react-query)` connect `Community 43` to `Community 0`, `Community 1`, `Community 3`, `Community 5`, `Community 8`, `Community 10`, `Community 13`, `Community 15`, `Community 16`, `Community 18`, `Community 19`, `Community 20`, `Community 24`, `Community 25`, `Community 26`, `Community 27`, `Community 28`, `Community 30`, `Community 34`, `Community 35`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 42`, `Community 45`, `Community 46`, `Community 47`, `Community 48`, `Community 49`, `Community 50`, `Community 51`, `Community 54`, `Community 55`, `Community 56`, `Community 70`, `Community 71`, `Community 72`, `Community 75`, `Community 76`, `Community 79`, `Community 81`, `Community 84`, `Community 86`, `Community 90`, `Community 93`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `Community 4` to `Community 88`, `Community 64`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
-- **Why does `clsx` connect `Community 4` to `Community 60`, `Community 36`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
-- **What connects `app`, `@acme`, `config` to the rest of the system?**
-  _776 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.051929824561403506 - nodes in this community are weakly interconnected._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.05901639344262295 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.03333333333333333 - nodes in this community are weakly interconnected._
+- **What is the exact relationship between `CLAUDE.md (JanguBiUI)` and `Bulletproof-react template README: mock server on :8080/api, apps/nextjs-app clone instructions — stale, does not match actual JanguBiUI backend at :8001`?**
+  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **What is the exact relationship between `CLAUDE.md (JanguBiUI)` and `Vite-style index.html referencing src/main.tsx and 'Bulletproof React Application' — stale template artifact inconsistent with the actual Next.js App Router project`?**
+  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **What is the exact relationship between `no-restricted-syntax anti-palette ESLint rule forbidding raw Tailwind palette (bg-blue-500...) outside features/landing (dark forced)` and `Dependabot blocks eslint-plugin-react-hooks major version bumps because v6+ enables React Compiler rules (set-state-in-effect, incompatible-library) that break lint on valid SSR-hydration-guard / matchMedia / WebSocket-sync code`?**
+  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **What is the exact relationship between `JanguBi API.yaml (OpenAPI schema)` and `Document status → badge color mapping (submitted/under_verification/info_requested/validated/rejected/document_deposited), cites DESIGN.md §4.3`?**
+  _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
+- **What is the exact relationship between `Users API (list, create, detail, update) — /api/v1/users` and `Generic bulletproof-react demo data model: User(ADMIN/USER)/Team/Discussion/Comment — template demo app, not JanguBi's actual parish/document domain model`?**
+  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
+- **Why does `cn()` connect `Donations UI Components` to `Confirmation Dialog Component`, `Admin Events & User Toggle`, `Admin Article/Document Lists`, `Document Detail Timeline`, `Package Dependencies (runtime)`, `Landing Page Sections`, `Admin Dashboard Routing (RBAC)`, `src / components`, `Clergy Invitation & Org Create`, `Clergé Pages & Analytics`, `Messaging CGU Acceptance`, `Rosary Groups + Audio Player`, `Table/Pagination UI Primitives`, `Liturgy of the Day API`, `Conversations Page + Settings`, `App Navigation (top/bottom bar)`, `Archevêque Dashboard`, `src / features`, `src / features`, `src / features`, `src / components`, `src / features`, `src / features`, `src / features`, `src / features`, `src / components`, `src / components`, `src / features`, `src / features`, `src / features`, `src / components`, `src / components`, `src / components`, `src / features`, `src / components`, `src / features`, `src / features`, `src / hooks`, `src / features`, `src / features`, `src / components`, `src / features`, `src / components`, `src / features`?**
+  _High betweenness centrality (0.161) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `Package Dependencies (runtime)` to `package.json`, `src / components`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._

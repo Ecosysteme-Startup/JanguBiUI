@@ -1,18 +1,21 @@
-import { Link } from '@/components/ui/link';
+import NextLink from 'next/link';
+
+import { ErrorScreen } from '@/components/errors/error-screen';
 import { paths } from '@/config/paths';
 
-const NotFoundPage = () => {
-  return (
-    <div className="mt-52 flex flex-col items-center font-semibold">
-      <h1>404 - Not Found</h1>
-      <p>Sorry, the page you are looking for does not exist.</p>
-      <Link href={paths.home.getHref()} replace>
-        Go to Home
-      </Link>
-    </div>
-  );
-};
+const NotFound = () => (
+  <ErrorScreen
+    code="Erreur 404"
+    title="Cette page n’existe pas."
+    actions={
+      <>
+        <NextLink href={paths.home.getHref()}>Revenir à l&apos;accueil</NextLink>
+        <NextLink href={paths.parole.getHref()}>Lire la Parole du jour</NextLink>
+      </>
+    }
+  >
+    <p className="m-0">Le lien est peut-être ancien, ou la page a changé d&apos;adresse.</p>
+  </ErrorScreen>
+);
 
-export default NotFoundPage;
-
-export const dynamic = 'force-dynamic';
+export default NotFound;

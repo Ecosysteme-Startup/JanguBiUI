@@ -1,221 +1,102 @@
-# CLAUDE.md — JanguBiUI (Frontend Next.js)
+# CLAUDE.md — JanguBiUI (frontend Next.js), refonte V1
 
-Frontend de la plateforme **Jàngu Bi** — Next.js 14 App Router, TanStack Query, Zustand, Tailwind CSS, shadcn/ui.
+Frontend de **Jàngu Bi** : Next.js 16 (App Router), TanStack Query, Zod, react-hook-form, Tailwind, primitives Radix, Vitest + MSW, Playwright, Storybook.
 
-> Voir le CLAUDE.md racine (`../CLAUDE.md`) pour les règles d'orchestration agents/skills.
+> **Source de vérité de la V1 : `docs/v1/`.** Lire `docs/v1/00-LIRE-D-ABORD.md` au début de chaque session.
+> Contrat de données : `../JanguBi/docs/v1/02-SRS-BACKEND-V1.md`. Les anciennes règles (rôles `UserRole`, `authorization.ts`, thème indigo/or, jetons en localStorage) sont **abandonnées**.
 
 ---
 
-## Commandes
+## 1. Périmètre V1
+
+- **Espaces** : public · fidèle (desktop et mobile) · back-office par nœud (paroisse, diocèse) · plateforme.
+- **Briques** : Parole · Ma paroisse · Demandes d'actes · Parler à un prêtre (+ rendez-vous de confession) · tableaux de bord.
+- **Features gelées** (ADR-F07) : `dons`, `intentions`, `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `clergy-accounts`, `clergy-declaration`, `analytics`, chapelet communautaire, Offices des Heures. Ne pas les modifier ni les réactiver.
+
+## 2. Maquettes = spécification
+
+- Chaque écran a sa maquette de référence dans `docs/v1/maquettes/` (index : `maquettes/INDEX.md` ; carte des routes : `docs/v1/02-SPEC-FRONT-V1.md` §2).
+- **Ouvrir la maquette avant de coder l'écran.** Reproduire la composition, la hiérarchie, les textes et les états. Ne rien réinventer.
+- Les fichiers `.dc.html` sont de la référence, jamais du code à importer. Ils sont exclus du lint, de tsc et du build.
+
+## 3. Charte (non négociable)
+
+- **Tokens `--jb-*` uniquement** (`src/styles/tokens.css`, généré depuis `docs/v1/design/tokens.css`). Aucune couleur en dur, aucune classe de palette Tailwind brute (règle ESLint anti-palette).
+- 4 palettes (`lumiere` par défaut, `ciel`, `atlantique`, `cathedrale`) × clair/sombre, via `data-palette` et la classe `dark`.
+- **Polices** : Source Serif 4 (titres, Parole) et Libre Franklin (interface), via `next/font`. Aucune autre.
+- **Interdits** : dégradés de fond, cartes à bordure gauche colorée, emoji, tuiles d'action identiques en grille, rangées de « stat cards », petites capitales espacées, Inter, Geist, Fraunces, Instrument Serif.
+- Typographie française : `frenchTypo()` (espaces insécables, « »), dates en français (`dayjs` locale `fr`).
+- Accessibilité WCAG 2.1 AA : vrais `<button>`, `<a>` et `<label>`, focus visible, cibles ≥ 44 px, `aria-label` sur les boutons icône.
+
+## 4. Architecture — Bulletproof React (CRITIQUE)
+
+```
+src/app/          routes App Router (public, /app, /espace/[nodeId], /plateforme)
+src/components/   partagé : ui/ (primitives), layouts/ (shells), signature/ (LiturgicalBanner, PhotoSlot…)
+src/config/       env.ts, paths.ts (TOUTES les routes — ne jamais coder une URL en dur)
+src/features/     un dossier par feature : api/, components/, hooks/, types/, utils/
+src/lib/          api-client.ts, auth (Auth.js), can.ts (capacités), ws.ts, react-query.ts
+src/testing/      MSW (handlers conformes au contrat), factories, renderApp
+```
+
+- **Jamais** d'import d'une feature vers une autre. Flux : shared → features → app. **Pas de barrel files.**
+- Un fichier par endpoint : schéma Zod, fetcher (`api.get/post…`), hook `useQuery`/`useMutation`.
+- **Corps de requête dérivés du contrat** : `RequestBody<'operationId'>` (`src/types/api-contract`). `yarn generate-api` après chaque changement du `schema.yml` backend.
+- Zustand réservé à l'état d'interface (nœud courant, préférences) ; jamais de données serveur.
+
+## 5. Authentification et autorisation
+
+- **Keycloak via Auth.js v5** (ADR-F02) : session en cookie httpOnly, refresh automatique. **Aucun jeton dans `localStorage`.**
+- `api-client` ajoute le Bearer depuis la session ; un 401 déclenche un refresh, puis une redirection vers la connexion.
+- `ws.ts` : jeton frais à chaque connexion ; reprise plafonnée, puis état « hors ligne ».
+- **Autorisation d'affichage** : `useCan(capacite, nodeId?)`, `useNodes(capacite)`, `<RequireCapability>` alimentés par `GET /me/capacites/`. **Aucune fonction par rôle.** Le backend reste l'autorité.
+- Tant que F3 n'est pas livré, l'ancienne authentification reste en place : ne pas l'étendre.
+
+## 6. Règles métier visibles dans l'interface
+
+- La demande d'acte va à la **paroisse du sacrement** ; l'acte est un original à retirer : **jamais de PDF d'acte**.
+- **Pas de confession par message** : `ConfessionNotice` toujours visible dans la messagerie ; la réservation de confession n'a **aucun champ de contenu**.
+- Messagerie réservée aux majeurs (message explicatif si refus).
+- Notes internes et contenu des messages : jamais affichés hors de leur destinataire.
+- Tableaux de bord au-dessus de la paroisse : agrégats uniquement.
+
+## 7. Vérification AVANT push — CI locale OBLIGATOIRE (ADR-F09)
+
+> **Aucun push ni PR vers `develop`, `stage` ou `main` sans `make act` vert.** Un push vert déclenche le build Docker et le déploiement.
 
 ```bash
-# Depuis JanguBiUI/
-yarn dev          # Serveur de développement (port 3000)
-yarn build        # Build production — doit être clean (0 erreurs TS)
-yarn test --run   # Vitest — tous les tests doivent passer (247/247)
-yarn lint         # ESLint (eslint src) — doit être clean (0 erreur)
-yarn lint:fix     # ESLint --fix
-yarn format       # Prettier --write (le formatage n'est PAS géré par ESLint)
-yarn check-types  # tsc --noEmit
+make act          # act push --job lint-and-typecheck : lint + types + tests + build
+make ci-docker    # build local de l'image de prod, SANS push
+make hooks        # hook pre-push qui lance make act vers develop/stage/main
 ```
 
-> Note ESLint : la config (`.eslintrc.cjs`) est en eslintrc legacy sous ESLint 8.
-> `eslint-config-next@16` est flat-config-only et incompatible → on ne charge PAS
-> `next/core-web-vitals`. La règle **anti-palette** (`no-restricted-syntax`) interdit
-> la palette Tailwind brute (`bg-blue-500`…) hors `src/features/landing` (dark forcé).
+- **Jamais via act** : `build-docker` (push DockerHub) et `trigger-deploy`.
+- Plan B : `yarn lint && yarn check-types && yarn test --run && yarn build`, à mentionner dans la PR.
+- Claude Code travaille sur `feat/v1-fX-…`, ouvre une PR et **ne merge jamais** lui-même.
 
-API backend : `http://localhost:8001/api/v1/`
+## 8. Tests
 
----
+- Vitest + Testing Library + MSW, co-localisés (`__tests__/`). Ne jamais mocker `fetch` ou `api` : toujours MSW.
+- `renderApp({ route, user, capacites })` pour rendre une page avec session et capacités simulées.
+- Playwright pour les parcours dorés ; axe pour l'accessibilité ; Storybook pour chaque composant du design system (clair, sombre, 4 palettes).
 
-## Architecture — Bulletproof React (CRITIQUE)
+## 9. Agents et skills
 
-```
-src/
-├── app/              # Next.js App Router — pages et layouts
-├── components/       # Composants partagés toute l'application
-│   └── ui/           # Primitives UI (Button, Input, Dialog…)
-├── config/           # Configuration et exports env
-│   └── paths.ts      # Toutes les routes — NE PAS hardcoder les URLs
-├── features/         # Modules feature-based — cœur du codebase
-├── hooks/            # Hooks partagés
-├── lib/              # Bibliothèques préconfigurées (api-client, auth)
-├── stores/           # Stores Zustand globaux
-├── testing/          # Utilitaires de test, handlers MSW, factories
-├── types/            # Types TypeScript partagés
-└── utils/            # Fonctions utilitaires partagées
-```
+| Situation | Agent / skill |
+|---|---|
+| Nouvelle feature ou écran | `react-feature-architect` (livrable dans `docs/v1/conception/`) |
+| Tests | `react-tdd-assistant`, skill `react-testing` |
+| Revue | `react-reviewer` |
+| Auth, session | skill `react-auth` |
+| Design system | skills `frontend-design`, `frontend-patterns` |
+| Erreurs | `react-error-handler` |
 
-### Structure d'une feature
+Prompts prêts à l'emploi : `docs/v1/05-PROMPTS-CLAUDE-CODE.md`.
 
-```
-src/features/<nom>/
-├── api/         # Hooks react-query + fetchers (un fichier par endpoint)
-├── components/  # Composants scopés à cette feature
-│   └── __tests__/
-├── hooks/       # Hooks scopés à cette feature
-├── stores/      # Stores Zustand locaux à cette feature
-├── types/       # Types TypeScript de cette feature
-└── utils/       # Utilitaires de cette feature
-```
-
-### Règles d'import (CRITIQUES — enforce par ESLint)
-
-- **Jamais** d'import cross-feature (`features/auth` ne peut pas importer depuis `features/news`)
-- Flux unidirectionnel : `shared → features → app`
-- **Pas de barrel files** (`index.ts`) — casse le tree-shaking
-
----
-
-## Couche API
-
-**Un seul client Axios** dans `src/lib/api-client.ts`. Ne jamais appeler `fetch()` ou `axios` directement dans les composants.
-
-Chaque endpoint = un fichier dans `src/features/<nom>/api/` avec :
-1. **Schéma Zod** — valide et type la réponse
-2. **Fetcher** — appelle `api.get/post/patch/delete`
-3. **Hook react-query** — `useQuery` ou `useMutation`
-
-```typescript
-// Pattern standard query
-export const useMyData = () =>
-  useQuery({ queryKey: ['my-data'], queryFn: () => api.get('/my-data/') });
-
-// Pattern standard mutation
-export const useCreateThing = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Input) => api.post('/things/', data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['things'] }),
-  });
-};
-```
-
----
-
-## Authentification
-
-- `useUser()` depuis `src/lib/auth.tsx` — source de vérité pour l'utilisateur connecté
-- Token JWT stocké dans localStorage (patterns existants du projet)
-- `clearAccessToken()` / `clearRefreshToken()` avant tout redirect logout
-- Le 401 handler dans `api-client.ts` redirige vers `/auth/login` UNIQUEMENT si `!window.location.pathname.startsWith('/auth/')` (évite la boucle infinie)
-
----
-
-## Autorisation — `src/lib/authorization.ts`
-
-Fonctions existantes à NE PAS dupliquer :
-
-```typescript
-isAdmin(user)                // Tout rôle admin
-isSuperAdmin(user)           // super_admin uniquement
-isProvinceAdminOrAbove(user) // province_admin | super_admin
-isDioceseAdminOrAbove(user)  // diocese_admin et au-dessus
-isParishLevelAdmin(user)     // parish_admin | church_admin
-isFidele(user)               // fidele uniquement
-canCreateArticle(user)       // Peut créer un article
-canPublishArticle(user)      // Peut publier un article
-canProcessDocuments(user)    // Peut traiter des documents
-canManageUsers(user)         // Peut gérer les utilisateurs
-canManageTV(user)            // Peut gérer JanguBi TV
-isClergy(user)               // archeveque | eveque | pretre | diacre | religieux
-isPretre(user)               // pretre uniquement
-isEvequeOrAbove(user)        // eveque | archeveque
-```
-
-> Les sélecteurs/hooks territoriaux (paroisse, diocèse, province, église) sont
-> **partagés** : composants dans `src/components/org/`, hooks dans `src/lib/org/`.
-> NE PAS les remettre dans une feature (import cross-feature interdit).
-
----
-
-## Tests
-
-- **Framework** : Vitest + Testing Library + MSW
-- **Co-location** : `src/features/<nom>/components/__tests__/<nom>.test.tsx`
-- **Jamais** mocker `fetch` ou `api` directement — toujours passer par MSW
-- Helper central : `src/testing/test-utils.tsx` → `renderApp({ route })`
-- État actuel : **247/247 tests passent**
+## 10. Commandes
 
 ```bash
-# Un seul test
-cd JanguBiUI && yarn test --reporter=verbose src/features/bible
+yarn dev | build | lint | lint:fix | format | check-types | test --run | storybook
+yarn generate-api            # types depuis le schéma OpenAPI du backend (django sur :8001)
+yarn generate-api:offline    # idem, via docker compose du backend
 ```
-
----
-
-## Features existantes
-
-| Page | Status | Route |
-|---|---|---|
-| Auth (login, register, reset, verify) | ✅ | `/auth/*` |
-| Bible | ✅ | `/app/bible` |
-| Chapelet | ✅ | `/app/chapelet` |
-| Liturgie du jour | ✅ | `/app/spirituel/liturgie` |
-| Messagerie WebSocket | ✅ | `/app/messages/*` |
-| Documents (fidèle : créer + suivre) | ✅ | `/app/documents/*` |
-| Actus (lecture seule) | ✅ | `/app/actus/*` |
-| JanguBi TV (lecture seule) | ✅ | `/app/tv` |
-| Assistant spirituel RAG | ✅ | `/app/assistant` |
-| Profil utilisateur | ✅ | `/app/profil` |
-| Liturgie des Heures (offices) | ✅ | `/app/spirituel/heures` |
-| Intentions de messe (fidèle + clergé) | ✅ | `/app/intentions`, `/app/clerge/intentions` |
-| Transfert paroissial (clergé) | ✅ | `/app/transfert`, `/app/clerge/transferts` |
-| Inter-clergé messaging | ✅ | `/app/clerge/messages` |
-| Agenda / événements | ✅ | `/app/agenda` |
-| Admin (users, org, TV, articles, documents, agenda) | ✅ | `/app/admin/*` |
-
-> Toute la refonte UI « Sacred Editorial » (Phases 0→6 + clôture) est livrée sur
-> la branche `feat/refonte-ui-sacred-editorial` : tokens light-first + dark réparé,
-> kit design-system (`src/components/ui`), a11y, `DataTable`/`StatusBadge`/`RoleGuard`.
-
-## Features manquantes (priorité SRS)
-
-| Feature | Priorité |
-|---|---|
-| Navigation conditionnelle par rôle (affinage) | 🟡 P2 |
-| Dashboard fidèle scopé à sa paroisse (données réelles) | 🔴 P1 |
-| CMS Articles — 3 types distincts (Annonce/Article/Lettre) | 🔴 P2 |
-| Allo-Prêtre (disponibilités ministres) | 🔴 P2 |
-| CRUD org complet (backend : PATCH/DELETE sur Detail APIs) | 🟡 P3 |
-| Intentions de messe — alignement workflow backend | 🟡 P3 |
-
----
-
-## Agents Claude à utiliser — Frontend
-
-| Situation | Agent / Skill |
-|---|---|
-| Avant toute nouvelle feature | `react-feature-architect` |
-| Écrire les tests avant d'implémenter | `react-tdd-assistant` |
-| Review après chaque modification React | `react-reviewer` |
-| Mise en place gestion d'erreurs | `react-error-handler` |
-| Référence nouvelle feature Bulletproof | skill `react-new-feature` |
-| Auth pattern, cookies, useUser | skill `react-auth` |
-| Tests Vitest + MSW + Playwright | skill `react-testing` |
-| Design system, shadcn, Tailwind | skill `frontend-design` |
-| Composition, state types, URL state | skill `frontend-patterns` |
-| Swiper, animations, transitions | skill `frontend-slides` |
-
----
-
-## Dette connue / suivi
-
-- **Allo-Prêtre** (disponibilités ministres) n'existe pas encore — ni la feature
-  `allo-pretre`, ni la route `/app/admin/availability`. À construire (pas à « réintégrer »).
-- **CRUD org** : la page `/app/admin/org` affiche l'existant en lecture ; les
-  endpoints backend `PATCH`/`DELETE` sur les Detail APIs manquent pour create/edit/delete.
-- **ESLint** : config eslintrc legacy (ESLint 8) — migration flat-config + ESLint 9
-  recommandée à terme (cf. note Commandes).
-
----
-
-## Conventions de nommage
-
-| Élément | Convention | Exemple |
-|---|---|---|
-| Composant | PascalCase | `ReadingsSwiper`, `ArticleCard` |
-| Hook | `use` prefix | `useMyParishArticles` |
-| Fichier API | verb-noun | `get-articles.ts`, `create-document.ts` |
-| Store | noun + `Store` | `notificationsStore` |
-| Test | `__tests__/name.test.tsx` | co-localisé avec la source |

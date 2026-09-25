@@ -1,47 +1,30 @@
-import * as React from 'react';
-
 import { cn } from '@/utils/cn';
 
-interface EmptyStateProps {
-  /** Icône lucide (taille gérée par le composant). */
-  icon?: React.ReactNode;
-  title: string;
-  description?: React.ReactNode;
-  /** Action optionnelle (ex. un <Button>). */
-  action?: React.ReactNode;
-  className?: string;
-}
+import { Icon, type IconName } from './icon';
 
-/**
- * État vide partagé, tokenisé et en français.
- * Remplace les blocs `border-dashed text-center` réinventés par feature.
- */
-export function EmptyState({
-  icon,
+/** État vide ou d'erreur : sobre, filet, jamais d'emoji. */
+export const EmptyState = ({
+  icon = 'info',
   title,
-  description,
+  children,
   action,
+  tone = 'neutral',
   className,
-}: EmptyStateProps) {
-  return (
-    <div
-      className={cn(
-        'flex animate-fade-in flex-col items-center justify-center rounded-xl border border-dashed border-border bg-background-surface/60 px-6 py-12 text-center',
-        className,
-      )}
-    >
-      {icon && (
-        <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary [&_svg]:size-7">
-          {icon}
-        </div>
-      )}
-      <p className="font-serif text-lg font-semibold text-foreground">{title}</p>
-      {description && (
-        <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-          {description}
-        </p>
-      )}
-      {action && <div className="mt-5">{action}</div>}
-    </div>
-  );
-}
+}: {
+  icon?: IconName;
+  title: string;
+  children?: React.ReactNode;
+  action?: React.ReactNode;
+  tone?: 'neutral' | 'err';
+  className?: string;
+}) => (
+  <div
+    role={tone === 'err' ? 'alert' : undefined}
+    className={cn('flex flex-col items-start gap-3 border border-line bg-surface px-6 py-8', className)}
+  >
+    <Icon name={icon} size={24} className={tone === 'err' ? 'text-err' : 'text-ink-3'} />
+    <p className="m-0 font-serif text-h4 text-ink">{title}</p>
+    {children && <div className="max-w-reading text-base text-ink-2">{children}</div>}
+    {action}
+  </div>
+);

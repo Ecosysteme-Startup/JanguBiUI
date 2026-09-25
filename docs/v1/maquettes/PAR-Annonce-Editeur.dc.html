@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Éditeur d'annonce</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085887 !important;border-color:#085887 !important;color:#F7FAFD !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#0E1A2B !important;color:#FFFFFF !important}
+.jb-btn-t:hover{color:#085887 !important;border-color:#085887 !important}
+.jb-btn-d:hover{background:#A12A22 !important;color:#F7FAFD !important;border-color:#A12A22 !important}
+.jb-nav:hover{color:#0A6BA3 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-row:hover{background:#EDF3F9}
+.jb-chip:hover{border-color:#0E1A2B !important}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-card:hover{border-color:#0E1A2B !important}
+.jb-slot:hover{border-color:#0A6BA3 !important;color:#0A6BA3 !important}
+.jb-foot:hover{color:#F7FAFD !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1300px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 272px minmax(0, 1fr); background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif;">
+
+  <!-- SIDEBAR -->
+  <aside style="display: flex; flex-direction: column; padding: 24px 16px 16px 16px; background: #F7FAFD; border-right: 1px solid #0E1A2B; box-sizing: border-box; min-height: 0;">
+    <a href="PAR-Tableau-de-bord.dc.html" aria-label="Jàngu Bi, espace paroisse" style="display: block; padding: 0 12px; color: #0E1A2B;">
+      <span style="display: block; font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+      <span style="display: block; margin-top: 8px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Espace paroisse</span>
+    </a>
+    <button type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Changer de contexte : Paroisse Saint-Dominique" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; margin-top: 24px; padding: 12px; background: #FFFFFF; border: 1px solid #8391A4; border-radius: 2px; text-align: left; color: #0E1A2B; cursor: pointer; box-sizing: border-box;">
+      <span style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+        <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Paroisse</span>
+        <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 21px; line-height: 1.05;">Saint-Dominique</span>
+        <span style="font-size: 13px; color: #3A4859;">Archidiocèse de Dakar</span>
+      </span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m6 9 6 6 6-6"></path></svg>
+    </button>
+    <nav aria-label="Espace paroisse" style="display: flex; flex-direction: column; margin-top: 8px;">
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Pilotage</p>
+      <a href="PAR-Tableau-de-bord.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z"></path></svg>Tableau de bord
+      </a>
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Vie paroissiale</p>
+      <a href="PAR-Annonces.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; background: #EDF3F9; color: #0A6BA3; font-size: 15px; font-weight: 600;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h13V19a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 4 19z"></path><path d="M17 9h3v10a1.5 1.5 0 0 1-3 0M7.5 9h6M7.5 12.5h6M7.5 16h4"></path></svg>Annonces
+      </a>
+      <a href="PAR-Horaires.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Horaires et lieux de culte
+      </a>
+      <a href="PAR-Agenda.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="1"></rect><path d="M3.5 9.5h17M8 3v4M16 3v4"></path></svg>Agenda
+      </a>
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Sacrements et accueil</p>
+      <a href="PAR-Demandes.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7M9 18.5h4"></path></svg><span style="flex: 1;">Demandes d'actes</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums;"><span style="color: #A12A22;">2</span> · 17</span>
+      </a>
+      <a href="PAR-Messagerie.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11h-9l-4.5 3.5V16H4z"></path></svg><span style="flex: 1;">Messagerie</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums;">9</span>
+      </a>
+      <a href="PAR-Confessions.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21M3.5 21h17"></path><path d="M9.5 7.5h5v4h-5zM12 7.5v4M15 15v1.5"></path></svg><span style="flex: 1;">Confessions</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums;">12</span>
+      </a>
+      <p style="margin: 0; padding: 16px 12px 8px 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Administration</p>
+      <a href="PAR-Equipe.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.25"></circle><path d="M3 19.5c.8-3.2 3.2-4.8 6-4.8s5.2 1.6 6 4.8M15.5 5.5a3.25 3.25 0 0 1 0 6.3M17.5 14.9c1.8.6 3 2.1 3.5 4.6"></path></svg>Équipe et nominations
+      </a>
+      <a href="PAR-Parametres.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"></path><circle cx="15" cy="7" r="2"></circle><circle cx="9" cy="17" r="2"></circle></svg>Paramètres
+      </a>
+    </nav>
+    <div style="display: flex; align-items: center; gap: 12px; margin-top: auto; padding: 16px 0 0 12px; border-top: 1px solid #DDE5EE;">
+      <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;">GF</span>
+      <div style="flex: 1; min-width: 0;">
+        <p style="margin: 0; font-size: 14px; font-weight: 600;">Mme Germaine Faye</p>
+        <p style="margin: 2px 0 0 0; font-size: 13px; color: #3A4859;">Secrétaire paroissiale</p>
+        <p style="display: flex; align-items: center; gap: 4px; margin: 4px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #1F6B5C; font-variant-numeric: tabular-nums;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 19 6v5.5c0 4.5-3 7.8-7 9.5-4-1.7-7-5-7-9.5V6z"></path><path d="m9 12 2 2 4-4"></path></svg>MFA active</p>
+      </div>
+      <a href="PUB-Connexion.dc.html" class="jb-icon" aria-label="Se déconnecter" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; color: #3A4859; border-radius: 2px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"></path></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- COLONNE PRINCIPALE -->
+  <div style="display: flex; flex-direction: column; min-width: 0; min-height: 0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; flex: none; padding: 0 40px; border-bottom: 1px solid #DDE5EE; box-sizing: border-box;">
+      <nav aria-label="Fil d'Ariane" style="font-size: 14px; color: #586677;">
+        <a href="PAR-Tableau-de-bord.dc.html" class="jb-nav" style="color: #586677;">Saint-Dominique</a>
+        <span aria-hidden="true" style="margin: 0 8px;">/</span>
+        <a href="PAR-Annonces.dc.html" class="jb-nav" style="color: #586677;">Annonces</a>
+        <span aria-hidden="true" style="margin: 0 8px;">/</span>
+        <span aria-current="page" style="color: #0E1A2B; font-weight: 500;">Modifier l'annonce</span>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <label for="bo-recherche" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Rechercher un fidèle, une référence, une annonce</label>
+        <div style="display: flex; align-items: center; gap: 8px; width: 320px; height: 40px; padding: 0 12px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; color: #586677; box-sizing: border-box;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5.5 5.5"></path></svg>
+          <input id="bo-recherche" type="search" placeholder="Fidèle, JB-2026-…, annonce" style="flex: 1; min-width: 0; height: 36px; border: 0; background: transparent; font-size: 14px; color: #0E1A2B; outline: none;">
+          <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #586677; font-variant-numeric: tabular-nums;">Ctrl K</span>
+        </div>
+        <button type="button" class="jb-icon" aria-label="Notifications, 4 nouvelles" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: transparent; color: #0E1A2B; border: 1px solid #DDE5EE; border-radius: 2px; cursor: pointer;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+          <span style="position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; background: #0A6BA3; color: #F7FAFD; font-family: 'Libre Franklin', sans-serif; font-size: 12px; line-height: 18px; text-align: center; box-sizing: border-box; font-variant-numeric: tabular-nums;">4</span>
+        </button>
+        <a href="FID-Accueil.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; height: 40px; padding-left: 8px; font-size: 14px; font-weight: 500; color: #0A6BA3;">Voir l'espace fidèle</a>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 36px; flex: none; padding: 0 40px; box-sizing: border-box; border-bottom: 3px double #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0E1A2B; font-variant-numeric: tabular-nums;">
+      <span>Jeudi 24 septembre 2026</span>
+      <span style="display: flex; align-items: center; gap: 12px;">
+        <span>Jeudi de la 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire</span>
+        <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #2E6B3F; border-radius: 999px; color: #2E6B3F; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2E6B3F;"></span>Vert</span>
+      </span>
+      <span style="color: #3A4859;">Dimanche 27 : 26<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> dimanche (A)</span>
+    </div>
+
+    <main style="flex: 1; min-height: 0; padding: 24px 40px 40px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px;">
+
+      <!-- EN-TÊTE -->
+      <div style="flex: none;">
+        <a href="PAR-Annonces.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; color: #0A6BA3; font-size: 14px; font-weight: 500;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12h-15M10.5 6l-6 6 6 6"></path></svg>Retour · Annonces</a>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-top: 12px;">
+          <div>
+            <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span style="color: #0A6BA3;">Brouillon</span> — Abbé Augustin Ndiaye · enregistré automatiquement à 9 h 40</p>
+            <h1 style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1; letter-spacing: -0.015em;">Annonce du dimanche</h1>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <button type="button" class="jb-btn-t" style="display: inline-flex; align-items: center; height: 44px; padding: 0 8px; background: transparent; border: 0; color: #0A6BA3; font-size: 15px; font-weight: 500; cursor: pointer;"><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Enregistrer le brouillon</span></button>
+            <button type="button" class="jb-btn-s" style="display: inline-flex; align-items: center; height: 44px; padding: 0 20px; background: transparent; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 15px; font-weight: 500; cursor: pointer;">Publier maintenant</button>
+            <button type="button" class="jb-btn-p" style="display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 20px; background: #0A6BA3; color: #F7FAFD; border: 1px solid #0A6BA3; border-radius: 2px; font-size: 15px; font-weight: 500; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>Programmer · sam. 26.09, 12 h</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CORPS : éditeur + panneau -->
+      <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: 24px;">
+
+        <!-- ÉDITEUR -->
+        <section aria-label="Contenu de l'annonce" style="grid-column: span 8; display: flex; flex-direction: column; gap: 20px; min-height: 0;">
+          <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid #0E1A2B;">
+            <label for="ed-titre" style="display: flex; justify-content: space-between; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span><span style="color: #0A6BA3;">01</span> — Titre <span style="color: #A12A22;" aria-hidden="true">*</span></span><span style="color: #586677;">45 / 90</span></label>
+            <input id="ed-titre" type="text" value="Quête impérée pour le Grand Séminaire de Brin" required style="height: 56px; padding: 0; background: transparent; border: 0; border-bottom: 1px solid #8391A4; border-radius: 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 31px; letter-spacing: -0.01em; color: #0E1A2B; box-sizing: border-box;">
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label for="ed-chapo" style="display: flex; justify-content: space-between; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span><span style="color: #0A6BA3;">02</span> — Chapô</span><span style="color: #586677;">171 / 280</span></label>
+            <textarea id="ed-chapo" rows="2" aria-describedby="ed-chapo-aide" style="padding: 12px 14px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 18px; line-height: 1.55; color: #0E1A2B; resize: vertical; box-sizing: border-box;">Ce dimanche, la quête de toutes les messes, y compris la messe anticipée du samedi, est entièrement reversée au Grand Séminaire de Brin.</textarea>
+            <p id="ed-chapo-aide" style="margin: 0; font-size: 14px; color: #586677;">Repris dans la liste des annonces et dans la notification envoyée aux fidèles.</p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <p style="display: flex; justify-content: space-between; margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span><span style="color: #0A6BA3;">03</span> — Bannière</span><span style="color: #586677;">Format 4:1 · 1 600 × 400 px minimum</span></p>
+            <figure data-photo-slot="par-editeur-banniere" style="margin: 0;">
+              <div role="img" aria-label="Emplacement photo : parvis de l'église Saint-Dominique à la sortie de la messe de 11 h 30" style="position: relative; aspect-ratio: 4 / 1; overflow: hidden; background: #EEF6FC; border: 1px solid #DDE5EE;">
+                <svg viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" aria-hidden="true" style="position: absolute; top: 0; left: 0; display: block;">
+                  <rect width="800" height="156" fill="#D9EBF7"></rect>
+                  <rect y="156" width="800" height="44" fill="#EEF6FC"></rect>
+                  <path d="M0 156h800" stroke="#B3D8F0" stroke-width="1"></path>
+                  <path d="M470 156V84a44 44 0 0 1 88 0v72M590 156V84a44 44 0 0 1 88 0v72" fill="none" stroke="#B3D8F0" stroke-width="1.5"></path>
+                  <polygon points="150,40 240,40 620,200 360,200" fill="#FFFFFF" opacity="0.32"></polygon>
+                  <polygon points="176,56 214,56 520,200 420,200" fill="#FFFFFF" opacity="0.38"></polygon>
+                  <polygon points="400,166 540,166 570,196 420,196" fill="#FFFFFF" opacity="0.6"></polygon>
+                  <path d="M136 120V56a40 40 0 0 1 80 0v64z" fill="#06466C"></path>
+                  <path d="M142 114V56a34 34 0 0 1 68 0v58z" fill="#3FA3DD"></path>
+                  <rect x="142" y="78" width="22" height="36" fill="#7FC0E8"></rect>
+                  <rect x="164" y="78" width="22" height="36" fill="#1A8FCC"></rect>
+                  <rect x="186" y="78" width="24" height="36" fill="#B3D8F0"></rect>
+                  <circle cx="176" cy="50" r="10" fill="#EEF6FC" opacity="0.75"></circle>
+                  <path d="M164 26v88M186 26v88M142 78h68M142 96h68" stroke="#06466C" stroke-width="2"></path>
+                </svg>
+              </div>
+              <figcaption style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px;">
+                <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">PHOTO · Parvis de Saint-Dominique à la sortie de la messe de 11 h 30</span>
+                <span style="display: flex; align-items: center; gap: 12px; flex: none;">
+                  <button type="button" class="jb-btn-s" style="display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; background: transparent; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 14px; font-weight: 500; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 16.5v4h15v-4"></path></svg>Remplacer</button>
+                  <button type="button" class="jb-btn-t" style="display: inline-flex; align-items: center; height: 36px; padding: 0; background: transparent; border: 0; color: #0A6BA3; font-size: 14px; font-weight: 500; cursor: pointer;"><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Texte alternatif</span></button>
+                </span>
+              </figcaption>
+            </figure>
+          </div>
+
+          <!-- Zone WYSIWYG -->
+          <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px;">
+            <div role="toolbar" aria-label="Mise en forme" style="display: flex; align-items: center; gap: 4px; height: 52px; flex: none; padding: 0 8px; border-bottom: 1px solid #DDE5EE; box-sizing: border-box;">
+              <label for="ed-style" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Style de paragraphe</label>
+              <div style="position: relative;">
+                <select id="ed-style" style="height: 36px; padding: 0 32px 0 10px; appearance: none; -webkit-appearance: none; background: #FFFFFF; border: 1px solid #DDE5EE; border-radius: 2px; font-size: 14px; color: #0E1A2B;">
+                  <option>Paragraphe</option>
+                  <option>Titre de section</option>
+                  <option>Sous-titre</option>
+                </select>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E1A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 10px; top: 10px; pointer-events: none;"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+              <span aria-hidden="true" style="width: 1px; height: 24px; margin: 0 8px; background: #DDE5EE;"></span>
+              <button type="button" class="jb-icon" aria-label="Gras" aria-pressed="false" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 0; border-radius: 2px; color: #0E1A2B; font-size: 16px; font-weight: 700; cursor: pointer;">B</button>
+              <button type="button" class="jb-icon" aria-label="Italique" aria-pressed="false" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 0; border-radius: 2px; color: #0E1A2B; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 21px; cursor: pointer;">I</button>
+              <span aria-hidden="true" style="width: 1px; height: 24px; margin: 0 8px; background: #DDE5EE;"></span>
+              <button type="button" class="jb-icon" aria-label="Liste à puces" aria-pressed="false" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 0; border-radius: 2px; color: #0E1A2B; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 6.5h11M9.5 12h11M9.5 17.5h11"></path><circle cx="4.5" cy="6.5" r="1"></circle><circle cx="4.5" cy="12" r="1"></circle><circle cx="4.5" cy="17.5" r="1"></circle></svg></button>
+              <button type="button" class="jb-icon" aria-label="Liste numérotée" aria-pressed="false" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 0; border-radius: 2px; color: #0E1A2B; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6.5h10.5M10 12h10.5M10 17.5h10.5M4 5l1.5-1v5M3.5 14.5c.4-1 3-1 3 .5 0 1.2-3 2-3 3.5h3"></path></svg></button>
+              <span aria-hidden="true" style="width: 1px; height: 24px; margin: 0 8px; background: #DDE5EE;"></span>
+              <button type="button" aria-label="Lien" aria-pressed="true" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #EEF6FC; border: 1px solid #0A6BA3; border-radius: 2px; color: #0A6BA3; cursor: pointer; box-sizing: border-box;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></button>
+              <button type="button" class="jb-icon" aria-label="Insérer une image" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 0; border-radius: 2px; color: #0E1A2B; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="1"></rect><circle cx="9" cy="10" r="1.75"></circle><path d="m20.5 16-5-5-9 8"></path></svg></button>
+              <button type="button" class="jb-icon" aria-label="Citation" aria-pressed="false" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: 0; border-radius: 2px; color: #0E1A2B; cursor: pointer;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 7.5H6A1.5 1.5 0 0 0 4.5 9v3.5H10zM10 12.5c0 2.8-1.6 4.5-4.5 5M19.5 7.5h-4A1.5 1.5 0 0 0 14 9v3.5h5.5zM19.5 12.5c0 2.8-1.6 4.5-4.5 5"></path></svg></button>
+              <span style="margin-left: auto; padding-right: 8px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">214 mots · 1 min de lecture</span>
+            </div>
+            <div id="ed-corps" role="textbox" aria-multiline="true" aria-label="Corps de l'annonce" contenteditable="true" style="flex: 1; min-height: 0; overflow: auto; padding: 24px 32px; font-size: 17px; line-height: 1.65; color: #0E1A2B; outline: none;">
+              <p style="margin: 0; max-width: 68ch;">Chers frères et sœurs, comme chaque année à l'approche de la rentrée des séminaires, l'archidiocèse de Dakar demande une quête impérée en faveur du Grand Séminaire de Brin. Elle sera faite à toutes les messes de ce dimanche, y compris à la messe anticipée du samedi 26 septembre à 18 h 30.</p>
+              <blockquote style="margin: 20px 0 0 0; padding: 4px 0 4px 24px; border-left: 1px solid #0E1A2B; max-width: 60ch;">
+                <p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 22px; line-height: 1.3;">« La moisson est grande, mais il y a peu d'ouvriers. Priez donc le maître de la moisson d'envoyer des ouvriers dans sa moisson. »</p>
+                <p style="margin: 8px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Mt 9, 37-38</p>
+              </blockquote>
+              <h3 style="margin: 24px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.18;">Horaires des messes de ce week-end</h3>
+              <ul style="margin: 8px 0 0 0; padding-left: 22px; max-width: 68ch;">
+                <li>Samedi 26 septembre, 18 h 30 : messe anticipée, église Saint-Dominique</li>
+                <li>Dimanche 27 septembre : 7 h 30, 9 h 30 (messe des étudiants), 11 h 30 et 18 h 30, église Saint-Dominique</li>
+                <li>Dimanche 27 septembre, 8 h 30 : chapelle de la Cité universitaire</li>
+              </ul>
+              <p style="margin: 16px 0 0 0; max-width: 68ch;">Des enveloppes sont à votre disposition à l'entrée de l'église. Vous pouvez aussi déposer votre offrande au <a href="PAR-Parametres.dc.html" style="color: #0A6BA3; background: #EEF6FC; border-bottom: 1px solid #0A6BA3;">secrétariat paroissial</a> jusqu'au vendredi 2 octobre. Merci pour votre générosité envers ceux qui se préparent à servir nos communautés.</p>
+              <p style="margin: 16px 0 0 0; font-style: italic; color: #3A4859;">Abbé Augustin Ndiaye, curé</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANNEAU DE PUBLICATION -->
+        <aside aria-label="Publication" style="grid-column: span 4; display: flex; flex-direction: column; gap: 16px; min-height: 0;">
+          <div style="padding-top: 12px; border-top: 1px solid #0E1A2B;">
+            <p style="display: flex; justify-content: space-between; margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span><span style="color: #0A6BA3;">04</span> — Publication</span></p>
+            
+
+            <fieldset style="margin: 16px 0 0 0; padding: 0; border: 0;">
+              <legend style="margin-bottom: 8px; padding: 0; font-size: 14px; font-weight: 600;">Type</legend>
+              <div role="radiogroup" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #0E1A2B; border-radius: 2px;">
+                <button type="button" role="radio" aria-checked="true" style="height: 36px; background: #0E1A2B; color: #FFFFFF; border: 0; font-size: 14px; font-weight: 500; cursor: pointer;">Annonce</button>
+                <button type="button" role="radio" aria-checked="false" class="jb-icon" style="height: 36px; background: transparent; color: #0E1A2B; border: 0; font-size: 14px; cursor: pointer;">Article</button>
+              </div>
+            </fieldset>
+
+            <div style="margin-top: 16px; padding: 16px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                <span id="ed-dim" style="font-size: 15px; font-weight: 600;">Annonce du dimanche</span>
+                <button type="button" role="switch" aria-checked="true" aria-labelledby="ed-dim" style="position: relative; width: 44px; height: 24px; flex: none; padding: 0; background: #0A6BA3; border: 0; border-radius: 999px; cursor: pointer;"><span style="position: absolute; top: 3px; left: 23px; width: 18px; height: 18px; border-radius: 50%; background: #F7FAFD;"></span></button>
+              </div>
+              <p style="margin: 4px 0 0 0; font-size: 13px; line-height: 1.45; color: #3A4859;">Placée en tête de « Ma paroisse » et dans la feuille lue à la fin des messes.</p>
+              <label for="ed-date-dim" style="display: block; margin-top: 12px; font-size: 14px; font-weight: 600;">Dimanche concerné</label>
+              <div style="position: relative; margin-top: 8px;">
+                <select id="ed-date-dim" style="width: 100%; height: 44px; padding: 0 40px 0 12px; appearance: none; -webkit-appearance: none; background: #FFFFFF; border: 1px solid #8391A4; border-radius: 2px; font-size: 15px; color: #0E1A2B; box-sizing: border-box;">
+                  <option>Dim. 27 septembre · 26e dim. du T.O. (A)</option>
+                  <option>Dimanche 4 octobre 2026</option>
+                  <option>Dimanche 11 octobre 2026</option>
+                </select>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E1A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 12px; top: 13px; pointer-events: none;"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+              
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+              <label for="ed-portee" style="font-size: 14px; font-weight: 600;">Portée</label>
+              <div style="position: relative;">
+                <select id="ed-portee" style="width: 100%; height: 44px; padding: 0 40px 0 12px; appearance: none; -webkit-appearance: none; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 15px; color: #0E1A2B; box-sizing: border-box;">
+                  <option>Paroisse Saint-Dominique · 2 lieux</option>
+                  <option>Église Saint-Dominique</option>
+                  <option>Chapelle de la Cité universitaire</option>
+                </select>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E1A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 12px; top: 13px; pointer-events: none;"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding-top: 12px; border-top: 1px solid #0E1A2B;">
+            <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span style="color: #0A6BA3;">05</span> — Programmation</p>
+            <fieldset style="margin: 12px 0 0 0; padding: 0; border: 0; display: flex; gap: 24px;">
+              <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Moment de publication</legend>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer;"><input type="radio" name="ed-quand" style="width: 18px; height: 18px; margin: 0; accent-color: #0A6BA3;">Maintenant</label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; cursor: pointer;"><input type="radio" name="ed-quand" checked style="width: 18px; height: 18px; margin: 0; accent-color: #0A6BA3;">Programmer</label>
+            </fieldset>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 104px; gap: 12px; margin-top: 12px;">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="ed-jour" style="font-size: 14px; font-weight: 600;">Date</label>
+                <input id="ed-jour" type="text" value="Sam. 26.09.2026" aria-describedby="ed-quand-ok" style="height: 44px; padding: 0 12px; background: #F7FAFD; border: 1px solid #1F6B5C; border-radius: 2px; font-family: 'Libre Franklin', sans-serif; font-size: 14px; color: #0E1A2B; box-sizing: border-box; font-variant-numeric: tabular-nums;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label for="ed-heure" style="font-size: 14px; font-weight: 600;">Heure</label>
+                <input id="ed-heure" type="text" value="12 h 00" aria-describedby="ed-quand-ok" style="height: 44px; padding: 0 12px; background: #F7FAFD; border: 1px solid #1F6B5C; border-radius: 2px; font-family: 'Libre Franklin', sans-serif; font-size: 14px; color: #0E1A2B; box-sizing: border-box; font-variant-numeric: tabular-nums;">
+              </div>
+            </div>
+            <p id="ed-quand-ok" style="display: flex; align-items: flex-start; gap: 8px; margin: 8px 0 0 0; font-size: 13px; line-height: 1.45; color: #1F6B5C;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>En ligne 6 h 30 avant la messe anticipée de 18 h 30.</p>
+            <label style="display: flex; align-items: flex-start; gap: 12px; margin-top: 16px; font-size: 15px; line-height: 1.45; cursor: pointer;"><input type="checkbox" checked style="width: 18px; height: 18px; margin: 2px 0 0 0; accent-color: #0A6BA3; flex: none;"><span>Notifier les 214 fidèles rattachés<span style="display: block; font-size: 13px; color: #586677;">Une seule notification, à l'heure de publication.</span></span></label>
+            
+          </div>
+
+          <div style="padding-top: 12px; border-top: 1px solid #0E1A2B; min-height: 0;">
+            <p style="display: flex; justify-content: space-between; margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span><span style="color: #0A6BA3;">06</span> — Aperçu mobile</span><a href="FID-Annonce.dc.html" style="color: #0A6BA3;">Plein écran</a></p>
+            <div style="display: flex; gap: 16px; margin-top: 12px;">
+              <div aria-label="Aperçu de l'annonce sur téléphone" role="img" style="width: 164px; height: 216px; flex: none; overflow: hidden; background: #FFFFFF; border: 1px solid #0E1A2B; border-radius: 4px; box-sizing: border-box;">
+                <div style="height: 20px; margin: 0 8px; border-bottom: 3px double #0E1A2B;"></div>
+                <div style="padding: 8px;">
+                  <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0A6BA3; font-variant-numeric: tabular-nums;">DIM. 27.09</p>
+                  <div style="height: 38px; margin-top: 6px; overflow: hidden; background: #D9EBF7; border: 1px solid #DDE5EE;">
+                    <svg viewBox="0 0 146 38" width="100%" height="100%" aria-hidden="true" style="display: block;"><rect y="29" width="146" height="9" fill="#EEF6FC"></rect><polygon points="30,6 44,6 100,38 66,38" fill="#FFFFFF" opacity="0.4"></polygon><path d="M24 24V12a8 8 0 0 1 16 0v12z" fill="#06466C"></path><path d="M26 22V12a6 6 0 0 1 12 0v10z" fill="#3FA3DD"></path></svg>
+                  </div>
+                  <p style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 17px; line-height: 1.1;">Quête impérée pour le Grand Séminaire de Brin</p>
+                  <p style="margin: 6px 0 0 0; font-size: 12px; line-height: 1.4; color: #3A4859;">Ce dimanche, la quête de toutes les messes est entièrement reversée au Grand Séminaire…</p>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.45; color: #3A4859;">
+                <p style="margin: 0;">Vue « Ma paroisse » sur un téléphone de 390 px.</p>
+                <p style="margin: 0;">Publiée au nom de la paroisse Saint-Dominique, office de secrétaire paroissiale.</p>
+                <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #586677; font-variant-numeric: tabular-nums;">Dernier aperçu : 9 h 41</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

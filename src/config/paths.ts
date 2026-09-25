@@ -1,89 +1,83 @@
-export const paths = {
-  home: {
-    getHref: () => '/app',
-  },
+/**
+ * Toutes les routes de l'application (spec §2). Ne jamais écrire une URL en dur :
+ * `paths.app.demandes.detail.getHref(id)`.
+ */
+const enc = encodeURIComponent;
 
-  onboarding: {
-    getHref: () => '/onboarding',
+export const paths = {
+  home: { getHref: () => '/' },
+  parole: { getHref: (date?: string) => (date ? `/parole?date=${enc(date)}` : '/parole') },
+  paroisses: {
+    list: { getHref: () => '/paroisses' },
+    detail: { getHref: (code: string) => `/paroisses/${enc(code)}` },
   },
+  pourLesParoisses: { getHref: () => '/pour-les-paroisses' },
+  confidentialite: { getHref: () => '/confidentialite' },
+  conditions: { getHref: () => '/conditions' },
+  contact: { getHref: () => '/pour-les-paroisses#contact' },
 
   auth: {
-    register: {
-      getHref: (redirectTo?: string | null | undefined) =>
-        `/auth/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
+    connexion: {
+      getHref: (redirectTo?: string | null) =>
+        `/connexion${redirectTo ? `?redirectTo=${enc(redirectTo)}` : ''}`,
     },
-    login: {
-      getHref: (redirectTo?: string | null | undefined) =>
-        `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
-    },
-    forgotPassword: {
-      getHref: () => '/auth/forgot-password',
-    },
-    resetPassword: {
-      getHref: (token?: string) =>
-        token
-          ? `/auth/reset-password?token=${encodeURIComponent(token)}`
-          : '/auth/reset-password',
-    },
-    verifyEmail: {
-      getHref: (token?: string) =>
-        token
-          ? `/auth/verify-email?token=${encodeURIComponent(token)}`
-          : '/auth/verify-email',
-    },
+    inscription: { getHref: () => '/inscription' },
+    bienvenue: { getHref: () => '/bienvenue' },
   },
 
   app: {
     root: { getHref: () => '/app' },
-    actus: { getHref: () => '/app/actus' },
-    article: { getHref: (id: string) => `/app/actus/${id}` },
-    spirituel: { getHref: () => '/app/spirituel' },
-    spirituelLiturgie: { getHref: () => '/app/spirituel/liturgie' },
-    spirituelHeures: { getHref: () => '/app/spirituel/heures' },
-    bible: { getHref: () => '/app/bible' },
+    parole: { getHref: (date?: string) => (date ? `/app/parole?date=${enc(date)}` : '/app/parole') },
+    bible: {
+      root: { getHref: () => '/app/bible' },
+      chapitre: { getHref: (livre: string, chapitre: number) => `/app/bible/${enc(livre)}/${chapitre}` },
+    },
     chapelet: { getHref: () => '/app/chapelet' },
-    dons: { getHref: () => '/app/dons' },
-    tv: { getHref: () => '/app/tv' },
-    messages: { getHref: () => '/app/messages' },
-    conversation: { getHref: (id: string) => `/app/messages/${id}` },
-    documents: { getHref: () => '/app/documents' },
-    newDocument: { getHref: () => '/app/documents/new' },
-    document: { getHref: (id: string) => `/app/documents/${id}` },
-    agenda: { getHref: () => '/app/agenda' },
-    agendaEvent: { getHref: (id: number | string) => `/app/agenda/${id}` },
+    paroisse: {
+      root: { getHref: (section?: 'annonces' | 'horaires' | 'agenda') => `/app/paroisse${section ? `#${section}` : ''}` },
+      annonce: { getHref: (id: number | string) => `/app/paroisse/annonces/${id}` },
+      evenement: { getHref: (id: number | string) => `/app/paroisse/evenements/${id}` },
+    },
+    notifications: { getHref: () => '/app/notifications' },
+    demandes: {
+      list: { getHref: () => '/app/demandes' },
+      nouvelle: { getHref: () => '/app/demandes/nouvelle' },
+      detail: { getHref: (id: number | string) => `/app/demandes/${id}` },
+    },
+    pretres: {
+      list: { getHref: () => '/app/pretres' },
+      conversation: { getHref: (id: string) => `/app/pretres/conversations/${enc(id)}` },
+    },
+    confession: { getHref: () => '/app/confession' },
     profil: { getHref: () => '/app/profil' },
-    transfert: { getHref: () => '/app/transfert' },
-    clerge: {
-      root: { getHref: () => '/app/clerge' },
-      analytique: { getHref: () => '/app/clerge/analytique' },
-      intentions: { getHref: () => '/app/clerge/intentions' },
-      messages: { getHref: () => '/app/clerge/messages' },
-      transferts: { getHref: () => '/app/clerge/transferts' },
-    },
-    admin: {
-      root: { getHref: () => '/app/admin' },
-      agenda: { getHref: () => '/app/admin/agenda' },
-      articles: { getHref: () => '/app/admin/articles' },
-      articleNew: { getHref: () => '/app/admin/articles/new' },
-      articleEdit: {
-        getHref: (id: string) => `/app/admin/articles/${id}/edit`,
-      },
-      documents: { getHref: () => '/app/admin/documents' },
-      tv: { getHref: () => '/app/admin/tv' },
-      org: { getHref: () => '/app/admin/org' },
-      users: {
-        list: { getHref: () => '/app/admin/users' },
-        invitations: { getHref: () => '/app/admin/users/invitations' },
-        invite: { getHref: () => '/app/admin/users/invite' },
-        validation: { getHref: () => '/app/admin/users/validation' },
-      },
-    },
   },
 
-  acceptInvitation: {
-    getHref: (token?: string) =>
-      token
-        ? `/accept-invitation?token=${encodeURIComponent(token)}`
-        : '/accept-invitation',
+  espace: {
+    root: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}` },
+    demandes: {
+      list: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/demandes` },
+      detail: { getHref: (nodeId: string, id: number | string) => `/espace/${enc(nodeId)}/demandes/${id}` },
+    },
+    annonces: {
+      list: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/annonces` },
+      nouvelle: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/annonces/nouvelle` },
+      detail: { getHref: (nodeId: string, id: number | string) => `/espace/${enc(nodeId)}/annonces/${id}` },
+    },
+    horaires: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/horaires` },
+    agenda: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/agenda` },
+    messagerie: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/messagerie` },
+    confessions: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/confessions` },
+    equipe: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/equipe` },
+    parametres: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/parametres` },
+    structure: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/structure` },
+    nominations: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/nominations` },
+    clerge: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/clerge` },
+  },
+
+  plateforme: {
+    root: { getHref: () => '/plateforme' },
+    referentiels: { getHref: () => '/plateforme/referentiels' },
+    comptes: { getHref: () => '/plateforme/comptes' },
+    audit: { getHref: () => '/plateforme/audit' },
   },
 } as const;

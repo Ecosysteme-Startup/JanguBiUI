@@ -3,97 +3,34 @@
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
 
+import '@/styles/globals.css';
+
+type GlobalErrorProps = { error: Error & { digest?: string }; reset: () => void };
+
 /**
- * Frontière d'erreur racine (App Router). Rendue uniquement quand le layout
- * racine lui-même échoue — elle remplace donc tout l'arbre et doit fournir ses
- * propres <html>/<body> et des styles inline (aucune garantie que le pipeline CSS
- * ou les providers soient disponibles dans ce cas catastrophique).
- *
- * Capture l'erreur dans Sentry (les erreurs intra-arbre passent déjà par la
- * Sentry.ErrorBoundary du provider ; celle-ci couvre le dernier recours).
+ * Erreur dans le layout racine : ni polices ni providers disponibles. Page minimale,
+ * mais toujours aux tokens de la charte (palette Ciel par défaut).
  */
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+const GlobalError = ({ error, reset }: GlobalErrorProps) => {
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
-
   return (
-    <html lang="fr">
-      <body
-        style={{
-          margin: 0,
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#0f172a',
-          color: '#e2e8f0',
-          fontFamily:
-            'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-          padding: '24px',
-        }}
-      >
-        <main
-          style={{
-            maxWidth: 420,
-            textAlign: 'center',
-          }}
-        >
-          <p
-            style={{
-              fontSize: 13,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#70cbff',
-              margin: '0 0 12px',
-            }}
-          >
-            Jàngu Bi
+    <html lang="fr" data-palette="ciel">
+      <body className="bg-paper text-ink">
+        <main className="mx-auto flex min-h-dvh max-w-reading flex-col justify-center px-4 py-16">
+          <p className="tnum m-0 text-meta text-ink-3">Erreur 500</p>
+          <h1 className="m-0 mt-3 font-serif text-title font-normal">Jàngu Bi est momentanément indisponible.</h1>
+          <p className="mt-4 text-body text-ink-2">Réessayez dans un instant.</p>
+          <p className="mt-6">
+            <button type="button" onClick={reset} className="h-11 rounded border border-primary-fill bg-primary-fill px-5 text-on-primary">
+              Réessayer
+            </button>
           </p>
-          <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 12px' }}>
-            Une erreur inattendue est survenue
-          </h1>
-          <p
-            style={{
-              fontSize: 15,
-              lineHeight: 1.6,
-              color: '#94a3b8',
-              margin: '0 0 24px',
-            }}
-          >
-            Nos équipes ont été notifiées automatiquement. Vous pouvez réessayer
-            ou revenir à l&apos;accueil.
-          </p>
-          <button
-            type="button"
-            onClick={() => reset()}
-            style={{
-              appearance: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              backgroundColor: '#70cbff',
-              color: '#0f172a',
-              fontWeight: 600,
-              fontSize: 15,
-              padding: '12px 24px',
-              borderRadius: 10,
-            }}
-          >
-            Réessayer
-          </button>
-          {error.digest ? (
-            <p style={{ fontSize: 12, color: '#64748b', margin: '20px 0 0' }}>
-              Référence&nbsp;: {error.digest}
-            </p>
-          ) : null}
         </main>
       </body>
     </html>
   );
-}
+};
+
+export default GlobalError;

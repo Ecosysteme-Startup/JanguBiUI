@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Accueil mobile (sombre)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085E90 !important;border-color:#7CC3EE !important;color:#F5F9FC !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#3A4757 !important;color:#F5F9FC !important}
+.jb-btn-t:hover{color:#A8D8F5 !important;border-color:#7CC3EE !important}
+.jb-btn-d:hover{background:#B8392F !important;color:#F5F9FC !important;border-color:#E0776C !important}
+.jb-nav:hover{color:#7CC3EE !important}
+.jb-side:hover{background:#18232F !important;color:#E8EEF5 !important}
+.jb-row:hover{background:#18232F}
+.jb-chip:hover{border-color:#C7D2DE !important}
+.jb-icon:hover{background:#18232F !important}
+.jb-card:hover{border-color:#C7D2DE !important}
+.jb-slot:hover{border-color:#7CC3EE !important;color:#7CC3EE !important}
+.jb-foot:hover{color:#F5F9FC !important}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; overflow: hidden; position: relative; background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 8px 0 20px; box-sizing: border-box;">
+    <a href="Sombre-MOB-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: flex; align-items: baseline; gap: 8px; color: #E8EEF5;">
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+    </a>
+    <div style="display: flex; align-items: center;">
+      <a href="Sombre-FID-Notifications.dc.html" class="jb-icon" aria-label="Notifications, 3 non lues" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #E8EEF5; border-radius: 2px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+        <span style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3; border: 1.5px solid #0B1118;"></span>
+      </a>
+      <a href="Sombre-MOB-Menu.dc.html" class="jb-icon" aria-label="Ouvrir le menu" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; color: #E8EEF5; border-radius: 2px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </a>
+    </div>
+  </header>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 36px; margin: 0 20px; border-top: 1px solid #C7D2DE; border-bottom: 3px double #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #E8EEF5; font-variant-numeric: tabular-nums;">
+    <span>Jeu. 24 sept. · 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> sem. du T.O.</span>
+    <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px 0 7px; border: 1px solid #5FAA74; border-radius: 999px; color: #86C596; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4F9B63;"></span>Vert</span>
+  </div>
+
+  <main style="padding: 16px 20px 96px 20px; box-sizing: border-box;">
+
+    <h1 style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 25px; line-height: 1.1; letter-spacing: -0.01em;">Jàmm ak jàmm, Marie-Thérèse</h1>
+
+    <!-- 01 Parole du jour -->
+    <section aria-labelledby="a-parole" style="margin-top: 24px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+        <span id="a-parole"><span style="color: #7CC3EE;">01</span> — La Parole du jour</span>
+        <span>Ps 89 (90), 12</span>
+      </div>
+      <blockquote style="margin: 16px 0 0 0; padding: 0;">
+        <p style="margin: 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 26px; line-height: 1.18; letter-spacing: -0.005em;">«&nbsp;Enseigne-nous à bien compter nos jours, afin que nous appliquions notre cœur à la <em style="font-style: italic; color: #7CC3EE;">sagesse</em>.&nbsp;»</p>
+      </blockquote>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px;">
+        <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Ec 1 · Ps 89 (90) · Lc 9</span>
+        <a href="Sombre-MOB-Parole.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; color: #7CC3EE; font-size: 15px; font-weight: 500;"><span style="border-bottom: 1px solid #7CC3EE; padding-bottom: 2px;">Lire les lectures</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"></path></svg></a>
+      </div>
+    </section>
+
+    <!-- 02 Ma paroisse cette semaine -->
+    <section aria-labelledby="a-paroisse" style="margin-top: 24px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+        <span id="a-paroisse"><span style="color: #7CC3EE;">02</span> — Saint-Dominique cette semaine</span>
+      </div>
+      <ul style="list-style: none; margin: 8px 0 0 0; padding: 0;">
+        <li>
+          <a href="Sombre-MOB-Ma-Paroisse.dc.html" class="jb-row" style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 20px; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #243142; color: #E8EEF5;">
+            <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">Dim.<br>27.09</span>
+            <span style="font-size: 16px; font-weight: 500; line-height: 1.4;">Quête impérée pour le Grand Séminaire de Brin</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          </a>
+        </li>
+        <li>
+          <a href="Sombre-MOB-Confession.dc.html" class="jb-row" style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 20px; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #243142; color: #E8EEF5;">
+            <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; line-height: 1.4; color: #7CC3EE; font-variant-numeric: tabular-nums;">Sam.<br>26.09</span>
+            <span style="font-size: 16px; font-weight: 500; line-height: 1.4;">Confessions de 16 h à 18 h, puis messe anticipée à 18 h 30</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 03 Ma demande en cours -->
+    <section aria-labelledby="a-demande" style="margin-top: 24px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+        <span id="a-demande"><span style="color: #7CC3EE;">03</span> — Ma demande en cours</span>
+        <a href="Sombre-MOB-Demande-Nouvelle.dc.html" style="color: #7CC3EE;">Nouvelle</a>
+      </div>
+      <a href="Sombre-MOB-Demande-Suivi.dc.html" class="jb-card" style="display: block; margin-top: 12px; padding: 16px; background: #111A24; border: 1px solid #243142; border-radius: 2px; color: #E8EEF5;">
+        <span style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">JB-2026-00412</span>
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #E8EEF5;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #7CC3EE; background: linear-gradient(90deg, #0A6BA3 50%, transparent 50%); box-sizing: border-box;"></span>En vérification</span>
+        </span>
+        <span style="display: block; margin-top: 8px; font-size: 17px; font-weight: 600; line-height: 1.35;">Extrait d'acte de baptême</span>
+        <span style="display: block; margin-top: 4px; font-size: 14px; line-height: 1.5; color: #BAC6D3;">Sainte-Thérèse de Grand-Dakar · pour mariage</span>
+        <span aria-hidden="true" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 12px;">
+          <span style="height: 2px; background: #0A6BA3;"></span>
+          <span style="height: 2px; background: #0A6BA3;"></span>
+          <span style="height: 2px; background: #243142;"></span>
+          <span style="height: 2px; background: #243142;"></span>
+        </span>
+        <span style="display: block; margin-top: 8px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Étape 2 sur 4 · depuis mar. 22.09</span>
+      </a>
+    </section>
+
+    <!-- 04 / 05 Prêtre et chapelet -->
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 24px;">
+      <section aria-labelledby="a-pretre">
+        <div style="padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+          <span id="a-pretre"><span style="color: #7CC3EE;">04</span> — Un prêtre</span>
+        </div>
+        <a href="Sombre-MOB-Conversation.dc.html" style="display: block; margin-top: 12px; color: #E8EEF5;">
+          <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #1B4466; background: #13304A; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #7CC3EE; font-variant-numeric: tabular-nums;">ET</span>
+          <span style="display: block; margin-top: 8px; font-size: 16px; font-weight: 600; line-height: 1.35;">Père Emmanuel Tine</span>
+          <span style="display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; color: #7CCBB6;">Joignable · répond en ~5 h</span>
+        </a>
+        <a href="Sombre-MOB-Confession.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px; color: #7CC3EE; font-size: 15px; font-weight: 500; line-height: 1.3;"><span style="border-bottom: 1px solid #7CC3EE;">Rendez-vous de confession</span></a>
+      </section>
+      <section aria-labelledby="a-chapelet">
+        <div style="padding-top: 12px; border-top: 1px solid #C7D2DE; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #BAC6D3; font-variant-numeric: tabular-nums;">
+          <span id="a-chapelet"><span style="color: #7CC3EE;">05</span> — Chapelet</span>
+        </div>
+        <p style="margin: 12px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #92A2B4; font-variant-numeric: tabular-nums;">Jeudi</p>
+        <p style="margin: 4px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 24px; line-height: 1.18;">Mystères lumineux</p>
+        <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #BAC6D3;">5 dizaines · environ 20 min</p>
+        <a href="Sombre-FID-Chapelet.dc.html" class="jb-btn-s" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; margin-top: 12px; padding: 0 16px; color: #E8EEF5; border: 1px solid #C7D2DE; border-radius: 2px; font-size: 15px; font-weight: 500; box-sizing: border-box;">Commencer</a>
+      </section>
+    </div>
+
+  </main>
+
+  <nav aria-label="Navigation principale" style="position: absolute; left: 0; right: 0; bottom: 0; height: 72px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: #0B1118; border-top: 1px solid #C7D2DE; box-sizing: border-box;">
+    <a href="Sombre-MOB-Accueil.dc.html" aria-current="page" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #7CC3EE; font-size: 12px; font-weight: 600;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: #0A6BA3;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z"></path></svg>Accueil
+    </a>
+    <a href="Sombre-MOB-Parole.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7.5 4.5 3.5 4.5v13c4 0 6.5.5 8.5 2 2-1.5 4.5-2 8.5-2v-13c-4 0-6.5.5-8.5 2z"></path><path d="M12 6.5v13"></path></svg>Parole
+    </a>
+    <a href="Sombre-MOB-Ma-Paroisse.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5v4M10 4.5h4M5.5 21v-8.5L12 8l6.5 4.5V21M3 21h18M10 21v-3.5a2 2 0 0 1 4 0V21"></path></svg>Paroisse
+    </a>
+    <a href="Sombre-MOB-Demande-Suivi.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7M9 18.5h4"></path></svg>Demandes
+    </a>
+    <a href="Sombre-MOB-Conversation.dc.html" class="jb-nav" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #BAC6D3; font-size: 12px;">
+      <span style="position: absolute; top: -1px; left: 50%; width: 32px; height: 2px; margin-left: -16px; background: transparent;"></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11h-9l-4.5 3.5V16H4z"></path></svg>Prêtre
+    </a>
+  </nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

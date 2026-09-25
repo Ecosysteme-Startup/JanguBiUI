@@ -1,89 +1,30 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-/**
- * Smoke suite — verifies that all primary sections load correctly for an
- * authenticated user navigating through the bottom nav / sidebar.
- *
- * Auth state is injected via storageState (configured in playwright.config.ts).
- */
-
-test.describe('Navigation smoke — authenticated user', () => {
-  test('can reach the Bible & Liturgie page', async ({ page }) => {
-    await page.goto('/app/bible');
-    await expect(page).toHaveURL('/app/bible');
-    await expect(page.getByRole('main')).toBeVisible();
+test.describe('fumée des shells', () => {
+  test('l’accueil public se charge avec sa navigation et son pied de page', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toBeVisible();
+    await expect(page.getByRole('contentinfo')).toContainText('Jàmm ak jàmm');
   });
 
-  test('bottom nav — Actus link navigates to news feed', async ({ page }) => {
-    await page.goto('/app/bible');
-    await page.getByRole('link', { name: /actus/i }).click();
-    await expect(page).toHaveURL('/app/actus');
-    await expect(page.getByRole('main')).toBeVisible();
+  test('l’accueil public ne présente aucune violation axe', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+    expect(results.violations).toEqual([]);
   });
 
-  test('bottom nav — Spirituel link navigates to spiritual page', async ({
-    page,
-  }) => {
-    await page.goto('/app/bible');
-    await page.getByRole('link', { name: /spirituel/i }).click();
-    await expect(page).toHaveURL('/app/spirituel');
-    await expect(page.getByRole('main')).toBeVisible();
+  test('une adresse inconnue affiche la page 404 de la charte', async ({ page }) => {
+    const response = await page.goto('/cette-page-n-existe-pas');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole('heading', { name: /cette page n.existe pas/i })).toBeVisible();
   });
 
-  test('bottom nav — Messages link navigates to messages', async ({ page }) => {
-    await page.goto('/app/bible');
-    await page.getByRole('link', { name: /messages/i }).click();
-    await expect(page).toHaveURL('/app/messages');
-    await expect(page.getByRole('main')).toBeVisible();
-  });
-
-  test('bottom nav — Profil link navigates to profile', async ({ page }) => {
-    await page.goto('/app/bible');
-    await page.getByRole('link', { name: /profil/i }).click();
-    await expect(page).toHaveURL('/app/profil');
-    await expect(page.getByRole('main')).toBeVisible();
-  });
-
-  test('direct route — /app/documents loads', async ({ page }) => {
-    await page.goto('/app/documents');
-    await expect(page).toHaveURL('/app/documents');
-    await expect(page.getByRole('main')).toBeVisible();
-  });
-
-  test('direct route — /app/chapelet loads', async ({ page }) => {
-    await page.goto('/app/chapelet');
-    await expect(page).toHaveURL('/app/chapelet');
-    await expect(page.getByRole('main')).toBeVisible();
-  });
-
-  test('direct route — /app/tv loads', async ({ page }) => {
-    await page.goto('/app/tv');
-    await expect(page).toHaveURL('/app/tv');
-    await expect(page.getByRole('main')).toBeVisible();
-  });
-
-  test('direct route — /app/assistant loads', async ({ page }) => {
-    await page.goto('/app/assistant');
-    await expect(page).toHaveURL('/app/assistant');
-    await expect(page.getByRole('main')).toBeVisible();
-  });
-
-  test('sequential full navigation through all bottom-nav items', async ({
-    page,
-  }) => {
-    await page.goto('/app/bible');
-    await expect(page).toHaveURL('/app/bible');
-
-    await page.getByRole('link', { name: /actus/i }).click();
-    await expect(page).toHaveURL('/app/actus');
-
-    await page.getByRole('link', { name: /spirituel/i }).click();
-    await expect(page).toHaveURL('/app/spirituel');
-
-    await page.getByRole('link', { name: /messages/i }).click();
-    await expect(page).toHaveURL('/app/messages');
-
-    await page.getByRole('link', { name: /profil/i }).click();
-    await expect(page).toHaveURL('/app/profil');
+  test('la bascule sombre applique le thème', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Affichage sombre' }).click();
+    await expect(page.locator('html')).toHaveClass(/dark/);
   });
 });

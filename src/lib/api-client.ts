@@ -1,377 +1,103 @@
-import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
 
+/** Erreur HTTP de l'API : le message est sûr à afficher (aucun détail interne). */
 export class ApiError extends Error {
   constructor(
+    readonly status: number,
     message: string,
-    public readonly status: number,
+    readonly body: unknown = null,
   ) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-// Access token — memory only (short-lived, refreshed via /jwt/refresh/)
-let _accessToken: string | null = null;
+type AccessTokenProvider = () => Promise<string | null>;
+type UnauthorizedHandler = () => void;
 
-/** Décode la claim `exp` d'un JWT en millisecondes epoch — null si illisible. */
-export function decodeJwtExpMs(token: string): number | null {
-  try {
-    const [, payload] = token.split('.');
-    if (!payload) return null;
-    const claims = JSON.parse(
-      atob(payload.replace(/-/g, '+').replace(/_/g, '/')),
-    ) as { exp?: number };
-    return typeof claims.exp === 'number' ? claims.exp * 1000 : null;
-  } catch {
-    return null;
-  }
-}
+// Branchés par la couche d'authentification (F3) : aucun jeton n'est stocké ici.
+let accessToken: AccessTokenProvider = async () => null;
+let onUnauthorized: UnauthorizedHandler = () => {};
 
-// Refresh PROACTIF : reprogramme un refresh ~60 s avant l'expiration de
-// l'access token pour que les pollers (notifications, conversations) ne
-// rencontrent plus le 401 « attendu » à chaque fenêtre d'expiration.
-let _refreshTimer: ReturnType<typeof setTimeout> | null = null;
-
-function scheduleProactiveRefresh(token: string): void {
-  if (typeof window === 'undefined') return;
-  if (_refreshTimer) clearTimeout(_refreshTimer);
-  const expMs = decodeJwtExpMs(token);
-  if (!expMs) return;
-  const delay = Math.max(expMs - Date.now() - 60_000, 10_000);
-  _refreshTimer = setTimeout(() => {
-    tryRefreshAccess().catch(() => {
-      // Échec silencieux : le refresh réactif sur 401 et le redirect login
-      // existants prennent le relais.
-    });
-  }, delay);
-}
-
-export function setAccessToken(token: string): void {
-  _accessToken = token;
-  scheduleProactiveRefresh(token);
-}
-
-export function clearAccessToken(): void {
-  _accessToken = null;
-  if (_refreshTimer) {
-    clearTimeout(_refreshTimer);
-    _refreshTimer = null;
-  }
-}
-
-export function getAccessToken(): string | null {
-  return _accessToken;
-}
-
-// Refresh token — persisted to localStorage so it survives page reloads
-const REFRESH_TOKEN_KEY = 'jb_refresh_token';
-
-let _refreshToken: string | null = (() => {
-  try {
-    return typeof window !== 'undefined' ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
-  } catch {
-    return null;
-  }
-})();
-
-export function setRefreshToken(token: string): void {
-  _refreshToken = token;
-  try {
-    if (typeof window !== 'undefined') localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  } catch {
-    // localStorage indisponible (SSR / navigation privée) — non bloquant
-  }
-}
-
-export function clearRefreshToken(): void {
-  _refreshToken = null;
-  try {
-    if (typeof window !== 'undefined') localStorage.removeItem(REFRESH_TOKEN_KEY);
-  } catch {
-    // localStorage indisponible (SSR / navigation privée) — non bloquant
-  }
-}
-
-export function getRefreshToken(): string | null {
-  return _refreshToken;
-}
-
-let _isRefreshing = false;
-let _refreshPromise: Promise<void> | null = null;
-
-export async function tryRefreshAccess(): Promise<void> {
-  if (_isRefreshing) return _refreshPromise!;
-
-  _isRefreshing = true;
-  _refreshPromise = (async () => {
-    try {
-      if (!_refreshToken) throw new Error('No refresh token');
-      const res = await fetch(`${env.API_URL}/v1/auth/jwt/refresh/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ refresh: _refreshToken }),
-      });
-      if (!res.ok) throw new Error('Refresh failed');
-      const data = await res.json();
-      // Une réponse 200 SANS access token doit être traitée comme un échec :
-      // l'avaler laissait le client boucler en 401 silencieux avec un token
-      // mort, sans jamais déclencher le redirect login.
-      if (!data.access) {
-        throw new Error('Réponse de refresh invalide : access token absent');
-      }
-      setAccessToken(data.access);
-      if (data.refresh) setRefreshToken(data.refresh);
-    } finally {
-      _isRefreshing = false;
-      _refreshPromise = null;
-    }
-  })();
-
-  return _refreshPromise;
-}
-
-// --- Bootstrap de session (client uniquement) --------------------------------
-// L'access token ne vit qu'en mémoire : à chaque cold load il est absent alors
-// que le refresh token (localStorage) existe. Sans ce bootstrap, la première
-// requête (/me/, pollers) partait sans Authorization → 401 garanti en console
-// avant le refresh réactif. Ici le refresh démarre au chargement du bundle et
-// fetchApi attend sa résolution avant d'émettre la première requête.
-let _bootstrapPromise: Promise<void> | null =
-  typeof window !== 'undefined' && _refreshToken
-    ? tryRefreshAccess()
-        .catch(() => {
-          // Session morte — les requêtes suivantes déclencheront le redirect login.
-        })
-        .finally(() => {
-          _bootstrapPromise = null;
-        })
-    : null;
-
-type RequestOptions = {
-  method?: string;
-  headers?: Record<string, string>;
-  body?: unknown;
-  cookie?: string;
-  params?: Record<string, string | number | boolean | undefined | null>;
-  cache?: RequestCache;
-  next?: NextFetchRequestConfig;
+export const configureApiAuth = (options: { accessToken: AccessTokenProvider; onUnauthorized: UnauthorizedHandler }) => {
+  accessToken = options.accessToken;
+  onUnauthorized = options.onUnauthorized;
 };
 
-function buildUrlWithParams(
-  url: string,
-  params?: RequestOptions['params'],
-): string {
-  if (!params) return url;
-  const filteredParams = Object.fromEntries(
-    Object.entries(params).filter(
-      ([, value]) => value !== undefined && value !== null,
-    ),
-  );
-  if (Object.keys(filteredParams).length === 0) return url;
-  const queryString = new URLSearchParams(
-    filteredParams as Record<string, string>,
-  ).toString();
-  return `${url}?${queryString}`;
-}
+type Params = Record<string, string | number | boolean | null | undefined>;
+type RequestOptions = { params?: Params; signal?: AbortSignal; body?: unknown };
 
-// Create a separate function for getting server-side cookies that can be imported where needed
-export function getServerCookies() {
-  if (typeof window !== 'undefined') return '';
+const GENERIC_ERROR = 'Le service ne répond pas. Réessayez dans un instant.';
 
-  // Dynamic import next/headers only on server-side
-  return import('next/headers').then(async ({ cookies }) => {
-    try {
-      const cookieStore = await cookies();
-      return cookieStore
-        .getAll()
-        .map((c) => `${c.name}=${c.value}`)
-        .join('; ');
-    } catch {
-      return '';
-    }
+const buildUrl = (path: string, params?: Params) => {
+  const url = new URL(`${env.API_URL}${path.startsWith('/') ? path : `/${path}`}`);
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
   });
-}
+  return url.toString();
+};
 
 /**
- * Build the fetch init object for a request.
- * When body is FormData the browser must set the Content-Type with the
- * multipart boundary itself — we must NOT set it manually.
+ * Formats d'erreur de l'API : enveloppe V1 `{error: {code, message}}` (SRS §7), ancien `{detail}`
+ * ou `{message}`, ou dictionnaire de champs DRF. On garde un message lisible et sûr.
  */
-function buildFetchInit(
-  method: string,
-  body: unknown,
-  extraHeaders: Record<string, string>,
-  cookieHeader: string | undefined,
-  cache: RequestCache,
-  next: NextFetchRequestConfig | undefined,
-): RequestInit {
-  const isFormData = body instanceof FormData;
-
-  const contentHeaders: Record<string, string> = isFormData
-    ? {}
-    : { 'Content-Type': 'application/json' };
-
-  const authHeader: Record<string, string> = _accessToken
-    ? { Authorization: `Bearer ${_accessToken}` }
-    : {};
-
-  return {
-    method,
-    headers: {
-      ...contentHeaders,
-      Accept: 'application/json',
-      ...authHeader,
-      ...extraHeaders,
-      ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-    },
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
-    credentials: 'include',
-    cache,
-    next,
-  };
-}
-
-async function fetchApi<T>(
-  url: string,
-  options: RequestOptions = {},
-): Promise<T> {
-  const {
-    method = 'GET',
-    headers = {},
-    body,
-    cookie,
-    params,
-    cache = 'no-store',
-    next,
-  } = options;
-
-  // Cold load : attendre la fin du bootstrap de session avant la 1ʳᵉ requête.
-  if (typeof window !== 'undefined' && _bootstrapPromise) {
-    await _bootstrapPromise;
-  }
-
-  // Get cookies from the request when running on server
-  let cookieHeader = cookie;
-  if (typeof window === 'undefined' && !cookie) {
-    cookieHeader = await getServerCookies();
-  }
-
-  const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
-  const init = buildFetchInit(method, body, headers, cookieHeader, cache, next);
-
-  const response = await fetch(fullUrl, init);
-
-  // A 401 on the login/refresh endpoints means "bad credentials" or "dead
-  // session" — NOT an expired access token. Attempting a refresh here swallows
-  // the error before the user sees it (silent login failure). Let these fall
-  // through to the generic error handler below so a toast is shown.
-  const isAuthCredentialEndpoint =
-    url.includes('/auth/jwt/login/') || url.includes('/auth/jwt/refresh/');
-
-  if (
-    response.status === 401 &&
-    typeof window !== 'undefined' &&
-    !isAuthCredentialEndpoint
-  ) {
-    try {
-      await tryRefreshAccess();
-    } catch {
-      // Refresh token expired or missing — session is dead, redirect to login
-      clearAccessToken();
-      clearRefreshToken();
-      const { pathname } = window.location;
-      const isPublicPage = pathname === '/' || pathname.startsWith('/auth/');
-      if (!isPublicPage) {
-        const redirectTo = encodeURIComponent(pathname);
-        window.location.href = `/auth/login?redirectTo=${redirectTo}`;
-        return new Promise<never>(() => {});
-      }
-      throw new Error('Unauthenticated');
+export const errorMessageOf = (body: unknown, status: number): string => {
+  if (body && typeof body === 'object') {
+    const outer = body as Record<string, unknown>;
+    const record = outer.error && typeof outer.error === 'object' ? (outer.error as Record<string, unknown>) : outer;
+    for (const key of ['message', 'detail']) {
+      if (typeof record[key] === 'string') return record[key] as string;
     }
+  }
+  if (status === 403) return 'Vous n’avez pas accès à cette action.';
+  if (status === 404) return 'Élément introuvable.';
+  return GENERIC_ERROR;
+};
 
-    // Refresh succeeded — retry with the new access token
-    const retriedInit = buildFetchInit(
+async function request<T>(method: string, path: string, { params, signal, body }: RequestOptions = {}): Promise<T> {
+  const token = await accessToken();
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
+
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(path, params), {
       method,
-      body,
       headers,
-      cookieHeader,
-      cache,
-      next,
-    );
-    const retried = await fetch(fullUrl, retriedInit);
-    if (retried.ok) return retried.json() as Promise<T>;
-
-    // Retry failed after a successful refresh (permission issue, not auth)
-    const retryBody = (await retried.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
-    const retryMessage =
-      (retryBody.message as string | undefined) || retried.statusText;
-    if (retried.status !== 401) {
-      useNotifications.getState().addNotification({
-        type: 'error',
-        title: 'Erreur',
-        message: retryMessage,
-      });
-    }
-    throw new Error(retryMessage);
+      signal,
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+    });
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') throw error;
+    throw new ApiError(0, 'Pas de connexion. Vérifiez votre réseau puis réessayez.');
   }
 
+  if (response.status === 204) return undefined as T;
+  const text = await response.text();
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
-    // DRF renvoie l'erreur sous `detail` ({"detail": "..."}). On lit `detail`
-    // en priorité, puis `message` (autres backends), puis le statut HTTP.
-    let message =
-      (body.detail as string | undefined) ||
-      (body.message as string | undefined) ||
-      response.statusText;
-    // Message clair et en français pour un échec d'authentification au login
-    // (SimpleJWT renvoie un message anglais peu parlant pour le fidèle).
-    if (response.status === 401 && url.includes('/auth/jwt/login/')) {
-      message = 'E-mail ou mot de passe incorrect.';
-    }
-    if (typeof window !== 'undefined' && response.status !== 404) {
-      useNotifications.getState().addNotification({
-        type: 'error',
-        title: 'Erreur',
-        message,
-      });
-    }
-    throw new ApiError(message, response.status);
+    if (response.status === 401) onUnauthorized();
+    throw new ApiError(response.status, errorMessageOf(data, response.status), data);
   }
-
-  // 204 No Content (ex. DELETE) ou corps vide → pas de JSON à parser
-  // (response.json() lèverait « Unexpected end of JSON input »).
-  if (
-    response.status === 204 ||
-    response.headers.get('content-length') === '0'
-  ) {
-    return null as T;
-  }
-
-  return response.json();
+  return data as T;
 }
 
 export const api = {
-  get<T>(url: string, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'GET' });
-  },
-  post<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'POST', body });
-  },
-  put<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'PUT', body });
-  },
-  patch<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'PATCH', body });
-  },
-  delete<T>(url: string, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'DELETE' });
-  },
+  get: <T>(path: string, options?: Omit<RequestOptions, 'body'>) => request<T>('GET', path, options),
+  post: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('POST', path, { ...options, body }),
+  patch: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PATCH', path, { ...options, body }),
+  put: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PUT', path, { ...options, body }),
+  delete: <T>(path: string, options?: RequestOptions) => request<T>('DELETE', path, options),
 };
+
+/** Réponse paginée DRF (LimitOffsetPagination). */
+export type Paginated<T> = { count: number; next: string | null; previous: string | null; results: T[] };

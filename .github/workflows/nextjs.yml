@@ -2,17 +2,13 @@ name: CI/CD JanguBi Frontend
 
 on:
   push:
-    branches:
-      - main
-      - develop
-      - stage
-    tags:
-      - 'v*'
+    branches: [main, develop, stage]
+    tags: ['v*']
+    paths-ignore: ['docs/**', '**/*.md']
   pull_request:
-    branches:
-      - main
-      - develop
-      - stage
+    branches: [main, develop, stage]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore: ['docs/**', '**/*.md']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,6 +21,7 @@ jobs:
   # ═══════════════════════════════════════════════
   lint-and-typecheck:
     runs-on: ubuntu-24.04
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
@@ -62,6 +59,9 @@ jobs:
         run: yarn check-types
         # Vérifie les types sans compiler
         # Équivalent de mypy pour Python
+
+      - name: Tests unitaires
+        run: yarn test --run
 
       - name: Build Next.js
         # Vérifie que l'app compile entièrement

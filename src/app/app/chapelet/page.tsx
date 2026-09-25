@@ -1,5 +1,9 @@
-import { ChapeletContent } from '@/features/chapelet/components/chapelet-content';
+import type { Metadata } from 'next';
 
-export default function ChapeletPage() {
-  return <ChapeletContent />;
-}
+import { ChapeletView } from '@/features/chapelet/components/chapelet-view';
+
+export const metadata: Metadata = { title: 'Chapelet' };
+
+const ChapeletPage = () => <ChapeletView />;
+
+export default ChapeletPage;

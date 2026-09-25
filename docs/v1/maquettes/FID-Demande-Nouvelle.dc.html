@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Nouvelle demande</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085887 !important;border-color:#085887 !important;color:#F7FAFD !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#0E1A2B !important;color:#FFFFFF !important}
+.jb-btn-t:hover{color:#085887 !important;border-color:#085887 !important}
+.jb-btn-d:hover{background:#A12A22 !important;color:#F7FAFD !important;border-color:#A12A22 !important}
+.jb-nav:hover{color:#0A6BA3 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-row:hover{background:#EDF3F9}
+.jb-chip:hover{border-color:#0E1A2B !important}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-card:hover{border-color:#0E1A2B !important}
+.jb-slot:hover{border-color:#0A6BA3 !important;color:#0A6BA3 !important}
+.jb-foot:hover{color:#F7FAFD !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1400px; box-sizing: border-box; overflow: hidden; position: relative; display: flex; flex-direction: column; background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif;">
+
+  <!-- HEADER FIN -->
+  <header style="display: flex; align-items: center; justify-content: space-between; height: 64px; flex: none; padding: 0 32px; box-sizing: border-box; border-bottom: 1px solid #DDE5EE;">
+    <a href="FID-Accueil.dc.html" aria-label="Jàngu Bi, accueil de mon espace" style="display: flex; align-items: baseline; gap: 12px; color: #0E1A2B;">
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+      <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Espace fidèle</span>
+    </a>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <label for="fid-recherche" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Rechercher dans Jàngu Bi</label>
+      <div style="display: flex; align-items: center; gap: 8px; width: 360px; height: 40px; padding: 0 12px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; color: #586677; box-sizing: border-box;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5.5 5.5"></path></svg>
+        <input id="fid-recherche" type="search" placeholder="Un verset, une annonce, un prêtre…" style="flex: 1; min-width: 0; height: 36px; border: 0; background: transparent; font-size: 14px; color: #0E1A2B; outline: none;">
+      </div>
+      <a href="FID-Notifications.dc.html" class="jb-icon" aria-label="Notifications, 3 non lues" style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; color: #0E1A2B; border: 1px solid #DDE5EE; border-radius: 2px; box-sizing: border-box;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>
+        <span style="position: absolute; top: 6px; right: 7px; width: 7px; height: 7px; border-radius: 50%; background: #0A6BA3; border: 1.5px solid #FFFFFF;"></span>
+      </a>
+      <a href="FID-Profil.dc.html" aria-label="Mon profil : Marie-Thérèse Diouf" style="display: flex; align-items: center; gap: 12px; padding-left: 12px; color: #0E1A2B;">
+        <span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;">MD</span>
+        <span style="font-size: 14px; font-weight: 500;">Marie-Thérèse</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- BANDEAU LITURGIQUE -->
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 40px; flex: none; padding: 0 32px; box-sizing: border-box; border-bottom: 3px double #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0E1A2B; font-variant-numeric: tabular-nums;">
+    <span style="display: flex; align-items: center; gap: 16px;">
+      <span>Jeudi 24 septembre 2026</span>
+      <span style="color: #586677;">Jour 267</span>
+    </span>
+    <span style="display: flex; align-items: center; gap: 12px;">
+      <span>Jeudi de la 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire</span>
+      <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #2E6B3F; border-radius: 999px; color: #2E6B3F; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2E6B3F;"></span>Vert</span>
+    </span>
+    <a href="FID-Parole.dc.html" class="jb-btn-t" style="color: #0A6BA3; border-bottom: 1px solid #B3D8F0; padding-bottom: 1px;">Ec 1, 2-11 · Ps 89 (90) · Lc 9, 7-9</a>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 264px minmax(0, 1fr); flex: 1; min-height: 0;">
+
+    <!-- SIDEBAR -->
+    <aside style="display: flex; flex-direction: column; padding: 24px 16px; border-right: 1px solid #DDE5EE; box-sizing: border-box;">
+      <nav aria-label="Espace fidèle" style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20h-5.5v-6h-6v6H3.5z"></path></svg>Accueil
+        </a>
+        <div>
+          <a href="FID-Parole.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7.5 4.5 3.5 4.5v13c4 0 6.5.5 8.5 2 2-1.5 4.5-2 8.5-2v-13c-4 0-6.5.5-8.5 2z"></path><path d="M12 6.5v13"></path></svg>La Parole
+          </a>
+          <a href="FID-Parole.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Lectures du jour</a>
+          <a href="FID-Bible.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Bible</a>
+          <a href="FID-Chapelet.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Chapelet</a>
+        </div>
+        <div>
+          <a href="FID-Ma-Paroisse.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5v4M10 4.5h4M5.5 21v-8.5L12 8l6.5 4.5V21M3 21h18M10 21v-3.5a2 2 0 0 1 4 0V21"></path></svg>Ma paroisse
+          </a>
+          <a href="FID-Ma-Paroisse.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span><span style="flex: 1;">Annonces</span><span style="padding-right: 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #0A6BA3; font-variant-numeric: tabular-nums;">3</span></a>
+          <a href="FID-Ma-Paroisse.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Horaires</a>
+          <a href="FID-Evenement.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Agenda</a>
+        </div>
+        <a href="FID-Demandes.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; background: #EDF3F9; color: #0A6BA3; font-size: 15px; font-weight: 600;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8.5L19 7.5V21H6z"></path><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7M9 18.5h4"></path></svg><span style="flex: 1;">Mes demandes</span><span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; font-weight: 400; color: #0A6BA3; font-variant-numeric: tabular-nums;">1</span>
+        </a>
+        <div>
+          <a href="FID-Pretres.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11h-9l-4.5 3.5V16H4z"></path></svg>Parler à un prêtre
+          </a>
+          <a href="FID-Pretres.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span><span style="flex: 1;">Conversations</span><span style="padding-right: 12px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #0A6BA3; font-variant-numeric: tabular-nums;">1</span></a>
+          <a href="FID-Confession-RDV.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 10px; height: 36px; padding-left: 30px; font-size: 14px; color: #3A4859;"><span style="width: 4px; height: 4px; border-radius: 50%; background: transparent;"></span>Rendez-vous de confession</a>
+        </div>
+        <a href="FID-Profil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 2px; color: #3A4859; font-size: 15px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.75"></circle><path d="M4.5 20.5c1-3.8 4-5.5 7.5-5.5s6.5 1.7 7.5 5.5"></path></svg>Profil
+        </a>
+      </nav>
+      <div style="margin-top: auto; padding: 16px 12px 0 12px; border-top: 1px solid #0E1A2B;">
+        <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Paroisse suivie</p>
+        <p style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 22px; line-height: 1.1;">Saint-Dominique</p>
+        <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">Point E · Archidiocèse de Dakar</p>
+        <p style="margin: 12px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">Prochaine messe : <strong style="font-weight: 600; color: #0E1A2B;">ce soir, 18 h 30</strong></p>
+        <a href="PUB-Connexion.dc.html" class="jb-nav" style="display: flex; align-items: center; gap: 8px; height: 40px; margin-top: 16px; font-size: 14px; color: #586677;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4.5H5.5v15H14M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5"></path></svg>Se déconnecter
+        </a>
+      </div>
+    </aside>
+
+    <!-- COLONNE PRINCIPALE -->
+    <div style="display: flex; flex-direction: column; min-width: 0;">
+      <main style="flex: 1; min-height: 0; padding: 32px 64px 48px 56px; box-sizing: border-box;">
+
+        <a href="FID-Demandes.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; margin-bottom: 24px; font-size: 14px; font-weight: 500; color: #0A6BA3;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12h-15M10.5 6l-6 6 6 6"></path></svg>Retour · Mes demandes
+        </a>
+
+        <!-- EN-TÊTE + ÉTAPES -->
+        <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: end;">
+          <div style="grid-column: span 5;">
+            <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span style="color: #0A6BA3;">03</span> — Demande d'acte · étape 3 sur 4</p>
+            <h1 style="margin: 12px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 50px; line-height: 1; letter-spacing: -0.015em;">Nouvelle <em style="font-style: italic; color: #0A6BA3;">demande</em></h1>
+          </div>
+          <ol aria-label="Étapes de la demande" style="grid-column: span 7; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+            <li style="padding-top: 12px; border-top: 2px solid #0A6BA3;">
+              <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0A6BA3; font-variant-numeric: tabular-nums;">01 · Terminé</span>
+              <span style="display: block; margin-top: 4px; font-size: 15px; font-weight: 500; color: #0E1A2B;">Type d'acte</span>
+            </li>
+            <li style="padding-top: 12px; border-top: 2px solid #0A6BA3;">
+              <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0A6BA3; font-variant-numeric: tabular-nums;">02 · Terminé</span>
+              <span style="display: block; margin-top: 4px; font-size: 15px; font-weight: 500; color: #0E1A2B;">Paroisse du sacrement</span>
+            </li>
+            <li aria-current="step" style="padding-top: 12px; border-top: 2px solid #0E1A2B;">
+              <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0E1A2B; font-variant-numeric: tabular-nums;">03 · En cours</span>
+              <span style="display: block; margin-top: 4px; font-size: 15px; font-weight: 600; color: #0E1A2B;">Informations</span>
+            </li>
+            <li style="padding-top: 12px; border-top: 2px solid #DDE5EE;">
+              <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">04 · À venir</span>
+              <span style="display: block; margin-top: 4px; font-size: 15px; color: #586677;">Récapitulatif</span>
+            </li>
+          </ol>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; margin-top: 32px;">
+
+          <!-- FORMULAIRE ÉTAPE 3 -->
+          <form aria-label="Informations de la demande" style="grid-column: span 8; min-width: 0; display: flex; flex-direction: column; gap: 24px; margin: 0;">
+
+            <!-- 01 Identité -->
+            <section aria-labelledby="dn-identite">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+                <span id="dn-identite"><span style="color: #0A6BA3;">01</span> — Identité au moment du sacrement</span>
+                <span><span style="color: #A12A22;">*</span> champ obligatoire</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px 24px;">
+                <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-nom" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Nom de famille <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-nom" type="text" value="Diouf" aria-describedby="dn-nom-ok" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 1px solid #1F6B5C; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+                  <p id="dn-nom-ok" style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; color: #1F6B5C;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>Identique à votre profil</p>
+                </div>
+                <div style="grid-column: span 4; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-prenoms" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Prénoms <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-prenoms" type="text" value="Marie-Thérèse Ndèye" aria-describedby="dn-prenoms-aide" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+                  <p id="dn-prenoms-aide" style="margin: 0; font-size: 14px; line-height: 1.5; color: #586677;">Tous les prénoms, dans l'ordre où ils figurent au registre.</p>
+                </div>
+                <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-naissance" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Date de naissance <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-naissance" type="text" value="14/03/1992" placeholder="JJ/MM/AAAA" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-family: 'Libre Franklin', sans-serif; font-size: 15px; color: #0E1A2B; box-sizing: border-box; font-variant-numeric: tabular-nums;">
+                </div>
+                <div style="grid-column: span 4; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-lieu" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Lieu de naissance <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-lieu" type="text" value="Dakar, Sénégal" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+                </div>
+                <div style="grid-column: span 3; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-pere" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Nom et prénoms du père <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-pere" type="text" value="Étienne Diouf" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+                </div>
+                <div style="grid-column: span 3; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-mere" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Nom de jeune fille de la mère <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-mere" type="text" value="Hélène Gomis" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+                </div>
+              </div>
+            </section>
+
+            <!-- 02 Le sacrement -->
+            <section aria-labelledby="dn-sacrement">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+                <span id="dn-sacrement"><span style="color: #0A6BA3;">02</span> — Le baptême et le motif</span>
+                <span>Date approximative acceptée</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px 24px;">
+                <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-mois" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Mois du baptême</label>
+                  <div style="position: relative;">
+                    <select id="dn-mois" aria-describedby="dn-mois-aide" style="width: 100%; height: 48px; padding: 0 44px 0 14px; appearance: none; -webkit-appearance: none; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+                      <option>Je ne sais pas</option>
+                      <option>Juin</option>
+                      <option>Juillet</option>
+                      <option selected>Août</option>
+                      <option>Septembre</option>
+                    </select>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E1A2B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; right: 14px; top: 14px; pointer-events: none;"><path d="m6 9 6 6 6-6"></path></svg>
+                  </div>
+                  <p id="dn-mois-aide" style="margin: 0; font-size: 14px; line-height: 1.5; color: #586677;">Facultatif.</p>
+                </div>
+                <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 8px;">
+                  <label for="dn-annee" style="font-size: 14px; font-weight: 600; color: #0E1A2B;">Année du baptême <span style="color: #A12A22;" aria-hidden="true">*</span></label>
+                  <input id="dn-annee" type="text" value="199" aria-invalid="true" aria-describedby="dn-annee-err" style="height: 48px; padding: 0 14px; background: #F7FAFD; border: 2px solid #A12A22; border-radius: 2px; font-family: 'Libre Franklin', sans-serif; font-size: 15px; color: #0E1A2B; box-sizing: border-box; font-variant-numeric: tabular-nums;">
+                  <p id="dn-annee-err" style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; color: #A12A22;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M12 3.5 21 19.5H3z"></path><path d="M12 10v4.5M12 17.2v.1"></path></svg>Quatre chiffres, par exemple 1992.</p>
+                </div>
+                <div style="grid-column: span 2; display: flex; align-items: flex-start; padding-top: 37px;">
+                  <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.45; color: #0E1A2B; cursor: pointer;">
+                    <input type="checkbox" style="width: 20px; height: 20px; margin: 1px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                    <span>Baptisée enfant, je ne connais que l'année</span>
+                  </label>
+                </div>
+              </div>
+
+              <fieldset style="margin: 16px 0 0 0; padding: 0; border: 0;">
+                <legend style="margin: 0 0 8px 0; padding: 0; font-size: 14px; font-weight: 600; color: #0E1A2B;">Motif de la demande <span style="color: #A12A22;" aria-hidden="true">*</span></legend>
+                <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+                  <label style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 14px; background: #EEF6FC; border: 1px solid #0A6BA3; border-radius: 2px; font-size: 15px; font-weight: 600; color: #0E1A2B; cursor: pointer; box-sizing: border-box;"><input type="radio" name="dn-motif" checked style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">Mariage religieux</label>
+                  <label style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 14px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; font-size: 15px; color: #0E1A2B; cursor: pointer; box-sizing: border-box;"><input type="radio" name="dn-motif" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">Parrainage</label>
+                  <label style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 14px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; font-size: 15px; color: #0E1A2B; cursor: pointer; box-sizing: border-box;"><input type="radio" name="dn-motif" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">Catéchèse</label>
+                  <label style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 14px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; font-size: 15px; color: #0E1A2B; cursor: pointer; box-sizing: border-box;"><input type="radio" name="dn-motif" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">Dossier personnel</label>
+                  <label style="display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 14px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; font-size: 15px; color: #0E1A2B; cursor: pointer; box-sizing: border-box;"><input type="radio" name="dn-motif" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">Autre</label>
+                  <p style="display: flex; align-items: center; margin: 0; font-size: 14px; line-height: 1.45; color: #586677;">Mariage prévu le 12.12 à Saint-Dominique</p>
+                </div>
+              </fieldset>
+            </section>
+
+            <!-- 03 Pièce + 04 Retrait -->
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;">
+              <section aria-labelledby="dn-piece">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+                  <span id="dn-piece"><span style="color: #0A6BA3;">03</span> — Pièce justificative</span>
+                  <span>Facultatif</span>
+                </div>
+                <label for="dn-fichier" style="display: flex; align-items: center; gap: 12px; height: 72px; padding: 0 16px; background: #F7FAFD; border: 1px dashed #8391A4; border-radius: 2px; box-sizing: border-box; cursor: pointer;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0A6BA3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 16.5v4h15v-4"></path></svg>
+                  <span style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 15px; color: #0E1A2B;">Déposer un fichier ou <span style="color: #0A6BA3; font-weight: 500; border-bottom: 1px solid #0A6BA3;">parcourir</span></span>
+                    <span style="font-size: 13px; color: #586677;">Carte de baptême, livret · JPG, PNG, PDF · 5 Mo</span>
+                  </span>
+                </label>
+                <input id="dn-fichier" type="file" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">
+                <div style="display: flex; align-items: center; gap: 12px; height: 48px; margin-top: 8px; padding: 0 4px 0 14px; border: 1px solid #DDE5EE; border-radius: 2px; box-sizing: border-box;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3A4859" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m20 11.5-8 8a5 5 0 0 1-7-7l8.5-8.5a3.5 3.5 0 0 1 5 5L10 17.5a2 2 0 0 1-3-3l7.5-7.5"></path></svg>
+                  <span style="flex: 1; min-width: 0; font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0E1A2B; font-variant-numeric: tabular-nums;">carte-bapteme-1992.jpg</span>
+                  <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; color: #586677; font-variant-numeric: tabular-nums;">840 Ko</span>
+                  <button type="button" class="jb-icon" aria-label="Retirer le fichier carte-bapteme-1992.jpg" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex: none; background: transparent; color: #3A4859; border: 0; border-radius: 2px; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 6.5h15M9.5 6.5V4h5v2.5M6.5 6.5l1 14h9l1-14M10 10.5V17M14 10.5V17"></path></svg></button>
+                </div>
+              </section>
+
+              <section aria-labelledby="dn-retrait">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+                  <span id="dn-retrait"><span style="color: #0A6BA3;">04</span> — Retrait de l'original <span style="color: #A12A22;">*</span></span>
+                </div>
+                <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px;">
+                  <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Mode de retrait de l'original</legend>
+                  <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                    <input type="radio" name="dn-retrait" checked style="width: 20px; height: 20px; margin: 2px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                    <span style="display: flex; flex-direction: column; gap: 2px;">
+                      <span style="font-size: 15px; font-weight: 600; line-height: 1.45; color: #0E1A2B;">Au secrétariat de la paroisse du sacrement</span>
+                      <span style="font-size: 14px; line-height: 1.5; color: #3A4859;">Sainte-Thérèse de Grand-Dakar · le plus rapide</span>
+                    </span>
+                  </label>
+                  <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                    <input type="radio" name="dn-retrait" style="width: 20px; height: 20px; margin: 2px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                    <span style="display: flex; flex-direction: column; gap: 2px;">
+                      <span style="font-size: 15px; font-weight: 500; line-height: 1.45; color: #0E1A2B;">Transmission à ma paroisse, Saint-Dominique</span>
+                      <span style="font-size: 14px; line-height: 1.5; color: #3A4859;">3 à 5 jours de plus · remis par Mme Germaine Faye</span>
+                    </span>
+                  </label>
+                </fieldset>
+              </section>
+            </div>
+
+            <!-- Consentement + actions -->
+            <div style="padding-top: 24px; border-top: 1px solid #DDE5EE;">
+              <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.55; color: #0E1A2B; cursor: pointer;">
+                <input type="checkbox" checked style="width: 20px; height: 20px; margin: 2px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                <span>J'atteste l'exactitude de ces informations et j'accepte qu'elles soient transmises au secrétariat de Sainte-Thérèse de Grand-Dakar, pour le seul traitement de cette demande. <span style="color: #A12A22;" aria-hidden="true">*</span></span>
+              </label>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px;">
+                <a href="#" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; color: #0A6BA3; font-size: 15px; font-weight: 500;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12h-15M10.5 6l-6 6 6 6"></path></svg><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Étape précédente</span></a>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Brouillon · 11 h 42</span>
+                  <button type="button" class="jb-btn-s" style="display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; background: transparent; color: #0E1A2B; border: 1px solid #0E1A2B; border-radius: 2px; font-size: 15px; font-weight: 500; cursor: pointer;">Enregistrer</button>
+                  <button type="button" class="jb-btn-p" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 44px; padding: 0 20px; background: #0A6BA3; color: #F7FAFD; border: 1px solid #0A6BA3; border-radius: 2px; font-size: 15px; font-weight: 500; cursor: pointer;">Voir le récapitulatif<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"></path></svg></button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          <!-- COLONNE LATÉRALE -->
+          <aside aria-label="Rappel et suite de la demande" style="grid-column: span 4; display: flex; flex-direction: column; gap: 32px;">
+            <div style="padding: 24px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px;">
+              <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Rappel · étapes 1 et 2</p>
+              <dl style="margin: 16px 0 0 0;">
+                <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Acte demandé</dt>
+                <dd style="margin: 4px 0 0 0; font-size: 16px; font-weight: 600;">Extrait d'acte de baptême</dd>
+                <dt style="margin-top: 16px; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Paroisse du sacrement</dt>
+                <dd style="margin: 4px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1.1;">Sainte-Thérèse de Grand-Dakar</dd>
+                <dd style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">Doyenné Grand Dakar-Yoff · Archidiocèse de Dakar</dd>
+              </dl>
+              <a href="#" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 32px; margin-top: 12px; color: #0A6BA3; font-size: 14px; font-weight: 500;"><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Modifier la paroisse</span></a>
+            </div>
+
+            <section aria-labelledby="dn-ensuite">
+              <div style="padding-top: 12px; border-top: 1px solid #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;">
+                <span id="dn-ensuite">Ce qui se passe ensuite</span>
+              </div>
+              <ol style="list-style: none; margin: 16px 0 0 0; padding: 0; display: flex; flex-direction: column; gap: 16px;">
+                <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px;">
+                  <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">01</span>
+                  <span style="font-size: 15px; line-height: 1.5; color: #0E1A2B;">Le secrétariat de Sainte-Thérèse recherche votre acte dans le registre des baptêmes.</span>
+                </li>
+                <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px;">
+                  <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">02</span>
+                  <span style="font-size: 15px; line-height: 1.5; color: #0E1A2B;">S'il manque une précision, il vous écrit ici. Vous êtes prévenue par notification.</span>
+                </li>
+                <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px;">
+                  <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">03</span>
+                  <span style="font-size: 15px; line-height: 1.5; color: #0E1A2B;">L'extrait est signé par le curé et scellé du sceau de la paroisse.</span>
+                </li>
+                <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px;">
+                  <span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; color: #0A6BA3; font-variant-numeric: tabular-nums;">04</span>
+                  <span style="font-size: 15px; line-height: 1.5; color: #0E1A2B;">Vous le retirez en original, sur présentation d'une pièce d'identité. Aucun envoi en PDF.</span>
+                </li>
+              </ol>
+              <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #DDE5EE;">
+                <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Délai indicatif</p>
+                <p style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 43px; line-height: 1; letter-spacing: -0.02em;">3 à 7 jours</p>
+                <p style="margin: 8px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">Les registres antérieurs à 1980 peuvent demander davantage de recherche.</p>
+              </div>
+              <p style="display: flex; align-items: flex-start; gap: 8px; margin: 24px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px;"><rect x="5" y="10.5" width="14" height="10" rx="1"></rect><path d="M8 10.5v-3a4 4 0 0 1 8 0v3M12 14.5v2.5"></path></svg>Ces informations ne sont visibles que par le secrétariat de la paroisse du sacrement.</p>
+            </section>
+          </aside>
+        </div>
+
+      </main>
+
+      <footer style="display: flex; align-items: center; justify-content: space-between; height: 56px; flex: none; padding: 0 64px 0 56px; border-top: 1px solid #DDE5EE; box-sizing: border-box; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">
+        <span>Jàngu Bi · Numerisen · 2026</span>
+        <span style="display: flex; gap: 24px;"><a href="#" class="jb-nav" style="color: #586677;">Confidentialité</a><a href="#" class="jb-nav" style="color: #586677;">Aide</a><a href="#" class="jb-nav" style="color: #586677;">Signaler un problème</a></span>
+      </footer>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

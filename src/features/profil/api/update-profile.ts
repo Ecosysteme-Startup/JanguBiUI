@@ -1,39 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
+import type { RequestBody } from '@/types/api-contract';
 
-export type UpdateProfileInput = {
-  first_name?: string;
-  last_name?: string;
-  phone?: string;
-  title?: string;
-  date_of_birth?: string;
-};
+export type ProfileInput = RequestBody<'v1_me_partial_update'>;
 
-export type ChangePasswordInput = {
-  current_password: string;
-  new_password: string;
-};
+/** Champs du profil seulement ; l'e-mail et le mot de passe se gèrent dans Keycloak. */
+export const updateProfile = (input: ProfileInput) => api.patch('/me/', input);
 
-export const useUpdateProfile = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+export const useUpdateProfile = ({ onSuccess }: { onSuccess?: () => void } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: UpdateProfileInput) =>
-      api.patch<unknown>('/v1/users/me/update/', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+    mutationFn: updateProfile,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['me'] });
       onSuccess?.();
     },
   });
 };
-
-export const useChangePassword = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) =>
-  useMutation({
-    mutationFn: (data: ChangePasswordInput) =>
-      api.post<unknown>('/v1/users/password/change/', data),
-    onSuccess,
-  });
