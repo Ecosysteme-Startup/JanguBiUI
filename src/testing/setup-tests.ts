@@ -1,12 +1,23 @@
 import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
 
+import { a11yViolations } from '@/testing/a11y';
 import { server } from '@/testing/mocks/server';
 import { navigation } from '@/testing/navigation';
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => {
-  server.resetHandlers();
-  navigation.pathname = '/';
+afterEach(async () => {
+  // Chaque écran rendu par un test passe aussi l'audit axe (F9) : 330 états réels couverts.
+  try {
+    if (document.body.children.length > 0 && process.env.A11Y !== '0') {
+      const violations = await a11yViolations();
+      if (violations.length > 0) throw new Error(`Accessibilité (axe) :\n${violations.join('\n')}`);
+    }
+  } finally {
+    cleanup();
+    server.resetHandlers();
+    navigation.pathname = '/';
+  }
 });
 afterAll(() => server.close());
 

@@ -6,6 +6,9 @@ import { closingFormula, readingLabel, readingTitle } from '@/features/parole/ut
 import { cn } from '@/utils/cn';
 import { frenchTypo } from '@/utils/french-typo';
 
+/** Texte AELF : balises de texte seulement, aucun attribut (ni image, ni lien, ni script). */
+const READING_SANITIZE = { ALLOWED_TAGS: ['p', 'br', 'sup', 'em', 'i', 'strong', 'b', 'span'], ALLOWED_ATTR: [] };
+
 export const readingAnchor = (index: number) => `lecture-${index + 1}`;
 export const readingNumber = (index: number) => String(index + 1).padStart(2, '0');
 
@@ -54,7 +57,7 @@ export const ReadingSection = ({
         <div
           className={cn('mt-6 max-w-reading font-serif text-ink [&_p]:m-0 [&_p]:mb-3', TEXT_SIZES[size].reading)}
           // Texte AELF (source « aelf ») : HTML fourni par l'API, assaini avant affichage.
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(reading.text) }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(reading.text, READING_SANITIZE) }}
         />
       ) : (
         <p className="m-0 mt-6 max-w-reading text-base text-ink-3">Le texte de cette lecture n’est pas encore disponible.</p>
