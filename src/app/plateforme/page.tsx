@@ -1,4 +1,11 @@
-// Tableau de bord plateforme (PLA-Tableau-de-bord) : lot F8.
-const PlateformeHomePage = () => <h1 className="m-0 font-serif text-title font-normal text-ink">Plateforme</h1>;
+import { CapabilityPage } from '@/components/layouts/capability-page';
+import { PlatformDashboardView } from '@/features/tableaux-de-bord/components/platform-dashboard';
+
+/** Tableau de bord plateforme (PLA-Tableau-de-bord). */
+const PlateformeHomePage = () => (
+  <CapabilityPage capacite="plateforme.admin" nodeId={null}>
+    <PlatformDashboardView />
+  </CapabilityPage>
+);
 
 export default PlateformeHomePage;
