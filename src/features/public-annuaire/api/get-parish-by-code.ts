@@ -1,17 +1,19 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
-import { type DirectoryNode, getDirectory } from './get-directory';
+import { api, ApiError } from '@/lib/api-client';
 
-/**
- * Résout le code d'URL (`/paroisses/DAK-SAINT-DOMINIQUE`) en nœud. L'API n'expose pas de
- * recherche exacte par code : on interroge l'annuaire (`q` couvre le code) puis on garde
- * la correspondance exacte, insensible à la casse. `null` : paroisse inconnue.
- */
+import { type DirectoryNode, directoryNodeSchema } from './get-directory';
+
+/** Résout le code d'URL (`/paroisses/DAK-SAINT-DOMINIQUE`) en nœud. `null` : paroisse inconnue (404). */
 export const getParishByCode = async (code: string): Promise<DirectoryNode | null> => {
-  const wanted = code.trim().toLowerCase();
+  const wanted = code.trim();
   if (!wanted) return null;
-  const page = await getDirectory({ q: code.trim(), limit: 50 });
-  return page.results.find((node) => node.code.toLowerCase() === wanted) ?? null;
+  try {
+    return directoryNodeSchema.parse(await api.get(`/public/nodes/by-code/${encodeURIComponent(wanted)}/`));
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 };
 
 export const parishByCodeQueryOptions = (code: string) =>

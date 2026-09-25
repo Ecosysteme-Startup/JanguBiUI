@@ -13,7 +13,7 @@ beforeEach(() => server.use(directoryHandler));
 
 describe('Fiche paroisse publique', () => {
   it('présente la paroisse, sa juridiction et ses actions', async () => {
-    renderApp(<ParishSheet code="dak-saint-dominique" />);
+    renderApp(<ParishSheet code="DAK-SAINT-DOMINIQUE" />);
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Paroisse Saint-Dominique' })).toBeInTheDocument();
     expect(screen.getByText('Avenue Cheikh Anta Diop, Point E, Dakar')).toBeInTheDocument();

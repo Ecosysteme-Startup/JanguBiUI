@@ -2299,6 +2299,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/nodes/by-code/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fiche publique d'un nœud par son code (URL /paroisses/<code> du site public)
+         * @description Lecture publique ; écriture soumise à une capacité sur le nœud concerné (ADR-003).
+         *
+         *     ``write_capability`` : capacité exigée ; ``get_write_node()`` : nœud sur lequel elle est
+         *     vérifiée (``None`` = hors arbre, réservé à la plateforme) ; ``write_on_any_node`` : la
+         *     capacité sur au moins un nœud suffit, le service vérifiant ligne par ligne (imports).
+         */
+        get: operations["v1_public_nodes_by_code_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/rosary/community/": {
         parameters: {
             query?: never;
@@ -3452,7 +3476,7 @@ export interface components {
             readonly id: string;
             readonly participant_a: components["schemas"]["ConversationParticipant"];
             readonly participant_b: components["schemas"]["ConversationParticipant"];
-            readonly last_message: string;
+            readonly last_message: components["schemas"]["LastMessage"] | null;
             /** Format: date-time */
             last_message_at?: string | null;
             is_archived?: boolean;
@@ -3685,6 +3709,18 @@ export interface components {
             /** Format: date-time */
             created_at: string;
         };
+        LastMessage: {
+            /** Format: uuid */
+            id: string;
+            /**
+             * Format: uuid
+             * @description Expéditeur (pour l'aperçu « Vous : »)
+             */
+            sender_id: string;
+            content: string | null;
+            /** Format: date-time */
+            sent_at: string;
+        };
         LectioDivinaInput: {
             passage_id?: number | null;
             /** @default  */
@@ -3708,6 +3744,11 @@ export interface components {
             /** Format: date-time */
             updated_at: string;
         };
+        MeNodeRef: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         /** @description EF-PER-01. Les capacités s'obtiennent par /me/capacites/. */
         MeOutput: {
             /** Format: uuid */
@@ -3720,9 +3761,9 @@ export interface components {
             etat_de_vie: string;
             degre_ordre: string;
             statut_verification: string;
-            incardination: components["schemas"]["NodeRef"] | null;
-            institut: components["schemas"]["NodeRef"] | null;
-            paroisse_suivie: components["schemas"]["NodeRef"] | null;
+            incardination: components["schemas"]["MeNodeRef"] | null;
+            institut: components["schemas"]["MeNodeRef"] | null;
+            paroisse_suivie: components["schemas"]["MeNodeRef"] | null;
             readonly consent: {
                 [key: string]: unknown;
             };
@@ -8386,6 +8427,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NodeWeekOutput"];
+                };
+            };
+        };
+    };
+    v1_public_nodes_by_code_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeOutput"];
                 };
             };
         };

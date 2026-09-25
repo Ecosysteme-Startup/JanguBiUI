@@ -9,12 +9,10 @@ export const otherParticipant = (
     ? conversation.participant_b
     : conversation.participant_a;
 
-/**
- * Aperçu de la ligne de liste. `last_message` ne porte pas son expéditeur (écart backend) :
- * pas de préfixe « Vous : » tant que l'information n'est pas fiable.
- */
-export const previewOf = (conversation: Conversation): string => {
+/** Aperçu de la ligne de liste, préfixé « Vous : » quand le dernier message est le sien. */
+export const previewOf = (conversation: Conversation, meId?: string): string => {
   const last = conversation.last_message;
   if (!last) return 'Aucun message pour l’instant';
-  return last.content ?? 'Message supprimé';
+  const text = last.content ?? 'Message supprimé';
+  return meId && last.sender_id === meId ? `Vous : ${text}` : text;
 };

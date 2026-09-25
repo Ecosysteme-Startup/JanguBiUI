@@ -39,6 +39,10 @@ export const directoryHandler = http.get(apiUrl('/public/nodes/'), ({ request })
 
 /** Handlers du site public (lot F4) ; `directoryHandler` est prioritaire dans les tests du lot. */
 export const f4PublicHandlers = [
+  http.get(apiUrl('/public/nodes/by-code/:code/'), ({ params }) => {
+    const node = directoryNodes.find((n) => n.code === String(params.code));
+    return node ? HttpResponse.json(toApiNode(node)) : HttpResponse.json({ error: { code: 'not_found', message: 'Nœud introuvable.' } }, { status: 404 });
+  }),
   http.get(apiUrl('/liturgy/:day/'), ({ params }) => {
     const day = String(params.day);
     if (day === 'today') return undefined;

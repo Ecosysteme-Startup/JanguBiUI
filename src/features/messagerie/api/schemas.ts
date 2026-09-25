@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 /**
  * Formes réelles des serializers `apps/messaging/serializers.py` (le code fait foi).
- * Écart de schéma : `last_message` est déclaré `string` dans schema.yml mais le serveur
- * renvoie `{id, content, sent_at} | null` (SerializerMethodField non typé).
+ * `last_message` : `{id, sender_id, content, sent_at} | null` (`sender_id` facultatif pour les
+ * serveurs antérieurs au correctif de contrat).
  */
 export const participantSchema = z.object({
   id: z.string(),
@@ -19,6 +19,7 @@ export const conversationSchema = z.object({
   last_message: z
     .object({
       id: z.string(),
+      sender_id: z.string().optional(),
       content: z.string().nullable(),
       sent_at: z.string(),
     })

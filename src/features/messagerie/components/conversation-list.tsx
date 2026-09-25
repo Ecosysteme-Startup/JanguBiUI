@@ -45,7 +45,7 @@ const RowContent = ({
             unread ? 'text-ink' : 'text-ink-2',
           )}
         >
-          {previewOf(conversation)}
+          {previewOf(conversation, meId)}
         </span>
       </span>
       <span className="tnum flex flex-col items-end gap-1 text-meta">
