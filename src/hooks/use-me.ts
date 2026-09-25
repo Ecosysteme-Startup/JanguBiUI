@@ -3,7 +3,9 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-const nodeRefSchema = z.object({ id: z.string(), name: z.string(), code: z.string(), type: z.string() });
+// /me/ ne renvoie que `id` et `name` (users.NodeRefSerializer) ; le schéma OpenAPI confond
+// deux sérialiseurs homonymes et annonce aussi `code` et `type` : on les tolère absents.
+const nodeRefSchema = z.object({ id: z.string(), name: z.string(), code: z.string().optional(), type: z.string().optional() });
 
 const meSchema = z.object({
   id: z.string(),

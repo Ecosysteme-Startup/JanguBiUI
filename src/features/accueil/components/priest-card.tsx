@@ -1,0 +1,59 @@
+'use client';
+
+import NextLink from 'next/link';
+
+import { Avatar } from '@/components/ui/avatar';
+import { buttonVariants } from '@/components/ui/button';
+import { SectionHeading } from '@/components/ui/section-heading';
+import { LoadingBlock } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
+import { useMe } from '@/hooks/use-me';
+
+import { useReachablePriests } from '../api/get-reachable-priests';
+
+/** « Parler à un prêtre » (FID-Accueil 04, MOB-Accueil 04) : un prêtre de ma paroisse, et la confession en présentiel. */
+export const PriestCard = ({ number, className }: { number: string; className?: string }) => {
+  const { data: me } = useMe();
+  const { data: priests, isPending, isError } = useReachablePriests();
+  const parishId = me?.paroisse_suivie?.id;
+  const available = (priests ?? []).filter((p) => p.availability?.accepts_new_conversations !== false);
+  const priest = available.find((p) => p.nodes.some((n) => n.id === parishId)) ?? available[0];
+  const node = priest?.nodes.find((n) => n.id === parishId) ?? priest?.nodes[0];
+
+  return (
+    <section aria-labelledby="acc-pretre" className={className}>
+      <SectionHeading
+        id="acc-pretre"
+        number={number}
+        title="Parler à un prêtre"
+        aside={<NextLink href={paths.app.pretres.list.getHref()}>Tous les prêtres</NextLink>}
+      />
+      {isPending ? (
+        <LoadingBlock label="Chargement des prêtres…" lines={2} />
+      ) : isError ? (
+        <p className="m-0 text-base text-ink-2">La liste des prêtres n’a pas pu être chargée.</p>
+      ) : priest ? (
+        <div className="mt-4 flex items-start gap-4">
+          <Avatar name={priest.full_name} size={48} />
+          <div className="min-w-0">
+            <p className="m-0 font-serif text-h4 text-ink">{priest.full_name}</p>
+            {node && <p className="m-0 mt-1 text-sm text-ink-2">{node.name}</p>}
+            <p className="m-0 mt-1 text-sm text-ink-3">Joignable par message</p>
+            <NextLink href={paths.app.pretres.list.getHref()} className={buttonVariants({ variant: 'secondary', size: 'sm', className: 'mt-3' })}>
+              Écrire
+            </NextLink>
+          </div>
+        </div>
+      ) : (
+        <p className="m-0 mt-4 text-base text-ink-2">Aucun prêtre de votre paroisse ne reçoit de messages pour le moment.</p>
+      )}
+      <div className="mt-6 border-t border-line pt-4">
+        <p className="tnum m-0 text-meta text-ink-3">Confession · en présentiel</p>
+        <p className="m-0 mt-1 text-base text-ink-2">La confession ne se fait pas par message : réservez un créneau auprès d’un prêtre.</p>
+        <NextLink href={paths.app.confession.getHref()} className="mt-2 inline-block font-medium">
+          Prendre rendez-vous
+        </NextLink>
+      </div>
+    </section>
+  );
+};
