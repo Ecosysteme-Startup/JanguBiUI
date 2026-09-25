@@ -1,3 +1,65 @@
+@import './tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    background: var(--jb-paper);
+    color: var(--jb-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-paper font-sans text-body text-ink;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+  a {
+    color: var(--jb-primary);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--jb-primary-strong);
+  }
+  :focus-visible {
+    outline: 2px solid var(--jb-primary);
+    outline-offset: 2px;
+  }
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--jb-primary-fill);
+  }
+  ::selection {
+    background: var(--jb-tint-100);
+    color: var(--jb-ink);
+  }
+}
+
+@layer utilities {
+  /* Chiffres tabulaires pour les données (DS-Fondations §02). */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Filet double de 3 px qui referme le bandeau liturgique (« la une d'un journal »). */
+  .rule-double {
+    border-bottom: 3px double var(--jb-line-strong);
+  }
+  .rule-double-top {
+    border-top: 3px double var(--jb-line-strong);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
