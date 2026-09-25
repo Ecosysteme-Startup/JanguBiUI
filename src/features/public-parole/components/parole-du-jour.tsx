@@ -69,6 +69,8 @@ export const ParoleDuJour = ({ date }: { date?: string }) => {
   if (isError || !data) {
     const notFound = error instanceof ApiError && error.status === 404;
     return (
+      <>
+        <h1 className="m-0 mb-6 font-serif text-title font-normal text-ink">La Parole du jour</h1>
       <EmptyState
         tone="err"
         icon="alerte"
@@ -81,6 +83,7 @@ export const ParoleDuJour = ({ date }: { date?: string }) => {
       >
         {notFound ? 'Vérifiez la date demandée.' : 'Le service ne répond pas. Réessayez dans un instant.'}
       </EmptyState>
+      </>
     );
   }
 

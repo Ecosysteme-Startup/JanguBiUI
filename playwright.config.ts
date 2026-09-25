@@ -26,6 +26,8 @@ export default defineConfig({
   ],
   webServer: {
     command: `yarn dev --port ${PORT}`,
+    // Auth.js exige un secret même pour les pages publiques (le SessionProvider interroge la session).
+    env: { AUTH_SECRET: process.env.AUTH_SECRET ?? 'e2e-local-secret-not-for-production-0000' },
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

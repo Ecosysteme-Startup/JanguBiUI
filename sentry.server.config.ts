@@ -1,7 +1,10 @@
 import * as Sentry from '@sentry/nextjs';
 
+import { sentryPrivacyOptions } from '@/lib/sentry-scrub';
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.2,
   debug: false,
+  ...sentryPrivacyOptions,
 });

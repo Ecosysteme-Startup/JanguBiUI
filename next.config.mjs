@@ -32,6 +32,12 @@ const securityHeaders = [
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   },
+  // Isole la fenêtre des pages tierces ouvertes depuis l'app (liens externes, Keycloak).
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+  // HTTPS imposé en production (Traefik termine le TLS) ; pas en local (http://localhost).
+  ...(process.env.NODE_ENV === 'production'
+    ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }]
+    : []),
   {
     key: 'Content-Security-Policy',
     value: [
