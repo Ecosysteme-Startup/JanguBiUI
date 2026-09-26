@@ -17,7 +17,10 @@ import { MassSlot } from './mass-slot';
 /** Durée d'un créneau (« 2 h », « 45 min ») quand sa fin est connue. */
 const duration = (o: Occurrence) => {
   if (!o.end_time) return '';
-  const minutes = dayjs(`2000-01-01T${o.end_time}`).diff(dayjs(`2000-01-01T${o.start_time}`), 'minute');
+  const minutes = dayjs(`2000-01-01T${o.end_time}`).diff(
+    dayjs(`2000-01-01T${o.start_time}`),
+    'minute',
+  );
   if (minutes <= 0) return '';
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -36,11 +39,20 @@ export const ParishSchedule = ({ nodeId }: { nodeId: string }) => {
   const [day, setDay] = useState<string | null>(null);
   useEffect(() => setDay(null), [start]);
 
-  const days = data ? Array.from({ length: 7 }, (_, i) => dayjs(data.start).add(i, 'day').format('YYYY-MM-DD')) : [];
+  const days = data
+    ? Array.from({ length: 7 }, (_, i) =>
+        dayjs(data.start).add(i, 'day').format('YYYY-MM-DD'),
+      )
+    : [];
   const busy = new Set(data?.occurrences.map((o) => o.date));
   const selected = day ?? days.find((d) => busy.has(d)) ?? days[0];
-  const slots = (data?.occurrences ?? []).filter((o) => o.date === selected).sort((a, b) => a.start_time.localeCompare(b.start_time));
-  const next = data && now ? upcomingMasses(data.occurrences, now.today, now.time)[0] : undefined;
+  const slots = (data?.occurrences ?? [])
+    .filter((o) => o.date === selected)
+    .sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const next =
+    data && now
+      ? upcomingMasses(data.occurrences, now.today, now.time)[0]
+      : undefined;
   const rows = data ? weeklyRows(data.occurrences) : [];
 
   return (
@@ -52,7 +64,13 @@ export const ParishSchedule = ({ nodeId }: { nodeId: string }) => {
         {data && (
           <button
             type="button"
-            onClick={() => setStart(start ? undefined : dayjs(data.start).add(7, 'day').format('YYYY-MM-DD'))}
+            onClick={() =>
+              setStart(
+                start
+                  ? undefined
+                  : dayjs(data.start).add(7, 'day').format('YYYY-MM-DD'),
+              )
+            }
             className="hit text-15 font-semibold text-primary hover:text-primary-strong"
           >
             {start ? 'Cette semaine' : 'Semaine suivante'}
@@ -65,15 +83,21 @@ export const ParishSchedule = ({ nodeId }: { nodeId: string }) => {
         </div>
       ) : isError || !data ? (
         <p role="alert" className="m-0 mt-5 text-16 text-err">
-          Les horaires n&apos;ont pas pu être chargés. Réessayez dans un instant.
+          Les horaires n&apos;ont pas pu être chargés. Réessayez dans un
+          instant.
         </p>
       ) : data.occurrences.length === 0 ? (
         <p className="m-0 mt-5 text-16 text-ink-2">
-          Aucun horaire n&apos;est encore publié pour cette paroisse. Renseignez-vous auprès de son secrétariat.
+          Aucun horaire n&apos;est encore publié pour cette paroisse.
+          Renseignez-vous auprès de son secrétariat.
         </p>
       ) : (
         <>
-          <div role="group" aria-label="Jours de la semaine" className="tnum mt-5 grid grid-cols-7 gap-1 text-center sm:gap-2">
+          <div
+            role="group"
+            aria-label="Jours de la semaine"
+            className="tnum mt-5 grid grid-cols-7 gap-1 text-center sm:gap-2"
+          >
             {days.map((date) => {
               const isSelected = date === selected;
               const isToday = date === now?.today;
@@ -86,24 +110,60 @@ export const ParishSchedule = ({ nodeId }: { nodeId: string }) => {
                   onClick={() => setDay(date)}
                   className={cn(
                     'flex min-w-0 flex-col items-center gap-0.5 rounded-14 border pb-3 pt-2.5',
-                    isSelected ? 'border-primary bg-tint-50 text-tint-800 ring-1 ring-inset ring-primary' : 'border-line text-ink hover:border-line-active',
+                    isSelected
+                      ? 'border-primary bg-tint-50 text-tint-800 ring-1 ring-inset ring-primary'
+                      : 'border-line text-ink hover:border-line-active',
                   )}
                 >
-                  <span className={cn('max-w-full truncate text-12', isSelected ? 'font-medium' : 'text-ink-3')}>
-                    {isToday ? 'aujourd’hui' : dayjs(date).format('ddd')}
+                  <span
+                    className={cn(
+                      'max-w-full truncate text-12',
+                      isSelected ? 'font-medium' : 'text-ink-3',
+                    )}
+                  >
+                    {isToday ? (
+                      <>
+                        <span className="sm:hidden">auj.</span>
+                        <span className="hidden sm:inline">
+                          aujourd&apos;hui
+                        </span>
+                      </>
+                    ) : (
+                      dayjs(date).format('ddd')
+                    )}
                   </span>
-                  <span className={cn('text-18', isSelected ? 'font-bold' : 'font-semibold')}>{dayjs(date).format('D')}</span>
-                  <span className={cn('size-[5px] rounded-full', busy.has(date) ? (isSelected ? 'bg-primary-fill' : 'bg-tint-300') : 'bg-transparent')} />
+                  <span
+                    className={cn(
+                      'text-18',
+                      isSelected ? 'font-bold' : 'font-semibold',
+                    )}
+                  >
+                    {dayjs(date).format('D')}
+                  </span>
+                  <span
+                    className={cn(
+                      'size-[5px] rounded-full',
+                      busy.has(date)
+                        ? isSelected
+                          ? 'bg-primary-fill'
+                          : 'bg-tint-300'
+                        : 'bg-transparent',
+                    )}
+                  />
                 </button>
               );
             })}
           </div>
           <div className="mt-4 flex flex-col gap-2">
             {slots.length === 0 ? (
-              <p className="m-0 rounded-16 border border-line px-5 py-4 text-15 text-ink-2">Aucun horaire publié ce jour.</p>
+              <p className="m-0 rounded-16 border border-line px-5 py-4 text-15 text-ink-2">
+                Aucun horaire publié ce jour.
+              </p>
             ) : (
               slots.map((slot) => {
-                const past = now ? slotWhen(slot, now.today, now.time) === 'passée' : false;
+                const past = now
+                  ? slotWhen(slot, now.today, now.time) === 'passée'
+                  : false;
                 const isNext = next !== undefined && next === slot;
                 return (
                   <MassSlot
@@ -133,12 +193,17 @@ export const ParishSchedule = ({ nodeId }: { nodeId: string }) => {
           </div>
           {rows.length > 0 && (
             <>
-              <h3 className="m-0 mt-8 text-16 font-semibold text-ink">{start ? 'Semaine suivante' : 'Chaque semaine'}</h3>
+              <h3 className="m-0 mt-8 text-16 font-semibold text-ink">
+                {start ? 'Semaine suivante' : 'Chaque semaine'}
+              </h3>
               <dl className="m-0 mt-3 rounded-16 border border-line bg-surface text-15">
                 {rows.map((row, index) => (
                   <div
                     key={row.label}
-                    className={cn('grid grid-cols-1 gap-1 px-5 py-4 sm:grid-cols-[200px_minmax(0,1fr)] sm:gap-4', index < rows.length - 1 && 'border-b border-line')}
+                    className={cn(
+                      'grid grid-cols-1 gap-1 px-5 py-4 sm:grid-cols-[200px_minmax(0,1fr)] sm:gap-4',
+                      index < rows.length - 1 && 'border-b border-line',
+                    )}
                   >
                     <dt className="font-semibold text-ink">{row.label}</dt>
                     <dd className="tnum m-0 text-ink-2">{row.text}</dd>
