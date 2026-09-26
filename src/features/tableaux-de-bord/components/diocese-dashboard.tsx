@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
+import { ScrollRegion } from '@/components/ui/scroll-region';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { useCan } from '@/lib/can';
@@ -295,7 +296,7 @@ const ActesCard = ({
       </p>
 
       <div className="mt-4 overflow-hidden rounded-12 border border-line">
-        <div className="overflow-x-auto">
+        <ScrollRegion label="Demandes d’actes, défilement horizontal">
           <table className="tnum w-full min-w-[440px] border-collapse text-left">
             <caption className="sr-only">
               Demandes d’actes, toutes paroisses confondues
@@ -358,7 +359,7 @@ const ActesCard = ({
               </tr>
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
         <p className="m-0 flex items-center gap-2 border-t border-line px-4 py-2.5 text-13 text-ink-3">
           <Icon name="info" size={16} className="shrink-0" />
           {openParishes === undefined

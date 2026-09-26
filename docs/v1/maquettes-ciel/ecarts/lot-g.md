@@ -62,3 +62,46 @@ La maquette montre un **annuaire du clergé** (offices en cours, parcours, compt
 | « Ses conversations sont chiffrées : ni le diocèse ni Numerisen ne peuvent les lire » | Non repris (pas de bloc messagerie) | — |
 
 Vérification visuelle : la base de démo n'a aucune déclaration en attente ; l'état vide est capturé, l'état rempli est couvert par les tests Vitest.
+
+## PLA-Tableau-de-bord (`/plateforme`)
+
+| Bloc de la maquette | Décision | Ce qu'il faudrait côté backend |
+|---|---|---|
+| « Page de statut publique » | Remplacé par « Journal d'audit » (lien existant) | Une page de statut |
+| Santé : diocèses et paroisses paramétrés, disponibilité 30 j, temps de réponse p95, dernière sauvegarde, version déployée | Non affichés. Santé = comptes (dont staff), actifs 30 j, nouveaux 30 j, MFA du staff | Métriques d'infrastructure (supervision, sauvegardes, version) dans `GET /dashboards/platform/` |
+| Services (API, Keycloak, messagerie, push, SMS, e-mail) | Non affichés | Sondes d'état par service |
+| Incidents (en cours, historique) | Non affichés | Un registre d'incidents |
+| Inscriptions par semaine (histogramme) | Non affiché | Série hebdomadaire des inscriptions |
+| Files techniques (SMS, push, e-mails, imports, suppressions) | Reprend les files réelles : courriels en échec (7 j), actes en retard, tâches planifiées en retard | Compteurs des files SMS/push/imports/suppressions |
+
+Fonction existante gardée hors maquette : tableau « Tâches planifiées » (Celery beat : dernière exécution, état).
+
+## PLA-Referentiels (`/plateforme/referentiels`)
+
+| Bloc de la maquette | Décision | Ce qu'il faudrait côté backend |
+|---|---|---|
+| Brouillon versionné (« Brouillon de la version 13 », « Voir les différences », « Publier la version 13 », « Abandonner le brouillon ») | Non affichés : le catalogue est fermé (RG-14), non éditable ; un encart « Catalogue fermé » l'explique | Versionnement et édition du référentiel |
+| Matrice éditable (cases cochables, « Modifiée dans le brouillon », « Réservée aux ministres ordonnés ») | Matrice en lecture seule, colonnes regroupées comme la maquette (Vie paroissiale, Demandes d'actes, Pastorale, Gouvernance) ; plateforme.admin exclue (rôle realm) | Édition des capacités par office |
+| « Modifications du brouillon », « Versions » | Non affichés | Historique des versions |
+
+Fonctions existantes gardées hors maquette : onglet « Retraits par diocèse » (retirer / rétablir une capacité), colonnes du catalogue d'offices (condition d'ordre, nommé par, héritage).
+
+## PLA-Comptes (`/plateforme/comptes`)
+
+| Bloc de la maquette | Décision | Ce qu'il faudrait côté backend |
+|---|---|---|
+| « Inviter un membre du staff » | Non affiché (les droits viennent des nominations) ; place prise par « Console Keycloak » si configurée | Invitation staff |
+| Compteurs par onglet (Tous 312, Staff 14, Fidèles 298) | Seul l'onglet actif porte le total (celui de la liste chargée) | Compteurs par rôle |
+| Filtre « Rôle » | Remplacé par les onglets de rôle (Tous, Staff, Fidèles, Admin plateforme) | — |
+| Fiche : origine du droit, codes de secours, « Réinitialiser la double authentification », sessions par appareil avec « Fermer » unitaire, « Suspendre le compte » | Fiche : rôle, rattachement, e-mail, connexion, identifiant, MFA (méthode, « Forcer la MFA »), nominations et capacités, sessions (« Fermer les sessions »), « Verrouiller / Déverrouiller » | Réinitialisation MFA, fermeture de session unitaire |
+| Compte « Verrouillé — 5 échecs » | Statut « Verrouillé » sans le nombre d'échecs | Nombre d'échecs et date |
+
+## PLA-Audit (`/plateforme/audit`, `/espace/[nodeId]/audit`)
+
+| Bloc de la maquette | Décision | Ce qu'il faudrait côté backend |
+|---|---|---|
+| « Exporter en CSV », « Intégrité vérifiée à 11 h » | Non affichés | Export et contrôle d'intégrité (empreinte chaînée) |
+| Recherche « Acteur, objet ou référence » | Le champ filtre l'acteur par identifiant (UUID) ; pas de recherche plein texte | Paramètre `q` sur `GET /audit/` |
+| Pilule « Aujourd'hui » | Remplacée par les dates « Du / Au » en pilules | — |
+| Fiche : « Changement » avant → après en badges, « Voir les 6 événements de cette demande » | Fiche : acteur, objet, nœud, adresse IP, événement brut (copiable) ; le changement figure dans l'événement brut (`metadata`) | Champs `avant` / `apres` structurés, filtre par objet |
+| « Événements plus anciens » | Pagination numérotée (25 par page) | — |

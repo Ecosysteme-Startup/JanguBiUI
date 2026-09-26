@@ -279,7 +279,7 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
         )}
       </div>
 
-      <div className={cn('mt-4 grid grid-cols-1 items-start gap-6', selected && 'xl:grid-cols-[minmax(0,1fr)_384px]')}>
+      <div className={cn('mt-4 grid grid-cols-1 items-start gap-6', selected && 'xl:grid-cols-[minmax(0,1fr)_360px]')}>
         <div className="min-w-0">
           {events.isPending ? (
             <LoadingBlock label="Chargement du journal…" lines={8} />
@@ -316,7 +316,7 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
                           </span>
                           <span className="block text-13 text-ink-3">{dayjs(event.at).format('DD.MM.YYYY')}</span>
                         </Td>
-                        <Td className="py-2.5">
+                        <Td className="whitespace-nowrap py-2.5">
                           {event.actor_id ? (
                             <button
                               type="button"
@@ -343,11 +343,19 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
                           >
                             {actionLabel(event.action)}
                           </button>
-                          <span className="block text-13 text-ink-3">{targetLabel(event.target_type, event.target_id)}</span>
-                          {meta && <span className="tnum block text-13 text-ink-3">{meta}</span>}
+                          <span title={targetLabel(event.target_type, event.target_id)} className="block max-w-64 truncate text-13 text-ink-3">
+                            {targetLabel(event.target_type, event.target_id)}
+                          </span>
+                          {meta && (
+                            <span title={meta} className="tnum block max-w-64 truncate text-13 text-ink-3">
+                              {meta}
+                            </span>
+                          )}
                         </Td>
                         <Td className="py-2.5">
-                          <span className="block text-14">{nodeName(event.node_id)}</span>
+                          <span className="block max-w-40 truncate text-14" title={nodeName(event.node_id)}>
+                            {nodeName(event.node_id)}
+                          </span>
                           <span className="tnum block text-13 text-ink-3">{event.ip ?? '—'}</span>
                         </Td>
                       </Tr>
