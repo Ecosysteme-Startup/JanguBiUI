@@ -10,11 +10,12 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
 import { paths } from '@/config/paths';
 import { useCan } from '@/lib/can';
+import { plural } from '@/utils/plural';
 
 import { type Deployment, useDeployment } from '../api/get-deployment';
 import { type NodeDashboard, useNodeDashboard } from '../api/get-node-dashboard';
 import { usePendingVerifications, useProposedAssignments } from '../api/get-watch-counts';
-import { days, hours, n, pct, plural, stamp } from '../utils/format';
+import { days, hours, n, pct, stamp } from '../utils/format';
 
 import { Figure, Footnote, Grid, Meter, Panel } from './dashboard-parts';
 

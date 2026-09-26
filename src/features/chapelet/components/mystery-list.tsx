@@ -1,5 +1,5 @@
-import type { Mystery } from '@/features/chapelet/api/get-rosary-today';
 import { fruitLabel, mysteryTitle } from '@/features/chapelet/utils/rosary';
+import type { Mystery } from '@/hooks/use-rosary-today';
 import { cn } from '@/utils/cn';
 
 /** Les cinq mystères : priés, en cours, à venir ; chacun permet d'y aller directement. */

@@ -7,8 +7,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
-import { useRosaryToday } from '@/features/chapelet/api/get-rosary-today';
 import { GuidedRosary } from '@/features/chapelet/components/guided-rosary';
+import { useRosaryToday } from '@/hooks/use-rosary-today';
 import { ApiError } from '@/lib/api-client';
 
 /** Chapelet du jour (FID-Chapelet) : prière personnelle guidée. Le chapelet communautaire est gelé. */

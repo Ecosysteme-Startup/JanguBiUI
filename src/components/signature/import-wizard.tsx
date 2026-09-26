@@ -9,6 +9,7 @@ import { IconButton } from '@/components/ui/icon-button';
 import { Notice } from '@/components/ui/notice';
 import type { ImportReport } from '@/lib/import-report';
 import { cn } from '@/utils/cn';
+import { plural } from '@/utils/plural';
 
 type LineStatus = ImportReport['lines'][number]['status'];
 
@@ -145,7 +146,7 @@ export const ImportWizard = ({ eyebrow, title, columns, extra, ready = true, sim
         <div className="flex flex-col gap-5">
           {file && (
             <p className="tnum m-0 text-sm text-ink-2">
-              Fichier déposé <span className="font-medium text-ink">{file.name}</span> · {report.lines.length} lignes · {sizeOf(file.size)}{' '}
+              Fichier déposé <span className="font-medium text-ink">{file.name}</span> · {plural(report.lines.length, 'ligne', 'lignes')} · {sizeOf(file.size)}{' '}
               ·{' '}
               <Button variant="tertiary" size="sm" className="h-auto min-h-0" onClick={restart}>
                 Remplacer

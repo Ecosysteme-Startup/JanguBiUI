@@ -13,6 +13,7 @@ import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
 import { dayjs, hour } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { plural } from '@/utils/plural';
 
 import { type StaffEvent, useStaffEvents } from '../api/staff-events';
 import { type AgendaView, periodBounds, useAgendaPeriod } from '../hooks/use-agenda-period';
@@ -127,7 +128,7 @@ const MonthList = ({
                   <span className="block text-sm text-ink-3">
                     {hour(event.start_at)}
                     {event.location && <> · {event.location}</>}
-                    {event.max_participants ? <> · {event.seats_taken} / {event.max_participants} places</> : null}
+                    {event.max_participants ? <> · {event.seats_taken} / {plural(event.max_participants, 'place', 'places')}</> : null}
                     {event.is_cancelled && <> · annulé</>}
                   </span>
                 </span>

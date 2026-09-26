@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { IconButton } from '@/components/ui/icon-button';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { dayjs, hour } from '@/utils/dates';
+import { plural } from '@/utils/plural';
 
 import type { PlanningSlot } from '../api/schemas';
 import { isBooked } from '../utils/planning';
@@ -31,7 +32,7 @@ export const DayBookings = ({
         id="rdv-jour"
         number="03"
         title={`Rendez-vous du ${dayLabel}`}
-        aside={`${booked.length} pris · ${free} libres`}
+        aside={`${booked.length} pris · ${plural(free, 'libre', 'libres')}`}
       />
       <p className="m-0 mb-2 text-sm text-ink-2">
         Par discrétion : initiales seulement pour l’équipe, aucun motif demandé.

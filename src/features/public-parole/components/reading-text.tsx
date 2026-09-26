@@ -1,5 +1,5 @@
 import type { Reading } from '../api/get-liturgy-day';
-import { sanitizeReadingHtml } from '../utils/readings';
+import { sanitizeReadingHtml } from '../utils/sanitize-reading';
 
 /** Texte d'une lecture : versets de la Bible locale, ou texte AELF nettoyé. */
 export const ReadingText = ({ reading }: { reading: Reading }) => {

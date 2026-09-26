@@ -12,6 +12,7 @@ import { paths } from '@/config/paths';
 import { apiErrorMessage } from '@/utils/api-errors';
 import { dayjs, hour } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { plural, pluralWord } from '@/utils/plural';
 
 import { downloadRegistrationsCsv, useEventRegistrations } from '../api/event-registrations';
 import { EVENT_TYPE_LABELS, type StaffEvent, useCancelEvent } from '../api/staff-events';
@@ -45,17 +46,17 @@ const Registrations = ({ event }: { event: StaffEvent }) => {
       <p className="m-0 flex items-baseline gap-2">
         <span className="tnum font-serif text-h3 text-ink">{event.seats_taken}</span>
         <span className="text-sm text-ink-2">
-          {max ? `/ ${max} places` : `personne${event.seats_taken > 1 ? 's' : ''}`} · {event.registrations_count} inscription
-          {event.registrations_count > 1 ? 's' : ''}
+          {max ? `/ ${plural(max, 'place', 'places')}` : pluralWord(event.seats_taken, 'personne', 'personnes')} ·{' '}
+          {plural(event.registrations_count, 'inscription', 'inscriptions')}
         </span>
       </p>
       {max && (
-        <span role="img" aria-label={`${event.seats_taken} places réservées sur ${max}`} className="mt-2 block h-1.5 w-full rounded-full bg-surface-2">
+        <span role="img" aria-label={`${plural(event.seats_taken, 'place réservée', 'places réservées')} sur ${max}`} className="mt-2 block h-1.5 w-full rounded-full bg-surface-2">
           <span className="block h-full rounded-full bg-primary-fill" style={{ width: `${Math.min(100, (event.seats_taken / max) * 100)}%` }} />
         </span>
       )}
       <p className="m-0 mt-1.5 text-sm text-ink-3">
-        {max && (event.is_full ? 'Complet' : `${event.seats_remaining ?? 0} places restantes`)}
+        {max && (event.is_full ? 'Complet' : plural(event.seats_remaining ?? 0, 'place restante', 'places restantes'))}
         {max && event.registration_closes_at && ' · '}
         {event.registration_closes_at && `clôture ${dayjs(event.registration_closes_at).format('ddd DD.MM')} à ${hour(event.registration_closes_at)}`}
       </p>
@@ -77,7 +78,7 @@ const Registrations = ({ event }: { event: StaffEvent }) => {
         </ul>
       )}
       {registrations.data && registrations.data.count > 3 && (
-        <p className="m-0 mt-1 text-sm text-ink-3">et {registrations.data.count - 3} autres</p>
+        <p className="m-0 mt-1 text-sm text-ink-3">et {plural(registrations.data.count - 3, 'autre', 'autres')}</p>
       )}
       {event.registrations_count > 0 && (
         <Button variant="secondary" size="sm" className="mt-3" disabled={exporting} onClick={exportCsv}>
@@ -140,7 +141,7 @@ export const EventDetail = ({ event, onClose, onEdit }: EventDetailProps) => {
         open={confirm}
         onOpenChange={setConfirm}
         title="Annuler cet événement ?"
-        description={`Les ${event.registrations_count} inscrits reçoivent une notification. L’annulation est définitive.`}
+        description={`${event.registrations_count > 1 ? `Les ${event.registrations_count} inscrits reçoivent` : 'La personne inscrite reçoit'} une notification. L’annulation est définitive.`}
         footer={
           <>
             <Button variant="secondary" onClick={() => setConfirm(false)}>

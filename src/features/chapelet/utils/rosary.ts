@@ -1,4 +1,4 @@
-import type { Mystery, Prayer, RosaryToday } from '@/features/chapelet/api/get-rosary-today';
+import type { Mystery, Prayer, RosaryToday } from '@/hooks/use-rosary-today';
 
 /** « fruit : la confiance » (maquette FID-Chapelet) ; rien si le mystère n'en a pas. */
 export const fruitLabel = (m: Mystery) => (m.fruit ? `fruit : ${m.fruit.charAt(0).toLowerCase()}${m.fruit.slice(1)}` : null);

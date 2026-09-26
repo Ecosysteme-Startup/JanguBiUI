@@ -20,6 +20,7 @@ import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
 import { nodeTypeLabel, type NodeType, useNodeTypes } from '@/hooks/use-node-types';
 import { CAPACITES } from '@/lib/capacites';
+import { plural } from '@/utils/plural';
 
 import { type CapabilityOverride, useCreateOverride, useDeleteOverride, useOverrides } from '../api/capability-overrides';
 import { useDioceses } from '../api/get-dioceses';
@@ -41,7 +42,7 @@ const OfficesTab = ({ offices, types }: { offices: OfficeType[]; types: NodeType
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
       <section aria-labelledby="r-cat" className="min-w-0 lg:col-span-9">
-        <SectionHeading id="r-cat" number="01" title="Catalogue d’offices" aside={`${offices.length} offices`} />
+        <SectionHeading id="r-cat" number="01" title="Catalogue d’offices" aside={plural(offices.length, 'office', 'offices')} />
         <Table>
           <thead>
             <tr>
@@ -89,7 +90,7 @@ const OfficesTab = ({ offices, types }: { offices: OfficeType[]; types: NodeType
 
 const TypesTab = ({ types }: { types: NodeType[] }) => (
   <section aria-labelledby="r-types">
-    <SectionHeading id="r-types" number="01" title="Types de nœuds" aside={`${types.length} types`} />
+    <SectionHeading id="r-types" number="01" title="Types de nœuds" aside={plural(types.length, 'type', 'types')} />
     <Table>
       <thead>
         <tr>

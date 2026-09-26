@@ -4,9 +4,9 @@ import NextLink from 'next/link';
 
 import { SectionHeading } from '@/components/ui/section-heading';
 import { paths } from '@/config/paths';
+import { useRosaryToday } from '@/hooks/use-rosary-today';
 import { dayjs } from '@/utils/dates';
 
-import { useRosaryToday } from '../api/get-rosary-today';
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 

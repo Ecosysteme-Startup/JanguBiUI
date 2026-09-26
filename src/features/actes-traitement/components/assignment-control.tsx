@@ -12,6 +12,8 @@ import { useAssignRequest } from '../api/assign-request';
 import { useAssignees } from '../api/get-assignees';
 import type { ProcessorRequest } from '../types/processing';
 
+import { SectionTitle } from './section-title';
+
 const CLOSED = ['collected', 'rejected', 'cancelled'];
 
 /** Assignation : la file reste celle de la paroisse, la personne assignée suit la demande. */
@@ -28,12 +30,7 @@ export const AssignmentControl = ({ nodeId, request }: { nodeId: string; request
 
   return (
     <section aria-labelledby="d-assign">
-      <div className="tnum mb-4 flex items-baseline justify-between gap-4 border-t border-line-strong pt-3 text-meta text-ink-2">
-        <h2 id="d-assign" className="m-0 text-meta font-normal">
-          Assignation
-        </h2>
-        <span className="text-ink-3">{current ? `Assignée à ${current}` : 'À assigner'}</span>
-      </div>
+      <SectionTitle id="d-assign" n="03" title="Assignation" aside={current ? `Assignée à ${current}` : 'À assigner'} />
       {closed ? (
         <p className="m-0 text-sm text-ink-2">{current ? `Traitée par ${current}.` : 'Demande close.'}</p>
       ) : (
