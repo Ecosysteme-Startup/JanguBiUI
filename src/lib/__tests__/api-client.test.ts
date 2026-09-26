@@ -48,3 +48,49 @@ describe('errorMessageOf', () => {
     );
   });
 });
+
+describe('401 puis nouvel essai', () => {
+  it('rafraîchit la session et rejoue la requête une seule fois', async () => {
+    let calls = 0;
+    server.use(
+      http.get(apiUrl('/me/'), ({ request }) => {
+        calls += 1;
+        return request.headers.get('authorization') === 'Bearer neuf'
+          ? HttpResponse.json({ ok: true })
+          : HttpResponse.json({ detail: 'Jeton expiré.' }, { status: 401 });
+      }),
+    );
+    configureApiAuth({ accessToken: async () => (calls === 0 ? 'vieux' : 'neuf'), onUnauthorized: async () => 'neuf' });
+
+    await expect(api.get('/me/')).resolves.toEqual({ ok: true });
+    expect(calls).toBe(2);
+  });
+
+  it('ne boucle pas : un second 401 est renvoyé à l’appelant', async () => {
+    let calls = 0;
+    server.use(
+      http.get(apiUrl('/me/'), () => {
+        calls += 1;
+        return HttpResponse.json({ detail: 'Refusé.' }, { status: 401 });
+      }),
+    );
+    configureApiAuth({ accessToken: async () => 'jeton', onUnauthorized: async () => 'jeton' });
+
+    await expect(api.get('/me/')).rejects.toMatchObject({ status: 401 });
+    expect(calls).toBe(2);
+  });
+
+  it('sans session, pas de nouvel essai', async () => {
+    let calls = 0;
+    server.use(
+      http.get(apiUrl('/me/'), () => {
+        calls += 1;
+        return HttpResponse.json({ detail: 'Non authentifié.' }, { status: 401 });
+      }),
+    );
+    configureApiAuth({ accessToken: async () => null, onUnauthorized: async () => null });
+
+    await expect(api.get('/me/')).rejects.toMatchObject({ status: 401 });
+    expect(calls).toBe(1);
+  });
+});

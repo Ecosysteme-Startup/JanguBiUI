@@ -28,7 +28,7 @@ const ApiAuthBridge = () => {
   // useLayoutEffect : le client API est configuré avant les effets passifs, donc avant que
   // TanStack Query ne lance les premières requêtes.
   useLayoutEffect(() => {
-    let refreshing: Promise<unknown> | null = null;
+    let refreshing: Promise<string | null> | null = null;
     // Au premier rendu, la session est encore en chargement : sans cette attente, les
     // premières requêtes partaient sans jeton (401) et n'étaient jamais rejouées.
     let initialSession: Promise<void> | null = null;
@@ -42,12 +42,17 @@ const ApiAuthBridge = () => {
         return tokenRef.current;
       },
       onUnauthorized: () => {
-        if (!tokenRef.current || refreshing) return;
-        refreshing = getSession().then((fresh) => {
+        if (!tokenRef.current) return Promise.resolve(null);
+        refreshing ??= getSession().then((fresh) => {
           refreshing = null;
-          if (!fresh?.accessToken || fresh.error) redirectToLogin();
-          else tokenRef.current = fresh.accessToken;
+          if (!fresh?.accessToken || fresh.error) {
+            redirectToLogin();
+            return null;
+          }
+          tokenRef.current = fresh.accessToken;
+          return fresh.accessToken;
         });
+        return refreshing;
       },
     });
   }, []);
