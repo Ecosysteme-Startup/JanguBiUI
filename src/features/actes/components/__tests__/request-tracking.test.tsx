@@ -27,6 +27,24 @@ describe('FID-Demande-Suivi', () => {
     expect(screen.queryByRole('button', { name: /annuler la demande/i })).not.toBeInTheDocument();
   });
 
+  it('annonce le motif, le délai indicatif et la date estimée de mise à disposition', async () => {
+    renderApp(<RequestTracking id={ACTE_IDS.verification} />);
+
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.getByText('Mise à disposition estimée')).toBeInTheDocument();
+    expect(screen.getByText('Lundi 28 septembre')).toBeInTheDocument();
+    expect(screen.getByText('Délai indicatif : 7 jours')).toBeInTheDocument();
+    expect(screen.getByText(/à venir · estimé lun\. 28\.09/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/mariage religieux/i).length).toBeGreaterThan(0);
+  });
+
+  it('ne promet plus de date une fois l’acte prêt', async () => {
+    renderApp(<RequestTracking id={ACTE_IDS.ready} />);
+
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByText('Mise à disposition estimée')).not.toBeInTheDocument();
+  });
+
   it('permet de répondre à une demande de complément', async () => {
     const user = userEvent.setup();
     renderApp(<RequestTracking id={ACTE_IDS.info} />);

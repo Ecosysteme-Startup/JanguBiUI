@@ -12,11 +12,18 @@ import { cn } from '@/utils/cn';
 import { dotDate } from '@/utils/dates';
 
 import { useTransitionRequest } from '../api/transition-request';
-import type { QueueItem } from '../types/processing';
+import { type QueueItem, reasonText } from '../types/processing';
 import { allowedTransitions } from '../utils/transitions';
 
+type Props = {
+  nodeId: string;
+  rows: QueueItem[];
+  /** Filtres courants (« ?statut=… ») : repris par le détail pour ses flèches précédent / suivant. */
+  query?: string;
+};
+
 /** Tableau de la file, avec sélection et action groupée « Passer en vérification ». */
-export const QueueTable = ({ nodeId, rows }: { nodeId: string; rows: QueueItem[] }) => {
+export const QueueTable = ({ nodeId, rows, query = '' }: Props) => {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const transition = useTransitionRequest(nodeId);
   const visible = rows.filter((r) => selected.has(r.id));
@@ -74,6 +81,7 @@ export const QueueTable = ({ nodeId, rows }: { nodeId: string; rows: QueueItem[]
             <Th>Réf.</Th>
             <Th>Demandeur</Th>
             <Th className="hidden md:table-cell">Type d’acte</Th>
+            <Th className="hidden xl:table-cell">Motif</Th>
             <Th className="hidden sm:table-cell">Reçue</Th>
             <Th className="hidden sm:table-cell">Délai</Th>
             <Th>Statut</Th>
@@ -82,7 +90,7 @@ export const QueueTable = ({ nodeId, rows }: { nodeId: string; rows: QueueItem[]
         </thead>
         <tbody>
           {rows.map((r) => {
-            const href = paths.espace.demandes.detail.getHref(nodeId, r.id);
+            const href = `${paths.espace.demandes.detail.getHref(nodeId, r.id)}${query}`;
             const checked = selected.has(r.id);
             return (
               <Tr key={r.id} selected={checked}>
@@ -104,6 +112,7 @@ export const QueueTable = ({ nodeId, rows }: { nodeId: string; rows: QueueItem[]
                   </NextLink>
                 </Td>
                 <Td className="hidden text-ink-2 md:table-cell">{r.document_type_label}</Td>
+                <Td className="hidden text-ink-2 xl:table-cell">{reasonText(r)}</Td>
                 <Td className="tnum hidden text-xs sm:table-cell">{dotDate(r.created_at)}</Td>
                 <Td className="tnum hidden text-xs sm:table-cell">
                   {r.age_days === null ? (
@@ -118,7 +127,7 @@ export const QueueTable = ({ nodeId, rows }: { nodeId: string; rows: QueueItem[]
                   <StatusDot status={r.status} />
                 </Td>
                 <Td className={cn('hidden lg:table-cell', r.assigned_to_id ? 'text-ink' : 'text-ink-3')}>
-                  {r.assigned_to_id ? 'Assignée' : 'À assigner'}
+                  {r.assigned_to_id ? r.assigned_to_name || 'Assignée' : 'À assigner'}
                 </Td>
               </Tr>
             );

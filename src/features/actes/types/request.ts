@@ -48,6 +48,7 @@ export const requestSchema = z.object({
   document_type_label: z.string(),
   document_type_free: z.string().default(''),
   reason: z.string(),
+  reason_label: z.string().default(''),
   reason_free: z.string().default(''),
   status: requestStatusSchema,
   status_label: z.string(),
@@ -68,6 +69,9 @@ export const requestSchema = z.object({
   pickup: pickupSchema.nullable(),
   history: z.array(historyEntrySchema).default([]),
   can_cancel: z.boolean(),
+  /** Délai indicatif de la paroisse (jours) et date estimée : indicatifs, jamais un engagement. */
+  indicative_days: z.number().nullish(),
+  estimated_ready_on: z.string().nullish(),
   created_at: z.string(),
   updated_at: z.string(),
   closed_at: z.string().nullish(),
@@ -86,8 +90,11 @@ export const REASON_LABELS: Record<string, string> = {
   other: 'autre motif',
 };
 
-export const reasonLabel = (request: Pick<DocumentRequest, 'reason' | 'reason_free'>) =>
-  request.reason === 'other' && request.reason_free ? request.reason_free : (REASON_LABELS[request.reason] ?? request.reason);
+export const reasonLabel = (request: Pick<DocumentRequest, 'reason' | 'reason_free'> & { reason_label?: string }) => {
+  if (request.reason === 'other' && request.reason_free) return request.reason_free;
+  if (request.reason_label) return request.reason_label.charAt(0).toLowerCase() + request.reason_label.slice(1);
+  return REASON_LABELS[request.reason] ?? request.reason;
+};
 
 export const documentLabel = (request: Pick<DocumentRequest, 'document_type' | 'document_type_label' | 'document_type_free'>) =>
   request.document_type === 'other' && request.document_type_free ? request.document_type_free : request.document_type_label;

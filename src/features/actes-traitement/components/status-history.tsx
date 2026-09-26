@@ -20,6 +20,12 @@ export const StatusHistory = ({ history }: { history: StatusLog[] }) => (
           <span>
             <span className="block text-sm font-semibold text-ink">Statut : {label(entry.to_status)}</span>
             {entry.comment && <span className="block text-sm text-ink-2">{entry.comment}</span>}
+            {entry.changed_by_name && (
+              <span className="block text-meta text-ink-3">
+                {entry.changed_by_name}
+                {entry.by_requester ? ', depuis l’espace fidèle' : ''}
+              </span>
+            )}
           </span>
         </li>
       ))}

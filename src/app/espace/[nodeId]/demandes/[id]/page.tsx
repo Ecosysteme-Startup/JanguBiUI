@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
+import { LoadingBlock } from '@/components/ui/skeleton';
 import { CapabilityDenied } from '@/features/actes-traitement/components/capability-denied';
 import { RequestProcessing } from '@/features/actes-traitement/components/request-processing';
 import { RequireCapability } from '@/lib/can';
@@ -13,7 +15,9 @@ const TraitementDemandePage = async ({ params }: Props) => {
   const node = decodeURIComponent(nodeId);
   return (
     <RequireCapability capacite="actes.traiter" nodeId={node} fallback={<CapabilityDenied />}>
-      <RequestProcessing nodeId={node} id={decodeURIComponent(id)} />
+      <Suspense fallback={<LoadingBlock label="Chargement de la demande…" />}>
+        <RequestProcessing nodeId={node} id={decodeURIComponent(id)} />
+      </Suspense>
     </RequireCapability>
   );
 };

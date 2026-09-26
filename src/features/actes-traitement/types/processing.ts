@@ -12,11 +12,15 @@ export const queueItemSchema = z.object({
   reference: z.string(),
   document_type: z.string(),
   document_type_label: z.string(),
+  reason: z.string(),
+  reason_label: z.string().default(''),
+  reason_free: z.string().default(''),
   status: statusSchema,
   status_label: z.string(),
   target_node: nodeBrief,
   requester_name: z.string(),
   assigned_to_id: z.string().nullable(),
+  assigned_to_name: z.string().nullish(),
   age_days: z.number().nullable(),
   is_overdue: z.boolean(),
   created_at: z.string(),
@@ -32,8 +36,22 @@ const logSchema = z.object({
   to_status: z.string(),
   comment: z.string().default(''),
   created_at: z.string(),
+  changed_by_name: z.string().default(''),
+  by_requester: z.boolean().default(false),
 });
 export type StatusLog = z.infer<typeof logSchema>;
+
+/** Pièce du fidèle : le lien est personnel et expire (quelques minutes). */
+const attachmentSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  content_type: z.string(),
+  size: z.number().nullable(),
+  uploaded_at: z.string(),
+  url: z.string().url(),
+  expires_at: z.string(),
+});
+export type Attachment = z.infer<typeof attachmentSchema>;
 
 /** Vue de la paroisse (ProcessorOutputSerializer). */
 export const processorRequestSchema = z.object({
@@ -43,6 +61,7 @@ export const processorRequestSchema = z.object({
   document_type_label: z.string(),
   document_type_free: z.string().default(''),
   reason: z.string(),
+  reason_label: z.string().default(''),
   reason_free: z.string().default(''),
   status: statusSchema,
   status_label: z.string(),
@@ -80,6 +99,8 @@ export const processorRequestSchema = z.object({
     marginal_notes: z.string().default(''),
   }),
   assigned_to_id: z.string().nullable(),
+  assigned_to_name: z.string().nullish(),
+  attachments: z.array(attachmentSchema).default([]),
   created_at: z.string(),
   updated_at: z.string(),
   closed_at: z.string().nullish(),
@@ -89,19 +110,28 @@ export type ProcessorRequest = z.infer<typeof processorRequestSchema>;
 export const noteSchema = z.object({
   id: z.number(),
   author_id: z.string().nullable(),
+  author_name: z.string().default(''),
   content: z.string(),
   created_at: z.string(),
 });
 export type InternalNote = z.infer<typeof noteSchema>;
 
-export const REASON_LABELS: Record<string, string> = {
-  religious_marriage: 'Mariage religieux',
-  godparent: 'Parrainage',
-  catechism: 'Catéchèse',
-  parish_file: 'Dossier paroissial',
-  personal: 'Usage personnel',
-  other: 'Autre',
-};
+export const assigneeSchema = z.object({ id: z.string(), full_name: z.string() });
+export type Assignee = z.infer<typeof assigneeSchema>;
+
+/** Motifs (DocumentRequest.RequestReason) : filtre de la file. L'affichage lit `reason_label`. */
+export const REASONS: { value: string; label: string }[] = [
+  { value: 'religious_marriage', label: 'Mariage religieux' },
+  { value: 'godparent', label: 'Parrain / marraine' },
+  { value: 'catechism', label: 'Inscription catéchèse' },
+  { value: 'parish_file', label: 'Dossier paroissial' },
+  { value: 'personal', label: 'Usage personnel' },
+  { value: 'other', label: 'Autre' },
+];
+
+/** Libellé du motif : la précision libre pour « Autre », sinon le libellé du serveur. */
+export const reasonText = (r: { reason: string; reason_label: string; reason_free: string }) =>
+  r.reason === 'other' && r.reason_free ? r.reason_free : r.reason_label || (REASONS.find((x) => x.value === r.reason)?.label ?? r.reason);
 
 export const DOCUMENT_TYPES: { value: string; label: string }[] = [
   { value: 'baptism', label: 'Certificat de baptême' },
