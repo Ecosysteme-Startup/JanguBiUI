@@ -2,127 +2,170 @@
 
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
+import { useState } from 'react';
 
-import { PhotoSlot } from '@/components/signature/photo-slot';
-import { Button } from '@/components/ui/button';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { Notice } from '@/components/ui/notice';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { nodeAncestorsQueryOptions } from '@/hooks/use-node-ancestors';
+import { cn } from '@/utils/cn';
 
-import type { DirectoryNode } from '../api/get-directory';
-import { type ParishSheetData, useParishByCode } from '../api/get-parish-by-code';
+import { useNodeWeek } from '../api/get-node-week';
+import {
+  type ParishSheetData,
+  useParishByCode,
+} from '../api/get-parish-by-code';
 
+import { ChurchDrawing } from './church-drawing';
 import { ParishAnnouncements } from './parish-announcements';
 import { ParishClergy } from './parish-clergy';
 import { ParishEvents } from './parish-events';
+import { ParishNextMass } from './parish-next-mass';
+import { ParishPlaces } from './parish-places';
+import { ParishProcedures } from './parish-procedures';
 import { ParishSchedule } from './parish-schedule';
 import { ParishSecretariat } from './parish-secretariat';
-import { ParishStatus } from './parish-status';
 
-/** « Paroisse Saint-Dominique » → « Paroisse » + nom en italique. */
-const Title = ({ name }: { name: string }) => {
-  const match = /^(Paroisse|Quasi-paroisse)\s+(.+)$/i.exec(name);
-  return match ? (
+const shortName = (name: string) => name.replace(/^Paroisse\s+/i, '');
+
+/** « Point E, Dakar. Doyenné Plateau-Médina, archidiocèse de Dakar. » */
+const description = (parish: ParishSheetData) => {
+  const place = [parish.address, parish.city].filter(Boolean).join(', ');
+  const jurisdiction = [
+    parish.deanery_name,
+    parish.diocese_name ?? parish.parent_name,
+  ]
+    .filter((name): name is string => Boolean(name))
+    .map((name, index) =>
+      index === 0 ? name : name.charAt(0).toLowerCase() + name.slice(1),
+    )
+    .join(', ');
+  return [place, jurisdiction]
+    .filter(Boolean)
+    .map((part) => `${part}.`)
+    .join(' ');
+};
+
+/** Partage de la fiche : partage natif du téléphone, sinon copie du lien. */
+const ShareButton = ({ title }: { title: string }) => {
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      // Partage annulé : rien à signaler.
+    }
+  };
+  return (
     <>
-      {match[1]} <em className="italic text-primary">{match[2]}</em>
+      <button
+        type="button"
+        onClick={share}
+        aria-label="Partager la fiche"
+        className={cn(
+          buttonVariants({ variant: 'outline', size: 'lg' }),
+          'w-12 px-0',
+        )}
+      >
+        <Icon name="partager" size={20} />
+      </button>
+      <span aria-live="polite" className="sr-only">
+        {copied ? 'Lien de la fiche copié.' : ''}
+      </span>
     </>
-  ) : (
-    <em className="italic text-primary">{name}</em>
   );
 };
 
-const mapHref = (parish: DirectoryNode) => {
-  const lat = Number(parish.lat);
-  const lng = Number(parish.lng);
-  if (parish.lat === null || parish.lat === undefined || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`;
+/** Trois dessins (façade, chapelle, nef) en attendant les photos de la paroisse. */
+const ParishDrawings = ({ parish }: { parish: ParishSheetData }) => {
+  const { data } = useNodeWeek(parish.id);
+  const places = (data?.places ?? []).map((p) => p.name);
+  const slug = parish.code.toLowerCase();
+  return (
+    <figure className="m-0 mt-8">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <ChurchDrawing
+          variant="facade"
+          slot={`paroisse-${slug}-facade`}
+          className="h-60 rounded-16 sm:h-[360px]"
+        />
+        <div className="hidden grid-rows-2 gap-3 sm:grid">
+          <ChurchDrawing
+            variant="chapelle"
+            slot={`paroisse-${slug}-chapelle`}
+            className="h-[174px] rounded-16"
+          />
+          <ChurchDrawing
+            variant="nef"
+            slot={`paroisse-${slug}-nef`}
+            className="h-[174px] rounded-16"
+          />
+        </div>
+      </div>
+      <figcaption className="mt-2 text-13 text-ink-3">
+        {places.length > 0 ? `${places.join(', ')}.` : shortName(parish.name)}{' '}
+        Illustrations en attendant les photos de la paroisse.
+      </figcaption>
+    </figure>
+  );
 };
 
 const ParishHeader = ({ parish }: { parish: ParishSheetData }) => {
   const ancestors = useQuery(nodeAncestorsQueryOptions(parish.id));
-  const chain = ancestors.data ?? [];
-  // Juridiction calculée par le serveur : doyenné (s'il existe) puis diocèse.
-  const jurisdiction = [parish.deanery_name, parish.diocese_name].filter((name): name is string => Boolean(name));
-  const address = [parish.address, parish.city].filter(Boolean);
-  const itinerary = mapHref(parish);
+  const chain = (ancestors.data ?? []).filter(
+    (node) => !node.type || node.type.code === 'diocese' || node.type.code === 'doyenne',
+  );
 
   return (
     <>
-      <NextLink href={paths.paroisses.list.getHref()} className="hit inline-flex items-center gap-2 text-base text-primary hover:text-primary-strong">
-        <Icon name="fleche-gauche" size={16} />
-        Retour · Annuaire des paroisses
-      </NextLink>
-      {chain.length > 0 && (
-        <nav aria-label="Fil d’Ariane" className="tnum mt-2 text-meta text-ink-3">
-          {chain.map((node) => (
-            <span key={node.id}>
-              {node.name}
-              <span aria-hidden="true"> / </span>
-            </span>
-          ))}
-          <span aria-current="page" className="text-ink">
+      <Breadcrumbs
+        items={[
+          { label: 'Paroisses', href: paths.paroisses.list.getHref() },
+          ...chain.map((node) => ({ label: node.name })),
+          { label: shortName(parish.name) },
+        ]}
+      />
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+        <div className="min-w-0">
+          <h1
+            id="fiche-titre"
+            className="m-0 text-32 font-semibold text-ink md:text-40"
+          >
             {parish.name}
-          </span>
-        </nav>
-      )}
-
-      <section aria-labelledby="fiche-titre" className="mt-8 grid grid-cols-1 items-end gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-7 lg:pr-6">
-          <p className="tnum m-0 flex items-center gap-4 text-meta text-ink-2">
-            <span className="text-primary">{parish.type?.label ?? 'Paroisse'}</span>
-            {parish.city && (
-              <>
-                <span aria-hidden="true" className="inline-block h-px w-10 bg-ink" />
-                <span>{parish.city}</span>
-              </>
-            )}
-          </p>
-          <h1 id="fiche-titre" className="m-0 mt-4 font-serif text-title font-normal text-ink md:text-h1">
-            <Title name={parish.name} />
           </h1>
-          <dl className="m-0 mt-8 grid grid-cols-1 gap-6 border-t border-line pt-4 sm:grid-cols-2">
-            <div>
-              <dt className="tnum text-meta text-ink-3">Adresse</dt>
-              <dd className="m-0 mt-1 text-base">{address.length ? address.join(', ') : 'Non renseignée'}</dd>
-            </div>
-            <div>
-              <dt className="tnum text-meta text-ink-3">Juridiction</dt>
-              <dd className="m-0 mt-1 text-base">
-                {jurisdiction.length
-                  ? jurisdiction.map((name) => (
-                      <span key={name} className="block">
-                        {name}
-                      </span>
-                    ))
-                  : parish.parent_name ?? 'Non renseignée'}
-              </dd>
-            </div>
-          </dl>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Button asChild size="lg">
-              <NextLink href={paths.auth.inscription.getHref()}>Suivre cette paroisse</NextLink>
-            </Button>
-            {itinerary && (
-              <Button asChild size="lg" variant="secondary">
-                <a href={itinerary} target="_blank" rel="noopener noreferrer">
-                  <Icon name="pin" size={18} />
-                  Itinéraire<span className="sr-only"> (ouvre OpenStreetMap dans un nouvel onglet)</span>
-                </a>
-              </Button>
-            )}
-            <ParishStatus active={parish.is_active_on_platform} className="ml-2" />
-          </div>
-          {!parish.is_active_on_platform && (
-            <p className="m-0 mt-4 max-w-[60ch] text-sm text-ink-2">
-              Cette paroisse n&apos;est pas encore ouverte sur Jàngu Bi : sa fiche d&apos;annuaire peut être incomplète. Pour ses horaires,
-              renseignez-vous auprès de son secrétariat.
-            </p>
-          )}
+          <p className="m-0 mt-2 text-18 text-ink-2">{description(parish)}</p>
         </div>
-        <PhotoSlot slot="fiche-facade-eglise" caption={`Façade de l’église, ${parish.name}`} ratio="4:3" className="lg:col-span-5" />
-      </section>
+        <div className="flex shrink-0 items-center gap-2">
+          <ShareButton title={parish.name} />
+          <NextLink
+            href={paths.auth.inscription.getHref()}
+            className={buttonVariants({ size: 'lg' })}
+          >
+            <Icon name="plus" size={20} />
+            Suivre cette paroisse
+          </NextLink>
+        </div>
+      </div>
+      {!parish.is_active_on_platform && (
+        <Notice
+          className="mt-6"
+          title="Cette paroisse n’est pas encore ouverte sur Jàngu Bi."
+        >
+          Sa fiche d&apos;annuaire peut être incomplète. Pour ses horaires,
+          renseignez-vous auprès de son secrétariat.
+        </Notice>
+      )}
+      <ParishDrawings parish={parish} />
     </>
   );
 };
@@ -134,50 +177,77 @@ const ParishHeader = ({ parish }: { parish: ParishSheetData }) => {
 export const ParishSheet = ({ code }: { code: string }) => {
   const { data: parish, isPending, isError, refetch } = useParishByCode(code);
 
-  if (isPending) return <LoadingBlock label="Chargement de la fiche…" lines={6} />;
+  if (isPending) {
+    return (
+      <div className="jb-container pb-24 pt-8">
+        <LoadingBlock label="Chargement de la fiche…" lines={6} />
+      </div>
+    );
+  }
   if (isError) {
     return (
-      <EmptyState
-        tone="err"
-        icon="alerte"
-        title="La fiche n’a pas pu être chargée."
-        action={
-          <Button variant="secondary" onClick={() => refetch()}>
-            Réessayer
-          </Button>
-        }
-      >
-        Le service ne répond pas. Réessayez dans un instant.
-      </EmptyState>
+      <div className="jb-container pb-24 pt-8">
+        <EmptyState
+          tone="err"
+          icon="alerte"
+          title="La fiche n’a pas pu être chargée."
+          action={
+            <Button variant="secondary" onClick={() => refetch()}>
+              Réessayer
+            </Button>
+          }
+        >
+          Le service ne répond pas. Réessayez dans un instant.
+        </EmptyState>
+      </div>
     );
   }
   if (!parish) {
     return (
-      <EmptyState
-        icon="paroisse"
-        title="Paroisse introuvable."
-        action={
-          <Button asChild variant="secondary">
-            <NextLink href={paths.paroisses.list.getHref()}>Chercher dans l’annuaire</NextLink>
-          </Button>
-        }
-      >
-        Aucune paroisse ne porte le code « {code} ».
-      </EmptyState>
+      <div className="jb-container pb-24 pt-8">
+        <EmptyState
+          icon="paroisse"
+          title="Paroisse introuvable."
+          action={
+            <Button asChild variant="secondary">
+              <NextLink href={paths.paroisses.list.getHref()}>
+                Chercher dans l’annuaire
+              </NextLink>
+            </Button>
+          }
+        >
+          Aucune paroisse ne porte le code « {code} ».
+        </EmptyState>
+      </div>
     );
   }
 
+  const address = [parish.address, parish.city].filter(Boolean).join(', ');
   return (
-    <div>
+    <div className="jb-container pb-24 pt-8">
       <ParishHeader parish={parish} />
-      <div className="mt-16 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-6">
-        <div className="flex flex-col gap-16 lg:col-span-8">
+      <div className="mt-12 grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-24">
+        <div className="flex min-w-0 flex-col gap-14">
           <ParishSchedule nodeId={parish.id} />
           <ParishAnnouncements nodeId={parish.id} />
+          <ParishPlaces nodeId={parish.id} />
         </div>
-        <aside aria-label="Secrétariat, clergé et agenda de la paroisse" className="flex flex-col gap-12 lg:col-span-4">
-          <ParishSecretariat secretariat={parish.secretariat} />
+        <aside
+          aria-label="Prochaine messe, contact, clergé et démarches"
+          className="flex flex-col gap-6"
+        >
+          <ParishNextMass nodeId={parish.id} />
+          <ParishSecretariat
+            secretariat={parish.secretariat}
+            address={address}
+          />
           <ParishClergy clergy={parish.clergy} />
+          {parish.is_active_on_platform && (
+            <ParishProcedures
+              nodeId={parish.id}
+              delayDays={parish.acts.delay_days}
+            />
+          )}
           <ParishEvents nodeId={parish.id} />
         </aside>
       </div>

@@ -10,6 +10,8 @@ const placeSchema = z.object({
   is_main: z.boolean(),
   address: z.string().nullable().optional(),
   city: z.string().nullable().optional(),
+  lat: z.union([z.string(), z.number()]).nullable().optional(),
+  lng: z.union([z.string(), z.number()]).nullable().optional(),
   is_active: z.boolean().optional(),
 });
 export type Place = z.infer<typeof placeSchema>;
