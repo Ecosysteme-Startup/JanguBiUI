@@ -52,7 +52,7 @@ describe('Chapelet guidé', () => {
     await user.click(next);
     expect(screen.getByText('Mystère 2 sur 5')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'Les noces de Cana' })).toBeInTheDocument();
-    expect(screen.getByText(/2e mystère lumineux · Jn 2, 1-12/)).toBeInTheDocument();
+    expect(screen.getByText('2e mystère lumineux · Jn 2, 1-12 · fruit : la confiance en Marie')).toBeInTheDocument();
     const liste = screen.getByRole('region', { name: 'Les cinq mystères' });
     expect(within(liste).getByText(/priée/)).toBeInTheDocument();
   });

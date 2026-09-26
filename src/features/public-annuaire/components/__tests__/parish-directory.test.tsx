@@ -45,6 +45,16 @@ describe('Annuaire des paroisses', () => {
     expect(list().getAllByRole('listitem')).toHaveLength(10);
   });
 
+  it('affiche les messes du dimanche et le doyenné de chaque paroisse', async () => {
+    renderApp(<DirectoryPage />);
+
+    expect(await screen.findByText('12 paroisses')).toBeInTheDocument();
+    const link = list().getByRole('link', { name: /paroisse saint-dominique/i });
+    expect(link).toHaveTextContent('Avenue Cheikh Anta Diop, Point E, Dakar · Doyenné Plateau-Médina');
+    expect(link).toHaveTextContent('7 h 30 · 9 h 30 · 11 h 30 · 18 h 30');
+    expect(list().getByRole('link', { name: /saint-joseph de médina/i })).toHaveTextContent('Non renseignées');
+  });
+
   it('pagine par dix et garde la page dans l’URL', async () => {
     const user = userEvent.setup();
     renderApp(<DirectoryPage />);

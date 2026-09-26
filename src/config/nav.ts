@@ -121,7 +121,10 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
   const e = paths.espace;
   const pilotage: BackofficeGroup = {
     title: 'Pilotage',
-    items: [{ label: 'Tableau de bord', href: e.root.getHref(nodeId), icon: 'accueil', match: 'exact', capacites: ['tableau_bord.voir'] }],
+    items: [
+      { label: 'Tableau de bord', href: e.root.getHref(nodeId), icon: 'accueil', match: 'exact', capacites: ['tableau_bord.voir'] },
+      { label: 'Journal d’audit', href: e.audit.getHref(nodeId), icon: 'bouclier', capacites: ['audit.voir'] },
+    ],
   };
   if (kind === 'diocese') {
     return [

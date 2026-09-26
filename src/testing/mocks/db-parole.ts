@@ -41,25 +41,14 @@ export const paroleDay = {
     },
   ],
   audio_url: 'https://media.example.sn/lectures/2026-09-24.mp3',
-  meditation: { id: meditationId, title: 'Compter nos jours, chercher le Christ.', scope: 'Saint-Dominique' },
-};
-
-export const meditationArticle = {
-  id: meditationId,
-  content_type: 'meditation',
-  title: 'Compter nos jours, chercher le Christ.',
-  slug: 'compter-nos-jours',
-  excerpt: 'Demandons aujourd’hui la grâce de chercher le Christ pour le suivre, et non pour le voir passer.',
-  content: '<p>…</p>',
-  content_format: 'html',
-  category: null,
-  author_name: 'Augustin Ndiaye',
-  scope: { node_id: null, node_name: 'Saint-Dominique', place_id: null, place_name: null },
-  is_sunday_notice: false,
-  sunday_date: null,
-  cover_image_url: null,
-  published_at: '2026-09-24T06:00:00+00:00',
-  reactions: { counts: {}, mine: [] },
+  meditation: {
+    id: meditationId,
+    title: 'Compter nos jours, chercher le Christ.',
+    scope: 'Saint-Dominique',
+    excerpt: 'Demandons aujourd’hui la grâce de chercher le Christ pour le suivre, et non pour le voir passer.',
+    author_name: 'Augustin Ndiaye',
+    published_at: '2026-09-24T06:00:00+00:00',
+  },
 };
 
 /** Jour liturgique d'une date : lectures présentes pour la date démo, sinon indisponibles. */
@@ -120,13 +109,29 @@ export const bibleSearchResults = [
 
 // --- Chapelet ----------------------------------------------------------------------------
 
-const prayer = (id: number, type: string, text: string) => ({ id, type, type_display: type, language: 'fr', text, source: '' });
+// Libellés français servis par le backend (`Prayer.Type`).
+const TYPE_DISPLAY: Record<string, string> = {
+  OUR_FATHER: 'Notre Père',
+  HAIL_MARY: 'Je vous salue Marie',
+  GLORY_BE: 'Gloire au Père',
+  CREED: 'Je crois en Dieu',
+  HOLY_QUEEN: 'Salve Regina',
+};
+const prayer = (id: number, type: string, text: string) => ({ id, type, type_display: TYPE_DISPLAY[type] ?? 'Autre', language: 'fr', text, source: '' });
 
 const OUR_FATHER = prayer(1, 'OUR_FATHER', 'Notre Père, qui es aux cieux, que ton nom soit sanctifié…');
 const HAIL_MARY = prayer(2, 'HAIL_MARY', 'Je vous salue, Marie, pleine de grâce ; le Seigneur est avec vous…');
 const GLORY_BE = prayer(3, 'GLORY_BE', 'Gloire au Père, au Fils et au Saint-Esprit…');
 
 const decade = () => [OUR_FATHER, ...Array.from({ length: 10 }, () => HAIL_MARY), GLORY_BE].map((p, i) => ({ order: i + 1, prayer: p }));
+
+const LUMINOUS_FRUITS = [
+  'La fidélité aux promesses du baptême',
+  'La confiance en Marie',
+  'La conversion du cœur',
+  'Le désir de la sainteté',
+  'L’amour de l’Eucharistie',
+];
 
 const LUMINOUS = [
   'Le baptême de Jésus au Jourdain.',
@@ -140,7 +145,7 @@ export const rosaryToday = {
   day: {
     id: 'd4',
     weekday: 3,
-    weekday_display: 'Thursday',
+    weekday_display: 'Jeudi',
     group: {
       id: 'g-lumineux',
       name: 'Lumineux',
@@ -152,6 +157,7 @@ export const rosaryToday = {
         title,
         meditation: i === 1 ? 'Marie voit ce qui manque et le confie à son Fils.' : null,
         meditation_source: i === 1 ? 'Jn 2, 1-12' : '',
+        fruit: LUMINOUS_FRUITS[i],
         audio_file: null,
         audio_duration: null,
         prayers: decade(),

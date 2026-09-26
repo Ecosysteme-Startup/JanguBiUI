@@ -9,7 +9,7 @@ import type { Prayer, RosaryToday } from '@/features/chapelet/api/get-rosary-tod
 import { DecadeBeads } from '@/features/chapelet/components/decade-beads';
 import { MysteryList } from '@/features/chapelet/components/mystery-list';
 import { isAtStart, progressReducer, START } from '@/features/chapelet/utils/progress';
-import { beadsOf, decadeOf, mysteryTitle, ordinal, prayerName, remainingMinutes, WEEKDAYS } from '@/features/chapelet/utils/rosary';
+import { beadsOf, decadeOf, fruitLabel, mysteryTitle, ordinal, remainingMinutes } from '@/features/chapelet/utils/rosary';
 import { cn } from '@/utils/cn';
 import { frenchTypo } from '@/utils/french-typo';
 
@@ -22,7 +22,7 @@ const PrayerAside = ({ id, when, status, prayer }: { id: string; when: string; s
       <span className="text-ink-3">{status}</span>
     </p>
     <h3 id={id} className="m-0 mt-3 font-serif text-h4 font-normal text-ink">
-      {prayerName(prayer.type)}
+      {prayer.type_display}
     </h3>
     <p className="m-0 mt-2 whitespace-pre-line font-serif text-base text-ink-2">{frenchTypo(prayer.text)}</p>
   </section>
@@ -30,7 +30,7 @@ const PrayerAside = ({ id, when, status, prayer }: { id: string; when: string; s
 
 /** Prière guidée, grain par grain (FID-Chapelet). Rien n'est enregistré côté serveur. */
 export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
-  const { group, weekday } = rosary.day;
+  const { group, weekday_display: weekday } = rosary.day;
   const mysteries = useMemo(() => [...group.mysteries].sort((a, b) => a.order - b.order), [group.mysteries]);
   const decades = useMemo(() => mysteries.map((m) => decadeOf(m, rosary.standalone_prayers)), [mysteries, rosary.standalone_prayers]);
   const reducer = useMemo(() => progressReducer(decades.map((d) => d.length)), [decades]);
@@ -67,7 +67,7 @@ export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">01</span> — Chapelet guidé · le {WEEKDAYS[weekday] ?? ''}
+            <span className="text-primary">01</span> — Chapelet guidé · le {weekday.toLowerCase()}
           </p>
           <h1 className="m-0 mt-3 font-serif text-[36px] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[50px]">
             Les mystères <em className="italic text-primary">{groupName}</em>
@@ -103,7 +103,7 @@ export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
             {intention.trim() && <p className="m-0 mt-4 font-serif text-lead italic text-ink-2">« {intention.trim()} »</p>}
             {closing && (
               <>
-                <p className="tnum m-0 mt-8 text-meta text-ink-2">Pour conclure · {prayerName(closing.type)}</p>
+                <p className="tnum m-0 mt-8 text-meta text-ink-2">Pour conclure · {closing.type_display}</p>
                 <p className="m-0 mt-3 max-w-reading whitespace-pre-line font-serif text-lead text-ink">{frenchTypo(closing.text)}</p>
               </>
             )}
@@ -120,6 +120,7 @@ export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
               <p className="tnum m-0 text-meta text-ink-2">
                 {ordinal(progress.mystery + 1)} mystère {groupName}
                 {mystery.meditation_source && ` · ${mystery.meditation_source}`}
+                {fruitLabel(mystery) && ` · ${fruitLabel(mystery)}`}
               </p>
               <h2 id="chapelet-mystere" className="m-0 mt-3 font-serif text-h2 font-normal text-ink">
                 {mysteryTitle(mystery)}
@@ -144,7 +145,7 @@ export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
                       <p className="tnum m-0 flex justify-between text-meta text-ink-2" aria-live="polite">
                         <span>Prière en cours</span>
                         <span className="text-ink">
-                          {prayerName(bead.prayer.type)}
+                          {bead.prayer.type_display}
                           {bead.hailMary !== null && ` · ${bead.hailMary}e`}
                         </span>
                       </p>
@@ -176,7 +177,7 @@ export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
               <summary className="tnum flex min-h-11 cursor-pointer items-center text-meta text-ink-2">Prières d’ouverture</summary>
               {opening.map((p) => (
                 <div key={p.id} className="mt-3">
-                  <p className="m-0 font-serif text-h4 text-ink">{prayerName(p.type)}</p>
+                  <p className="m-0 font-serif text-h4 text-ink">{p.type_display}</p>
                   <p className="m-0 mt-2 whitespace-pre-line font-serif text-base text-ink-2">{frenchTypo(p.text)}</p>
                 </div>
               ))}

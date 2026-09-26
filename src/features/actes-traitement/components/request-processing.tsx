@@ -11,20 +11,23 @@ import { ApiError } from '@/lib/api-client';
 import { dayjs, hour } from '@/utils/dates';
 
 import { useProcessorRequest } from '../api/get-processor-request';
-import { type ProcessorRequest, REASON_LABELS } from '../types/processing';
+import { type ProcessorRequest, reasonText } from '../types/processing';
 
+import { AssignmentControl } from './assignment-control';
+import { AttachmentsList } from './attachments-list';
 import { DecisionPanel } from './decision-panel';
 import { InternalNotes } from './internal-notes';
+import { QueueNeighbours } from './queue-neighbours';
 import { RegisterSection } from './register-section';
 import { SectionTitle } from './section-title';
 import { StatusHistory } from './status-history';
 
 const documentLabel = (r: ProcessorRequest) => (r.document_type === 'other' && r.document_type_free ? r.document_type_free : r.document_type_label);
-const reasonLabel = (r: ProcessorRequest) => (r.reason === 'other' && r.reason_free ? r.reason_free : (REASON_LABELS[r.reason] ?? r.reason));
+const reasonLabel = (r: ProcessorRequest) => reasonText(r);
 
 /** PAR-Demande-Detail : informations du fidèle, registre, décision, journal, notes internes. */
 export const RequestProcessing = ({ nodeId, id }: { nodeId: string; id: string }) => {
-  const { data: request, isPending, isError, error } = useProcessorRequest(nodeId, id);
+  const { data: request, isPending, isError, error, refetch } = useProcessorRequest(nodeId, id);
 
   if (isPending) return <LoadingBlock label="Chargement de la demande…" lines={8} />;
   if (isError)
@@ -39,10 +42,13 @@ export const RequestProcessing = ({ nodeId, id }: { nodeId: string; id: string }
 
   return (
     <>
-      <NextLink href={paths.espace.demandes.list.getHref(nodeId)} className="inline-flex h-8 items-center gap-2 text-sm font-medium">
-        <Icon name="fleche-gauche" size={18} />
-        Retour · Demandes d’actes
-      </NextLink>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <NextLink href={paths.espace.demandes.list.getHref(nodeId)} className="inline-flex h-8 items-center gap-2 text-sm font-medium">
+          <Icon name="fleche-gauche" size={18} />
+          Retour · Demandes d’actes
+        </NextLink>
+        <QueueNeighbours nodeId={nodeId} id={request.id} />
+      </div>
       <header className="mt-6">
         <p className="tnum m-0 text-meta text-ink-2">
           <span className="text-primary">{request.reference}</span> — {documentLabel(request)} · pour {reasonLabel(request).toLowerCase()}
@@ -57,17 +63,18 @@ export const RequestProcessing = ({ nodeId, id }: { nodeId: string; id: string }
           <span className="tnum">
             Reçue le {dayjs(request.created_at).format('dddd D MMMM')} à {hour(request.created_at)}
           </span>
-          <span>{request.assigned_to_id ? 'Assignée' : 'À assigner'}</span>
+          <span>{request.assigned_to_id ? `Assignée à ${request.assigned_to_name || 'une personne de l’équipe'}` : 'À assigner'}</span>
         </p>
       </header>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="flex min-w-0 flex-col gap-10 lg:col-span-7">
-          <RequesterInfo request={request} />
+          <RequesterInfo request={request} onLinksExpired={refetch} />
           <RegisterSection nodeId={nodeId} request={request} />
         </div>
         <div className="flex min-w-0 flex-col gap-10 lg:col-span-5">
           <DecisionPanel nodeId={nodeId} request={request} />
+          <AssignmentControl key={request.assigned_to_id ?? 'aucun'} nodeId={nodeId} request={request} />
           <StatusHistory history={request.history} />
           <InternalNotes nodeId={nodeId} requestId={request.id} />
         </div>
@@ -82,7 +89,7 @@ const detailLabels: Record<string, string> = {
   celebration_type: 'Célébration',
 };
 
-const RequesterInfo = ({ request }: { request: ProcessorRequest }) => {
+const RequesterInfo = ({ request, onLinksExpired }: { request: ProcessorRequest; onLinksExpired: () => Promise<unknown> }) => {
   const details = Object.entries(request.document_details ?? {}).filter(([, v]) => typeof v === 'string' && v.trim());
   const rows: [string, string][] = [
     ['Naissance', `${dayjs(request.date_of_birth).format('D MMMM YYYY')}, ${request.place_of_birth}`],
@@ -114,6 +121,7 @@ const RequesterInfo = ({ request }: { request: ProcessorRequest }) => {
           <p className="m-0 mt-1.5 whitespace-pre-line text-base text-ink">{request.additional_info}</p>
         </div>
       )}
+      <AttachmentsList attachments={request.attachments} onExpired={onLinksExpired} />
     </section>
   );
 };

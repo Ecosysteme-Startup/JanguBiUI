@@ -34,17 +34,47 @@ export const f5bHandlers = [
     const event = f5bState.events[Number(params.id)];
     return event ? HttpResponse.json(event) : HttpResponse.json({ message: 'Événement introuvable.' }, { status: 404 });
   }),
-  http.post(apiUrl('/agenda/:id/register/'), ({ params }) => {
+  http.post(apiUrl('/agenda/:id/register/'), async ({ params, request }) => {
     const event = f5bState.events[Number(params.id)];
     if (!event) return HttpResponse.json({ message: 'Événement introuvable.' }, { status: 404 });
-    if (event.is_full) return HttpResponse.json({ message: 'Cet événement est complet.' }, { status: 409 });
-    const updated = { ...event, is_registered: true, registrations_count: event.registrations_count + 1 };
+    if (!event.registrations_open) return HttpResponse.json({ error: { code: 'registrations_closed', message: 'Les inscriptions sont closes.', details: {} } }, { status: 400 });
+    const body = (await request.json().catch(() => ({}))) as { seats?: number; note?: string };
+    const seats = body.seats ?? 1;
+    const taken = event.seats_taken - (event.my_seats ?? 0);
+    const remaining = event.max_participants === null ? null : event.max_participants - taken;
+    if (remaining !== null && remaining <= 0) return HttpResponse.json({ error: { code: 'event_full', message: 'Cet événement est complet.', details: {} } }, { status: 409 });
+    if (remaining !== null && seats > remaining)
+      return HttpResponse.json({ error: { code: 'not_enough_seats', message: `Il ne reste que ${remaining} place(s).`, details: {} } }, { status: 409 });
+    const seatsTaken = taken + seats;
+    const updated = {
+      ...event,
+      is_registered: true,
+      registrations_count: event.registrations_count + (event.is_registered ? 0 : 1),
+      seats_taken: seatsTaken,
+      seats_remaining: event.max_participants === null ? null : event.max_participants - seatsTaken,
+      is_full: event.max_participants !== null && seatsTaken >= event.max_participants,
+      my_seats: seats,
+      my_note: (body.note ?? '').trim(),
+    };
+    f5bState.lastRegistration = body;
     f5bState.events[event.id] = updated;
     return HttpResponse.json(updated, { status: 201 });
   }),
   http.delete(apiUrl('/agenda/:id/register/'), ({ params }) => {
     const event = f5bState.events[Number(params.id)];
-    if (event) f5bState.events[event.id] = { ...event, is_registered: false, registrations_count: event.registrations_count - 1 };
+    if (event) {
+      const seatsTaken = event.seats_taken - (event.my_seats ?? 0);
+      f5bState.events[event.id] = {
+        ...event,
+        is_registered: false,
+        registrations_count: event.registrations_count - 1,
+        seats_taken: seatsTaken,
+        seats_remaining: event.max_participants === null ? null : event.max_participants - seatsTaken,
+        is_full: false,
+        my_seats: null,
+        my_note: null,
+      };
+    }
     return new HttpResponse(null, { status: 204 });
   }),
   http.get(apiUrl('/messaging/priests/'), () => HttpResponse.json(priests)),
@@ -75,6 +105,7 @@ export const f5bHandlers = [
     if (typeof body.topic_annonces === 'boolean') onboardingState.annonces = body.topic_annonces;
     return HttpResponse.json(f5bState.preferences);
   }),
+  http.get(apiUrl('/me/declaration/'), () => HttpResponse.json(f5bState.declaration)),
   http.patch(apiUrl('/me/'), async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.phone === 'string' && body.phone.startsWith('+000')) {

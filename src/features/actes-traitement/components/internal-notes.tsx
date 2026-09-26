@@ -43,7 +43,7 @@ export const InternalNotes = ({ nodeId, requestId }: { nodeId: string; requestId
             <li key={note.id} className="rounded bg-surface-2 px-4 py-3">
               <p className="m-0 whitespace-pre-line text-sm text-ink">{note.content}</p>
               <p className="tnum m-0 mt-1.5 text-meta text-ink-3">
-                {note.author_id && note.author_id === me?.id ? 'Vous' : 'Équipe'} · {dayjs(note.created_at).format('DD.MM')} {hour(note.created_at)}
+                {note.author_id && note.author_id === me?.id ? 'Vous' : note.author_name || 'Équipe'} · {dayjs(note.created_at).format('DD.MM')} {hour(note.created_at)}
               </p>
             </li>
           ))}

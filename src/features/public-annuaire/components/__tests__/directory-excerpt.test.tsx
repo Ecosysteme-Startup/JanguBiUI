@@ -20,6 +20,7 @@ describe('Extrait d’annuaire de l’accueil', () => {
     const links = screen.getAllByRole('link').filter((l) => l.getAttribute('href')?.startsWith('/paroisses/'));
     expect(links).toHaveLength(6);
     expect(links[0]).toHaveTextContent('Paroisse Saint-Dominique');
+    expect(links[0]).toHaveTextContent('Dimanche : 7 h 30 · 9 h 30 · 11 h 30 · 18 h 30');
     expect(screen.getByRole('link', { name: /tout l.annuaire/i })).toHaveAttribute('href', '/paroisses');
   });
 

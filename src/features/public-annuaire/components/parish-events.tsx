@@ -6,13 +6,13 @@ import { frenchTypo } from '@/utils/french-typo';
 
 import { usePublicEvents } from '../api/get-public-events';
 
-/** « 03 — Prochains événements » : agenda public de la paroisse. */
+/** « 05 — Prochains événements » : agenda public de la paroisse. */
 export const ParishEvents = ({ nodeId }: { nodeId: string }) => {
   const { data, isError } = usePublicEvents(nodeId, 4);
   const events = (data?.results ?? []).filter((e) => !e.is_cancelled);
   return (
     <section aria-labelledby="h-agenda">
-      <SectionHeading id="h-agenda" number="03" title="Prochains événements" />
+      <SectionHeading id="h-agenda" number="05" title="Prochains événements" />
       {isError ? (
         <p role="alert" className="m-0 mt-2 text-sm text-err">
           L&apos;agenda n&apos;a pas pu être chargé.

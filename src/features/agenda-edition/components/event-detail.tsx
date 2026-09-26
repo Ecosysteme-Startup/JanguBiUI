@@ -43,25 +43,34 @@ const Registrations = ({ event }: { event: StaffEvent }) => {
   return (
     <div className="mt-5 border-t border-line pt-4">
       <p className="m-0 flex items-baseline gap-2">
-        <span className="tnum font-serif text-h3 text-ink">{event.registrations_count}</span>
-        <span className="text-sm text-ink-2">{max ? `/ ${max} inscrits` : `inscrit${event.registrations_count > 1 ? 's' : ''}`}</span>
+        <span className="tnum font-serif text-h3 text-ink">{event.seats_taken}</span>
+        <span className="text-sm text-ink-2">
+          {max ? `/ ${max} places` : `personne${event.seats_taken > 1 ? 's' : ''}`} · {event.registrations_count} inscription
+          {event.registrations_count > 1 ? 's' : ''}
+        </span>
       </p>
       {max && (
-        <>
-          <span role="img" aria-label={`${event.registrations_count} inscrits sur ${max} places`} className="mt-2 block h-1.5 w-full rounded-full bg-surface-2">
-            <span className="block h-full rounded-full bg-primary-fill" style={{ width: `${Math.min(100, (event.registrations_count / max) * 100)}%` }} />
-          </span>
-          <p className="m-0 mt-1.5 text-sm text-ink-3">
-            {event.is_full ? 'Complet' : `${max - event.registrations_count} places restantes`}
-          </p>
-        </>
+        <span role="img" aria-label={`${event.seats_taken} places réservées sur ${max}`} className="mt-2 block h-1.5 w-full rounded-full bg-surface-2">
+          <span className="block h-full rounded-full bg-primary-fill" style={{ width: `${Math.min(100, (event.seats_taken / max) * 100)}%` }} />
+        </span>
       )}
+      <p className="m-0 mt-1.5 text-sm text-ink-3">
+        {max && (event.is_full ? 'Complet' : `${event.seats_remaining ?? 0} places restantes`)}
+        {max && event.registration_closes_at && ' · '}
+        {event.registration_closes_at && `clôture ${dayjs(event.registration_closes_at).format('ddd DD.MM')} à ${hour(event.registration_closes_at)}`}
+      </p>
       {registrations.data && registrations.data.results.length > 0 && (
         <ul className="m-0 mt-3 list-none p-0">
           {registrations.data.results.slice(0, 3).map((r) => (
-            <li key={r.id} className="flex items-center gap-3 py-1.5 text-sm">
+            <li key={r.id} className="flex items-start gap-3 py-1.5 text-sm">
               <Avatar name={r.full_name || r.email} size={28} />
-              <span className="flex-1 text-ink">{r.full_name || r.email}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block">
+                  <span className="text-ink">{r.full_name || r.email}</span>
+                  {r.seats > 1 && <span className="text-ink-3"> · {r.seats} personnes</span>}
+                </span>
+                {r.note && <span className="block text-xs text-ink-2">« {frenchTypo(r.note)} »</span>}
+              </span>
               <span className="tnum text-meta text-ink-3">{dayjs(r.registered_at).format('DD.MM')}</span>
             </li>
           ))}

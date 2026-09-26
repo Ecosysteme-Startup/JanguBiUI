@@ -26,6 +26,8 @@ const priestSchema = z.object({
       note: z.string().default(''),
     })
     .nullable(),
+  /** Office de la nomination active principale (curé, vicaire paroissial, aumônier…). */
+  office: z.object({ code: z.string(), label: z.string() }).nullable(),
 });
 export type ReachablePriest = z.infer<typeof priestSchema>;
 

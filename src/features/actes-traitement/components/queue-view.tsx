@@ -12,10 +12,10 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/utils/cn';
 
-import { QUEUE_PAGE_SIZE, useQueue } from '../api/get-queue';
+import { ASSIGNEE_FILTERS, type AssigneeFilter, PERIODS, type Period, QUEUE_PAGE_SIZE, useQueue } from '../api/get-queue';
 import { useQueueCounts } from '../api/get-queue-counts';
-import { useQueueFilters } from '../hooks/use-queue-filters';
-import { DOCUMENT_TYPES } from '../types/processing';
+import { filtersToQuery, useQueueFilters } from '../hooks/use-queue-filters';
+import { DOCUMENT_TYPES, REASONS } from '../types/processing';
 
 import { QueueTable } from './queue-table';
 
@@ -106,6 +106,50 @@ export const QueueView = ({ nodeId }: { nodeId: string }) => {
             ))}
           </Select>
         </div>
+        <label htmlFor="dem-motif" className="sr-only">
+          Motif
+        </label>
+        <div className="w-full sm:w-60">
+          <Select id="dem-motif" value={filters.motif} onChange={(e) => update({ motif: e.target.value })} className="h-10">
+            <option value="">Motif : tous</option>
+            {REASONS.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <label htmlFor="dem-periode" className="sr-only">
+          Période de réception
+        </label>
+        <div className="w-full sm:w-56">
+          <Select id="dem-periode" value={filters.periode} onChange={(e) => update({ periode: e.target.value as Period | '' })} className="h-10">
+            <option value="">Reçues : toutes dates</option>
+            {PERIODS.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <label htmlFor="dem-assigne" className="sr-only">
+          Assignation
+        </label>
+        <div className="w-full sm:w-56">
+          <Select
+            id="dem-assigne"
+            value={filters.assigne}
+            onChange={(e) => update({ assigne: e.target.value as AssigneeFilter | '' })}
+            className="h-10"
+          >
+            <option value="">Assignation : toutes</option>
+            {ASSIGNEE_FILTERS.map((a) => (
+              <option key={a.value} value={a.value}>
+                {a.label}
+              </option>
+            ))}
+          </Select>
+        </div>
         <Chip pressed={filters.retard} onClick={() => update({ retard: !filters.retard })}>
           <Icon name="horloge" size={16} />
           En retard
@@ -121,13 +165,13 @@ export const QueueView = ({ nodeId }: { nodeId: string }) => {
           </EmptyState>
         ) : queue.data.results.length === 0 ? (
           <EmptyState icon="document" title="Aucune demande ne correspond.">
-            {filters.statut || filters.type || filters.q || filters.retard
+            {filters.statut || filters.type || filters.motif || filters.periode || filters.assigne || filters.q || filters.retard
               ? 'Modifiez ou retirez les filtres pour voir toute la file.'
               : 'Les demandes adressées à votre paroisse apparaîtront ici.'}
           </EmptyState>
         ) : (
           <>
-            <QueueTable nodeId={nodeId} rows={queue.data.results} />
+            <QueueTable nodeId={nodeId} rows={queue.data.results} query={filtersToQuery(filters)} />
             <Pagination
               className="mt-2"
               offset={(filters.page - 1) * QUEUE_PAGE_SIZE}

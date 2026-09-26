@@ -25,7 +25,11 @@ export const staffEventSchema = z.object({
   node_name: z.string().nullable(),
   place_id: z.number().nullable(),
   max_participants: z.number().nullable(),
+  registration_closes_at: z.string().nullable(),
   registrations_count: z.number(),
+  /** Places réservées (somme des personnes de chaque inscription) : c'est elle que la jauge compte. */
+  seats_taken: z.number(),
+  seats_remaining: z.number().nullable(),
   is_full: z.boolean(),
   is_cancelled: z.boolean(),
 });
@@ -38,18 +42,30 @@ const eventsKey = ['staff', 'agenda'] as const;
 
 /** Plafond de la pagination serveur (max_limit = 50). */
 const MAX_LIMIT = 50;
+/** Garde-fou : au-delà, la période est trop large pour un écran d'agenda. */
+const MAX_PAGES = 20;
+
+export type EventPeriod = { from: string; to: string };
 
 /**
- * Événements du nœud, triés par début. Sans `include_past`, le serveur ne renvoie que
- * les événements non terminés ; aucun filtre de dates n'existe côté staff.
+ * Événements du nœud dont une partie tombe dans la période (jours inclus, passé compris),
+ * triés par début. Les pages de 50 sont enchaînées : un mois chargé dépasse parfois 50 événements.
  */
-export const getStaffEvents = async (nodeId: string, includePast: boolean) =>
-  pageSchema.parse(await api.get('/staff/agenda/', { params: { node: nodeId, include_past: includePast, limit: MAX_LIMIT } }));
+export const getStaffEvents = async (nodeId: string, period: EventPeriod) => {
+  const first = pageSchema.parse(await api.get('/staff/agenda/', { params: { node: nodeId, ...period, limit: MAX_LIMIT, offset: 0 } }));
+  const pages = Math.min(MAX_PAGES, Math.ceil(first.count / MAX_LIMIT));
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(0, pages - 1) }, (_, i) =>
+      api.get('/staff/agenda/', { params: { node: nodeId, ...period, limit: MAX_LIMIT, offset: (i + 1) * MAX_LIMIT } }).then((r) => pageSchema.parse(r)),
+    ),
+  );
+  return { count: first.count, results: [...first.results, ...rest.flatMap((p) => p.results)] };
+};
 
-export const staffEventsQueryOptions = (nodeId: string, includePast: boolean) =>
-  queryOptions({ queryKey: [...eventsKey, nodeId, { includePast }], queryFn: () => getStaffEvents(nodeId, includePast) });
+export const staffEventsQueryOptions = (nodeId: string, period: EventPeriod) =>
+  queryOptions({ queryKey: [...eventsKey, nodeId, period], queryFn: () => getStaffEvents(nodeId, period) });
 
-export const useStaffEvents = (nodeId: string, includePast: boolean) => useQuery(staffEventsQueryOptions(nodeId, includePast));
+export const useStaffEvents = (nodeId: string, period: EventPeriod) => useQuery(staffEventsQueryOptions(nodeId, period));
 
 export type EventCreateBody = RequestBody<'v1_staff_agenda_create'>;
 export type EventUpdateBody = RequestBody<'v1_staff_agenda_partial_update'>;

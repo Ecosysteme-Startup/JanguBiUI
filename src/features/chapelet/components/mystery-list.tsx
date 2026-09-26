@@ -1,5 +1,5 @@
 import type { Mystery } from '@/features/chapelet/api/get-rosary-today';
-import { mysteryTitle } from '@/features/chapelet/utils/rosary';
+import { fruitLabel, mysteryTitle } from '@/features/chapelet/utils/rosary';
 import { cn } from '@/utils/cn';
 
 /** Les cinq mystères : priés, en cours, à venir ; chacun permet d'y aller directement. */
@@ -43,7 +43,7 @@ export const MysteryList = ({
               <span className="flex-1">
                 <span className={cn('block text-base', active ? 'font-semibold text-ink' : 'text-ink')}>{mysteryTitle(m)}</span>
                 <span className="tnum mt-0.5 block text-meta text-ink-3">
-                  {[m.meditation_source, prayed ? 'priée' : active ? 'en cours' : null].filter(Boolean).join(' · ')}
+                  {[m.meditation_source, fruitLabel(m), prayed ? 'priée' : active ? 'en cours' : null].filter(Boolean).join(' · ')}
                 </span>
               </span>
             </button>

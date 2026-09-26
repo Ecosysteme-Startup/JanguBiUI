@@ -54,7 +54,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * S'inscrire (409 si complet ; idempotent)
+         * S'inscrire ou mettre à jour son inscription (400 si clos ; 409 si complet)
          * @description À placer en premier dans les bases des vues V1.
          */
         post: operations["v1_agenda_register_create"];
@@ -156,8 +156,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List verses for a specific chapter
-         * @description Returns list of verses for a specific chapter.
+         * Versets d'un chapitre (le chapitre entier en une requête)
+         * @description Versets d'un chapitre. Une page couvre un chapitre entier (le plus long, Ps 119, a
+         *     176 versets) : ``limit`` vaut 200 par défaut et au plus.
          */
         get: operations["v1_bible_books_chapters_verses_list"];
         put?: never;
@@ -683,7 +684,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Nominations visibles (celles des nœuds où j'ai offices.nommer, et les miennes)
+         * Nominations visibles : celles des nœuds où j'ai offices.nommer, en lecture celles des nœuds où j'ai tableau_bord.voir, et les miennes
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["hierarchy_assignments_list"];
@@ -1003,6 +1004,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/hierarchy/nodes/{node_id}/settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Paramètres du secrétariat d'un nœud (horaires.gerer ou structure.gerer)
+         * @description Paramètres « vie paroissiale » (secrétariat, accueil, actes) : le secrétariat les tient
+         *     avec ``horaires.gerer`` ; nom, code, statut et rattachement restent sous ``structure.gerer``
+         *     (PATCH du nœud). La lecture est réservée aux mêmes capacités : le public ne voit que ce que
+         *     la paroisse publie (fiche publique).
+         */
+        get: operations["v1_hierarchy_nodes_settings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Modifier les paramètres du secrétariat (horaires.gerer ou structure.gerer)
+         * @description Paramètres « vie paroissiale » (secrétariat, accueil, actes) : le secrétariat les tient
+         *     avec ``horaires.gerer`` ; nom, code, statut et rattachement restent sous ``structure.gerer``
+         *     (PATCH du nœud). La lecture est réservée aux mêmes capacités : le public ne voit que ce que
+         *     la paroisse publie (fiche publique).
+         */
+        patch: operations["v1_hierarchy_nodes_settings_partial_update"];
+        trace?: never;
+    };
     "/api/v1/hierarchy/office-types/": {
         parameters: {
             query?: never;
@@ -1015,6 +1046,26 @@ export interface paths {
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["v1_hierarchy_office_types_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/hierarchy/persons/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rechercher la personne à nommer (offices.nommer ; e-mail masqué)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["hierarchy_persons_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1151,7 +1202,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Déclarations d'état de vie à vérifier (personnes.verifier)
+         * Déclarations d'état de vie à vérifier ou en attente de complément (personnes.verifier)
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["v1_hierarchy_verifications_retrieve"];
@@ -1173,7 +1224,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Vérifier ou rejeter une déclaration (personnes.verifier sur l'incardination)
+         * Vérifier, rejeter ou demander un complément (personnes.verifier sur l'incardination)
          * @description À placer en premier dans les bases des vues V1.
          */
         post: operations["v1_hierarchy_verifications_decision_create"];
@@ -1483,7 +1534,7 @@ export interface paths {
         get: operations["v1_me_declaration_retrieve"];
         put?: never;
         /**
-         * Déclarer mon état de vie (reste « déclaré » jusqu'à vérification ; aucun effet sur les droits)
+         * Déclarer ou compléter mon état de vie (reste « déclaré » jusqu'à vérification ; aucun effet sur les droits). Les justificatifs s'ajoutent aux précédents.
          * @description À placer en premier dans les bases des vues V1.
          */
         post: operations["v1_me_declaration_create"];
@@ -2827,6 +2878,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/documents/{request_id}/assign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confier la demande à une personne de l'équipe (ou la remettre « à assigner »)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_documents_assign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/documents/{request_id}/assignees/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Personnes de l'équipe à qui confier la demande (actes.traiter sur la paroisse)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_documents_assignees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/documents/{request_id}/attachments/{attachment_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consulter une pièce jointe du fidèle (lien à durée limitée)
+         * @description Ouverture d'une pièce jointe par son lien de consultation (onglet du navigateur, sans
+         *     en-tête d'authentification) : le jeton signé tient lieu d'accès, et le service revérifie
+         *     que la personne qu'il désigne traite toujours les actes de la paroisse.
+         */
+        get: operations["staff_documents_attachment_content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/documents/{request_id}/logs/": {
         parameters: {
             query?: never;
@@ -2835,7 +2948,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Journal des statuts
+         * Journal des statuts (avec l'auteur)
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["v1_staff_documents_logs_list"];
@@ -3030,6 +3143,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/news/sunday-sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Feuille d'annonces d'un dimanche (à imprimer) : annonces du nœud et des nœuds parents
+         * @description ``annonces.publier`` sur au moins un nœud (ou plateforme) ; le nœud précis est
+         *     vérifié par le service, et les objets hors portée répondent 404.
+         */
+        get: operations["staff_news_sunday_sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3141,6 +3275,13 @@ export interface components {
             is_sunday_notice: boolean;
             /** Format: date */
             sunday_date?: string | null;
+            /** @description Bannière : fichier image téléversé via /files/upload/ */
+            cover_image_id?: number | null;
+            /**
+             * @description Notifier les fidèles à la publication
+             * @default true
+             */
+            notify_followers: boolean;
         };
         /** @description Vue publique : jamais le compteur de lectures (réservé au staff, EF-PAROI-05). */
         ArticleListOutput: {
@@ -3220,6 +3361,8 @@ export interface components {
              * @description Futur : publication programmée
              */
             publish_at?: string | null;
+            /** @description Notifier les fidèles (préférences et plage de silence respectées) ; absent : choix enregistré */
+            notify?: boolean;
         };
         /**
          * @description * `draft` - Brouillon
@@ -3232,6 +3375,18 @@ export interface components {
         ArticleUnpublishInput: {
             /** @default  */
             reason: string;
+        };
+        AssignInput: {
+            /**
+             * Format: uuid
+             * @description Personne de l'équipe, ou null pour « à assigner »
+             */
+            assignee_id: string | null;
+        };
+        AssigneeOutput: {
+            /** Format: uuid */
+            id: string;
+            readonly full_name: string;
         };
         AssignmentCreateInput: {
             /** Format: uuid */
@@ -3286,6 +3441,19 @@ export interface components {
          * @enum {string}
          */
         AssignmentStatusEnum: "proposee" | "active" | "terminee" | "annulee";
+        AttachmentOutput: {
+            id: number;
+            name: string;
+            content_type: string;
+            /** @description Octets ; null si le fichier est illisible */
+            size: number | null;
+            /** Format: date-time */
+            uploaded_at: string;
+            /** @description Lien de consultation personnel, à durée limitée */
+            url: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
         AttendanceInput: {
             attended: boolean;
         };
@@ -3295,12 +3463,16 @@ export interface components {
             readonly at: string;
             /** Format: uuid */
             readonly actor_id: string | null;
+            /** @description Prénom et nom de l'acteur ; null pour une action du système */
+            readonly actor_name: string | null;
             action: string;
             target_type: string;
             target_id: string;
             /** Format: uuid */
             readonly node_id: string | null;
             metadata?: unknown;
+            /** @description Adresse du client, tronquée (IPv4 /24, IPv6 /48) ; null hors requête */
+            readonly ip: string | null;
         };
         Availability: {
             /** Accepte de nouveaux échanges */
@@ -3509,9 +3681,19 @@ export interface components {
         /**
          * @description * `verifie` - verifie
          *     * `rejete` - rejete
+         *     * `complement` - complement
          * @enum {string}
          */
-        DecisionEnum: "verifie" | "rejete";
+        DecisionEnum: "verifie" | "rejete" | "complement";
+        DeclarationAttachmentOutput: {
+            id: number;
+            file_name: string;
+            file_type: string;
+            /** @description Lien de téléchargement (présigné en stockage S3) */
+            readonly url: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
         DeclarationInput: {
             etat_de_vie: components["schemas"]["EtatDeVieEnum"];
             /** @default aucun */
@@ -3520,6 +3702,8 @@ export interface components {
             incardination_node_id?: string | null;
             /** Format: uuid */
             institut_node_id?: string | null;
+            /** @description Justificatifs à ajouter (celebret, lettre d'obédience…), envoyés d'abord via /files/upload/ */
+            attachment_file_ids?: number[];
         };
         /**
          * @description * `aucun` - Aucun
@@ -3588,6 +3772,8 @@ export interface components {
             /** @default  */
             location: string;
             max_participants?: number | null;
+            /** Format: date-time */
+            registration_closes_at?: string | null;
         };
         EventOutput: {
             readonly id: number;
@@ -3613,11 +3799,29 @@ export interface components {
             readonly node_name: string | null;
             readonly place_id: number | null;
             max_participants?: number | null;
+            /**
+             * Clôture des inscriptions
+             * Format: date-time
+             */
+            registration_closes_at?: string | null;
             /** @default 0 */
             readonly registrations_count: number;
+            /**
+             * @description Places réservées (somme des personnes)
+             * @default 0
+             */
+            readonly seats_taken: number;
+            /** @description Vide : pas de jauge */
+            readonly seats_remaining: number | null;
             readonly is_full: boolean;
+            /** @description Ni annulé, ni terminé, ni clos */
+            readonly registrations_open: boolean;
             /** @default false */
             readonly is_registered: boolean;
+            /** @description Mon inscription */
+            readonly my_seats: number | null;
+            /** @description Ma remarque */
+            readonly my_note: string | null;
             readonly is_cancelled: boolean;
         };
         /**
@@ -3829,6 +4033,7 @@ export interface components {
             /** @description Scripture reading or meditation for the mystery */
             meditation?: string | null;
             meditation_source?: string;
+            fruit?: string;
             /** Format: uri */
             readonly audio_file: string;
             /** @description Duration in seconds */
@@ -3903,6 +4108,33 @@ export interface components {
             code: string;
             type: string;
         };
+        NodeSettingsOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Adresse */
+            address?: string;
+            /** Ville */
+            city?: string;
+            /** Téléphone du secrétariat */
+            phone?: string;
+            /**
+             * E-mail du secrétariat
+             * Format: email
+             */
+            email?: string;
+            office_hours: components["schemas"]["OfficeHoursItem"][];
+            /**
+             * Secrétariat publié
+             * @description Téléphone, e-mail et horaires d'accueil affichés sur la fiche publique.
+             */
+            secretariat_public?: boolean;
+            /** Délai indicatif des actes (jours ouvrés) */
+            acts_delay_days?: number | null;
+            /** Message d'accueil des demandes d'actes */
+            acts_welcome_message?: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
         /**
          * @description * `en_fondation` - En fondation
          *     * `erige` - Érigé
@@ -3945,6 +4177,7 @@ export interface components {
             readonly id: number;
             /** Format: uuid */
             readonly author_id: string | null;
+            readonly author_name: string;
             content: string;
             /** Format: date-time */
             created_at?: string;
@@ -4013,6 +4246,12 @@ export interface components {
             intercessions?: string;
             /** @description Any additional unmodified data */
             raw_metadata?: unknown;
+        };
+        OfficeHoursItem: {
+            /** @description Jours concernés, ex. « Lun. – ven. » */
+            days: string;
+            /** @description Heures, ex. « 9 h-12 h · 15 h 30-18 h » ou « Fermé » */
+            hours: string;
         };
         OfficeTypeOutput: {
             code: string;
@@ -4097,6 +4336,14 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["NodeOutput"][];
         };
+        PaginatedPersonSearchOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["PersonSearchOutput"][];
+        };
         PaginatedPersonStatusOutputList: {
             limit: number;
             offset: number;
@@ -4104,6 +4351,14 @@ export interface components {
             next: string | null;
             previous: string | null;
             results: components["schemas"]["PersonStatusOutput"][];
+        };
+        PaginatedPublicNodeOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["PublicNodeOutput"][];
         };
         PaginatedQueueItemList: {
             limit: number;
@@ -4145,6 +4400,14 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["StaffArticleOutput"][];
         };
+        PaginatedVerseOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["VerseOutput"][];
+        };
         ParoisseSuivieInput: {
             /**
              * Format: uuid
@@ -4165,6 +4428,11 @@ export interface components {
             is_sunday_notice?: boolean;
             /** Format: date */
             sunday_date?: string | null;
+            /** @description Lieu de culte (vide : tout le nœud) */
+            place_id?: number | null;
+            /** @description Bannière (vide : la retirer) */
+            cover_image_id?: number | null;
+            notify_followers?: boolean;
         };
         PatchedAssignmentUpdateInput: {
             action?: components["schemas"]["ActionEnum"];
@@ -4184,6 +4452,8 @@ export interface components {
             end_at?: string;
             location?: string;
             max_participants?: number | null;
+            /** Format: date-time */
+            registration_closes_at?: string | null;
         };
         PatchedHomilieNoteInput: {
             passage_start_id?: number;
@@ -4197,6 +4467,20 @@ export interface components {
             /** Format: date */
             date_of_birth?: string | null;
             phone?: string | null;
+        };
+        /** @description Champs « vie paroissiale » : modifiables avec ``horaires.gerer`` (ou ``structure.gerer``). */
+        PatchedNodeSettingsUpdateInput: {
+            address?: string;
+            city?: string;
+            phone?: string;
+            /** Format: email */
+            email?: string;
+            office_hours?: components["schemas"]["OfficeHoursItem"][];
+            /** @description Afficher téléphone, e-mail et horaires d'accueil sur la fiche publique */
+            secretariat_public?: boolean;
+            /** @description Jours ouvrés */
+            acts_delay_days?: number | null;
+            acts_welcome_message?: string;
         };
         PatchedNodeUpdateInput: {
             name?: string;
@@ -4233,17 +4517,37 @@ export interface components {
             email: string;
             readonly full_name: string;
         };
+        /** @description Juste ce qu'il faut pour choisir la personne à nommer (jamais l'e-mail en clair). */
+        PersonSearchOutput: {
+            /** Format: uuid */
+            id: string;
+            readonly full_name: string;
+            readonly email_masked: string;
+            etat_de_vie: string;
+            degre_ordre: string;
+            statut_verification: components["schemas"]["StatutVerificationEnum"];
+            incardination_node: components["schemas"]["NodeRef"] | null;
+        };
         PersonStatusOutput: {
             /** Format: uuid */
             id: string;
             /** Format: email */
             email: string;
+            /** @description Prénom et nom ; vide s'ils ne sont pas renseignés */
+            readonly full_name: string;
             etat_de_vie: string;
             degre_ordre: string;
-            statut_verification: string;
+            statut_verification: components["schemas"]["StatutVerificationEnum"];
+            /** @description Motif du refus ou du complément demandé */
             verification_note: string;
+            /**
+             * Format: date-time
+             * @description Date de la dernière déclaration
+             */
+            declared_at: string | null;
             incardination_node: components["schemas"]["NodeRef"] | null;
             institut_node: components["schemas"]["NodeRef"] | null;
+            readonly attachments: components["schemas"]["DeclarationAttachmentOutput"][];
         };
         /**
          * @description * `secretariat` - Au secrétariat de la paroisse du sacrement
@@ -4388,6 +4692,12 @@ export interface components {
         PresentationRequestOutput: {
             received: boolean;
         };
+        PriestOfficeOutput: {
+            /** @description Code de l'office (cure, vicaire_paroissial, aumonier…) */
+            code: string;
+            /** @description Libellé de l'office : Curé, Vicaire paroissial… */
+            label: string;
+        };
         /** @description Vue de la paroisse : identité complète, registre, lieu de retrait. */
         ProcessorOutput: {
             /** Format: uuid */
@@ -4397,6 +4707,7 @@ export interface components {
             readonly document_type_label: string;
             document_type_free?: string;
             reason: components["schemas"]["ReasonEnum"];
+            readonly reason_label: string;
             reason_free?: string;
             status?: components["schemas"]["DocumentRequestStatusEnum"];
             readonly status_label: string;
@@ -4423,10 +4734,15 @@ export interface components {
             readonly pickup: {
                 [key: string]: unknown;
             } | null;
-            readonly history: {
-                [key: string]: unknown;
-            }[];
+            readonly history: components["schemas"]["ProcessorStatusLog"][];
             readonly can_cancel: boolean;
+            /** @description Délai indicatif de la paroisse (jours) */
+            readonly indicative_days: number;
+            /**
+             * Format: date
+             * @description Mise à disposition estimée (indicative) ; null une fois l'acte prêt ou la demande close
+             */
+            readonly estimated_ready_on: string | null;
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -4438,7 +4754,136 @@ export interface components {
             };
             /** Format: uuid */
             readonly assigned_to_id: string | null;
+            readonly assigned_to_name: string | null;
             pickup_mode?: components["schemas"]["PickupModeEnum"];
+            readonly attachments: components["schemas"]["AttachmentOutput"][];
+        };
+        /** @description Historique vu de la paroisse : auteur de chaque changement. */
+        ProcessorStatusLog: {
+            from_status?: string;
+            to_status: string;
+            comment?: string;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: uuid */
+            readonly changed_by_id: string | null;
+            readonly changed_by_name: string;
+            /** @description Changement fait par le fidèle lui-même */
+            readonly by_requester: boolean;
+        };
+        PublicActsInfo: {
+            delay_days: number | null;
+            welcome_message: string;
+        };
+        PublicClergy: {
+            name: string;
+            /** @description Libellé de l'office (Curé, Vicaire paroissial…) */
+            office: string;
+        };
+        /** @description Fiche publique : ajoute le secrétariat (s'il est publié), le clergé et l'accueil des demandes d'actes. */
+        PublicNodeDetailOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly type: components["schemas"]["NodeTypeRef"];
+            /** Nom */
+            name: string;
+            code: string;
+            /** Statut */
+            status?: components["schemas"]["NodeStatusEnum"];
+            /** Adresse */
+            address?: string;
+            /** Ville */
+            city?: string;
+            /**
+             * Latitude
+             * Format: decimal
+             */
+            lat?: string | null;
+            /**
+             * Longitude
+             * Format: decimal
+             */
+            lng?: string | null;
+            /**
+             * Date d'érection
+             * Format: date
+             */
+            erected_at?: string | null;
+            /** Active sur Jàngu Bi */
+            is_active_on_platform?: boolean;
+            /** Format: uuid */
+            readonly located_in_id: string | null;
+            depth: number;
+            /** @description Identifiant du parent (null pour une racine). */
+            readonly parent_id: string | null;
+            readonly has_children: boolean;
+            readonly parent_name: string | null;
+            /** @description Doyenné (null s'il n'y en a pas) */
+            readonly deanery_name: string | null;
+            /** @description Diocèse (null s'il n'y en a pas) */
+            readonly diocese_name: string | null;
+            /** @description Heures des messes du prochain dimanche (aujourd'hui si c'est dimanche), exceptions comprises */
+            readonly sunday_masses: string[];
+            /** @description null tant que la paroisse ne l'a pas publié */
+            readonly secretariat: components["schemas"]["PublicSecretariat"] | null;
+            /** @description Clercs titulaires d'un office actif sur ce nœud */
+            readonly clergy: components["schemas"]["PublicClergy"][];
+            readonly acts: components["schemas"]["PublicActsInfo"];
+        };
+        /**
+         * @description Nœud de l'annuaire public : juridiction et messes du dimanche.
+         *
+         *     Contexte attendu (calculé en lot, pas de N+1) : ``lineage`` {chemin: nœud ancêtre},
+         *     ``sunday_masses`` {id du nœud: [heures]}.
+         */
+        PublicNodeOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly type: components["schemas"]["NodeTypeRef"];
+            /** Nom */
+            name: string;
+            code: string;
+            /** Statut */
+            status?: components["schemas"]["NodeStatusEnum"];
+            /** Adresse */
+            address?: string;
+            /** Ville */
+            city?: string;
+            /**
+             * Latitude
+             * Format: decimal
+             */
+            lat?: string | null;
+            /**
+             * Longitude
+             * Format: decimal
+             */
+            lng?: string | null;
+            /**
+             * Date d'érection
+             * Format: date
+             */
+            erected_at?: string | null;
+            /** Active sur Jàngu Bi */
+            is_active_on_platform?: boolean;
+            /** Format: uuid */
+            readonly located_in_id: string | null;
+            depth: number;
+            /** @description Identifiant du parent (null pour une racine). */
+            readonly parent_id: string | null;
+            readonly has_children: boolean;
+            readonly parent_name: string | null;
+            /** @description Doyenné (null s'il n'y en a pas) */
+            readonly deanery_name: string | null;
+            /** @description Diocèse (null s'il n'y en a pas) */
+            readonly diocese_name: string | null;
+            /** @description Heures des messes du prochain dimanche (aujourd'hui si c'est dimanche), exceptions comprises */
+            readonly sunday_masses: string[];
+        };
+        PublicSecretariat: {
+            phone: string;
+            email: string;
+            office_hours: components["schemas"]["OfficeHoursItem"][];
         };
         PushDeviceInput: {
             platform: components["schemas"]["PlatformEnum"];
@@ -4456,6 +4901,9 @@ export interface components {
             reference: string;
             document_type: components["schemas"]["DocumentTypeEnum"];
             readonly document_type_label: string;
+            reason: components["schemas"]["ReasonEnum"];
+            readonly reason_label: string;
+            reason_free?: string;
             status?: components["schemas"]["DocumentRequestStatusEnum"];
             readonly status_label: string;
             readonly target_node: {
@@ -4464,6 +4912,7 @@ export interface components {
             readonly requester_name: string;
             /** Format: uuid */
             readonly assigned_to_id: string | null;
+            readonly assigned_to_name: string | null;
             readonly age_days: number | null;
             readonly is_overdue: boolean;
             /** Format: date-time */
@@ -4479,6 +4928,8 @@ export interface components {
                 [key: string]: unknown;
             }[];
             availability: components["schemas"]["Availability"] | null;
+            /** @description Office de la nomination active principale (paroisse suivie d'abord) */
+            office: components["schemas"]["PriestOfficeOutput"] | null;
         };
         ReactInput: {
             emoji: string;
@@ -4523,6 +4974,18 @@ export interface components {
          * @enum {string}
          */
         ReasonEnum: "religious_marriage" | "godparent" | "catechism" | "parish_file" | "personal" | "other";
+        RegisterInput: {
+            /**
+             * @description Nombre de personnes (1 à 10)
+             * @default 1
+             */
+            seats: number;
+            /**
+             * @description Remarque, lue par les organisateurs
+             * @default
+             */
+            note: string;
+        };
         RegisterRefInput: {
             register_volume?: string;
             register_page?: string;
@@ -4536,6 +4999,10 @@ export interface components {
             readonly full_name: string;
             /** Format: email */
             readonly email: string;
+            /** Nombre de personnes */
+            seats?: number;
+            /** Remarque */
+            note?: string;
             /** Format: date-time */
             readonly registered_at: string;
         };
@@ -4586,6 +5053,7 @@ export interface components {
             readonly document_type_label: string;
             document_type_free?: string;
             reason: components["schemas"]["ReasonEnum"];
+            readonly reason_label: string;
             reason_free?: string;
             status?: components["schemas"]["DocumentRequestStatusEnum"];
             readonly status_label: string;
@@ -4612,10 +5080,15 @@ export interface components {
             readonly pickup: {
                 [key: string]: unknown;
             } | null;
-            readonly history: {
-                [key: string]: unknown;
-            }[];
+            readonly history: components["schemas"]["StatusLog"][];
             readonly can_cancel: boolean;
+            /** @description Délai indicatif de la paroisse (jours) */
+            readonly indicative_days: number;
+            /**
+             * Format: date
+             * @description Mise à disposition estimée (indicative) ; null une fois l'acte prêt ou la demande close
+             */
+            readonly estimated_ready_on: string | null;
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -4633,21 +5106,10 @@ export interface components {
         RequiredOrderEnum: "aucun" | "diacre" | "pretre" | "eveque";
         RosaryDay: {
             readonly id: number;
-            weekday: components["schemas"]["RosaryDayWeekdayEnum"];
+            weekday: components["schemas"]["WeekdayEnum"];
             readonly weekday_display: string;
             readonly group: components["schemas"]["Group"];
         };
-        /**
-         * @description * `0` - Monday
-         *     * `1` - Tuesday
-         *     * `2` - Wednesday
-         *     * `3` - Thursday
-         *     * `4` - Friday
-         *     * `5` - Saturday
-         *     * `6` - Sunday
-         * @enum {integer}
-         */
-        RosaryDayWeekdayEnum: 0 | 1 | 2 | 3 | 4 | 5 | 6;
         RuleCreateInput: {
             place_id: number;
             /** @description 0 = lundi … 6 = dimanche */
@@ -4874,6 +5336,10 @@ export interface components {
             unpublished_at?: string | null;
             /** Motif de dépublication */
             unpublish_reason?: string;
+            readonly cover_image_id: number | null;
+            readonly cover_image_url: string | null;
+            /** Notifier les fidèles */
+            notify_followers?: boolean;
             /** @default 0 */
             readonly reads_count: number;
             /** Format: date-time */
@@ -4897,12 +5363,47 @@ export interface components {
          * @enum {string}
          */
         Status993Enum: "libre" | "reserve" | "bloque";
+        /** @description Historique vu du fidèle : jamais le nom des membres de l'équipe. */
         StatusLog: {
             from_status?: string;
             to_status: string;
             comment?: string;
             /** Format: date-time */
             created_at?: string;
+        };
+        /**
+         * @description * `declare` - Déclaré
+         *     * `verifie` - Vérifié
+         *     * `rejete` - Rejeté
+         *     * `complement` - Complément demandé
+         * @enum {string}
+         */
+        StatutVerificationEnum: "declare" | "verifie" | "rejete" | "complement";
+        /** @description Une annonce de la feuille : le texte à lire, sa portée et son état. */
+        SundaySheetItemOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Titre */
+            title: string;
+            /** Résumé court */
+            excerpt?: string;
+            /** Contenu */
+            content: string;
+            /** Format du contenu */
+            content_format?: components["schemas"]["ContentFormatEnum"];
+            readonly scope: {
+                [key: string]: unknown;
+            };
+            /** Statut */
+            status?: components["schemas"]["ArticleStatusEnum"];
+        };
+        SundaySheetOutput: {
+            /** Format: uuid */
+            node_id: string;
+            node_name: string;
+            /** Format: date */
+            sunday: string;
+            items: components["schemas"]["SundaySheetItemOutput"][];
         };
         SupplementInput: {
             /** @default  */
@@ -4942,21 +5443,24 @@ export interface components {
             pickup_hours: string;
         };
         /**
-         * @description * `SIGN_OF_CROSS` - Sign of Cross
-         *     * `CREED` - Apostles Creed
-         *     * `OUR_FATHER` - Our Father
-         *     * `HAIL_MARY` - Hail Mary
-         *     * `GLORY_BE` - Glory Be
-         *     * `FATIMA` - Fatima Prayer
-         *     * `HOLY_QUEEN` - Hail Holy Queen
-         *     * `FINAL_PRAYER` - Final Prayer
-         *     * `OTHER` - Other
+         * @description * `SIGN_OF_CROSS` - Signe de la croix
+         *     * `CREED` - Je crois en Dieu
+         *     * `OUR_FATHER` - Notre Père
+         *     * `HAIL_MARY` - Je vous salue Marie
+         *     * `GLORY_BE` - Gloire au Père
+         *     * `FATIMA` - Prière de Fatima
+         *     * `HOLY_QUEEN` - Salve Regina
+         *     * `FINAL_PRAYER` - Prière finale
+         *     * `OTHER` - Autre
          * @enum {string}
          */
         TypeEnum: "SIGN_OF_CROSS" | "CREED" | "OUR_FATHER" | "HAIL_MARY" | "GLORY_BE" | "FATIMA" | "HOLY_QUEEN" | "FINAL_PRAYER" | "OTHER";
         VerificationDecisionInput: {
             decision: components["schemas"]["DecisionEnum"];
-            /** @default  */
+            /**
+             * @description Motif, obligatoire pour « complement » ; transmis à la personne
+             * @default
+             */
             note: string;
         };
         VerseOutput: {
@@ -5055,7 +5559,13 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RegisterInput"];
+                "multipart/form-data": components["schemas"]["RegisterInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["RegisterInput"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -5065,7 +5575,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventOutput"];
                 };
             };
-            /** @description Événement complet */
+            /** @description Événement complet ou places insuffisantes */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -5199,7 +5709,7 @@ export interface operations {
         parameters: {
             query?: {
                 excerpt?: boolean;
-                /** @description Number of results to return per page. */
+                /** @description Versets par page : 200 par défaut et au plus (un chapitre entier). */
                 limit?: number;
                 /** @description The initial index from which to return the results. */
                 offset?: number;
@@ -5220,7 +5730,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["VerseOutput"][];
+                    "application/json": components["schemas"]["PaginatedVerseOutputList"];
                 };
             };
         };
@@ -6562,6 +7072,54 @@ export interface operations {
             };
         };
     };
+    v1_hierarchy_nodes_settings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeSettingsOutput"];
+                };
+            };
+        };
+    };
+    v1_hierarchy_nodes_settings_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedNodeSettingsUpdateInput"];
+                "multipart/form-data": components["schemas"]["PatchedNodeSettingsUpdateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedNodeSettingsUpdateInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeSettingsOutput"];
+                };
+            };
+        };
+    };
     v1_hierarchy_office_types_list: {
         parameters: {
             query?: never;
@@ -6577,6 +7135,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OfficeTypeOutput"][];
+                };
+            };
+        };
+    };
+    hierarchy_persons_list: {
+        parameters: {
+            query: {
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /** @description Décalage */
+                offset?: number;
+                /** @description Nom, prénom ou e-mail (2 caractères au moins) */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPersonSearchOutputList"];
                 };
             };
         };
@@ -6753,6 +7337,13 @@ export interface operations {
                 limit?: number;
                 /** @description Décalage */
                 offset?: number;
+                /**
+                 * @description « declare » : à vérifier ; « complement » : en attente du complément demandé
+                 *
+                 *     * `declare` - declare
+                 *     * `complement` - complement
+                 */
+                statut?: "declare" | "complement";
             };
             header?: never;
             path?: never;
@@ -8402,7 +8993,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedNodeOutputList"];
+                    "application/json": components["schemas"]["PaginatedPublicNodeOutputList"];
                 };
             };
         };
@@ -8447,7 +9038,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["NodeOutput"];
+                    "application/json": components["schemas"]["PublicNodeDetailOutput"];
                 };
             };
         };
@@ -8735,12 +9326,16 @@ export interface operations {
     staff_agenda_list: {
         parameters: {
             query?: {
+                /** @description Début de période (jour inclus) */
+                from?: string;
                 include_past?: boolean;
                 /** @description Nombre de résultats (défaut 10, max 50) */
                 limit?: number;
                 node?: string;
                 /** @description Décalage */
                 offset?: number;
+                /** @description Fin de période (jour inclus) */
+                to?: string;
             };
             header?: never;
             path?: never;
@@ -9041,6 +9636,8 @@ export interface operations {
     staff_documents_list: {
         parameters: {
             query?: {
+                /** @description « me » (moi), « none » (à assigner) ou l'identifiant d'une personne */
+                assignee?: string;
                 /**
                  * @description * `baptism` - Certificat de baptême
                  *     * `first_communion` - Attestation de première communion
@@ -9056,6 +9653,19 @@ export interface operations {
                 /** @description Décalage */
                 offset?: number;
                 overdue?: boolean;
+                /**
+                 * @description * `religious_marriage` - Mariage religieux
+                 *     * `godparent` - Parrain / marraine
+                 *     * `catechism` - Inscription catéchèse
+                 *     * `parish_file` - Dossier paroissial
+                 *     * `personal` - Usage personnel
+                 *     * `other` - Autre
+                 */
+                reason?: "religious_marriage" | "godparent" | "catechism" | "parish_file" | "personal" | "other";
+                /** @description Reçue à partir de (inclus) */
+                received_from?: string;
+                /** @description Reçue jusqu'au (inclus) */
+                received_to?: string;
                 /** @description Référence ou nom du demandeur */
                 search?: string;
                 /**
@@ -9134,6 +9744,86 @@ export interface operations {
             };
         };
     };
+    staff_documents_assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignInput"];
+                "multipart/form-data": components["schemas"]["AssignInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssignInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProcessorOutput"];
+                };
+            };
+        };
+    };
+    staff_documents_assignees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssigneeOutput"][];
+                };
+            };
+        };
+    };
+    staff_documents_attachment_content: {
+        parameters: {
+            query: {
+                /** @description Jeton du lien de consultation */
+                token: string;
+            };
+            header?: never;
+            path: {
+                attachment_id: number;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description No response body */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     v1_staff_documents_logs_list: {
         parameters: {
             query?: never;
@@ -9150,7 +9840,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StatusLog"][];
+                    "application/json": components["schemas"]["ProcessorStatusLog"][];
                 };
             };
         };
@@ -9280,6 +9970,10 @@ export interface operations {
                 node?: string;
                 /** @description Décalage */
                 offset?: number;
+                /** @description Lieu de culte de l'annonce */
+                place?: number;
+                /** @description Recherche dans le titre, le chapô et le texte */
+                q?: string;
                 /**
                  * @description * `draft` - Brouillon
                  *     * `scheduled` - Programmé
@@ -9453,6 +10147,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StaffArticleOutput"];
+                };
+            };
+        };
+    };
+    staff_news_sunday_sheet: {
+        parameters: {
+            query: {
+                /** @description Dimanche concerné (défaut : le dimanche à venir) */
+                date?: string;
+                /** @description Nœud (paroisse) de la feuille */
+                node: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SundaySheetOutput"];
                 };
             };
         };

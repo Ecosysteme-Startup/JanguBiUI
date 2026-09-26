@@ -8,20 +8,13 @@ export type Verse = z.infer<typeof verseSchema>;
 
 const pageSchema = z.object({ count: z.number(), results: z.array(verseSchema) });
 
-// La pagination du backend plafonne à 50 (`LimitOffsetPagination.max_limit`) : un long chapitre
-// (Ps 118 : 176 versets) demande plusieurs pages, chargées en parallèle après la première.
-const PAGE = 50;
+// Une page couvre un chapitre entier (le plus long, Ps 119, a 176 versets) : 200 au plus.
+const CHAPTER_LIMIT = 200;
 
-export const getChapterVerses = async (bookId: number, chapter: number, signal?: AbortSignal): Promise<Verse[]> => {
-  const url = `/bible/books/${bookId}/chapters/${chapter}/verses/`;
-  const first = pageSchema.parse(await api.get(url, { params: { limit: PAGE, offset: 0 }, signal }));
-  const offsets = [];
-  for (let offset = PAGE; offset < first.count; offset += PAGE) offsets.push(offset);
-  const rest = await Promise.all(
-    offsets.map(async (offset) => pageSchema.parse(await api.get(url, { params: { limit: PAGE, offset }, signal })).results),
-  );
-  return [...first.results, ...rest.flat()];
-};
+export const getChapterVerses = async (bookId: number, chapter: number, signal?: AbortSignal): Promise<Verse[]> =>
+  pageSchema.parse(
+    await api.get(`/bible/books/${bookId}/chapters/${chapter}/verses/`, { params: { limit: CHAPTER_LIMIT }, signal }),
+  ).results;
 
 export const chapterVersesQueryOptions = (bookId: number | undefined, chapter: number) =>
   queryOptions({

@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { http } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import AnnoncePage from '@/app/espace/[nodeId]/annonces/[id]/page';
 import NouvelleAnnoncePage from '@/app/espace/[nodeId]/annonces/nouvelle/page';
@@ -87,6 +87,56 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
     expect(f8aState.articles[0]).toMatchObject({ title: 'Quête pour le séminaire', status: 'published' });
   });
 
+  it('publie sans notifier les fidèles quand l’option est coupée', async () => {
+    const user = userEvent.setup();
+    await renderNew();
+    await fillRequired(user);
+
+    const notify = screen.getByRole('switch', { name: 'Notifier les fidèles rattachés' });
+    expect(notify).toHaveAttribute('aria-checked', 'true');
+    await user.click(notify);
+    await user.click(screen.getByRole('button', { name: 'Publier maintenant' }));
+
+    await vi.waitFor(() => expect(navigation.push).toHaveBeenCalledWith(listHref));
+    expect(f8aState.lastPublishBody).toEqual({ notify: false });
+    expect(f8aState.articles[0]).toMatchObject({ notify_followers: false, status: 'published' });
+  });
+
+  it('ajoute une bannière téléversée et l’envoie avec l’annonce', async () => {
+    const user = userEvent.setup();
+    server.use(http.post(apiUrl('/files/upload/standard/'), () => HttpResponse.json({ id: 777 }, { status: 201 })));
+    URL.createObjectURL = vi.fn(() => 'blob:banniere');
+    await renderNew();
+    await fillRequired(user);
+
+    await user.upload(screen.getByLabelText('Image de bannière'), new File(['x'], 'parvis.jpg', { type: 'image/jpeg' }));
+    expect(await screen.findByRole('img', { name: 'Bannière de l’annonce' })).toHaveAttribute('src', 'blob:banniere');
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
+
+    await vi.waitFor(() => expect(navigation.replace).toHaveBeenCalled());
+    expect(f8aState.lastBody).toMatchObject({ cover_image_id: 777, notify_followers: true });
+  });
+
+  it('refuse une bannière qui n’est pas une image', async () => {
+    const user = userEvent.setup({ applyAccept: false });
+    await renderNew();
+
+    await user.upload(await screen.findByLabelText('Image de bannière'), new File(['x'], 'lettre.pdf', { type: 'application/pdf' }));
+
+    expect(await screen.findByText('Choisissez une image JPEG, PNG ou WebP.')).toBeInTheDocument();
+  });
+
+  it('change le lieu de culte d’une annonce existante', async () => {
+    const user = userEvent.setup();
+    await renderExisting('a0000000-0000-4000-8000-000000000001');
+
+    await screen.findByRole('option', { name: 'Chapelle de la Cité universitaire' });
+    await user.selectOptions(screen.getByLabelText('Portée'), 'Chapelle de la Cité universitaire');
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
+
+    await vi.waitFor(() => expect(f8aState.lastBody).toMatchObject({ place_id: 12 }));
+  });
+
   it('exige un dimanche pour une annonce du dimanche', async () => {
     const user = userEvent.setup();
     await renderNew();
@@ -142,7 +192,7 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
 
     const title = await screen.findByLabelText(/01 — titre/i);
     expect(title).toHaveValue('Quête impérée pour le Grand Séminaire de Brin');
-    expect(screen.getByLabelText('Portée')).toBeDisabled();
+    expect(screen.getByLabelText('Portée')).not.toBeDisabled();
     await user.clear(title);
     await user.type(title, 'Quête impérée du 27 septembre');
     await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));

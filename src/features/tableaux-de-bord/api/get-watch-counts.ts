@@ -11,7 +11,7 @@ const countOf = async (path: string, params: Record<string, string> = {}) =>
 
 /** Déclarations d'état de vie en attente (personnes.verifier). */
 export const usePendingVerifications = (enabled: boolean) =>
-  useQuery({ queryKey: ['dashboards', 'verifications-count'], queryFn: () => countOf('/hierarchy/verifications/'), enabled });
+  useQuery({ queryKey: ['dashboards', 'verifications-count'], queryFn: () => countOf('/hierarchy/verifications/', { statut: 'declare' }), enabled });
 
 /** Nominations proposées dans le sous-arbre (offices.nommer). */
 export const useProposedAssignments = (nodeId: string, enabled: boolean) =>

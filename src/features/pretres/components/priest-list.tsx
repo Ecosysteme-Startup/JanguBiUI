@@ -75,7 +75,8 @@ const PriestRow = ({
             absent ? 'text-ink-2' : 'text-ink',
           )}
         >
-          {priest.full_name}
+          <span>{priest.full_name}</span>
+          {priest.office && <span className="text-sm font-normal text-ink-2"> · {priest.office.label.toLowerCase()}</span>}
         </p>
         <p className="m-0 mt-1 text-sm text-ink-2">
           <span

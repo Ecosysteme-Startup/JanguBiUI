@@ -32,14 +32,14 @@ describe('progressReducer', () => {
 });
 
 describe('decadeOf', () => {
-  const p = (type: string) => ({ id: type, type, text: type });
+  const p = (type: string) => ({ id: type, type, type_display: type, text: type });
 
   it('reconstitue une dizaine à partir des prières isolées quand le mystère n’en a pas', () => {
-    const decade = decadeOf({ id: 1, order: 1, title: 'X', meditation: null, prayers: [] }, [p('OUR_FATHER'), p('HAIL_MARY'), p('GLORY_BE')]);
+    const decade = decadeOf({ id: 1, order: 1, title: 'X', meditation: null, fruit: '', prayers: [] }, [p('OUR_FATHER'), p('HAIL_MARY'), p('GLORY_BE')]);
     expect(beadsOf(decade).map((b) => b.label)).toEqual(['NP', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'G']);
   });
 
   it('ne fabrique rien si les prières de base manquent', () => {
-    expect(decadeOf({ id: 1, order: 1, title: 'X', meditation: null, prayers: [] }, [])).toEqual([]);
+    expect(decadeOf({ id: 1, order: 1, title: 'X', meditation: null, fruit: '', prayers: [] }, [])).toEqual([]);
   });
 });

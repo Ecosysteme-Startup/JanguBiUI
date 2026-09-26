@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-const officeTypeSchema = z.object({ code: z.string(), label: z.string() });
+const officeTypeSchema = z.object({ code: z.string(), label: z.string(), node_types: z.array(z.string()).default([]) });
 
 export const getOfficeTypes = async () => z.array(officeTypeSchema).parse(await api.get('/hierarchy/office-types/'));
 

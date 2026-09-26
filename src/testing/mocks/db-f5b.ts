@@ -151,7 +151,13 @@ const event = (id: number, title: string, offset: number, extra: Record<string, 
   node_name: 'Saint-Dominique',
   place_id: null,
   max_participants: 120,
+  registration_closes_at: null as string | null,
   registrations_count: 84,
+  seats_taken: 84,
+  seats_remaining: 36 as number | null,
+  registrations_open: true,
+  my_seats: null as number | null,
+  my_note: null as string | null,
   is_full: false,
   is_registered: false,
   is_cancelled: false,
@@ -168,17 +174,38 @@ export const f5bState = {
   deleted: false,
   deleteConflict: false,
   readArticles: [] as string[],
+  declaration: null as Record<string, unknown> | null,
+  lastRegistration: null as Record<string, unknown> | null,
 };
+
+/** Déclaration d'état de vie d'un fidèle laïc (GET /me/declaration/). */
+export const laicDeclaration = (overrides: Record<string, unknown> = {}) => ({
+  id: '5f0c0000-0000-4000-8000-000000000001',
+  email: 'fidele@example.sn',
+  full_name: 'Marie Diop',
+  etat_de_vie: 'laic',
+  degre_ordre: 'aucun',
+  statut_verification: 'declare',
+  verification_note: '',
+  declared_at: null,
+  incardination_node: null,
+  institut_node: null,
+  attachments: [],
+  ...overrides,
+});
 
 const now = () => dayjs();
 
 export const resetF5bState = () => {
+  f5bState.lastRegistration = null;
   f5bState.events = {
     [f5bIds.evenementRecollection]: event(f5bIds.evenementRecollection, 'Journée de récollection des CEB', 16),
     [f5bIds.evenementChorale]: event(f5bIds.evenementChorale, 'Répétition de la chorale Sainte-Cécile', 2, {
       event_type: 'other',
       max_participants: null,
       registrations_count: 0,
+      seats_taken: 0,
+      seats_remaining: null,
     }),
   };
   f5bState.preferences = {
@@ -229,6 +256,7 @@ export const resetF5bState = () => {
   f5bState.deleted = false;
   f5bState.deleteConflict = false;
   f5bState.readArticles = [];
+  f5bState.declaration = laicDeclaration();
 };
 resetF5bState();
 
@@ -253,12 +281,13 @@ export const priests = [
   {
     user_id: f5bIds.pretre,
     full_name: 'Emmanuel Tine',
+    office: { code: 'vicaire_paroissial', label: 'Vicaire' },
     nodes: [{ id: ids.saintDominique, name: 'Saint-Dominique', type: 'paroisse' }],
     availability: { accepts_new_conversations: true, absent_until: null, reply_windows: [], note: '' },
   },
 ];
 
 export const rosaryToday = {
-  day: { id: 4, weekday: 3, weekday_display: 'Thursday', group: { id: 2, name: 'Mystères lumineux', slug: 'lumineux', audio_file: '', mysteries: [] } },
+  day: { id: 4, weekday: 3, weekday_display: 'Jeudi', group: { id: 2, name: 'Mystères lumineux', slug: 'lumineux', audio_file: '', mysteries: [] } },
   standalone_prayers: [],
 };

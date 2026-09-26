@@ -1,10 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { CapabilityChips } from '@/components/signature/capability-chips';
+import { PersonCombobox } from '@/components/signature/person-combobox';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
@@ -12,16 +14,15 @@ import { Input } from '@/components/ui/input';
 import { Notice } from '@/components/ui/notice';
 import { Select } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
+import type { PersonOption } from '@/hooks/use-person-search';
 import { apiErrorCode, apiErrorMessage, apiFieldErrors } from '@/utils/api-errors';
 import { dayjs } from '@/utils/dates';
 
 import { useCreateAssignment } from '../api/assignments';
 import type { Office } from '../api/office-catalogue';
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 const schema = z.object({
-  person_id: z.string().trim().min(1, 'Indiquez l’identifiant de la personne.').regex(UUID, 'Identifiant invalide : 36 caractères, tirets compris.'),
+  person_id: z.string().min(1, 'Choisissez la personne à nommer.'),
   node_id: z.string().min(1, 'Choisissez le lieu.'),
   office: z.string().min(1, 'Choisissez l’office.'),
   start_date: z.string().min(1, 'Indiquez la date de début.'),
@@ -60,7 +61,8 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
       onClose();
     },
   });
-  const { register, handleSubmit, watch, setError, formState } = useForm<Values>({
+  const [person, setPerson] = useState<PersonOption | null>(null);
+  const { register, handleSubmit, watch, setError, setValue, formState } = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { person_id: '', node_id: targets[0]?.id ?? '', office: '', start_date: dayjs().format('YYYY-MM-DD'), decree_ref: '', note: '' },
   });
@@ -70,7 +72,7 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
 
   const onSubmit = handleSubmit(async (v) => {
     try {
-      await create.mutateAsync({ ...v, person_id: v.person_id.trim(), end_date: null });
+      await create.mutateAsync({ ...v, end_date: null });
     } catch (error) {
       Object.entries(apiFieldErrors(error)).forEach(([field, message]) => {
         if (field in v) setError(field as keyof Values, { message });
@@ -96,8 +98,14 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
         Votre session doit être validée par votre second facteur. La personne nommée activera le sien à sa première connexion.
       </Notice>
 
-      <Field id="n-personne" label="Identifiant de la personne" required hint="Identifiant du compte Jàngu Bi, communiqué par la personne ou la chancellerie." error={e.person_id?.message}>
-        <Input {...register('person_id')} autoComplete="off" spellCheck={false} className="tnum" />
+      <Field id="n-personne" label="Personne" required error={e.person_id?.message}>
+        <PersonCombobox
+          value={person}
+          onChange={(p) => {
+            setPerson(p);
+            setValue('person_id', p?.id ?? '', { shouldValidate: formState.isSubmitted });
+          }}
+        />
       </Field>
       <Field id="n-lieu" label="Lieu ou CEB" required hint="Sans date de fin, révocable par qui a nommé." error={e.node_id?.message}>
         <Select {...register('node_id')}>

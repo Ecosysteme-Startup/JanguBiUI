@@ -12,11 +12,13 @@ import { paths } from '@/config/paths';
 import { nodeAncestorsQueryOptions } from '@/hooks/use-node-ancestors';
 
 import type { DirectoryNode } from '../api/get-directory';
-import { useParishByCode } from '../api/get-parish-by-code';
+import { type ParishSheetData, useParishByCode } from '../api/get-parish-by-code';
 
 import { ParishAnnouncements } from './parish-announcements';
+import { ParishClergy } from './parish-clergy';
 import { ParishEvents } from './parish-events';
 import { ParishSchedule } from './parish-schedule';
+import { ParishSecretariat } from './parish-secretariat';
 import { ParishStatus } from './parish-status';
 
 /** « Paroisse Saint-Dominique » → « Paroisse » + nom en italique. */
@@ -38,11 +40,11 @@ const mapHref = (parish: DirectoryNode) => {
   return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`;
 };
 
-const ParishHeader = ({ parish }: { parish: DirectoryNode }) => {
+const ParishHeader = ({ parish }: { parish: ParishSheetData }) => {
   const ancestors = useQuery(nodeAncestorsQueryOptions(parish.id));
   const chain = ancestors.data ?? [];
-  // Juridiction : les deux niveaux au-dessus de la paroisse (doyenné, diocèse), sans la province.
-  const jurisdiction = chain.slice(-2).reverse();
+  // Juridiction calculée par le serveur : doyenné (s'il existe) puis diocèse.
+  const jurisdiction = [parish.deanery_name, parish.diocese_name].filter((name): name is string => Boolean(name));
   const address = [parish.address, parish.city].filter(Boolean);
   const itinerary = mapHref(parish);
 
@@ -89,12 +91,12 @@ const ParishHeader = ({ parish }: { parish: DirectoryNode }) => {
               <dt className="tnum text-meta text-ink-3">Juridiction</dt>
               <dd className="m-0 mt-1 text-base">
                 {jurisdiction.length
-                  ? jurisdiction.map((node) => (
-                      <span key={node.id} className="block">
-                        {node.name}
+                  ? jurisdiction.map((name) => (
+                      <span key={name} className="block">
+                        {name}
                       </span>
                     ))
-                  : '…'}
+                  : parish.parent_name ?? 'Non renseignée'}
               </dd>
             </div>
           </dl>
@@ -127,7 +129,7 @@ const ParishHeader = ({ parish }: { parish: DirectoryNode }) => {
 
 /**
  * Fiche publique d'une paroisse (PUB-Fiche-Paroisse) : en-tête, horaires de la semaine,
- * annonces récentes et prochains événements. Le code d'URL est résolu via l'annuaire.
+ * annonces récentes, secrétariat (s'il est publié), clergé et prochains événements. Le code d'URL est résolu via l'annuaire.
  */
 export const ParishSheet = ({ code }: { code: string }) => {
   const { data: parish, isPending, isError, refetch } = useParishByCode(code);
@@ -173,7 +175,9 @@ export const ParishSheet = ({ code }: { code: string }) => {
           <ParishSchedule nodeId={parish.id} />
           <ParishAnnouncements nodeId={parish.id} />
         </div>
-        <aside aria-label="Agenda de la paroisse" className="lg:col-span-4">
+        <aside aria-label="Secrétariat, clergé et agenda de la paroisse" className="flex flex-col gap-12 lg:col-span-4">
+          <ParishSecretariat secretariat={parish.secretariat} />
+          <ParishClergy clergy={parish.clergy} />
           <ParishEvents nodeId={parish.id} />
         </aside>
       </div>

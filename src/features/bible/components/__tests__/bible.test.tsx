@@ -96,19 +96,22 @@ describe('Bible — lecture d’un chapitre', () => {
     expect(screen.getByRole('link', { name: 'Choisir un livre' })).toHaveAttribute('href', '/app/bible');
   });
 
-  it('charge toutes les pages d’un long chapitre (pagination plafonnée à 50)', async () => {
-    const all = Array.from({ length: 120 }, (_, i) => ({ id: 9000 + i, number: i + 1, text: `Verset numéro ${i + 1}.` }));
+  it('charge un long chapitre en une seule requête', async () => {
+    const all = Array.from({ length: 176 }, (_, i) => ({ id: 9000 + i, number: i + 1, text: `Verset numéro ${i + 1}.` }));
+    const requests: URL[] = [];
     server.use(
       http.get(apiUrl('/bible/books/:bookId/chapters/:chapter/verses/'), ({ request }) => {
         const url = new URL(request.url);
-        const offset = Number(url.searchParams.get('offset') ?? 0);
-        const limit = Number(url.searchParams.get('limit') ?? 50);
-        return HttpResponse.json({ count: all.length, next: null, previous: null, results: all.slice(offset, offset + limit) });
+        requests.push(url);
+        const limit = Math.min(Number(url.searchParams.get('limit') ?? 200), 200);
+        return HttpResponse.json({ count: all.length, next: null, previous: null, results: all.slice(0, limit) });
       }),
     );
     renderApp(<ChapterReader livre="genese" chapitre={1} />);
 
-    expect(await screen.findByText('Verset numéro 120.')).toBeInTheDocument();
-    expect(screen.getByText(/genèse 1 · versets 1-120/i)).toBeInTheDocument();
+    expect(await screen.findByText('Verset numéro 176.')).toBeInTheDocument();
+    expect(screen.getByText(/genèse 1 · versets 1-176/i)).toBeInTheDocument();
+    expect(requests).toHaveLength(1);
+    expect(requests[0].searchParams.get('limit')).toBe('200');
   });
 });

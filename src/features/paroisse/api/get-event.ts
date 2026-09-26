@@ -1,6 +1,7 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
+import type { RequestBody } from '@/types/api-contract';
 
 import { eventSchema, type ParishEvent } from './get-events';
 
@@ -10,20 +11,25 @@ export const eventQueryOptions = (id: string) => queryOptions({ queryKey: ['agen
 
 export const useEvent = (id: string) => useQuery(eventQueryOptions(id));
 
-/** Inscription (idempotente ; 409 si complet) ou désinscription (204). */
-export const setEventRegistration = async ({ id, register }: { id: string; register: boolean }): Promise<ParishEvent | null> => {
+export type RegisterBody = RequestBody<'v1_agenda_register_create'>;
+
+/**
+ * Inscription ou mise à jour de la sienne (`body` : nombre de personnes, remarque),
+ * ou désinscription (`body = null`, 204). 400 si clos, 409 si complet ou places insuffisantes.
+ */
+export const setEventRegistration = async ({ id, body }: { id: string; body: RegisterBody | null }): Promise<ParishEvent | null> => {
   const path = `/agenda/${encodeURIComponent(id)}/register/`;
-  if (!register) {
+  if (body === null) {
     await api.delete(path);
     return null;
   }
-  return eventSchema.parse(await api.post(path));
+  return eventSchema.parse(await api.post(path, body));
 };
 
 export const useEventRegistration = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (register: boolean) => setEventRegistration({ id, register }),
+    mutationFn: (body: RegisterBody | null) => setEventRegistration({ id, body }),
     onSuccess: async (event) => {
       if (event) queryClient.setQueryData(eventQueryOptions(id).queryKey, event);
       await queryClient.invalidateQueries({ queryKey: ['agenda', id] });

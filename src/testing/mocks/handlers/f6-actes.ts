@@ -2,7 +2,16 @@ import { http, HttpResponse } from 'msw';
 
 import { apiUrl } from '@/testing/mocks/api-url';
 import { ids, parishes } from '@/testing/mocks/db';
-import { actesState, type MockActe, ORIGINAL_NOTICE, STATUS_LABELS, TYPE_LABELS } from '@/testing/mocks/db-f6-actes';
+import {
+  actesState,
+  type MockActe,
+  ORIGINAL_NOTICE,
+  REASON_LABELS_MOCK,
+  STATUS_LABELS,
+  TEAM,
+  teamName,
+  TYPE_LABELS,
+} from '@/testing/mocks/db-f6-actes';
 
 /** Cycle SRS §8.1, comme `TRANSITIONS` dans apps/documents/services.py. */
 const TRANSITIONS: Record<string, { from: string[]; to: string }> = {
@@ -22,6 +31,18 @@ const pickupOf = (r: MockActe) => ({
   original_notice: ORIGINAL_NOTICE,
 });
 
+const OPEN = ['submitted', 'under_verification', 'info_requested'];
+const INDICATIVE_DAYS = 7;
+const estimate = (r: MockActe) => {
+  if (!OPEN.includes(r.status)) return null;
+  const d = new Date(r.created_at);
+  d.setUTCDate(d.getUTCDate() + INDICATIVE_DAYS);
+  return d.toISOString().slice(0, 10);
+};
+
+/** Historique vu du fidèle : jamais le nom des membres de l'équipe. */
+const plainLog = ({ from_status, to_status, comment, created_at }: MockActe['history'][number]) => ({ from_status, to_status, comment, created_at });
+
 /** RequesterOutputSerializer : ni notes internes ni registre. */
 const requesterView = (r: MockActe, withHistory = true) => ({
   id: r.id,
@@ -30,6 +51,7 @@ const requesterView = (r: MockActe, withHistory = true) => ({
   document_type_label: r.document_type_label,
   document_type_free: r.document_type_free,
   reason: r.reason,
+  reason_label: REASON_LABELS_MOCK[r.reason] ?? r.reason,
   reason_free: r.reason_free,
   status: r.status,
   status_label: STATUS_LABELS[r.status],
@@ -50,8 +72,10 @@ const requesterView = (r: MockActe, withHistory = true) => ({
   document_details: r.document_details,
   rejection_reason: r.rejection_reason,
   pickup: r.status === 'ready_for_pickup' ? pickupOf(r) : null,
-  history: withHistory ? r.history : [],
+  history: withHistory ? r.history.map(plainLog) : [],
   can_cancel: r.status === 'submitted' || r.status === 'info_requested',
+  indicative_days: INDICATIVE_DAYS,
+  estimated_ready_on: estimate(r),
   created_at: r.created_at,
   updated_at: r.updated_at,
   closed_at: r.closed_at,
@@ -60,9 +84,16 @@ const requesterView = (r: MockActe, withHistory = true) => ({
 export const processorView = (r: MockActe) => ({
   ...requesterView(r),
   pickup: pickupOf(r),
+  history: r.history.map((h) => ({ changed_by_id: null, changed_by_name: '', by_requester: false, ...h })),
   register: r.register,
   assigned_to_id: r.assigned_to_id,
+  assigned_to_name: teamName(r.assigned_to_id),
   pickup_mode: r.pickup_mode,
+  attachments: r.attachments.map((a) => ({
+    ...a,
+    url: `http://localhost:8001/api/v1/staff/documents/${r.id}/attachments/${a.id}/?token=jeton-de-test`,
+    expires_at: '2099-01-01T00:00:00+00:00',
+  })),
 });
 
 const queueItem = (r: MockActe) => ({
@@ -70,11 +101,15 @@ const queueItem = (r: MockActe) => ({
   reference: r.reference,
   document_type: r.document_type,
   document_type_label: r.document_type_label,
+  reason: r.reason,
+  reason_label: REASON_LABELS_MOCK[r.reason] ?? r.reason,
+  reason_free: r.reason_free,
   status: r.status,
   status_label: STATUS_LABELS[r.status],
   target_node: r.target_node,
   requester_name: `${r.requester_last_name} ${r.requester_first_names}`,
   assigned_to_id: r.assigned_to_id,
+  assigned_to_name: teamName(r.assigned_to_id),
   age_days: r.age_days,
   is_overdue: r.is_overdue,
   created_at: r.created_at,
@@ -90,9 +125,10 @@ const page = <T,>(items: T[], url: URL) => {
 const find = (id: unknown) => actesState.requests.find((r) => r.id === id);
 const notFound = () => HttpResponse.json({ message: 'Demande introuvable.' }, { status: 404 });
 const now = () => '2026-09-25T09:00:00+00:00';
+const ME = TEAM[0].id;
 
 const move = (r: MockActe, to: string, comment = '') => {
-  r.history = [...r.history, { from_status: r.status, to_status: to, comment, created_at: now() }];
+  r.history = [...r.history, { from_status: r.status, to_status: to, comment, created_at: now(), changed_by_name: teamName(ME) ?? '', by_requester: false }];
   r.status = to;
   r.updated_at = now();
   if (['collected', 'rejected', 'cancelled'].includes(to)) r.closed_at = now();
@@ -200,6 +236,11 @@ export const actesHandlers = [
         (!p.get('status') || r.status === p.get('status')) &&
         (!p.get('document_type') || r.document_type === p.get('document_type')) &&
         (p.get('overdue') !== 'true' || r.is_overdue) &&
+        (!p.get('reason') || r.reason === p.get('reason')) &&
+        (!p.get('assignee') ||
+          (p.get('assignee') === 'me' ? r.assigned_to_id === ME : p.get('assignee') === 'none' ? !r.assigned_to_id : r.assigned_to_id === p.get('assignee'))) &&
+        (!p.get('received_from') || r.created_at.slice(0, 10) >= String(p.get('received_from'))) &&
+        (!p.get('received_to') || r.created_at.slice(0, 10) <= String(p.get('received_to'))) &&
         (!q || `${r.reference} ${r.requester_last_name} ${r.requester_first_names}`.toLowerCase().includes(q)),
     );
     return HttpResponse.json(page(rows.map(queueItem), url));
@@ -208,7 +249,7 @@ export const actesHandlers = [
   http.post(apiUrl('/staff/documents/:id/notes/'), async ({ params, request }) => {
     if (!find(params.id)) return notFound();
     const { content } = (await request.json()) as { content: string };
-    const note = { id: Date.now(), author_id: '5f0c0000-0000-4000-8000-0000000000aa', content, created_at: now() };
+    const note = { id: Date.now(), author_id: ME, author_name: teamName(ME) ?? '', content, created_at: now() };
     actesState.notes[String(params.id)] = [...(actesState.notes[String(params.id)] ?? []), note];
     return HttpResponse.json(note, { status: 201 });
   }),
@@ -217,6 +258,18 @@ export const actesHandlers = [
     if (!r) return notFound();
     const b = (await request.json()) as Record<string, string>;
     r.register = { volume: b.register_volume ?? '', page: b.register_page ?? '', number: b.register_number ?? '', marginal_notes: b.register_marginal_notes ?? '' };
+    return HttpResponse.json(processorView(r));
+  }),
+  http.get(apiUrl('/staff/documents/:id/assignees/'), ({ params }) => (find(params.id) ? HttpResponse.json(TEAM) : notFound())),
+  http.post(apiUrl('/staff/documents/:id/assign/'), async ({ params, request }) => {
+    const r = find(params.id);
+    if (!r) return notFound();
+    const body = (await request.json()) as { assignee_id?: string | null };
+    actesState.lastAssign = { id: r.id, body };
+    if (body.assignee_id === undefined) return HttpResponse.json({ message: 'Les données envoyées sont invalides.' }, { status: 400 });
+    if (body.assignee_id && !teamName(body.assignee_id))
+      return HttpResponse.json({ message: 'Cette personne ne traite pas les demandes d’actes de cette paroisse.' }, { status: 400 });
+    r.assigned_to_id = body.assignee_id;
     return HttpResponse.json(processorView(r));
   }),
   http.get(apiUrl('/staff/documents/:id/'), ({ params }) => {
@@ -242,7 +295,7 @@ export const actesHandlers = [
       r.pickup_hours = body.pickup_hours ?? '';
       r.pickup_message = message;
     }
-    if (!r.assigned_to_id) r.assigned_to_id = '5f0c0000-0000-4000-8000-0000000000aa';
+    if (!r.assigned_to_id) r.assigned_to_id = ME;
     move(r, rule.to, message);
     return HttpResponse.json(processorView(r));
   }),

@@ -37,7 +37,9 @@ export const PriestCard = ({ number, className }: { number: string; className?: 
           <Avatar name={priest.full_name} size={48} />
           <div className="min-w-0">
             <p className="m-0 font-serif text-h4 text-ink">{priest.full_name}</p>
-            {node && <p className="m-0 mt-1 text-sm text-ink-2">{node.name}</p>}
+            {(priest.office || node) && (
+              <p className="m-0 mt-1 text-sm text-ink-2">{[priest.office?.label, node?.name].filter(Boolean).join(', ')}</p>
+            )}
             <p className="m-0 mt-1 text-sm text-ink-3">Joignable par message</p>
             <NextLink href={paths.app.pretres.list.getHref()} className={buttonVariants({ variant: 'secondary', size: 'sm', className: 'mt-3' })}>
               Écrire

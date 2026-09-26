@@ -131,12 +131,8 @@ export const PublicationPanel = ({ form, article, places, onDelete }: Publicatio
           ))}
         </Select>
       </Field>
-      <Field
-        id="ed-portee"
-        label="Portée"
-        hint={article ? 'La portée est fixée à la création de l’annonce.' : 'Toute la paroisse, ou un seul lieu de culte.'}
-      >
-        <Select {...register('place_id')} disabled={article !== null}>
+      <Field id="ed-portee" label="Portée" hint="Toute la paroisse, ou un seul lieu de culte." error={formState.errors.place_id?.message}>
+        <Select {...register('place_id')}>
           <option value="">{article?.scope.node_name ?? 'Toute la paroisse'}</option>
           {places.map((p) => (
             <option key={p.id} value={String(p.id)}>
@@ -168,6 +164,19 @@ export const PublicationPanel = ({ form, article, places, onDelete }: Publicatio
               </Field>
             </div>
           )}
+          <Controller
+            control={control}
+            name="notify_followers"
+            render={({ field }) => (
+              <Switch
+                id="ed-notifier"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                label="Notifier les fidèles rattachés"
+                description="Une seule notification, à l’heure de publication. Chacun garde ses préférences et sa plage de silence."
+              />
+            )}
+          />
         </>
       )}
 

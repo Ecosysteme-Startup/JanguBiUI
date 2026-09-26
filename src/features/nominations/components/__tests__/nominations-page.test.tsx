@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { NominationsPage } from '@/features/nominations/components/nominations-page';
 import { grantsChancelier, ids } from '@/testing/mocks/db';
-import { f8bState, resetF8b } from '@/testing/mocks/db-f8b';
+import { f8bIds, f8bState, resetF8b } from '@/testing/mocks/db-f8b';
 import { f8bOverrides } from '@/testing/mocks/handlers/f8b';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
@@ -66,5 +66,27 @@ describe('Nominations', () => {
     const applied = new URL(f8bState.requests.at(-1)!.url);
     expect(applied.searchParams.get('dry_run')).toBe('false');
     expect(applied.searchParams.get('effective_date')).toBe('2026-10-01');
+  });
+
+  it('nomme une personne trouvée par la recherche, sur un lieu du sous-arbre', async () => {
+    const user = userEvent.setup();
+    renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: grantsChancelier });
+
+    await user.click(await screen.findByRole('button', { name: 'Nouvelle nomination' }));
+    const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
+    await user.type(within(panel).getByRole('combobox', { name: /personne/i }), 'ndour');
+    await user.click(await within(panel).findByRole('option', { name: /abbé ignace ndour/i }));
+    await user.type(within(panel).getByLabelText(/rechercher un lieu/i), 'thér');
+    const lieu = within(panel).getByLabelText(/^lieu/i);
+    await within(lieu).findByRole('option', { name: /sainte-thérèse/i });
+    await user.selectOptions(lieu, within(lieu).getByRole('option', { name: /sainte-thérèse/i }));
+    await user.selectOptions(within(panel).getByLabelText(/^office/i), 'Curé');
+    await user.click(within(panel).getByRole('button', { name: 'Nommer' }));
+
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Nommer une personne' })).not.toBeInTheDocument());
+    expect(f8bState.requests.at(-1)).toMatchObject({
+      method: 'POST',
+      body: { person_id: '5f0c0000-0000-4000-8000-0000000000e2', office: 'cure', node_id: f8bIds.sainteTherese, end_date: null },
+    });
   });
 });

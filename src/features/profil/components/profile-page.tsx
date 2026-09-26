@@ -9,6 +9,7 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { displayName, useMe } from '@/hooks/use-me';
 
+import { DeclarationComplementNotice } from './declaration-complement-notice';
 import { FollowedParishSection } from './followed-parish-section';
 import { IdentitySection } from './identity-section';
 import { NotificationSettingsSection } from './notification-settings-section';
@@ -56,6 +57,7 @@ export const ProfilePage = ({ accountUrl, onAccountDeleted = leaveAfterDeletion 
           </span>
         </div>
       </header>
+      <DeclarationComplementNotice />
       <div className="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-x-12">
         <div className="flex flex-col gap-12 lg:col-span-7">
           <IdentitySection me={me} />
