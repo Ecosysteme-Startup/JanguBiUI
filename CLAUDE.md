@@ -13,20 +13,25 @@ Frontend de **Jàngu Bi** : Next.js 16 (App Router), TanStack Query, Zod, react-
 - **Briques** : Parole · Ma paroisse · Demandes d'actes · Parler à un prêtre (+ rendez-vous de confession) · tableaux de bord.
 - **Features gelées** (ADR-F07) : `dons`, `intentions`, `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `clergy-accounts`, `analytics`, chapelet communautaire, Offices des Heures. Ne pas les modifier ni les réactiver. La déclaration d'état de vie (`clergy-declaration`) est dégelée le 26/09/2026 : section « Mon état de vie » de la feature `profil` (ADR-F07 amendée).
 
-## 2. Maquettes = spécification
+## 2. Maquettes = spécification (« Ciel produit »)
 
-- Chaque écran a sa maquette de référence dans `docs/v1/maquettes/` (index : `maquettes/INDEX.md` ; carte des routes : `docs/v1/02-SPEC-FRONT-V1.md` §2).
-- **Ouvrir la maquette avant de coder l'écran.** Reproduire la composition, la hiérarchie, les textes et les états. Ne rien réinventer.
+- **La maquette de référence est `docs/v1/maquettes-ciel/`** : écrans `WEB-*.dc.html` (clair) et `Sombre-WEB-*.dc.html` (sombre), design system `WEB-Design-System.dc.html`, sommaire `Main.dc.html`, captures `captures/*.png` (régénérer : `python3 scripts/maquettes-statiques.py && node scripts/maquettes-captures.mjs [filtre]`).
+- **Chaque écran reproduit sa maquette au pixel près, en clair ET en sombre** : composition, hiérarchie, textes, états. Lire le HTML de la maquette (valeurs px exactes) avant de coder.
+- Jetons, classes, primitives et coquilles : **`docs/v1/maquettes-ciel/FONDATIONS.md`**. Besoin d'une primitive ou d'un emplacement de coquille : `docs/v1/maquettes-ciel/demandes-fondations/<lot>.md`.
+- Vérification : harnais `e2e/visuel/` (README) — capture de l'app à côté de la maquette, clair et sombre.
+- L'ancienne maquette `docs/v1/maquettes/` (palette « lumière », revue éditoriale) est **archivée** : ne plus s'y référer.
 - Les fichiers `.dc.html` sont de la référence, jamais du code à importer. Ils sont exclus du lint, de tsc et du build.
 
-## 3. Charte (non négociable)
+## 3. Charte « Ciel produit » (non négociable)
 
-- **Tokens `--jb-*` uniquement** (`src/styles/tokens.css`, généré depuis `docs/v1/design/tokens.css`). Aucune couleur en dur, aucune classe de palette Tailwind brute (règle ESLint anti-palette).
-- 4 palettes (`lumiere` par défaut, `ciel`, `atlantique`, `cathedrale`) × clair/sombre, via `data-palette` et la classe `dark`.
-- **Polices** : Source Serif 4 (titres, Parole) et Libre Franklin (interface), via `next/font`. Aucune autre.
-- **Interdits** : dégradés de fond, cartes à bordure gauche colorée, emoji, tuiles d'action identiques en grille, rangées de « stat cards », petites capitales espacées, Inter, Geist, Fraunces, Instrument Serif.
+- **Jetons `--jb-*` uniquement** (`src/styles/tokens.css`, copie `docs/v1/design/tokens.css`) via les classes Tailwind qui les exposent. Aucune couleur en dur, aucune classe de palette Tailwind brute, aucune taille `text-[..px]` (règles ESLint et tests).
+- **Une seule palette** (Ciel), clair et sombre par la classe `dark` (next-themes). Plus de `data-palette` ni de `NEXT_PUBLIC_PALETTE`.
+- **Polices** : Libre Franklin pour toute l'interface ; Source Serif 4 **réservé** au texte de la Parole, aux citations bibliques et au logotype. Via `next/font`. Aucune autre.
+- Échelle typo en px de la maquette (`text-12`…`text-56`), titres 600 d'une seule couleur ; rayons 6/8/10/12/16/999 ; ombres `shadow-card` et `shadow-menu` ; icônes Lucide trait 1,75 via `<Icon>`.
+- **Interdits** (« Ce qu'on ne fait plus », WEB-Design-System) : titre avec un mot en italique coloré, numérotation « 01 — », bandeau-ticker en haut de page, rangée de « stat cards », filets et rayons 2 px partout, légende « PHOTO · Fig. 1 » ; et toujours : dégradés, cartes à bordure gauche colorée, emoji, petites capitales espacées, Inter, Geist, Fraunces, Instrument Serif.
 - Typographie française : `frenchTypo()` (espaces insécables, « »), dates en français (`dayjs` locale `fr`).
-- Accessibilité WCAG 2.1 AA : vrais `<button>`, `<a>` et `<label>`, focus visible, cibles ≥ 44 px, `aria-label` sur les boutons icône.
+- Accessibilité WCAG 2.1 AA : vrais `<button>`, `<a>` et `<label>`, focus visible, cibles ≥ 44 px (`hit`), `aria-label` sur les boutons icône, contrastes vérifiés (`tokens-contrast.test.ts`).
+- Textes : jamais « chiffrée de bout en bout » ; dire « Messages chiffrés, aucun administrateur n'y a accès ».
 
 ## 4. Architecture — Bulletproof React (CRITIQUE)
 
@@ -78,7 +83,7 @@ make hooks        # hook pre-push qui lance make act vers develop/stage/main
 
 - Vitest + Testing Library + MSW, co-localisés (`__tests__/`). Ne jamais mocker `fetch` ou `api` : toujours MSW.
 - `renderApp({ route, user, capacites })` pour rendre une page avec session et capacités simulées.
-- Playwright pour les parcours dorés ; axe pour l'accessibilité ; Storybook pour chaque composant du design system (clair, sombre, 4 palettes).
+- Playwright pour les parcours dorés ; axe pour l'accessibilité ; Storybook pour chaque composant du design system (clair et sombre) ; `e2e/visuel/` pour la conformité aux maquettes.
 
 ## 9. Agents et skills
 

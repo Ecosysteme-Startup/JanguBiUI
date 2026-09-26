@@ -16,7 +16,7 @@ const UsefulLink = ({ href, icon, title, text, last }: { href: string; icon: Ico
     <Icon name={icon} size={22} className="shrink-0 text-primary" />
     <span className="min-w-0 flex-1">
       <span className="block text-17 font-semibold">{title}</span>
-      <span className="block text-14 text-ink-2">{text}</span>
+      <span className="block truncate text-14 text-ink-2" title={text}>{text}</span>
     </span>
     <Icon name="chevron-droite" size={20} className="shrink-0 text-ink-3" />
   </NextLink>
