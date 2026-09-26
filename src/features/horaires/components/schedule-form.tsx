@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { ModalFooter } from '@/components/ui/modal';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Select } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
@@ -190,19 +191,20 @@ export const ScheduleForm = ({ places, schedulesByPlace, onClose }: ScheduleForm
           {apiErrorMessage(replace.error)}
         </p>
       )}
-      <div className="mt-1 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-        <p id="h-jours-aide" className="m-0 text-13 text-ink-3">
-          {recurrenceHint(days)}
-        </p>
-        <div className="flex gap-2">
-          <Button variant="outline" className="min-h-11 text-14" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button type="submit" className="min-h-11 px-5" disabled={replace.isPending}>
-            {replace.isPending ? 'Enregistrement…' : 'Ajouter l’horaire'}
-          </Button>
-        </div>
-      </div>
+      <ModalFooter
+        hint={
+          <p id="h-jours-aide" className="m-0">
+            {recurrenceHint(days)}
+          </p>
+        }
+      >
+        <Button variant="outline" onClick={onClose}>
+          Annuler
+        </Button>
+        <Button type="submit" loading={replace.isPending}>
+          {replace.isPending ? 'Enregistrement…' : 'Ajouter l’horaire'}
+        </Button>
+      </ModalFooter>
     </form>
   );
 };

@@ -221,6 +221,7 @@ export const ParishLifeForm = ({
                 name="secretariat_public"
                 render={({ field }) => (
                   <Switch
+                    size="lg"
                     id="p-public"
                     label="Publier sur la fiche publique"
                     description="Téléphone, e-mail et heures d’accueil, visibles de tous dans l’annuaire."

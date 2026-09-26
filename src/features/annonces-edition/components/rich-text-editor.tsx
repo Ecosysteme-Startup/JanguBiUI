@@ -131,6 +131,8 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
         <Separator />
         <Tool icon="lien" label="Lien" active={state.link || linkOpen} onClick={() => setLinkOpen((o) => !o)} />
         <Tool icon="citation" label="Citation" active={state.quote} onClick={() => chain().toggleBlockquote().run()} />
+        <Separator />
+        <Tool icon="annuler" label="Annuler la dernière modification" onClick={() => chain().undo().run()} />
         <span className="tnum ml-auto pr-1 text-13 text-ink-3">{state.stats}</span>
       </div>
       {linkOpen && <LinkField editor={editor} onDone={() => setLinkOpen(false)} />}

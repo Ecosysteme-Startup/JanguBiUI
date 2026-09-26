@@ -158,7 +158,7 @@ export const HorairesScreen = ({ nodeId }: { nodeId: string }) => {
         onOpenChange={(open) => !open && close()}
         title="Ajouter un horaire"
         description="Il apparaîtra dans l’application dès l’enregistrement."
-        size="lg"
+        size="form"
       >
         <ScheduleForm places={places.data} schedulesByPlace={schedules.byPlace} onClose={close} />
       </Modal>
@@ -167,7 +167,7 @@ export const HorairesScreen = ({ nodeId }: { nodeId: string }) => {
         onOpenChange={(open) => !open && close()}
         title="Ajouter une exception"
         description="Une annulation ou un horaire supplémentaire pour une date précise, signalé aux fidèles."
-        size="lg"
+        size="form"
       >
         <ExceptionForm places={places.data} onClose={close} />
       </Modal>

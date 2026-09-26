@@ -80,6 +80,7 @@ export const PublicationPanel = ({ form, article }: PublicationPanelProps) => {
             name="is_sunday_notice"
             render={({ field }) => (
               <Switch
+                size="lg"
                 id="ed-dim"
                 checked={field.value}
                 onCheckedChange={field.onChange}
@@ -108,6 +109,7 @@ export const PublicationPanel = ({ form, article }: PublicationPanelProps) => {
               name="notify_followers"
               render={({ field }) => (
                 <Switch
+                  size="lg"
                   id="ed-notifier"
                   checked={field.value}
                   onCheckedChange={field.onChange}

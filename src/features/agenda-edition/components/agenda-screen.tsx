@@ -4,6 +4,7 @@ import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { FilterPill } from '@/components/ui/filter-pill';
 import { Icon } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -11,7 +12,6 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { useBackofficePlaces } from '@/hooks/use-backoffice-places';
 import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
-import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { pluralWord } from '@/utils/plural';
 
@@ -42,28 +42,13 @@ const navButton = 'hit inline-flex size-9 items-center justify-center rounded-10
 const PlaceFilter = ({ value, onChange, places }: { value: string; onChange: (v: string) => void; places: { id: number; name: string }[] }) => {
   const id = useId();
   return (
-    <span className="relative inline-flex">
-      <label htmlFor={id} className="sr-only">
-        Lieu de culte
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={cn(
-          'hit h-9 max-w-56 cursor-pointer appearance-none truncate rounded-full border pl-3.5 pr-8 text-14 transition-colors [field-sizing:content]',
-          value ? 'border-tint-100 bg-tint-100 font-semibold text-tint-900' : 'border-line bg-paper font-medium text-ink hover:border-line-field hover:bg-surface',
-        )}
-      >
-        <option value="">Tous les lieux</option>
-        {places.map((p) => (
-          <option key={p.id} value={String(p.id)}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      <Icon name="chevron-bas" size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-3" />
-    </span>
+    <FilterPill id={id} label="Lieu de culte" allLabel="Tous les lieux" activeTone="filled" value={value} onChange={onChange}>
+      {places.map((p) => (
+        <option key={p.id} value={String(p.id)}>
+          {p.name}
+        </option>
+      ))}
+    </FilterPill>
   );
 };
 

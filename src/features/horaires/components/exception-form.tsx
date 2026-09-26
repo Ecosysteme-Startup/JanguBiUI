@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Choice } from '@/components/ui/choice';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { ModalFooter } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
 import type { Place } from '@/hooks/use-backoffice-places';
@@ -120,14 +121,14 @@ export const ExceptionForm = ({ places, onClose }: { places: Place[]; onClose: (
           {apiErrorMessage(create.error)}
         </p>
       )}
-      <div className="mt-1 flex flex-wrap justify-end gap-2 border-t border-line pt-4">
-        <Button variant="outline" className="min-h-11 text-14" onClick={onClose}>
+      <ModalFooter>
+        <Button variant="outline" onClick={onClose}>
           Annuler
         </Button>
-        <Button type="submit" className="min-h-11 px-5" disabled={create.isPending}>
+        <Button type="submit" loading={create.isPending}>
           {create.isPending ? 'Enregistrement…' : 'Ajouter l’exception'}
         </Button>
-      </div>
+      </ModalFooter>
     </form>
   );
 };

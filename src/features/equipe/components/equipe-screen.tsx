@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CAPABILITY_LABELS } from '@/components/signature/capability-chips';
+import { CapabilityChips } from '@/components/signature/capability-chips';
 import { QualityModal } from '@/components/signature/quality-modal';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -36,29 +36,8 @@ import { NominationForm, type NominationTarget } from './nomination-form';
 const VISIBLE_CAPS = 2;
 
 /** Capacités clés d'un office : étiquettes 22 px surface2 (PAR-Equipe), le reste en « +n ». */
-const OfficeCapabilities = ({ office }: { office: Office | undefined }) => {
-  if (!office) return <span className="text-14 text-ink-3">—</span>;
-  const shown = office.capabilities.slice(0, VISIBLE_CAPS);
-  const rest = office.capabilities.slice(VISIBLE_CAPS);
-  const restLabels = rest.map((c) => CAPABILITY_LABELS[c] ?? c).join(', ');
-  return (
-    <span className="flex flex-wrap items-center gap-1">
-      <ul aria-label="Capacités" className="m-0 flex list-none flex-wrap gap-1 p-0">
-        {shown.map((c) => (
-          <li key={c} className="inline-flex h-[22px] items-center whitespace-nowrap rounded-6 bg-surface-2 px-2 text-12 font-medium text-ink-2">
-            {CAPABILITY_LABELS[c] ?? c}
-          </li>
-        ))}
-      </ul>
-      {rest.length > 0 && (
-        <span title={restLabels} className="tnum text-12 font-medium text-ink-3">
-          +{rest.length}
-          <span className="sr-only"> : {restLabels}</span>
-        </span>
-      )}
-    </span>
-  );
-};
+const OfficeCapabilities = ({ office }: { office: Office | undefined }) =>
+  office ? <CapabilityChips capabilities={office.capabilities} max={VISIBLE_CAPS} /> : <span className="text-14 text-ink-3">—</span>;
 
 const EndAssignmentModal = ({ assignment, onClose }: { assignment: Assignment; onClose: () => void }) => {
   const [endDate, setEndDate] = useState(() => dayjs().format('YYYY-MM-DD'));
@@ -72,6 +51,7 @@ const EndAssignmentModal = ({ assignment, onClose }: { assignment: Assignment; o
     <Modal
       open
       onOpenChange={(open) => !open && onClose()}
+      size="form"
       title="Terminer cette nomination ?"
       description={`${assignment.person.full_name}, ${assignment.office_label.toLowerCase()} · ${assignment.node.name}. Les capacités de l’office cessent à la date de fin.`}
       footer={
