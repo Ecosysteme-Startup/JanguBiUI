@@ -34,3 +34,4 @@ Traité : ba23ef0 — `text-30` (30/42) et `text-19` (19/30), à combiner avec `
 La déconnexion est maintenant dans le menu « Réglages du compte » (menuitem), et sous 1024 px dans le tiroir « Menu ».
 Le helper cherche un bouton « Se déconnecter » : il échoue. `02-inscription.spec.ts` passe par le menu en attendant ;
 les autres suites qui appellent `logout()` sont à reprendre.
+Traité : 2511951 — `logout()` passe par « Réglages du compte » (tiroir « Menu » sous 1024 px) ; 02-inscription rappelle le helper ; suites de la vraie pile à jour.
