@@ -8,6 +8,7 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 
 import { ACTIVE_COUNT_PARAMS, EXCERPT_PARAMS, useDirectory } from '../api/get-directory';
+import { sundayMassesLabel } from '../utils/schedule';
 
 import { parishPlace } from './parish-row';
 import { ParishStatus } from './parish-status';
@@ -57,6 +58,9 @@ export const DirectoryExcerpt = () => {
                   <span className="flex min-w-0 flex-col">
                     <span className="font-serif text-h4">{parish.name}</span>
                     {parishPlace(parish) && <span className="truncate text-sm text-ink-3">{parishPlace(parish)}</span>}
+                    {parish.sunday_masses.length > 0 && (
+                      <span className="tnum text-sm text-ink-2">Dimanche : {sundayMassesLabel(parish.sunday_masses)}</span>
+                    )}
                   </span>
                   <ParishStatus active={parish.is_active_on_platform} />
                   <Icon name="chevron-droite" size={18} className="text-ink-3" />

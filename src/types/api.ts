@@ -1003,6 +1003,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/hierarchy/nodes/{node_id}/settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Paramètres du secrétariat d'un nœud (horaires.gerer ou structure.gerer)
+         * @description Paramètres « vie paroissiale » (secrétariat, accueil, actes) : le secrétariat les tient
+         *     avec ``horaires.gerer`` ; nom, code, statut et rattachement restent sous ``structure.gerer``
+         *     (PATCH du nœud). La lecture est réservée aux mêmes capacités : le public ne voit que ce que
+         *     la paroisse publie (fiche publique).
+         */
+        get: operations["v1_hierarchy_nodes_settings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Modifier les paramètres du secrétariat (horaires.gerer ou structure.gerer)
+         * @description Paramètres « vie paroissiale » (secrétariat, accueil, actes) : le secrétariat les tient
+         *     avec ``horaires.gerer`` ; nom, code, statut et rattachement restent sous ``structure.gerer``
+         *     (PATCH du nœud). La lecture est réservée aux mêmes capacités : le public ne voit que ce que
+         *     la paroisse publie (fiche publique).
+         */
+        patch: operations["v1_hierarchy_nodes_settings_partial_update"];
+        trace?: never;
+    };
     "/api/v1/hierarchy/office-types/": {
         parameters: {
             query?: never;
@@ -3903,6 +3933,33 @@ export interface components {
             code: string;
             type: string;
         };
+        NodeSettingsOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Adresse */
+            address?: string;
+            /** Ville */
+            city?: string;
+            /** Téléphone du secrétariat */
+            phone?: string;
+            /**
+             * E-mail du secrétariat
+             * Format: email
+             */
+            email?: string;
+            office_hours: components["schemas"]["OfficeHoursItem"][];
+            /**
+             * Secrétariat publié
+             * @description Téléphone, e-mail et horaires d'accueil affichés sur la fiche publique.
+             */
+            secretariat_public?: boolean;
+            /** Délai indicatif des actes (jours ouvrés) */
+            acts_delay_days?: number | null;
+            /** Message d'accueil des demandes d'actes */
+            acts_welcome_message?: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
         /**
          * @description * `en_fondation` - En fondation
          *     * `erige` - Érigé
@@ -4014,6 +4071,12 @@ export interface components {
             /** @description Any additional unmodified data */
             raw_metadata?: unknown;
         };
+        OfficeHoursItem: {
+            /** @description Jours concernés, ex. « Lun. – ven. » */
+            days: string;
+            /** @description Heures, ex. « 9 h-12 h · 15 h 30-18 h » ou « Fermé » */
+            hours: string;
+        };
         OfficeTypeOutput: {
             code: string;
             /** Libellé */
@@ -4104,6 +4167,14 @@ export interface components {
             next: string | null;
             previous: string | null;
             results: components["schemas"]["PersonStatusOutput"][];
+        };
+        PaginatedPublicNodeOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["PublicNodeOutput"][];
         };
         PaginatedQueueItemList: {
             limit: number;
@@ -4197,6 +4268,20 @@ export interface components {
             /** Format: date */
             date_of_birth?: string | null;
             phone?: string | null;
+        };
+        /** @description Champs « vie paroissiale » : modifiables avec ``horaires.gerer`` (ou ``structure.gerer``). */
+        PatchedNodeSettingsUpdateInput: {
+            address?: string;
+            city?: string;
+            phone?: string;
+            /** Format: email */
+            email?: string;
+            office_hours?: components["schemas"]["OfficeHoursItem"][];
+            /** @description Afficher téléphone, e-mail et horaires d'accueil sur la fiche publique */
+            secretariat_public?: boolean;
+            /** @description Jours ouvrés */
+            acts_delay_days?: number | null;
+            acts_welcome_message?: string;
         };
         PatchedNodeUpdateInput: {
             name?: string;
@@ -4439,6 +4524,120 @@ export interface components {
             /** Format: uuid */
             readonly assigned_to_id: string | null;
             pickup_mode?: components["schemas"]["PickupModeEnum"];
+        };
+        PublicActsInfo: {
+            delay_days: number | null;
+            welcome_message: string;
+        };
+        PublicClergy: {
+            name: string;
+            /** @description Libellé de l'office (Curé, Vicaire paroissial…) */
+            office: string;
+        };
+        /** @description Fiche publique : ajoute le secrétariat (s'il est publié), le clergé et l'accueil des demandes d'actes. */
+        PublicNodeDetailOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly type: components["schemas"]["NodeTypeRef"];
+            /** Nom */
+            name: string;
+            code: string;
+            /** Statut */
+            status?: components["schemas"]["NodeStatusEnum"];
+            /** Adresse */
+            address?: string;
+            /** Ville */
+            city?: string;
+            /**
+             * Latitude
+             * Format: decimal
+             */
+            lat?: string | null;
+            /**
+             * Longitude
+             * Format: decimal
+             */
+            lng?: string | null;
+            /**
+             * Date d'érection
+             * Format: date
+             */
+            erected_at?: string | null;
+            /** Active sur Jàngu Bi */
+            is_active_on_platform?: boolean;
+            /** Format: uuid */
+            readonly located_in_id: string | null;
+            depth: number;
+            /** @description Identifiant du parent (null pour une racine). */
+            readonly parent_id: string | null;
+            readonly has_children: boolean;
+            readonly parent_name: string | null;
+            /** @description Doyenné (null s'il n'y en a pas) */
+            readonly deanery_name: string | null;
+            /** @description Diocèse (null s'il n'y en a pas) */
+            readonly diocese_name: string | null;
+            /** @description Heures des messes du prochain dimanche (aujourd'hui si c'est dimanche), exceptions comprises */
+            readonly sunday_masses: string[];
+            /** @description null tant que la paroisse ne l'a pas publié */
+            readonly secretariat: components["schemas"]["PublicSecretariat"] | null;
+            /** @description Clercs titulaires d'un office actif sur ce nœud */
+            readonly clergy: components["schemas"]["PublicClergy"][];
+            readonly acts: components["schemas"]["PublicActsInfo"];
+        };
+        /**
+         * @description Nœud de l'annuaire public : juridiction et messes du dimanche.
+         *
+         *     Contexte attendu (calculé en lot, pas de N+1) : ``lineage`` {chemin: nœud ancêtre},
+         *     ``sunday_masses`` {id du nœud: [heures]}.
+         */
+        PublicNodeOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly type: components["schemas"]["NodeTypeRef"];
+            /** Nom */
+            name: string;
+            code: string;
+            /** Statut */
+            status?: components["schemas"]["NodeStatusEnum"];
+            /** Adresse */
+            address?: string;
+            /** Ville */
+            city?: string;
+            /**
+             * Latitude
+             * Format: decimal
+             */
+            lat?: string | null;
+            /**
+             * Longitude
+             * Format: decimal
+             */
+            lng?: string | null;
+            /**
+             * Date d'érection
+             * Format: date
+             */
+            erected_at?: string | null;
+            /** Active sur Jàngu Bi */
+            is_active_on_platform?: boolean;
+            /** Format: uuid */
+            readonly located_in_id: string | null;
+            depth: number;
+            /** @description Identifiant du parent (null pour une racine). */
+            readonly parent_id: string | null;
+            readonly has_children: boolean;
+            readonly parent_name: string | null;
+            /** @description Doyenné (null s'il n'y en a pas) */
+            readonly deanery_name: string | null;
+            /** @description Diocèse (null s'il n'y en a pas) */
+            readonly diocese_name: string | null;
+            /** @description Heures des messes du prochain dimanche (aujourd'hui si c'est dimanche), exceptions comprises */
+            readonly sunday_masses: string[];
+        };
+        PublicSecretariat: {
+            phone: string;
+            email: string;
+            office_hours: components["schemas"]["OfficeHoursItem"][];
         };
         PushDeviceInput: {
             platform: components["schemas"]["PlatformEnum"];
@@ -6562,6 +6761,54 @@ export interface operations {
             };
         };
     };
+    v1_hierarchy_nodes_settings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeSettingsOutput"];
+                };
+            };
+        };
+    };
+    v1_hierarchy_nodes_settings_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedNodeSettingsUpdateInput"];
+                "multipart/form-data": components["schemas"]["PatchedNodeSettingsUpdateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedNodeSettingsUpdateInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeSettingsOutput"];
+                };
+            };
+        };
+    };
     v1_hierarchy_office_types_list: {
         parameters: {
             query?: never;
@@ -8402,7 +8649,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedNodeOutputList"];
+                    "application/json": components["schemas"]["PaginatedPublicNodeOutputList"];
                 };
             };
         };
@@ -8447,7 +8694,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["NodeOutput"];
+                    "application/json": components["schemas"]["PublicNodeDetailOutput"];
                 };
             };
         };

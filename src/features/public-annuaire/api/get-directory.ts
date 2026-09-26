@@ -2,6 +2,7 @@ import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
+import type { Expect, Matches, ResponseBody } from '@/types/api-contract';
 
 const coordinate = z.union([z.string(), z.number()]).nullable().optional();
 
@@ -17,8 +18,18 @@ export const directoryNodeSchema = z.object({
   lng: coordinate,
   is_active_on_platform: z.boolean(),
   parent_id: z.string().nullable().optional(),
+  /** Juridiction, calculée par le serveur (null au-dessus du niveau concerné). */
+  parent_name: z.string().nullable(),
+  deanery_name: z.string().nullable(),
+  diocese_name: z.string().nullable(),
+  /** Heures (HH:MM:SS) des messes du prochain dimanche, exceptions comprises. */
+  sunday_masses: z.array(z.string()),
 });
 export type DirectoryNode = z.infer<typeof directoryNodeSchema>;
+
+type _DirectoryKeys = Expect<
+  Matches<Exclude<keyof DirectoryNode, keyof ResponseBody<'v1_public_nodes_retrieve'>['results'][number]>, never>
+>;
 
 const pageSchema = z.object({ count: z.number(), results: z.array(directoryNodeSchema) });
 export type DirectoryPage = z.infer<typeof pageSchema>;

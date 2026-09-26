@@ -198,6 +198,18 @@ export const f8aHandlers = [...articleHandlers, ...placeHandlers, ...agendaHandl
  */
 export const f8aOverrides = [
   http.get(apiUrl('/hierarchy/office-types/'), () => HttpResponse.json(officeCatalogue)),
+  http.get(apiUrl('/hierarchy/nodes/:nodeId/settings/'), ({ params }) =>
+    params.nodeId === ids.saintDominique ? HttpResponse.json(f8aState.settings) : v1Error(404, 'not_found', 'Nœud introuvable.'),
+  ),
+  http.patch(apiUrl('/hierarchy/nodes/:nodeId/settings/'), async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    if (typeof body.email === 'string' && body.email.endsWith('@refuse.sn')) {
+      return v1Error(400, 'validation_error', 'Données invalides.', { email: ['Cette adresse est refusée par le serveur.'] });
+    }
+    f8aState.lastBody = body;
+    f8aState.settings = { ...f8aState.settings, ...body, updated_at: '2026-09-26T09:00:00Z' } as typeof f8aState.settings;
+    return HttpResponse.json(f8aState.settings);
+  }),
   http.get(apiUrl('/hierarchy/nodes/:nodeId/'), ({ params }) =>
     params.nodeId === ids.saintDominique ? HttpResponse.json(f8aState.node) : v1Error(404, 'not_found', 'Nœud introuvable.'),
   ),

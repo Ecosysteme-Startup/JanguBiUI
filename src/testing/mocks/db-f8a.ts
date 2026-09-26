@@ -248,6 +248,23 @@ export const nodeDetail = {
   has_children: true,
 };
 
+/** Paramètres du secrétariat (`GET/PATCH /hierarchy/nodes/{id}/settings/`). */
+export const nodeSettingsDetail = {
+  id: ids.saintDominique,
+  address: 'Rue de Fatick, Point E',
+  city: 'Dakar',
+  phone: '+221 33 825 40 18',
+  email: 'secretariat@saint-dominique.sn',
+  office_hours: [
+    { days: 'Lun. – ven.', hours: '9 h-12 h · 15 h 30-18 h' },
+    { days: 'Samedi', hours: '9 h-12 h' },
+  ],
+  secretariat_public: true,
+  acts_delay_days: 3 as number | null,
+  acts_welcome_message: 'Munissez-vous d’une pièce d’identité.',
+  updated_at: '2026-09-18T10:00:00Z',
+};
+
 export const nodeChildren = [
   { ...nodeDetail, id: 'c0000000-0000-4000-8000-000000000001', type: { code: 'ceb', label: 'CEB' }, name: 'CEB Saint-Charles-Lwanga', code: 'SD-CEB1', address: '', city: 'Point E', has_children: false, parent_id: ids.saintDominique, depth: 4, erected_at: null },
 ];
@@ -260,6 +277,7 @@ export const f8aState = {
   events: initialEvents(),
   assignments: initialAssignments(),
   node: { ...nodeDetail },
+  settings: { ...nodeSettingsDetail },
   lastBody: null as unknown,
 };
 
@@ -270,5 +288,6 @@ export const resetF8a = () => {
   f8aState.events = initialEvents();
   f8aState.assignments = initialAssignments();
   f8aState.node = { ...nodeDetail };
+  f8aState.settings = { ...nodeSettingsDetail };
   f8aState.lastBody = null;
 };

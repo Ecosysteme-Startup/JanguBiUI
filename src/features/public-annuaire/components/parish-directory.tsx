@@ -213,10 +213,11 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
             <>
               <div
                 aria-hidden="true"
-                className="tnum hidden h-10 grid-cols-[40px_minmax(0,1fr)_140px_20px] items-center gap-4 border-b border-ink text-meta text-ink-3 md:grid"
+                className="tnum hidden h-10 grid-cols-[40px_minmax(0,1fr)_150px_140px_20px] items-center gap-4 border-b border-ink text-meta text-ink-3 md:grid"
               >
                 <span>N°</span>
                 <span>Paroisse</span>
+                <span>Messes du dimanche</span>
                 <span>Sur Jàngu Bi</span>
                 <span />
               </div>

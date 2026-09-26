@@ -43,6 +43,33 @@ describe('Fiche paroisse publique', () => {
     expect(screen.getByRole('link', { name: /recevoir les annonces chaque dimanche/i })).toHaveAttribute('href', '/inscription');
   });
 
+  it('affiche la juridiction, le secrétariat publié et le clergé de la paroisse', async () => {
+    renderApp(<ParishSheet code="DAK-SAINT-DOMINIQUE" />);
+
+    expect(await screen.findByText('Doyenné Plateau-Médina')).toBeInTheDocument();
+    const secretariat = within(screen.getByRole('region', { name: /secrétariat/i }));
+    expect(secretariat.getByRole('link', { name: '+221 33 864 21 07' })).toHaveAttribute('href', 'tel:+221338642107');
+    expect(secretariat.getByRole('link', { name: 'secretariat.stdominique@example.sn' })).toHaveAttribute(
+      'href',
+      'mailto:secretariat.stdominique@example.sn',
+    );
+    expect(secretariat.getByText('Samedi')).toBeInTheDocument();
+    expect(secretariat.getByText('9 h-12 h')).toBeInTheDocument();
+
+    const clerge = within(screen.getByRole('region', { name: /clergé/i }));
+    expect(clerge.getByText('Augustin Ndiaye')).toBeInTheDocument();
+    expect(clerge.getByText('Curé / administrateur paroissial')).toBeInTheDocument();
+    expect(clerge.getByText('Emmanuel Tine')).toBeInTheDocument();
+  });
+
+  it('n’affiche aucune coordonnée tant que le secrétariat n’est pas publié', async () => {
+    renderApp(<ParishSheet code="DAK-P03" />);
+
+    expect(await screen.findByText(/n.a pas encore publié les coordonnées de son secrétariat/i)).toBeInTheDocument();
+    expect(screen.getByText(/aucun clerc n.est encore renseigné/i)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^\+221/ })).not.toBeInTheDocument();
+  });
+
   it('indique qu’une paroisse sans horaires publiés n’est pas encore ouverte', async () => {
     renderApp(<ParishSheet code="DAK-P03" />);
 
