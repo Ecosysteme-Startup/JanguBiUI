@@ -37,9 +37,10 @@ describe('Tableau de bord diocésain', () => {
     );
     const { container } = renderApp(<NodeDashboardView nodeId={ids.dakar} />, { capacites: grantsChancelier });
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Archidiocèse de Dakar' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Tableau de bord' })).toBeInTheDocument();
+    expect(screen.getByText(/Archidiocèse de Dakar · données au/)).toBeInTheDocument();
     expect(screen.getByText(/aucune donnée personnelle n.est remontée au diocèse/i)).toBeInTheDocument();
-    expect(await screen.findByRole('cell', { name: 'Doyenné Plateau-Médina' })).toBeInTheDocument();
+    expect(await screen.findByRole('list', { name: 'Paroisses ouvertes aux fidèles' })).toBeInTheDocument();
     expect(await screen.findByText(/1 déclaration de clerc attend une vérification/i)).toBeInTheDocument();
 
     const text = container.textContent ?? '';
@@ -48,17 +49,29 @@ describe('Tableau de bord diocésain', () => {
     }
   });
 
-  it('résume le déploiement par doyenné', async () => {
+  it('résume le déploiement : paroisses ouvertes, avec leur doyenné', async () => {
     renderApp(<NodeDashboardView nodeId={ids.dakar} />, { capacites: grantsChancelier });
 
-    const row = (await screen.findByRole('cell', { name: 'Doyenné Plateau-Médina' })).closest('tr')!;
-    // 3 paroisses, 1 active, 1 en fondation.
-    expect(
-      within(row)
-        .getAllByRole('cell')
-        .map((c) => c.textContent),
-    ).toEqual(['Doyenné Plateau-Médina', '3', '1', '1', '']);
-    expect(screen.getByText(/taux d.ouverture : 25/i)).toBeInTheDocument();
+    const card = await screen.findByRole('region', { name: 'Déploiement dans l’archidiocèse' });
+    // 4 paroisses, 1 ouverte (Saint-Dominique), 1 en fondation.
+    expect(await within(card).findByText(/1 paroisse sur 4 est ouverte aux fidèles, dont 1 paroisse en fondation/)).toBeInTheDocument();
+    expect(within(card).getByRole('img', { name: /sur 4 paroisses : 1 ouverte, 3 pas encore ouvertes/i })).toBeInTheDocument();
+    const open = within(card).getByRole('list', { name: 'Paroisses ouvertes aux fidèles' });
+    const items = within(open).getAllByRole('listitem');
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent('Saint-Dominique');
+    expect(items[0]).toHaveTextContent('Doyenné Plateau-Médina');
+    expect(items[0]).toHaveTextContent('Active');
+    expect(within(card).getByRole('link', { name: 'Voir les 4 paroisses' })).toHaveAttribute('href', `/espace/${ids.dakar}/structure`);
+  });
+
+  it('présente les demandes d’actes en agrégat, sans détail par demandeur', async () => {
+    renderApp(<NodeDashboardView nodeId={ids.dakar} />, { capacites: grantsChancelier });
+
+    const card = await screen.findByRole('region', { name: /demandes d.actes sur 30 jours/i });
+    const row = within(card).getByRole('rowheader', { name: 'Toutes les paroisses' }).closest('tr')!;
+    expect(within(row).getAllByRole('cell')).toHaveLength(4);
+    expect(within(card).getByText('Prêtes à retirer')).toBeInTheDocument();
   });
 
   it('n’écrit jamais « chiffré de bout en bout »', async () => {
