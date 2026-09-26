@@ -1,6 +1,6 @@
 import { paths } from '@/config/paths';
 
-import { describeNotification } from '../describe';
+import { dayGroupOf, describeNotification, notificationTime } from '../describe';
 
 describe('describeNotification', () => {
   it('renvoie vers le profil pour une demande de complément, sans motif dans la notification', () => {
@@ -29,5 +29,19 @@ describe('describeNotification — chancellerie', () => {
     });
 
     expect(view).toMatchObject({ title: 'Déclaration d’état de vie complétée', href: paths.espace.clerge.getHref('d1') });
+  });
+});
+
+describe('dayGroupOf / notificationTime', () => {
+  const now = new Date('2026-09-24T12:00:00');
+  it('range par aujourd’hui, cette semaine, plus tôt', () => {
+    expect(dayGroupOf('2026-09-24T10:13:00', now)).toBe('Aujourd’hui');
+    expect(dayGroupOf('2026-09-22T10:13:00', now)).toBe('Cette semaine');
+    expect(dayGroupOf('2026-09-16T10:13:00', now)).toBe('Plus tôt');
+  });
+  it('affiche l’heure, le jour abrégé ou la date', () => {
+    expect(notificationTime('2026-09-24T10:13:00', now)).toBe('10:13');
+    expect(notificationTime('2026-09-22T10:13:00', now)).toBe('mar.');
+    expect(notificationTime('2026-09-16T10:13:00', now)).toBe('16 sept.');
   });
 });

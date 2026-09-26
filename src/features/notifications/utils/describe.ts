@@ -93,11 +93,18 @@ export const describeNotification = (n: AppNotification): NotificationView => {
   return { title: 'Nouvelle notification', category: 'autre' };
 };
 
-/** Libellé du groupe de jour : « Aujourd'hui · jeudi 24 septembre », « Hier · … », « Plus tôt ». */
+/** Groupe de la liste : « Aujourd’hui », « Cette semaine » (7 derniers jours), « Plus tôt ». */
 export const dayGroupOf = (createdAt: string, now: Date = new Date()) => {
   const diff = dayjs(now).startOf('day').diff(dayjs(createdAt).startOf('day'), 'day');
-  if (diff <= 0) return `Aujourd’hui · ${dayjs(createdAt).format('dddd D MMMM')}`;
-  if (diff === 1) return `Hier · ${dayjs(createdAt).format('dddd D MMMM')}`;
-  if (diff < 7) return 'Plus tôt cette semaine';
-  return 'Plus ancien';
+  if (diff <= 0) return 'Aujourd’hui';
+  if (diff < 7) return 'Cette semaine';
+  return 'Plus tôt';
+};
+
+/** Heure de la notification : « 10:13 » aujourd’hui, « mer. » cette semaine, sinon « 19 sept. ». */
+export const notificationTime = (createdAt: string, now: Date = new Date()) => {
+  const group = dayGroupOf(createdAt, now);
+  if (group === 'Aujourd’hui') return dayjs(createdAt).format('HH:mm');
+  if (group === 'Cette semaine') return dayjs(createdAt).format('ddd');
+  return dayjs(createdAt).format('D MMM');
 };
