@@ -55,9 +55,9 @@ export const CoverPicker = ({ id, value, onChange, alt = '', error }: CoverPicke
       {value.id !== null ? (
         <figure className="m-0">
           {/* URL signée du stockage (MinIO/S3) ou aperçu local : balise img simple. */}
-          {value.url && <img src={value.url} alt={alt} className="aspect-[4/1] w-full border border-line object-cover" />}
+          {value.url && <img src={value.url} alt={alt} className="aspect-[4/1] w-full rounded-12 border border-line object-cover" />}
           <figcaption className="mt-2 flex flex-wrap items-center gap-3">
-            <label htmlFor={id} className="inline-flex h-9 cursor-pointer items-center gap-2 rounded border border-line-field px-3 text-sm text-ink hover:border-ink">
+            <label htmlFor={id} className="hit inline-flex h-9 cursor-pointer items-center gap-2 rounded-10 border border-line bg-paper px-3 text-14 font-semibold text-ink hover:border-line-field hover:bg-surface">
               <Icon name="import" size={16} /> Remplacer
             </label>
             <Button variant="tertiary" size="sm" onClick={() => onChange({ id: null, url: null })}>
@@ -68,14 +68,14 @@ export const CoverPicker = ({ id, value, onChange, alt = '', error }: CoverPicke
       ) : (
         <label
           htmlFor={id}
-          className="flex cursor-pointer items-center gap-3 rounded border border-dashed border-line-field bg-surface px-4 py-4 hover:border-ink"
+          className="flex cursor-pointer items-center gap-3 rounded-12 border border-dashed border-line-field bg-surface px-4 py-3.5 hover:border-primary"
         >
           <Icon name="import" size={22} className="shrink-0 text-primary" />
           <span>
-            <span className="block text-base text-ink">
+            <span className="block text-15 font-medium text-ink">
               {upload.isPending ? 'Envoi de l’image…' : 'Ajouter une bannière'}
             </span>
-            <span className="block text-sm text-ink-3">Format 4:1 · 1 600 × 400 px minimum · JPEG, PNG ou WebP · 5 Mo au plus</span>
+            <span className="block text-13 text-ink-3">Format 4:1 · 1 600 × 400 px minimum · JPEG, PNG ou WebP · 5 Mo au plus</span>
           </span>
         </label>
       )}
@@ -94,7 +94,7 @@ export const CoverPicker = ({ id, value, onChange, alt = '', error }: CoverPicke
         }}
       />
       {message && (
-        <p id={`${id}-err`} role="alert" className="m-0 text-sm text-err">
+        <p id={`${id}-err`} role="alert" className="m-0 text-13 text-err">
           {message}
         </p>
       )}
