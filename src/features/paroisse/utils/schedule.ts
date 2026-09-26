@@ -1,3 +1,5 @@
+import { dayjs } from '@/utils/dates';
+
 import type { Occurrence, ParishWeek, WeekPlace } from '../api/get-parish-week';
 
 export const KIND_LABEL: Record<string, string> = { messe: 'Messe', confession: 'Confessions', adoration: 'Adoration' };
@@ -19,6 +21,24 @@ export const nextOccurrence = (week: ParishWeek | undefined, kind: string, now: 
   week?.occurrences
     .filter((o) => o.kind === kind && at(o) >= now)
     .sort((a, b) => at(a).getTime() - at(b).getTime())[0];
+
+/** Les `count` prochaines occurrences d'un type (cartes « Prochaines messes »). */
+export const nextOccurrences = (week: ParishWeek | undefined, kind: string, now: Date, count: number): Occurrence[] =>
+  (week?.occurrences ?? [])
+    .filter((o) => o.kind === kind && at(o) >= now)
+    .sort((a, b) => at(a).getTime() - at(b).getTime())
+    .slice(0, count);
+
+/** « 18:30:00 » → « 18:30 » (heure des cartes de messe, comme la maquette). */
+export const clockLabel = (time: string) => time.slice(0, 5);
+
+/** Étiquette de jour d'une carte : « ce soir », « aujourd’hui », « demain », sinon « sam. 26 ». */
+export const dayTag = (date: string, time: string, now: Date = new Date()) => {
+  const diff = dayjs(date).startOf('day').diff(dayjs(now).startOf('day'), 'day');
+  if (diff === 0) return Number(time.split(':')[0]) >= 17 ? 'ce soir' : 'aujourd’hui';
+  if (diff === 1) return 'demain';
+  return dayjs(date).format('ddd D');
+};
 
 export type PlaceSchedule = { place: WeekPlace; days: { date: string; items: Occurrence[] }[] };
 

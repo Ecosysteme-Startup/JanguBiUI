@@ -19,7 +19,7 @@ import { useAnnouncement, useMarkAnnouncementRead } from '../api/get-announcemen
 import { useAnnouncements } from '../api/get-announcements';
 import { readingMinutes } from '../utils/article-content';
 
-import { announcementKicker } from './announcements-section';
+import { announcementKicker } from './announcement-row';
 import { ArticleBody } from './article-body';
 
 const BackLink = () => (
