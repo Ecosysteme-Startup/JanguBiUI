@@ -31,6 +31,8 @@ Traité : 0f93800 — `size="sm"` (36/14) ou `size="xs"` (32/14), `block` (colon
 
 ## 5. `ShellLayout fullBleed` sous 1024 px (barre du bas)
 FID-Conversation et PAR-Messagerie à 375 px : le `<main>` plein cadre garde un espace vide d'environ 140 px entre la saisie et la `BottomNav` (padding bas mobile conservé + hauteur non déduite de la barre du bas). Besoin : en `fullBleed`, sous lg, hauteur = 100dvh − barre du haut − `BottomNav`, sans `pb-24`, pour que la saisie repose juste au-dessus de la barre du bas.
+Traité : 5fdf235 — en `ShellLayout fullBleed`, sous lg, le <main> fait 100dvh − 64 − 56 − zone sûre (espace fidèle) et n'a aucun padding : retirer les compensations locales (la page ne doit pas ajouter de `pb-*`).
 
 ## 6. `SlotPicker` (src/components/signature/slot-picker.tsx) au style Ciel (FID-Confession-RDV)
 Grille 3 colonnes, gap 8, cases 56 px rayon 12, texte centré ; heure 15/600 au format `16:20` (Libre Franklin, pas de serif), sous-libellé 12/16 ; libre = fond `paper` bordure `line` (« Libre », `ink-2`) ; choisi = aplat `primary-fill` texte `on-primary`, sous-libellé « Choisi » `tint-100` ; complet = fond `surface`, heure barrée `ink-3`, « Complet ». Garder `slots[].priest` comme sous-libellé optionnel (je passe « A. Ndiaye » quand « Tous » est choisi, « Libre » sinon).
+Traité : 5fdf235 — `SlotPicker` : 3 colonnes, cases 56 rayon 12, « 16:20 » 15/600 (lu « 16 h 20 »), sous-libellé = `slot.priest` (chaîne vide → « Libre »), choisi « Choisi » en b100, complet sur surface barré.
