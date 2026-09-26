@@ -9,7 +9,7 @@ import { paths } from '@/config/paths';
 export const DayPicker = ({ value, isToday }: { value: string; isToday: boolean }) => {
   const router = useRouter();
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <label htmlFor="parole-date" className="sr-only">
         Choisir une date dans le calendrier
       </label>

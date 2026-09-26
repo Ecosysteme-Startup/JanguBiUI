@@ -147,7 +147,7 @@ export const ImportWizard = ({ eyebrow, title, columns, extra, ready = true, sim
             <p className="tnum m-0 text-sm text-ink-2">
               Fichier déposé <span className="font-medium text-ink">{file.name}</span> · {report.lines.length} lignes · {sizeOf(file.size)}{' '}
               ·{' '}
-              <Button variant="tertiary" size="sm" className="h-auto" onClick={restart}>
+              <Button variant="tertiary" size="sm" className="h-auto min-h-0" onClick={restart}>
                 Remplacer
               </Button>
             </p>

@@ -22,7 +22,9 @@ export const ScrollRegion = ({ label, className, children, ...props }: ScrollReg
   React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const measure = () => setScrollable(el.scrollWidth > el.clientWidth + 1);
+    // Les deux axes : overflow-x:auto rend aussi l'axe vertical défilant (une zone .hit de 44 px
+    // en dernière ligne suffit à le déclencher, cf. axe sur le tableau de bord diocésain à 1024 px).
+    const measure = () => setScrollable(el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight);
     measure();
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(measure);

@@ -14,7 +14,7 @@ export const OfferHero = () => (
         <span aria-hidden="true" className="inline-block h-px w-10 bg-ink" />
         <span>Pilote 2026-2027</span>
       </p>
-      <h1 id="offre-titre" className="m-0 mt-6 max-w-[16ch] font-serif text-title font-normal text-ink md:text-h1">
+      <h1 id="offre-titre" className="m-0 mt-6 max-w-[16ch] break-words font-serif text-title font-normal text-ink md:text-h1">
         Un outil au service du secrétariat, <em className="italic text-primary">sous l&apos;autorité de l&apos;évêque.</em>
       </h1>
       <p className="m-0 mt-8 max-w-[56ch] text-lead text-ink-2">

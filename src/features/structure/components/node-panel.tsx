@@ -42,7 +42,7 @@ const Places = ({ node, canEdit }: { node: StructureNode; canEdit: boolean }) =>
         count={places.data?.length}
         aside={
           canEdit && (
-            <Button variant="tertiary" size="sm" className="h-auto" onClick={() => setEditing('new')}>
+            <Button variant="tertiary" size="sm" className="h-auto min-h-0" onClick={() => setEditing('new')}>
               Ajouter un lieu
             </Button>
           )
@@ -186,7 +186,7 @@ export const NodePanel = ({ nodeId, onSelect, canEdit, canAppoint }: NodePanelPr
           <dt className="tnum text-meta text-ink-3">Parent</dt>
           <dd className="m-0 mt-1 text-sm">
             {parent.data ? (
-              <Button variant="tertiary" size="sm" className="h-auto whitespace-normal break-words text-left text-sm" onClick={() => onSelect(parent.data.id)}>
+              <Button variant="tertiary" size="sm" className="h-auto min-h-0 whitespace-normal break-words text-left text-sm" onClick={() => onSelect(parent.data.id)}>
                 {parent.data.name}
               </Button>
             ) : (

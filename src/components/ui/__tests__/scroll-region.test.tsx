@@ -5,6 +5,8 @@ import { Table, Td, Th, Tr } from '../table';
 const overflowing = (scrollWidth: number, clientWidth: number) => {
   vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(scrollWidth);
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(clientWidth);
+  vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
+  vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(100);
 };
 
 const Offices = () => (

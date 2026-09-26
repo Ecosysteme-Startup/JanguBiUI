@@ -18,7 +18,7 @@ export const HomeHero = ({ stats, calendar }: { stats?: ReactNode; calendar?: Re
         <span aria-hidden="true" className="inline-block h-px w-10 bg-ink" />
         {stats}
       </p>
-      <h1 id="hero-titre" className="m-0 mt-6 max-w-[16ch] font-serif text-h1 font-normal text-ink lg:text-display">
+      <h1 id="hero-titre" className="m-0 mt-6 max-w-[16ch] break-words font-serif text-h1 font-normal text-ink lg:text-display">
         Chaque jour la Parole. Chaque semaine, <em className="italic text-primary">votre paroisse.</em>
       </h1>
       <p className="m-0 mt-8 max-w-[56ch] text-lead text-ink-2">
