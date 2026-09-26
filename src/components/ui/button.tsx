@@ -7,9 +7,13 @@ import { cn } from '@/utils/cn';
 /**
  * Boutons (DS-Composants §01) : primaire, secondaire, tertiaire (lien souligné),
  * danger. Un seul bouton primaire par zone. Rayon 2 px, aucune ombre.
+ *
+ * Texte agrandi (A11Y-14) : hauteur minimale et non fixe, largeur plafonnée à celle du
+ * conteneur ; le libellé ne passe à la ligne que s'il ne tient plus du tout (shrink-0 :
+ * dans une rangée flex, ce sont les voisins qui se resserrent d'abord, comme avant).
  */
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded border font-medium transition-colors duration-150 disabled:cursor-not-allowed',
+  'inline-flex max-w-full shrink-0 items-center justify-center gap-2.5 rounded border text-center font-medium transition-colors duration-150 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
@@ -25,13 +29,13 @@ export const buttonVariants = cva(
           'border-on-night bg-transparent text-on-night hover:bg-on-night hover:text-night',
       },
       size: {
-        lg: 'h-13 px-7 text-body',
-        md: 'h-11 px-5 text-base',
-        sm: 'hit h-9 px-3.5 text-sm',
+        lg: 'min-h-13 px-7 text-body',
+        md: 'min-h-11 px-5 text-base',
+        sm: 'hit min-h-9 px-3.5 text-sm',
       },
       block: { true: 'w-full' },
     },
-    compoundVariants: [{ variant: 'tertiary', class: 'h-11 px-0' }],
+    compoundVariants: [{ variant: 'tertiary', class: 'min-h-11 px-0' }],
     defaultVariants: { variant: 'primary', size: 'md' },
   },
 );

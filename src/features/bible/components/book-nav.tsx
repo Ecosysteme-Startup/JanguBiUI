@@ -22,7 +22,7 @@ export const BookNav = ({ testaments, current, className }: { testaments: Testam
           ))}
         </TabsList>
         {sorted.map((t) => (
-          <TabsContent key={t.slug} value={t.slug} className="mt-2 max-h-[60vh] overflow-y-auto">
+          <TabsContent key={t.slug} value={t.slug} className="mt-2 lg:max-h-[60vh] lg:overflow-y-auto">
             <ul className="m-0 list-none p-0">
               {[...t.books]
                 .sort((a, b) => a.order - b.order)

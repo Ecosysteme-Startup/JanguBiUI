@@ -9,9 +9,10 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { useOfficeLabel } from '@/hooks/use-office-types';
 import { useCan } from '@/lib/can';
+import { plural } from '@/utils/plural';
 
 import { type NodeDashboard, useNodeDashboard } from '../api/get-node-dashboard';
-import { days, hours, n, pct, plural, stamp, weekLabel } from '../utils/format';
+import { days, hours, n, pct, stamp, weekLabel } from '../utils/format';
 
 import { Figure, Footnote, Grid, Meter, Panel } from './dashboard-parts';
 

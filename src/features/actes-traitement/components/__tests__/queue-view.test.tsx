@@ -31,6 +31,16 @@ describe('PAR-Demandes', () => {
     expect(screen.getByRole('button', { name: /^soumises 1/i })).toBeInTheDocument();
   });
 
+  it('accorde le nombre de demandes dans la file (« 1 demande », « 6 demandes »)', async () => {
+    const { unmount } = renderApp(<QueueView nodeId={ids.saintDominique} />);
+    expect(await screen.findByText(/6 demandes dans la file/)).toBeInTheDocument();
+    unmount();
+
+    actesState.requests = actesState.requests.slice(0, 1);
+    renderApp(<QueueView nodeId={ids.saintDominique} />);
+    expect(await screen.findByText(/— Registre · 1 demande dans la file/)).toBeInTheDocument();
+  });
+
   it('filtre par statut, type et retard, et garde les filtres dans l’URL', async () => {
     const user = userEvent.setup();
     renderApp(<QueueView nodeId={ids.saintDominique} />);

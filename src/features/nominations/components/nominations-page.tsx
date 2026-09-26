@@ -191,7 +191,7 @@ const Registre = ({ nodeId, nodeName }: { nodeId: string; nodeName: string }) =>
           </EmptyState>
         ) : (
           <>
-            <Table>
+            <Table label="Nominations, défilement horizontal">
               <thead>
                 <tr>
                   <Th>Titulaire · office · nœud</Th>

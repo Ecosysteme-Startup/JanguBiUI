@@ -7,8 +7,8 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
-import { useRosaryToday } from '@/features/chapelet/api/get-rosary-today';
 import { GuidedRosary } from '@/features/chapelet/components/guided-rosary';
+import { useRosaryToday } from '@/hooks/use-rosary-today';
 import { ApiError } from '@/lib/api-client';
 
 /** Chapelet du jour (FID-Chapelet) : prière personnelle guidée. Le chapelet communautaire est gelé. */
@@ -19,7 +19,7 @@ export const ChapeletView = () => {
     <div className="mx-auto max-w-[1200px]">
       <NextLink
         href={paths.app.parole.getHref()}
-        className="mb-6 inline-flex h-8 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
+        className="mb-6 inline-flex h-11 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
       >
         <Icon name="fleche-gauche" size={16} />
         Retour · Lectures du jour

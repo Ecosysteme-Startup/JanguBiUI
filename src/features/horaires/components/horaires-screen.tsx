@@ -14,6 +14,7 @@ import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { plural } from '@/utils/plural';
 
 import { type Schedule, usePlaceSchedules } from '../api/get-place-schedule';
 import { type ScheduleException, useDeletePlaceException, usePlaceExceptions } from '../api/place-exceptions';
@@ -25,7 +26,6 @@ import { ScheduleForm } from './schedule-form';
 
 type Panel = 'horaire' | 'exception' | null;
 
-const plural = (n: number, word: string, many = `${word}s`) => `${n} ${n > 1 ? many : word}`;
 
 const PlaceWeek = ({ place, schedules, onRemove, busy }: { place: Place; schedules: Schedule[]; onRemove: (s: Schedule) => void; busy: boolean }) => (
   <div role="group" aria-label={`Horaires hebdomadaires, ${place.name}`} className="mt-4 grid grid-cols-2 border-t border-line-strong sm:grid-cols-4 lg:grid-cols-7">
@@ -151,7 +151,7 @@ export const HorairesScreen = ({ nodeId }: { nodeId: string }) => {
           <div>
             <p className="tnum m-0 text-meta text-ink-2">
               <span className="text-primary">02</span> — Vie paroissiale · {plural(places.data.length, 'lieu', 'lieux')} de culte ·{' '}
-              {plural(massesPerWeek(all), 'messe')} par semaine
+              {plural(massesPerWeek(all), 'messe', 'messes')} par semaine
             </p>
             <h1 className="m-0 mt-2 font-serif text-title font-normal text-ink">Horaires et lieux de culte</h1>
           </div>
@@ -201,7 +201,7 @@ export const HorairesScreen = ({ nodeId }: { nodeId: string }) => {
                       {place.name}
                     </h2>
                     <p className="m-0 mt-1 text-sm text-ink-2">
-                      {[place.address, place.city].filter(Boolean).join(', ')} · {plural(massesPerWeek(list), 'messe')} par semaine
+                      {[place.address, place.city].filter(Boolean).join(', ')} · {plural(massesPerWeek(list), 'messe', 'messes')} par semaine
                     </p>
                   </div>
                   <NextLink href={paths.espace.parametres.getHref(nodeId)} className="text-sm font-medium">

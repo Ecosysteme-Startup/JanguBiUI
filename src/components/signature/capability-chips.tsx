@@ -19,7 +19,7 @@ export const CAPABILITY_LABELS: Record<string, string> = {
 export const CapabilityChips = ({ capabilities }: { capabilities: string[] }) => (
   <ul aria-label="Capacités" className="m-0 flex list-none flex-wrap gap-1.5 p-0">
     {capabilities.map((c) => (
-      <li key={c} className="inline-flex h-6 items-center rounded border border-line px-2 text-xs text-ink-2">
+      <li key={c} className="inline-flex min-h-6 items-center rounded border border-line px-2 py-0.5 text-xs text-ink-2">
         {CAPABILITY_LABELS[c] ?? c}
       </li>
     ))}

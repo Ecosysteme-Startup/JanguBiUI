@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { nodeAncestorsQueryOptions } from '@/hooks/use-node-ancestors';
+import { dioceseOf, nodeAncestorsQueryOptions } from '@/hooks/use-node-ancestors';
 import { cn } from '@/utils/cn';
 
 import { useParish } from '../api/get-parish';
@@ -29,7 +29,7 @@ export const ParishHeader = ({ nodeId, name, className }: { nodeId: string; name
   const now = new Date();
   const mass = nextOccurrence(week, 'messe', now);
   const confession = nextOccurrence(week, 'confession', now);
-  const diocese = ancestors?.at(-1)?.name;
+  const diocese = dioceseOf(ancestors)?.name;
   const locality = [parish?.address, parish?.city].filter(Boolean).join(', ');
   const subtitle = [locality, ...(ancestors ?? []).slice(-2).map((a) => a.name)].filter(Boolean).join(' · ');
 

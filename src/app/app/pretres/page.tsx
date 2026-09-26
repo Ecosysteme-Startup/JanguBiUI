@@ -10,6 +10,7 @@ import { MyConversations } from '@/features/messagerie/components/my-conversatio
 import { PriestList } from '@/features/pretres/components/priest-list';
 import { useMe } from '@/hooks/use-me';
 import { frenchTypo } from '@/utils/french-typo';
+import { ofParish } from '@/utils/parish-name';
 
 // Parler à un prêtre (FID-Pretres).
 const PretresPage = () => {
@@ -30,14 +31,14 @@ const PretresPage = () => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">04</span> — Parler à un prêtre
           </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[50px] lg:leading-none">
+          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
             Parler à un <em className="italic text-primary">prêtre</em>
           </h1>
         </div>
         <p className="m-0 max-w-[440px] text-body text-ink-2">
           {frenchTypo(
             `Une question de foi, un accompagnement, un conseil avant un sacrement : les prêtres${
-              parish ? ` de ${parish}` : ' de votre paroisse'
+              parish ? ` ${ofParish(parish)}` : ' de votre paroisse'
             } vous répondent par écrit.`,
           )}
         </p>

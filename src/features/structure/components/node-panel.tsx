@@ -42,7 +42,7 @@ const Places = ({ node, canEdit }: { node: StructureNode; canEdit: boolean }) =>
         count={places.data?.length}
         aside={
           canEdit && (
-            <Button variant="tertiary" size="sm" className="h-auto" onClick={() => setEditing('new')}>
+            <Button variant="tertiary" size="sm" className="h-auto min-h-0" onClick={() => setEditing('new')}>
               Ajouter un lieu
             </Button>
           )
@@ -100,7 +100,7 @@ const Holders = ({ node }: { node: StructureNode }) => {
       ) : holders.data.length === 0 ? (
         <p className="m-0 text-sm text-ink-2">Aucun office pourvu sur ce nœud.</p>
       ) : (
-        <Table>
+        <Table label="Titulaires d’offices, défilement horizontal">
           <thead>
             <tr>
               <Th>Office</Th>
@@ -162,12 +162,13 @@ export const NodePanel = ({ nodeId, onSelect, canEdit, canAppoint }: NodePanelPr
   return (
     <section aria-labelledby="s-noeud" className="border border-line bg-surface p-6">
       <p className="tnum m-0 text-meta text-ink-3">Nœud sélectionné · {node.code}</p>
-      <div className="mt-2 flex items-start justify-between gap-4">
-        <h2 id="s-noeud" className="m-0 font-serif text-h3 font-normal text-ink">
+      {/* flex-wrap : sous 1024 px et dans la colonne de 6/12, les actions passent sous le titre (A11Y-08). */}
+      <div className="mt-2 flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
+        <h2 id="s-noeud" className="m-0 min-w-0 break-words font-serif text-h3 font-normal text-ink">
           {node.name}
         </h2>
         {canEdit && (
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <IconButton icon="crayon" label="Modifier le nœud" bordered onClick={() => setModal('edit')} />
             <Button variant="secondary" size="sm" onClick={() => setModal('child')}>
               Ajouter un enfant
@@ -176,7 +177,7 @@ export const NodePanel = ({ nodeId, onSelect, canEdit, canAppoint }: NodePanelPr
         )}
       </div>
       {(node.city || node.address) && <p className="m-0 mt-1 text-sm text-ink-2">{[node.address, node.city].filter(Boolean).join(', ')}</p>}
-      <dl className="m-0 mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
+      <dl className="m-0 mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4 [&>div]:min-w-0">
         <div>
           <dt className="tnum text-meta text-ink-3">Type</dt>
           <dd className="m-0 mt-1 text-sm text-ink">{node.type.label}</dd>
@@ -185,7 +186,7 @@ export const NodePanel = ({ nodeId, onSelect, canEdit, canAppoint }: NodePanelPr
           <dt className="tnum text-meta text-ink-3">Parent</dt>
           <dd className="m-0 mt-1 text-sm">
             {parent.data ? (
-              <Button variant="tertiary" size="sm" className="h-auto text-sm" onClick={() => onSelect(parent.data.id)}>
+              <Button variant="tertiary" size="sm" className="h-auto min-h-0 whitespace-normal break-words text-left text-sm" onClick={() => onSelect(parent.data.id)}>
                 {parent.data.name}
               </Button>
             ) : (

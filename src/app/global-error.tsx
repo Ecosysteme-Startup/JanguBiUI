@@ -1,7 +1,8 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
+
+import { captureException } from '@/lib/sentry-client';
 
 import '@/styles/globals.css';
 
@@ -13,7 +14,7 @@ type GlobalErrorProps = { error: Error & { digest?: string }; reset: () => void 
  */
 const GlobalError = ({ error, reset }: GlobalErrorProps) => {
   useEffect(() => {
-    Sentry.captureException(error);
+    captureException(error);
   }, [error]);
   return (
     <html lang="fr" data-palette="ciel">

@@ -9,7 +9,7 @@ import { Chip, ChipGroup } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { Pagination } from '@/components/ui/pagination';
-import { LoadingBlock } from '@/components/ui/skeleton';
+import { SkeletonLine } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
 import { paths } from '@/config/paths';
 import { cn } from '@/utils/cn';
@@ -71,7 +71,7 @@ export const RequestsList = () => {
 
   return (
     <>
-      <NextLink href={paths.app.root.getHref()} className="inline-flex h-8 items-center gap-2 text-sm font-medium">
+      <NextLink href={paths.app.root.getHref()} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
         <Icon name="fleche-gauche" size={18} />
         Retour · Accueil
       </NextLink>
@@ -80,12 +80,15 @@ export const RequestsList = () => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">03</span> — Mes demandes d’actes
           </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[50px] lg:leading-none">
+          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
             Mes demandes <em className="italic text-primary">d’actes</em>
           </h1>
         </div>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
-          {data && <p className="m-0 max-w-xs text-sm text-ink-2 lg:text-right">{headline(all)}</p>}
+          {/* Place réservée (deux lignes) : la phrase arrive avec les données sans pousser le bouton. */}
+          <p className="m-0 min-h-[3em] max-w-xs text-sm text-ink-2 lg:text-right">
+            {data ? headline(all) : <SkeletonLine width="w-56" />}
+          </p>
           <NextLink href={paths.app.demandes.nouvelle.getHref()} className={cn(buttonVariants(), 'hover:no-underline')}>
             <Icon name="plus" size={18} />
             Nouvelle demande
@@ -140,7 +143,7 @@ export const RequestsList = () => {
 
           <div className="mt-4" aria-live="polite">
             {isPending ? (
-              <LoadingBlock label="Chargement de vos demandes…" lines={4} />
+              <RequestsTableSkeleton />
             ) : isError ? (
               <EmptyState
                 tone="err"
@@ -174,19 +177,56 @@ export const RequestsList = () => {
   );
 };
 
+const RequestsTableHead = () => (
+  <thead>
+    <tr>
+      <Th className="w-[40%]">Demande</Th>
+      <Th className="hidden w-[26%] md:table-cell">Paroisse du sacrement</Th>
+      <Th>Statut</Th>
+      <Th className="hidden text-right sm:table-cell">Mise à jour</Th>
+      <Th className="w-9">
+        <span className="sr-only">Ouvrir</span>
+      </Th>
+    </tr>
+  </thead>
+);
+
+const SKELETON_ROWS = 3;
+
+/** Le tableau lui-même, en-tête compris, avec des lignes de 72 px factices : pas de saut à l'arrivée. */
+const RequestsTableSkeleton = () => (
+  <div role="status" data-testid="demandes-squelette">
+    <span className="sr-only">Chargement de vos demandes…</span>
+    <Table aria-hidden="true">
+      <RequestsTableHead />
+      <tbody>
+        {Array.from({ length: SKELETON_ROWS }, (_, i) => (
+          <tr key={i}>
+            <Td className="h-18 py-3">
+              <SkeletonLine className="text-base font-semibold" width="w-40" />
+              <SkeletonLine className="mt-1 text-xs" width="w-28" />
+            </Td>
+            <Td className="hidden md:table-cell">
+              <SkeletonLine className="text-sm" width="w-32" />
+            </Td>
+            <Td>
+              <SkeletonLine className="text-sm" width="w-24" />
+              <SkeletonLine className="mt-1 pl-4 text-meta" width="w-20" />
+            </Td>
+            <Td className="hidden sm:table-cell">
+              <SkeletonLine className="text-right text-xs" width="w-16" />
+            </Td>
+            <Td />
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+  </div>
+);
+
 const RequestsTable = ({ rows }: { rows: DocumentRequest[] }) => (
-  <Table>
-    <thead>
-      <tr>
-        <Th className="w-[40%]">Demande</Th>
-        <Th className="hidden w-[26%] md:table-cell">Paroisse du sacrement</Th>
-        <Th>Statut</Th>
-        <Th className="hidden text-right sm:table-cell">Mise à jour</Th>
-        <Th className="w-9">
-          <span className="sr-only">Ouvrir</span>
-        </Th>
-      </tr>
-    </thead>
+  <Table label="Mes demandes, défilement horizontal">
+    <RequestsTableHead />
     <tbody>
       {rows.map((r) => (
         <Tr key={r.id}>

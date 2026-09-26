@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/utils/cn';
+import { ofParish } from '@/utils/parish-name';
 
 import type { RequestOptions } from '../api/get-request-options';
 import { MONTHS, sacramentOf, type WizardValues } from '../utils/wizard-schema';
@@ -183,7 +184,7 @@ export const WizardStepInfos = ({ options, file, onFileChange, followed, onEdit 
           {...register('consent')}
           aria-invalid={errors.consent ? true : undefined}
           aria-describedby={errors.consent ? 'dn-consent-err' : undefined}
-          label={`J’atteste l’exactitude de ces informations et j’accepte qu’elles soient transmises au secrétariat de ${parishName}, pour le seul traitement de cette demande.`}
+          label={`J’atteste l’exactitude de ces informations et j’accepte qu’elles soient transmises au secrétariat ${ofParish(parishName)}, pour le seul traitement de cette demande.`}
         />
         {errors.consent && (
           <p id="dn-consent-err" role="alert" className="m-0 ml-8 mt-2 flex items-center gap-2 text-sm text-err">

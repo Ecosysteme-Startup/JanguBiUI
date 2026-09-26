@@ -20,7 +20,7 @@ export const BibleHome = () => {
     <div className="mx-auto max-w-[1200px]">
       <NextLink
         href={paths.app.parole.getHref()}
-        className="mb-6 inline-flex h-8 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
+        className="mb-6 inline-flex h-11 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
       >
         <Icon name="fleche-gauche" size={16} />
         Retour · Lectures du jour
@@ -30,7 +30,7 @@ export const BibleHome = () => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">01</span> — La Bible
           </p>
-          <h1 className="m-0 mt-3 font-serif text-[36px] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[50px]">
+          <h1 className="m-0 mt-3 font-serif text-[2.25rem] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[3.125rem]">
             Ouvrir la <em className="italic text-primary">Bible</em>
           </h1>
         </div>

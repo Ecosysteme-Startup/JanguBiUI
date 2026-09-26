@@ -22,7 +22,7 @@ export const FideleShell = ({ children }: { children: ReactNode }) => (
     </a>
     <FideleHeader />
     <header className="flex h-14 items-center justify-between border-b border-line px-2 pl-4 lg:hidden">
-      <NextLink href={paths.app.root.getHref()} aria-label="Jàngu Bi, accueil" className="font-serif text-[24px] leading-none text-ink">
+      <NextLink href={paths.app.root.getHref()} aria-label="Jàngu Bi, accueil" className="font-serif text-[1.5rem] leading-none text-ink">
         Jàngu Bi
       </NextLink>
       <span className="flex items-center">

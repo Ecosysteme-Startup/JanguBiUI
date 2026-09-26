@@ -115,10 +115,11 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
         title="Journal d’audit"
       />
 
+      {/* Six filtres sur une ligne seulement quand la place existe (sidebar comprise) ; sinon 2 ou 3 colonnes (A11Y-08). */}
       <div
         role="search"
         aria-label="Filtrer le journal"
-        className="mt-8 grid grid-cols-2 items-start gap-3 lg:grid-cols-[150px_150px_minmax(0,1fr)_200px_200px_auto]"
+        className="mt-8 grid grid-cols-2 items-start gap-3 sm:grid-cols-3 [&>*]:min-w-0 2xl:grid-cols-[150px_150px_minmax(0,1fr)_200px_200px_auto]"
       >
         <div className="flex flex-col gap-1.5">
           <label htmlFor="f-du" className="tnum text-meta text-ink-3">
@@ -204,7 +205,7 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
           </EmptyState>
         ) : (
           <>
-            <Table>
+            <Table label="Journal d’audit, défilement horizontal">
               <thead>
                 <tr>
                   <Th>Horodatage</Th>
@@ -225,7 +226,7 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
                           type="button"
                           title={event.actor_id}
                           onClick={() => go({ actor: event.actor_id ?? undefined })}
-                          className="text-left text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
+                          className="hit text-left text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
                           aria-label={`Filtrer sur l’acteur ${event.actor_name ?? event.actor_id}`}
                         >
                           {event.actor_name ?? shortId(event.actor_id)}

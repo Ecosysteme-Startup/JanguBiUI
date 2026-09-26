@@ -61,19 +61,20 @@ module.exports = {
       sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
     },
     fontSize: {
-      // DS-Fondations §02 : échelle éditoriale.
-      meta: ['12px', { lineHeight: '1.4', letterSpacing: '0.01em' }],
-      xs: ['13px', { lineHeight: '1.45' }],
-      sm: ['14px', { lineHeight: '1.5' }],
-      base: ['15px', { lineHeight: '1.5' }],
-      body: ['16px', { lineHeight: '1.6' }],
-      lead: ['18px', { lineHeight: '1.55' }],
-      h4: ['20px', { lineHeight: '1.25' }],
-      h3: ['24px', { lineHeight: '1.18' }],
-      h2: ['36px', { lineHeight: '1.08' }],
-      title: ['40px', { lineHeight: '1.02', letterSpacing: '-0.01em' }],
-      h1: ['56px', { lineHeight: '1', letterSpacing: '-0.015em' }],
-      display: ['84px', { lineHeight: '0.96', letterSpacing: '-0.02em' }],
+      // DS-Fondations §02 : échelle éditoriale, en rem (base 16 px) pour suivre le réglage
+      // « taille du texte » du navigateur (WCAG 1.4.4, recette A11Y-14). 12 px = 0,75 rem.
+      meta: ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.01em' }],
+      xs: ['0.8125rem', { lineHeight: '1.45' }],
+      sm: ['0.875rem', { lineHeight: '1.5' }],
+      base: ['0.9375rem', { lineHeight: '1.5' }],
+      body: ['1rem', { lineHeight: '1.6' }],
+      lead: ['1.125rem', { lineHeight: '1.55' }],
+      h4: ['1.25rem', { lineHeight: '1.25' }],
+      h3: ['1.5rem', { lineHeight: '1.18' }],
+      h2: ['2.25rem', { lineHeight: '1.08' }],
+      title: ['2.5rem', { lineHeight: '1.02', letterSpacing: '-0.01em' }],
+      h1: ['3.5rem', { lineHeight: '1', letterSpacing: '-0.015em' }],
+      display: ['5.25rem', { lineHeight: '0.96', letterSpacing: '-0.02em' }],
     },
     borderRadius: {
       none: '0',

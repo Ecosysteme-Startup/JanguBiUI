@@ -33,7 +33,11 @@ type Props = {
   homeHref: string;
 };
 
-/** Sidebar du back-office (272 px) : marque, contexte, onglets de niveau, navigation par capacités, identité. */
+/**
+ * Contenu de la sidebar du back-office : marque, contexte, onglets de niveau, navigation par
+ * capacités, identité. Le shell le place dans une colonne de 272 px à partir de `lg`, et dans
+ * le tiroir « Menu » en dessous (A11Y-06).
+ */
 export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups, homeHref }: Props) => {
   const { data: me } = useMe();
   const catalogueLabel = useOfficeLabel(context.offices[0]);
@@ -43,7 +47,7 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups,
     .map((k) => ({ kind: k, first: contexts.find((c) => backofficeKindOf(c.type) === k) }))
     .filter((k) => k.first);
   return (
-    <aside className="flex w-full flex-col border-r border-line-strong bg-surface px-4 pb-4 pt-6 lg:sticky lg:top-0 lg:h-dvh lg:w-68 lg:shrink-0 lg:overflow-y-auto">
+    <div className="flex flex-1 flex-col">
       <Brand href={homeHref} label={`Jàngu Bi, ${BACKOFFICE_LABEL[kind].toLowerCase()}`} subtitle={BACKOFFICE_LABEL[kind]} stacked className="px-3" />
       <NodeContextSwitcher
         current={{ eyebrow: EYEBROW[context.type] ?? KIND_TAB[kind], name: context.name, parent: parentName }}
@@ -73,7 +77,7 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups,
                 key={item.href}
                 href={item.href}
                 match={item.match}
-                className="flex h-10 items-center gap-3 rounded px-3 text-base text-ink-2 hover:bg-surface-2 hover:text-ink"
+                className="flex min-h-11 items-center gap-3 rounded px-3 text-base text-ink-2 hover:bg-surface-2 hover:text-ink"
                 activeClassName="bg-surface-2 font-semibold text-primary hover:text-primary"
               >
                 {item.icon && <Icon name={item.icon} size={20} />}
@@ -91,6 +95,6 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups,
         </span>
         <SignOutButton iconOnly />
       </div>
-    </aside>
+    </div>
   );
 };

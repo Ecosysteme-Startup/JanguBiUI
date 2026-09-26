@@ -4,7 +4,7 @@ import NextLink from 'next/link';
 
 import { StatusDot, REQUEST_STATUS, type RequestStatus } from '@/components/signature/status-dot';
 import { SectionHeading } from '@/components/ui/section-heading';
-import { LoadingBlock } from '@/components/ui/skeleton';
+import { Skeleton, SkeletonLine } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { cn } from '@/utils/cn';
 import { dotDate } from '@/utils/dates';
@@ -59,6 +59,33 @@ const RequestCard = ({ request }: { request: CurrentRequest }) => {
   );
 };
 
+/** Gabarit de la carte de demande (mêmes marges et hauteurs de ligne) : la carte arrive sans décaler la page. */
+const RequestCardSkeleton = () => (
+  <div role="status" data-testid="demande-squelette" className="mt-4 rounded border border-line bg-surface p-6">
+    <span className="sr-only">Chargement de votre demande…</span>
+    <span aria-hidden="true" className="flex items-baseline justify-between gap-4">
+      <SkeletonLine className="text-xs" width="w-28" />
+      <SkeletonLine className="text-meta" width="w-32" />
+    </span>
+    <SkeletonLine className="mt-3 font-serif text-h3" width="w-2/3" />
+    <SkeletonLine className="mt-2 text-base" width="w-5/6" />
+    <span aria-hidden="true" className="mt-4 flex items-center justify-between">
+      <SkeletonLine className="text-sm" width="w-32" />
+      <SkeletonLine className="text-meta" width="w-16" />
+    </span>
+    <span aria-hidden="true" className="mt-3 grid grid-cols-4 gap-2">
+      {STEPS.map((label) => (
+        <span key={label} className="border-t-2 border-line pt-2 text-sm leading-tight">
+          <Skeleton className="h-[2.5em] w-full" />
+        </span>
+      ))}
+    </span>
+    <span aria-hidden="true" className="mt-4 flex justify-end border-t border-line pt-4">
+      <SkeletonLine className="text-sm" width="w-16" />
+    </span>
+  </div>
+);
+
 /** « Ma demande en cours » (FID-Accueil 02, MOB-Accueil 03). */
 export const CurrentRequestCard = ({ number, className }: { number: string; className?: string }) => {
   const { data: request, isPending, isError } = useCurrentRequest();
@@ -71,7 +98,7 @@ export const CurrentRequestCard = ({ number, className }: { number: string; clas
         aside={<NextLink href={paths.app.demandes.list.getHref()}>Toutes mes demandes</NextLink>}
       />
       {isPending ? (
-        <LoadingBlock label="Chargement de votre demande…" />
+        <RequestCardSkeleton />
       ) : isError ? (
         <p className="m-0 text-base text-ink-2">Vos demandes n’ont pas pu être chargées.</p>
       ) : request ? (

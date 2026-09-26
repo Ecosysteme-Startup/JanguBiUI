@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 
 import { OnboardingForm } from '@/features/onboarding/components/onboarding-form';
@@ -7,6 +8,7 @@ import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
 import { onboardingHandlers } from '@/testing/mocks/handlers/onboarding';
 import { server } from '@/testing/mocks/server';
+import { apiUrl } from '@/testing/mocks/api-url';
 
 // Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
 beforeEach(() => server.use(...onboardingHandlers));
@@ -39,6 +41,20 @@ describe('OnboardingForm', () => {
 
     expect(await screen.findByText('Choisissez la paroisse que vous suivez.')).toBeInTheDocument();
     expect(screen.getByText(/cet accord est nécessaire/i)).toBeInTheDocument();
+    expect(onboardingState.consent).toBeNull();
+  });
+
+  it('n’envoie jamais de consentement sans version : erreur de chargement, puis nouvel essai', async () => {
+    server.use(http.get(apiUrl('/me/consent/'), () => HttpResponse.json({ detail: 'Erreur' }, { status: 500 }), { once: true }));
+    const user = userEvent.setup();
+    renderApp(<OnboardingForm />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/inscription n’a pas pu être préparée/i);
+    expect(screen.queryByRole('button', { name: /terminer mon inscription/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /réessayer/i }));
+
+    expect(await screen.findByRole('button', { name: /terminer mon inscription/i })).toBeInTheDocument();
     expect(onboardingState.consent).toBeNull();
   });
 

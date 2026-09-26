@@ -29,7 +29,12 @@ const rosaryTodaySchema = z.object({
 });
 export type RosaryToday = z.infer<typeof rosaryTodaySchema>;
 
-/** Mystères du jour et prières d'ouverture/de clôture (`TodayRosaryApi`, public). */
+/**
+ * Partagé par l'accueil (carte « chapelet ») et la feature chapelet : une seule clé, un seul
+ * schéma. Deux schémas sur la même clé faisaient lire au chapelet une version tronquée
+ * (sans prières d'ouverture) mise en cache par l'accueil.
+ *
+ * Mystères du jour et prières d'ouverture/de clôture (`TodayRosaryApi`, public). */
 export const getRosaryToday = async (signal?: AbortSignal): Promise<RosaryToday> =>
   rosaryTodaySchema.parse(await api.get('/rosary/today/', { signal }));
 

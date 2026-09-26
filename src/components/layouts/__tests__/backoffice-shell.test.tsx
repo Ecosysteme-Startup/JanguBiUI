@@ -1,9 +1,12 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 
 import { BackofficeShell } from '@/components/layouts/backoffice-shell';
 import { grantsChancelier, grantsPlateforme, grantsSecretaire, ids } from '@/testing/mocks/db';
 import { navigation } from '@/testing/navigation';
+import { apiUrl } from '@/testing/mocks/api-url';
+import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
 const navOf = async (name: RegExp) => within(await screen.findByRole('navigation', { name }));
@@ -77,5 +80,60 @@ describe('BackofficeShell', () => {
 
     expect(await screen.findByRole('button', { name: /changer de contexte : diocèse de thiès/i })).toBeInTheDocument();
     expect(screen.getByText('contenu')).toBeInTheDocument();
+  });
+
+  it('invite à se reconnecter avec la double authentification quand le serveur l\u2019exige', async () => {
+    navigation.pathname = `/espace/${ids.saintDominique}`;
+    server.use(
+      http.get(apiUrl('/me/capacites/'), () =>
+        HttpResponse.json({ error: { code: 'mfa_required', message: 'Authentification à deux facteurs requise.' } }, { status: 403 }),
+      ),
+    );
+    renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>);
+
+    expect(await screen.findByText('Double authentification requise')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /me reconnecter avec la double authentification/i })).toHaveAttribute(
+      'href',
+      `/connexion?redirectTo=%2Fespace%2F${ids.saintDominique}&reauth=1`,
+    );
+  });
+
+  it('sous 1024 px, ouvre la navigation dans un tiroir « Menu » au clavier et rend le focus (A11Y-06)', async () => {
+    const user = userEvent.setup();
+    navigation.pathname = `/espace/${ids.saintDominique}/demandes`;
+    renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>, { capacites: grantsSecretaire });
+
+    const trigger = await screen.findByRole('button', { name: 'Menu' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    // Le contenu vient avant la sidebar dans l'ordre du document (la colonne n'est visible qu'à partir de lg).
+    expect(screen.getByRole('complementary', { hidden: true })).toHaveClass('hidden', 'lg:flex');
+
+    trigger.focus();
+    await user.keyboard('{Enter}');
+    const drawer = await screen.findByRole('dialog', { name: 'Menu' });
+    const nav = within(within(drawer).getByRole('navigation', { name: /^espace paroisse$/i }));
+    expect(nav.getByRole('link', { name: /demandes d.actes/i })).toHaveAttribute('aria-current', 'page');
+    expect(within(drawer).getByRole('button', { name: /changer de contexte/i })).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(trigger).toHaveFocus();
+
+    // Choisir une rubrique referme le tiroir (navigation jsdom neutralisée : seul le tiroir nous intéresse).
+    await user.click(trigger);
+    const link = within(await screen.findByRole('dialog', { name: 'Menu' })).getByRole('link', { name: /annonces/i });
+    document.addEventListener('click', (event) => event.preventDefault(), { capture: true, once: true });
+    await user.click(link);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('garde le nom complet du contexte (deux lignes et infobulle, pas de troncature muette)', async () => {
+    navigation.pathname = `/espace/${ids.saintDominique}`;
+    renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>, { capacites: grantsSecretaire });
+
+    const switcher = await screen.findAllByRole('button', { name: /changer de contexte/i });
+    const name = within(switcher[0]).getByTitle(/saint-dominique/i);
+    expect(name).toHaveClass('line-clamp-2');
+    expect(name).not.toHaveClass('truncate');
   });
 });

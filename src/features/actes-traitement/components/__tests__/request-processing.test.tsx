@@ -150,10 +150,21 @@ describe('PAR-Demande-Detail', () => {
     expect(await screen.findByText(/^Germaine Faye · 22\.09/)).toBeInTheDocument();
   });
 
+  it('numérote les sections sans trou, assignation comprise', async () => {
+    render(ACTE_IDS.submitted);
+    await screen.findByRole('region', { name: /assignation/i });
+
+    const numbers = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((h) => /^(\d\d) — /.exec(h.textContent ?? '')?.[1])
+      .filter(Boolean);
+    expect(numbers).toEqual(['01', '02', '03', '04', '05']);
+  });
+
   it('assigne la demande à une personne de l’équipe, puis la remet à assigner', async () => {
     const user = userEvent.setup();
     render(ACTE_IDS.submitted);
-    const section = await screen.findByRole('region', { name: 'Assignation' });
+    const section = await screen.findByRole('region', { name: /assignation/i });
     expect(within(section).getByText('À assigner', { selector: 'span' })).toBeInTheDocument();
 
     await user.selectOptions(within(section).getByLabelText('Confier la demande à'), await within(section).findByRole('option', { name: 'Germaine Faye' }));
@@ -162,7 +173,7 @@ describe('PAR-Demande-Detail', () => {
     await vi.waitFor(() => expect(actesState.lastAssign).toEqual({ id: ACTE_IDS.submitted, body: { assignee_id: '5f0c0000-0000-4000-8000-0000000000bb' } }));
     expect(await screen.findByText('Assignée à Germaine Faye', { selector: 'header span' })).toBeInTheDocument();
 
-    const again = screen.getByRole('region', { name: 'Assignation' });
+    const again = screen.getByRole('region', { name: /assignation/i });
     await user.selectOptions(within(again).getByLabelText('Confier la demande à'), '');
     await user.click(within(again).getByRole('button', { name: 'Enregistrer l’assignation' }));
     await vi.waitFor(() => expect(actesState.lastAssign?.body).toEqual({ assignee_id: null }));

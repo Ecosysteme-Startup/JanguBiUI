@@ -66,17 +66,20 @@ export const QueueTable = ({ nodeId, rows, query = '' }: Props) => {
           </Button>
         </div>
       )}
-      <Table>
+      <Table label="Demandes à traiter, défilement horizontal">
         <thead>
           <tr>
             <Th className="w-10">
-              <input
-                type="checkbox"
-                aria-label="Tout sélectionner"
-                checked={allChecked}
-                onChange={() => setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))}
-                className="size-4"
-              />
+              {/* Label englobant de 44 px : la case de 16 px garde une cible confortable (A11Y-13). */}
+              <label className="-ml-3 inline-flex size-11 cursor-pointer items-center justify-center">
+                <input
+                  type="checkbox"
+                  aria-label="Tout sélectionner"
+                  checked={allChecked}
+                  onChange={() => setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))}
+                  className="size-4"
+                />
+              </label>
             </Th>
             <Th>Réf.</Th>
             <Th>Demandeur</Th>
@@ -95,13 +98,15 @@ export const QueueTable = ({ nodeId, rows, query = '' }: Props) => {
             return (
               <Tr key={r.id} selected={checked}>
                 <Td>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => toggle(r.id)}
-                    aria-label={`Sélectionner ${r.reference}${r.is_overdue ? ', en retard' : ''}`}
-                    className="size-4"
-                  />
+                  <label className="-ml-3 inline-flex size-11 cursor-pointer items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggle(r.id)}
+                      aria-label={`Sélectionner ${r.reference}${r.is_overdue ? ', en retard' : ''}`}
+                      className="size-4"
+                    />
+                  </label>
                 </Td>
                 <Td className="tnum text-xs">
                   <NextLink href={href}>{r.reference}</NextLink>

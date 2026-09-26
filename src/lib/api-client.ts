@@ -13,11 +13,12 @@ export class ApiError extends Error {
 }
 
 type AccessTokenProvider = () => Promise<string | null>;
-type UnauthorizedHandler = () => void;
+/** Rafraîchit la session après un 401 ; renvoie le nouveau jeton (ou `null`) pour rejouer la requête. */
+type UnauthorizedHandler = () => Promise<string | null> | void;
 
 // Branchés par la couche d'authentification (F3) : aucun jeton n'est stocké ici.
 let accessToken: AccessTokenProvider = async () => null;
-let onUnauthorized: UnauthorizedHandler = () => {};
+let onUnauthorized: UnauthorizedHandler = () => undefined;
 
 export const configureApiAuth = (options: { accessToken: AccessTokenProvider; onUnauthorized: UnauthorizedHandler }) => {
   accessToken = options.accessToken;
@@ -54,7 +55,8 @@ export const errorMessageOf = (body: unknown, status: number): string => {
   return GENERIC_ERROR;
 };
 
-async function request<T>(method: string, path: string, { params, signal, body }: RequestOptions = {}): Promise<T> {
+async function request<T>(method: string, path: string, options: RequestOptions = {}, retried = false): Promise<T> {
+  const { params, signal, body } = options;
   const token = await accessToken();
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
   const headers: Record<string, string> = { Accept: 'application/json' };
@@ -85,7 +87,11 @@ async function request<T>(method: string, path: string, { params, signal, body }
     }
   }
   if (!response.ok) {
-    if (response.status === 401) onUnauthorized();
+    if (response.status === 401) {
+      // Jeton expiré ou pas encore propagé : on rafraîchit la session et on rejoue UNE fois.
+      const fresh = await onUnauthorized();
+      if (token && fresh && !retried) return request<T>(method, path, options, true);
+    }
     throw new ApiError(response.status, errorMessageOf(data, response.status), data);
   }
   return data as T;

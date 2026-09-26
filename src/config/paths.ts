@@ -18,8 +18,22 @@ export const paths = {
 
   auth: {
     connexion: {
-      getHref: (redirectTo?: string | null) =>
-        `/connexion${redirectTo ? `?redirectTo=${enc(redirectTo)}` : ''}`,
+      getHref: (redirectTo?: string | null, options?: { reauth?: boolean }) => {
+        const params = new URLSearchParams();
+        if (redirectTo) params.set('redirectTo', redirectTo);
+        if (options?.reauth) params.set('reauth', '1');
+        const query = params.toString();
+        return `/connexion${query ? `?${query}` : ''}`;
+      },
+    },
+    erreur: {
+      getHref: (error?: string | null, redirectTo?: string | null) => {
+        const params = new URLSearchParams();
+        if (error) params.set('error', error);
+        if (redirectTo) params.set('redirectTo', redirectTo);
+        const query = params.toString();
+        return `/connexion/erreur${query ? `?${query}` : ''}`;
+      },
     },
     inscription: { getHref: () => '/inscription' },
     bienvenue: { getHref: () => '/bienvenue' },

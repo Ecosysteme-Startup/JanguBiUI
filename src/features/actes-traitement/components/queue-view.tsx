@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/select';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/utils/cn';
+import { plural } from '@/utils/plural';
 
 import { ASSIGNEE_FILTERS, type AssigneeFilter, PERIODS, type Period, QUEUE_PAGE_SIZE, useQueue } from '../api/get-queue';
 import { useQueueCounts } from '../api/get-queue-counts';
@@ -49,7 +50,7 @@ export const QueueView = ({ nodeId }: { nodeId: string }) => {
       <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">04</span> — Registre · {counts.data ? `${counts.data.total} demandes dans la file` : 'file de traitement'}
+            <span className="text-primary">04</span> — Registre · {counts.data ? `${plural(counts.data.total, 'demande', 'demandes')} dans la file` : 'file de traitement'}
           </p>
           <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink">Demandes d’actes</h1>
         </div>

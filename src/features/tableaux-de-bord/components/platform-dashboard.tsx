@@ -11,9 +11,10 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
 import { paths } from '@/config/paths';
 import { dayjs } from '@/utils/dates';
+import { plural } from '@/utils/plural';
 
 import { usePlatformDashboard } from '../api/get-platform-dashboard';
-import { n, plural, stamp } from '../utils/format';
+import { n, stamp } from '../utils/format';
 
 import { Grid, Panel } from './dashboard-parts';
 
@@ -43,7 +44,7 @@ export const PlatformDashboardView = () => {
   const { accounts, staff, health, beat, generated_at } = dashboard.data;
   const mfa = staff.mfa_share === null ? '—' : `${Math.round(staff.mfa_share * 100)}\u00a0%`;
   const figures = [
-    { label: 'Comptes', value: n(accounts.total), hint: `${n(accounts.active_30d)} actifs sur 30 jours · ${n(accounts.new_30d)} nouveaux` },
+    { label: 'Comptes', value: n(accounts.total), hint: `${plural(accounts.active_30d, 'actif', 'actifs')} sur 30 jours · ${plural(accounts.new_30d, 'nouveau', 'nouveaux')}` },
     {
       label: 'Staff avec MFA',
       value: mfa,
@@ -94,7 +95,7 @@ export const PlatformDashboardView = () => {
           {beat.length === 0 ? (
             <p className="m-0 text-sm text-ink-2">Aucune tâche planifiée déclarée.</p>
           ) : (
-            <Table>
+            <Table label="Tâches planifiées, défilement horizontal">
               <thead>
                 <tr>
                   <Th>Tâche</Th>

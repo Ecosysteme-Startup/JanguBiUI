@@ -5,12 +5,13 @@ import type { ReactNode } from 'react';
 
 
 import { SectionHeading } from '@/components/ui/section-heading';
-import { LoadingBlock } from '@/components/ui/skeleton';
+import { SkeletonLine } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { useMe } from '@/hooks/use-me';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { plural } from '@/utils/plural';
 
 import { useAnnouncements } from '../api/get-announcements';
 import { useEvents } from '../api/get-events';
@@ -23,6 +24,22 @@ const Row = ({ label, children }: { label: string; children: ReactNode }) => (
     <span className="tnum block text-meta text-ink-3">{label}</span>
     {children}
   </li>
+);
+
+/** Trois lignes au gabarit exact des lignes chargées (annonce, messe, événement). */
+const DigestSkeleton = () => (
+  <div role="status" data-testid="paroisse-squelette">
+    <span className="sr-only">Chargement de la semaine paroissiale…</span>
+    <ul aria-hidden="true" className="m-0 list-none p-0">
+      {[0, 1, 2].map((i) => (
+        <li key={i} className="border-b border-line py-4">
+          <SkeletonLine className="text-meta" width="w-32" />
+          <SkeletonLine className="mt-1 font-serif text-h4" width="w-3/4" />
+          <SkeletonLine className="mt-1 text-sm" width="w-1/2" />
+        </li>
+      ))}
+    </ul>
+  </div>
 );
 
 const titleLink = 'mt-1 block font-serif text-h4 text-ink hover:text-primary';
@@ -52,7 +69,8 @@ export const ParishWeekDigest = ({ number, className }: { number: string; classN
   const sunday = announcements.data?.results.find((a) => a.is_sunday_notice) ?? announcements.data?.results[0];
   const mass = nextOccurrence(week.data, 'messe', now);
   const event = events.data?.results.find((e) => !e.is_cancelled);
-  const loading = !me || (announcements.isPending && week.isPending && events.isPending);
+  // On attend les TROIS sources : afficher les lignes au fil des réponses décalait la page.
+  const loading = !me || announcements.isPending || week.isPending || events.isPending;
   const empty = !sunday && !mass && !event;
 
   return (
@@ -64,7 +82,7 @@ export const ParishWeekDigest = ({ number, className }: { number: string; classN
         aside={<NextLink href={paths.app.paroisse.root.getHref()}>Ma paroisse</NextLink>}
       />
       {loading ? (
-        <LoadingBlock label="Chargement de la semaine paroissiale…" />
+        <DigestSkeleton />
       ) : empty ? (
         <p className="m-0 text-base text-ink-2">Rien de publié pour cette semaine.</p>
       ) : (
@@ -95,7 +113,7 @@ export const ParishWeekDigest = ({ number, className }: { number: string; classN
                   dayjs(event.start_at).format('dddd D MMMM'),
                   event.location,
                   event.max_participants !== null
-                    ? `${Math.max(0, event.max_participants - event.registrations_count)} places restantes`
+                    ? plural(Math.max(0, event.max_participants - event.registrations_count), 'place restante', 'places restantes')
                     : null,
                 ]
                   .filter(Boolean)

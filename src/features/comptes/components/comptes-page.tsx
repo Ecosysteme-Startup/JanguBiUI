@@ -66,8 +66,9 @@ const Filters = ({ value, onChange }: { value: AccountFilters; onChange: (next: 
   const set = (patch: Partial<AccountFilters>) => onChange({ ...value, ...patch, offset: 0 });
   const select = 'h-10 text-sm';
   return (
-    <div className="grid grid-cols-2 items-end gap-3 md:grid-cols-[minmax(0,1fr)_150px_130px_150px]">
-      <div className="col-span-2 flex flex-col gap-1.5 md:col-span-1">
+    // De lg à xl, la liste n'a que 8/12 d'une colonne réduite par la sidebar : filtres sur deux lignes (A11Y-08).
+    <div className="grid grid-cols-2 items-end gap-3 [&>*]:min-w-0 md:grid-cols-[minmax(0,1fr)_150px_130px_150px] lg:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_150px_130px_150px]">
+      <div className="col-span-2 flex flex-col gap-1.5 md:col-span-1 lg:col-span-2 xl:col-span-1">
         <label htmlFor="a-rech" className="tnum text-meta text-ink-3">
           Rechercher
         </label>
@@ -294,7 +295,7 @@ export const ComptesPage = () => {
             </EmptyState>
           ) : (
             <>
-              <Table>
+              <Table label="Comptes, défilement horizontal">
                 <thead>
                   <tr>
                     <Th>Compte</Th>

@@ -46,7 +46,7 @@ export const ParishOverview = () => {
 
   return (
     <div className="mx-auto max-w-[1180px]">
-      <NextLink href={paths.app.root.getHref()} className="hidden items-center gap-2 text-sm text-ink-2 hover:text-primary lg:inline-flex">
+      <NextLink href={paths.app.root.getHref()} className="hidden min-h-11 items-center gap-2 text-sm text-ink-2 hover:text-primary lg:inline-flex">
         <Icon name="fleche-gauche" size={16} />
         Retour · Accueil
       </NextLink>

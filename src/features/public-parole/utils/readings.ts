@@ -1,5 +1,3 @@
-import DOMPurify from 'isomorphic-dompurify';
-
 import type { Reading } from '../api/get-liturgy-day';
 
 const LABELS: [RegExp, string][] = [
@@ -32,10 +30,6 @@ export const readingAnchor = (reading: Reading, index: number) => {
     .replace(/^-|-$/g, '');
   return slug || `lecture-${index + 1}`;
 };
-
-/** Texte AELF : HTML nettoyé, réduit aux balises de mise en forme du texte. */
-export const sanitizeReadingHtml = (html: string) =>
-  DOMPurify.sanitize(html, { ALLOWED_TAGS: ['p', 'br', 'sup', 'em', 'i', 'strong', 'b', 'span'], ALLOWED_ATTR: [] });
 
 const stripTags = (html: string) =>
   html

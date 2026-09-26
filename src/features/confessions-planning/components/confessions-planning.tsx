@@ -70,7 +70,7 @@ const WeekStrip = ({
               <span
                 className={cn(
                   'tnum text-meta',
-                  selected ? 'text-tint-100' : 'text-ink-3',
+                  selected ? 'text-on-primary' : 'text-ink-3',
                 )}
               >
                 {ofDay.length ? `${taken} / ${ofDay.length}` : 'Aucun'}
