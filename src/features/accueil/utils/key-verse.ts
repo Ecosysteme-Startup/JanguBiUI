@@ -1,5 +1,5 @@
 type Verse = { book: string; chapter: number; number: number; text: string };
-type Reading = { type: string; verses: Verse[] };
+type Reading = { type: string; citation?: string; verses: Verse[] };
 
 /**
  * Verset en exergue de « La Parole du jour » (FID-Accueil) : l'API ne désigne pas de verset clé,
