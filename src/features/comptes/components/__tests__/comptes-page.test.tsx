@@ -54,4 +54,16 @@ describe('Comptes', () => {
     expect(await screen.findByText(/aucun administrateur n.y a accès/i)).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/bout en bout/i);
   });
+
+  it('filtre par rôle avec les onglets', async () => {
+    const user = userEvent.setup();
+    renderApp(<ComptesPage />, { capacites: grantsPlateforme });
+
+    expect(await screen.findByRole('button', { name: 'Pierre Ndour' })).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: /^staff/i }));
+
+    expect(screen.getByRole('tab', { name: /^staff/i })).toHaveAttribute('aria-selected', 'true');
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Pierre Ndour' })).not.toBeInTheDocument());
+    expect(screen.getByRole('button', { name: 'Mme Germaine Faye' })).toBeInTheDocument();
+  });
 });

@@ -21,7 +21,7 @@ describe('Journal d’audit', () => {
   it('lit ses filtres dans l’URL et les transmet à l’API', async () => {
     renderApp(<AuditJournal filters={{ action: 'office.', date_from: '2026-09-01' }} />, { capacites: grantsPlateforme });
 
-    expect(await screen.findByText('Nomination créée')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Nomination créée' })).toBeInTheDocument();
     expect(screen.queryByText(/demande d.acte : prête à retirer/i)).not.toBeInTheDocument();
     const url = new URL(f8bState.requests.at(-1)!.url);
     expect(url.searchParams.get('action')).toBe('office.');
@@ -33,7 +33,7 @@ describe('Journal d’audit', () => {
     const user = userEvent.setup();
     renderApp(<AuditJournal filters={{ action: 'office.' }} />, { capacites: grantsPlateforme });
 
-    await screen.findByText('Nomination créée');
+    await screen.findByRole('button', { name: 'Nomination créée' });
     await user.selectOptions(await screen.findByLabelText('Nœud'), ids.dakar);
     expect(navigation.replace).toHaveBeenLastCalledWith(`/plateforme/audit?action=office.&node=${ids.dakar}`, { scroll: false });
 
@@ -56,10 +56,10 @@ describe('Journal d’audit', () => {
   it('affiche le nom de l’acteur et son adresse IP tronquée', async () => {
     renderApp(<AuditJournal filters={{}} />, { capacites: grantsPlateforme });
 
-    const row = (await screen.findByText('Nomination créée')).closest('tr')!;
+    const row = (await screen.findByRole('button', { name: 'Nomination créée' })).closest('tr')!;
     expect(within(row).getByRole('button', { name: 'Filtrer sur l’acteur Abbé Théodore Diatta' })).toHaveTextContent('Abbé Théodore Diatta');
     expect(within(row).getByText('196.207.228.0')).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Adresse IP' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Nœud · adresse IP' })).toBeInTheDocument();
   });
 
   it('dans l’espace d’un nœud, borne la requête à ce nœud et écrit l’URL de l’espace', async () => {
@@ -67,9 +67,22 @@ describe('Journal d’audit', () => {
     const grants = [...grantsChancelier, { ...grantsChancelier[0], capacite: 'audit.voir' as const }];
     renderApp(<AuditJournal filters={{}} scopeNodeId={ids.dakar} />, { capacites: grants });
 
-    expect(await screen.findByText('Nomination créée')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Nomination créée' })).toBeInTheDocument();
     expect(new URL(f8bState.requests.at(-1)!.url).searchParams.get('node')).toBe(ids.dakar);
     await user.selectOptions(screen.getByLabelText('Action'), 'office.');
     expect(navigation.replace).toHaveBeenLastCalledWith(`/espace/${ids.dakar}/audit?action=office.`, { scroll: false });
+  });
+
+  it('ouvre le détail d’un événement, sans contenu de message', async () => {
+    const user = userEvent.setup();
+    renderApp(<AuditJournal filters={{}} />, { capacites: grantsPlateforme });
+
+    await user.click(await screen.findByRole('button', { name: 'Nomination créée' }));
+    const panel = await screen.findByRole('region', { name: 'Nomination créée' });
+    expect(within(panel).getByText('Événement brut')).toBeInTheDocument();
+    expect(within(panel).getByText(/ni le contenu des messages/i)).toBeInTheDocument();
+
+    await user.click(within(panel).getByRole('button', { name: 'Fermer le détail' }));
+    expect(screen.queryByRole('region', { name: 'Nomination créée' })).not.toBeInTheDocument();
   });
 });
