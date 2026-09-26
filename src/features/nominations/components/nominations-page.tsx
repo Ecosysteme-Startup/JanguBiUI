@@ -157,7 +157,6 @@ const Registre = ({
         className="flex min-w-0 flex-col"
       >
         <StatusTabs
-          value={status}
           counts={counts}
           total={total}
           onChange={(v) => {
