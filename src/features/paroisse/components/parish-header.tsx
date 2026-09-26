@@ -46,7 +46,7 @@ export const ParishHeader = ({ nodeId, name, className }: { nodeId: string; name
         {subtitle && <p className="m-0 mt-2 text-16 text-ink-2">{subtitle}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <IconButton icon="partager" label="Partager la paroisse" bordered onClick={share} className="size-11" />
+        <IconButton icon="partager-boite" label="Partager la paroisse" bordered onClick={share} className="size-11" />
         <Menu>
           <MenuTrigger
             className="hit inline-flex h-11 items-center gap-2 rounded-12 border border-tint-200 bg-tint-50 px-3.5 text-15 font-semibold text-tint-800 hover:border-line-active"

@@ -122,7 +122,7 @@ export const AnnouncementView = ({ id }: { id: string }) => {
               </span>
             )}
           </p>
-          <h1 id="an-titre" className="m-0 mt-3 text-28 font-semibold text-ink sm:text-32">
+          <h1 id="an-titre" className="m-0 mt-3 text-28 font-semibold text-ink sm:text-36">
             {frenchTypo(article.title)}
           </h1>
           <div className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5">

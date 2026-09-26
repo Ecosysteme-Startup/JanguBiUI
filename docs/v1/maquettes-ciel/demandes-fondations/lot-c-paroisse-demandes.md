@@ -11,3 +11,5 @@ La maquette dessine l'icône Lucide `share` (flèche qui sort d'une boîte), `Ic
 `share-2` (trois nœuds). Proposition : `partager` → `share`, ou un nom `partager-boite`.
 Traité : ba23ef0 — `<Icon name="partager-boite" />` (Lucide `share`) ; `partager` reste `share-2`.
 
+
+> Statut : 1 et 2 livrés par les fondations (`text-36`, `partager-boite`) et appliqués (FID-Annonce, Ma paroisse, Événement).
