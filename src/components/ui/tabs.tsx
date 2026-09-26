@@ -23,9 +23,20 @@ const triggerBase = (size: TabSize) =>
 
 const activeClass = 'border-primary font-semibold text-ink';
 
-const Count = ({ value, active }: { value: number; active: boolean }) => (
-  <span className={cn('tnum text-13 font-normal', active ? 'text-primary-strong' : 'text-ink-3')}>{value}</span>
-);
+/** Compteur d'onglet : texte 13 (défaut) ou pilule 20 px 12/600 (`pill`, DIO-Nominations, PLA-Comptes). */
+const Count = ({ value, active, pill }: { value: number; active: boolean; pill?: boolean }) =>
+  pill ? (
+    <span
+      className={cn(
+        'tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-12 font-semibold',
+        active ? 'bg-tint-100 text-tint-800' : 'bg-surface-2 text-ink-2',
+      )}
+    >
+      {value}
+    </span>
+  ) : (
+    <span className={cn('tnum text-13 font-normal', active ? 'text-primary-strong' : 'text-ink-3')}>{value}</span>
+  );
 
 const TabsSizeContext = React.createContext<TabSize>('md');
 
@@ -41,8 +52,9 @@ export const TabsTrigger = ({
   className,
   count,
   children,
+  countPill = false,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger> & { count?: number }) => {
+}: React.ComponentProps<typeof TabsPrimitive.Trigger> & { count?: number; countPill?: boolean }) => {
   const size = React.useContext(TabsSizeContext);
   return (
     <TabsPrimitive.Trigger
@@ -54,9 +66,14 @@ export const TabsTrigger = ({
       {...props}
     >
       {children}
-      {count !== undefined && (
-        <span className="tnum text-13 font-normal text-ink-3 group-data-[state=active]:text-primary-strong">{count}</span>
-      )}
+      {count !== undefined &&
+        (countPill ? (
+          <span className="tnum inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-surface-2 px-1.5 text-12 font-semibold text-ink-2 group-data-[state=active]:bg-tint-100 group-data-[state=active]:text-tint-800">
+            {count}
+          </span>
+        ) : (
+          <span className="tnum text-13 font-normal text-ink-3 group-data-[state=active]:text-primary-strong">{count}</span>
+        ))}
     </TabsPrimitive.Trigger>
   );
 };
@@ -68,11 +85,14 @@ export const TabLinks = ({
   items,
   label,
   size = 'md',
+  countPill = false,
   className,
 }: {
   items: { href: string; label: string; active: boolean; count?: number }[];
   label: string;
   size?: TabSize;
+  /** Compteurs en pilule. */
+  countPill?: boolean;
   className?: string;
 }) => (
   <nav aria-label={label} className={cn(listClass(size), className)}>
@@ -84,7 +104,7 @@ export const TabLinks = ({
         className={cn(triggerBase(size), 'hover:no-underline', item.active && cn(activeClass, 'hover:text-ink'))}
       >
         {item.label}
-        {item.count !== undefined && <Count value={item.count} active={item.active} />}
+        {item.count !== undefined && <Count value={item.count} active={item.active} pill={countPill} />}
       </NextLink>
     ))}
   </nav>

@@ -94,7 +94,7 @@ rabattus sur cette échelle mais **à ne plus employer**.
   `rounded-14` (tuile de jour), `rounded-16` (carte, dialogue), `rounded-full` (pilule).
   `rounded` seul = 10 px.
 - Rythme 8 : 4, 8, 12, 16, 24, 32, 48, 96 (`gap-1`…`gap-24`). Hauteurs utiles : `h-8` 32, `h-9` 36,
-  `h-10` 40, `h-11` 44, `h-12` 48, `h-13` 52, `h-15` 60, `h-16` 64, `h-18` 72.
+  `h-10` 40, `h-11` 44, `h-12` 48, `h-13` 52, `h-15` 60, `h-16` 64, `h-18` 72 ; `5.5` = 22 px (compteurs : `h-5.5 min-w-5.5`).
 - Largeurs : `max-w-content` (1120, contenu app), `max-w-public` (1200), `max-w-parole` (680, colonne de
   la Parole), `.jb-container` (1200 centré + gouttière 16 px : pages publiques et inscription).
 
@@ -121,7 +121,7 @@ rabattus sur cette échelle mais **à ne plus employer**.
 | `Select`, `Textarea` | `controlSize` | select natif + chevrons ; textarea 92 min |
 | `Choice` | `type` checkbox/radio, `label`, `description`, `variant` `plain` \| `card` | case 20 rayon 6 ; radio anneau 6 ; carte : b600 2 px sur b50 |
 | `Switch` | `checked`, `onCheckedChange`, `label`, `description` | 40 × 24 |
-| `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent`, `TabLinks` | `size` md (15, écart 24, back-office) \| lg (16, écart 32, Parole) ; `count` | soulignement b600 2 px, 44 px |
+| `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent`, `TabLinks` | `size` md (15, écart 24, back-office) \| lg (16, écart 32, Parole) ; `count`, `countPill` (pilule 20 px b100/b800 active, surface2 sinon) | soulignement b600 2 px, 44 px |
 | `SegmentedControl` (radiogroup), `SegmentedLinks` (navigation) | `size` xs 32 \| sm 36/14 \| md 34/14 \| lg 36/15 ; `block` (largeurs égales) ; `counts` / `items[].count` | piste surface2 rayon 12, segment choisi paper + ombre carte |
 | `Chip`, `ChipGroup` | `pressed`, `count`, `tone` `ink` (exclusif) \| `tint` (cumulable, coche) | pilule 36, 14 |
 | `Badge`, `Tag`, `CountBadge`, `DelayBadge` (`badge.tsx`) | `Badge tone` neutral/info/warn/ok/err/muted + `dot`/`icon` ; `CountBadge tone` neutral/unread + `label` ; `DelayBadge days late` | pilule 24 12/600 ; compteur 22 |
@@ -142,6 +142,8 @@ rabattus sur cette échelle mais **à ne plus employer**.
 | `Breadcrumbs` | `items: {label, href?}[]`, `separator` chevron \| slash | 14, courante 600 |
 | `Avatar` | `name`, `size` 24–48 | initiales b800 sur b100 |
 | `ConfessionNotice` (`signature/`) | `variant` card \| pinned, `audience` fidele \| pretre, `bookingHref`, `description`, `actionLabel` | voir lot D |
+| `Stepper` (`signature/`) | `steps`, `current`, `label` | pastilles 28 reliées d'un filet 2 px (faite : aplat + coche) |
+| `ImportWizard` (`signature/`) | inchangées | carte rayon 16, titre 20/600, dépôt en pointillés, bouton de fichier en contour |
 | `TreeView` (`signature/`) | `TreeNode.icon`, `meta`, `hint` | rangées 36/32 rayon 8, retrait 20 |
 
 ## 6. Coquilles (`src/components/layouts/`)

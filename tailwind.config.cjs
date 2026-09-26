@@ -126,7 +126,7 @@ module.exports = {
     },
     extend: {
       maxWidth: { reading: '68ch', parole: '680px', content: '1120px', public: '1200px' },
-      spacing: { 13: '52px', 15: '60px', 18: '72px', 66: '264px', 68: '272px' },
+      spacing: { 5.5: '22px', 13: '52px', 15: '60px', 18: '72px', 66: '264px', 68: '272px' },
       boxShadow: {
         card: 'var(--jb-shadow-card)',
         menu: 'var(--jb-shadow-menu)',

@@ -67,7 +67,7 @@ export const CountBadge = ({
 }) => (
   <span
     className={cn(
-      'tnum inline-flex h-[22px] min-w-[22px] shrink-0 items-center justify-center rounded-full px-1.5 text-12 font-semibold',
+      'tnum inline-flex h-5.5 min-w-5.5 shrink-0 items-center justify-center rounded-full px-1.5 text-12 font-semibold',
       tone === 'unread' ? 'bg-primary-fill text-on-primary' : 'bg-tint-100 text-tint-800',
       className,
     )}
