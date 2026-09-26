@@ -50,6 +50,7 @@ export const paths = {
     },
     confession: { getHref: () => '/app/confession' },
     profil: { getHref: () => '/app/profil' },
+    etatDeVie: { getHref: () => '/app/profil#etat-de-vie' },
   },
 
   espace: {
