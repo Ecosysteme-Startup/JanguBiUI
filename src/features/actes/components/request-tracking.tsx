@@ -13,6 +13,7 @@ import { ApiError } from '@/lib/api-client';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { ofParish } from '@/utils/parish-name';
 
 import { useRequest } from '../api/get-request';
 import { type DocumentRequest, documentLabel, reasonLabel } from '../types/request';
@@ -131,7 +132,7 @@ const Tracking = ({ request }: { request: DocumentRequest }) => {
                 {messages.map((m) => (
                   <li key={m.key} className="border-b border-line py-4 first:pt-0">
                     <p className="m-0 flex flex-wrap items-center gap-x-2 text-sm text-ink-2">
-                      <strong className="font-semibold text-ink">{m.from === 'fidele' ? 'Vous' : `Secrétariat de ${parish}`}</strong>
+                      <strong className="font-semibold text-ink">{m.from === 'fidele' ? 'Vous' : `Secrétariat ${ofParish(parish)}`}</strong>
                       <span aria-hidden="true">·</span>
                       <span className="tnum">{m.when}</span>
                       {m.status === 'info_requested' && <StatusDot status="info_requested" className="ml-2" />}
@@ -181,7 +182,7 @@ const Pickup = ({ request, parish }: { request: DocumentRequest; parish: string 
       <Heading id="sv-retrait" n="04" title="Retrait de l’original" />
       {pickup ? (
         <div className={cn('rounded border border-primary bg-tint-50 p-5')}>
-          <p className="m-0 font-serif text-h4 text-ink">{pickup.place_name ?? `Secrétariat de ${parish}`}</p>
+          <p className="m-0 font-serif text-h4 text-ink">{pickup.place_name ?? `Secrétariat ${ofParish(parish)}`}</p>
           {pickup.place_address && <p className="m-0 mt-1 text-sm text-ink-2">{pickup.place_address}</p>}
           {pickup.hours && (
             <p className="m-0 mt-3 flex items-center gap-2 text-sm text-ink">
@@ -196,7 +197,7 @@ const Pickup = ({ request, parish }: { request: DocumentRequest; parish: string 
         <p className="m-0 text-base text-ink-2">
           {request.status === 'collected'
             ? 'L’original vous a été remis.'
-            : `Le lieu et les horaires de retrait s’afficheront ici dès que l’acte sera prêt, au secrétariat de ${parish}.`}
+            : `Le lieu et les horaires de retrait s’afficheront ici dès que l’acte sera prêt, au secrétariat ${ofParish(parish)}.`}
         </p>
       )}
       <p className="m-0 mt-4 flex items-start gap-2 text-sm text-ink-2">

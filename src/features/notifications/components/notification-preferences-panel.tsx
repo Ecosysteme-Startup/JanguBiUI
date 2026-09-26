@@ -14,6 +14,7 @@ import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
 } from '@/hooks/use-notification-preferences';
+import { ofParish } from '@/utils/parish-name';
 
 /** Préférences (FID-Notifications, colonne de droite) : sujets, silence, canaux. */
 export const NotificationPreferencesPanel = () => {
@@ -34,7 +35,7 @@ export const NotificationPreferencesPanel = () => {
       ) : (
         <>
           <Switch
-            label={paroisse ? `Annonces de ${paroisse}` : 'Annonces de ma paroisse'}
+            label={paroisse ? `Annonces ${ofParish(paroisse)}` : 'Annonces de ma paroisse'}
             checked={prefs.topic_annonces}
             onCheckedChange={(v) => update.mutate({ topic_annonces: v })}
           />

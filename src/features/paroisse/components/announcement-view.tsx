@@ -13,6 +13,7 @@ import { paths } from '@/config/paths';
 import { ApiError } from '@/lib/api-client';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { parishLabel } from '@/utils/parish-name';
 
 import { useAnnouncement, useMarkAnnouncementRead } from '../api/get-announcement';
 import { useAnnouncements } from '../api/get-announcements';
@@ -82,7 +83,7 @@ export const AnnouncementView = ({ id }: { id: string }) => {
   }
 
   const where = article.scope.place_name ?? article.scope.node_name;
-  const share = `https://wa.me/?text=${encodeURIComponent([article.title, article.excerpt, where ? `Paroisse ${where}` : ''].filter(Boolean).join('\n'))}`;
+  const share = `https://wa.me/?text=${encodeURIComponent([article.title, article.excerpt, where ? parishLabel(where) : ''].filter(Boolean).join('\n'))}`;
 
   return (
     <div className="mx-auto max-w-[1180px]">
@@ -92,7 +93,7 @@ export const AnnouncementView = ({ id }: { id: string }) => {
           <p className="tnum m-0 flex flex-wrap justify-between gap-2 text-meta text-ink-3">
             <span>
               {article.category?.name ?? 'Annonce'}
-              {where && ` — Paroisse ${where}`}
+              {where && ` — ${parishLabel(where)}`}
             </span>
             {article.published_at && <span>Publiée le {dayjs(article.published_at).format('dddd DD.MM')}</span>}
           </p>

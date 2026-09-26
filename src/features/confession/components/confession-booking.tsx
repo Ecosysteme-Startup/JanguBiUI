@@ -17,6 +17,7 @@ import { paths } from '@/config/paths';
 import { apiErrorCode, apiErrorMessage } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
 import { dayjs, hour } from '@/utils/dates';
+import { atParish } from '@/utils/parish-name';
 
 import { useBookSlot } from '../api/book-slot';
 import { useSlots } from '../api/get-slots';
@@ -305,7 +306,7 @@ export const ConfessionBooking = ({
               {filtered.length === 0 && (
                 <p className="m-0 mt-3 text-sm text-ink-2">
                   Aucun créneau libre cette semaine
-                  {parishName ? ` à ${parishName}` : ''}. Essayez la semaine
+                  {parishName ? ` ${atParish(parishName)}` : ''}. Essayez la semaine
                   suivante, ou{' '}
                   <NextLink href={paths.app.pretres.list.getHref()}>
                     écrivez à un prêtre

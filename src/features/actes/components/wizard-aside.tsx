@@ -3,6 +3,7 @@
 import { useFormContext } from 'react-hook-form';
 
 import { cn } from '@/utils/cn';
+import { ofParish } from '@/utils/parish-name';
 
 import type { RequestOptions } from '../api/get-request-options';
 import type { WizardValues } from '../utils/wizard-schema';
@@ -12,7 +13,7 @@ export const WizardAside = ({ options, className }: { options: RequestOptions; c
   const { watch } = useFormContext<WizardValues>();
   const [type, free, parish] = watch(['document_type', 'document_type_free', 'parish']);
   const label = type === 'other' && free ? free : options.document_types.find((t) => t.value === type)?.label;
-  const secretariat = parish ? `Le secrétariat de ${parish.name}` : 'Le secrétariat de la paroisse du sacrement';
+  const secretariat = parish ? `Le secrétariat ${ofParish(parish.name)}` : 'Le secrétariat de la paroisse du sacrement';
 
   return (
     <aside aria-label="Rappel et suite de la demande" className={cn('flex-col gap-8', className)}>
