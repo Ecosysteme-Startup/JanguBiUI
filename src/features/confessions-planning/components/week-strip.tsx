@@ -17,7 +17,7 @@ type WeekStripProps = {
 export const WeekStrip = ({ days, slots, active, onSelect, onMove }: WeekStripProps) => {
   const today = dayjs().format(DAY_FORMAT);
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex w-full items-center gap-1 sm:w-auto">
       <IconButton icon="chevron-gauche" label="Semaine précédente" size="sm" onClick={() => onMove(-1)} />
       <ol aria-label="Jours de la semaine" className="m-0 flex min-w-0 flex-1 list-none gap-0.5 p-0 sm:flex-none sm:gap-1">
         {days.map((day) => {
