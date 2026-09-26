@@ -24,7 +24,7 @@ const WordOfTheDaySkeleton = () => (
   <div role="status" data-testid="parole-squelette">
     <span className="sr-only">Chargement des lectures du jour…</span>
     <SkeletonLine className="mt-5 text-meta" width="w-40" />
-    <SkeletonLine className="mt-3 max-w-[560px] font-serif text-h3 lg:text-[27px] lg:leading-tight" width="w-3/4" />
+    <SkeletonLine className="mt-3 max-w-[560px] font-serif text-h3 lg:text-[1.6875rem] lg:leading-tight" width="w-3/4" />
     <ul aria-hidden="true" className="m-0 mt-6 grid list-none grid-cols-1 border-y border-line p-0 sm:grid-cols-3">
       {[0, 1, 2].map((i) => (
         <li key={i} className={cn('py-4', i > 0 ? 'border-t border-line sm:border-l sm:border-t-0 sm:px-4' : 'sm:pr-4')}>
