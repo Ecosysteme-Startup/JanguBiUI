@@ -33,7 +33,7 @@ export const PsalmPreview = () => {
       </div>
       <p className="tnum m-0 mt-5 text-13 text-ink-3">{psalm.citation.replace(/^Ps\b/, 'Psaume')}</p>
       {verses.map((verse) => (
-        <p key={`${verse.chapter}-${verse.number}`} className="m-0 mt-3 font-serif text-20 leading-[30px] text-ink">
+        <p key={`${verse.chapter}-${verse.number}`} className="m-0 mt-3 font-serif text-19 text-ink">
           <sup className="tnum mr-1 font-sans text-11 text-ink-3">{verse.number}</sup>
           {verse.text}
         </p>

@@ -87,7 +87,7 @@ export const ParoleTodaySection = () => {
               <ColorTag color={data.calendar.color}>{seasonAndColor(data.calendar.season_label, data.calendar.color)}</ColorTag>
               {quote && gospel ? (
                 <>
-                  <p className="m-0 mt-6 font-serif text-24 text-ink md:text-28 md:leading-[42px]">
+                  <p className="m-0 mt-6 font-serif text-24 text-ink md:text-30">
                     « {frenchTypo(quote.text)} »
                   </p>
                   <span className="mt-4 text-15 text-ink-3">{readingTitle(gospel)}</span>
