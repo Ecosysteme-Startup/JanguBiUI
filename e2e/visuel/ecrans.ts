@@ -31,8 +31,8 @@ export type Ecran = {
   avant?: (page: Page) => Promise<void>;
 };
 
-const DEMANDE_FID = { depuis: '/app/demandes', motif: '^/app/demandes/(\\d+)$' };
-const DEMANDE_PAR = { depuis: '/espace/{node}/demandes', motif: '/demandes/(\\d+)$' };
+const DEMANDE_FID = { depuis: '/app/demandes', motif: '^/app/demandes/([0-9a-f-]{36}|\\d+)$' };
+const DEMANDE_PAR = { depuis: '/espace/{node}/demandes', motif: '/demandes/([0-9a-f-]{36}|\\d+)$' };
 
 export const ECRANS: Ecran[] = [
   // Public
