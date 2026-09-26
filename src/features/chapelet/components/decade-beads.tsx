@@ -19,7 +19,7 @@ export const DecadeBeads = ({ beads, step }: { beads: Bead[]; step: number }) =>
             className={cn(
               'tnum inline-flex items-center justify-center rounded-full border text-meta',
               bead.hailMary === null ? 'size-9' : 'size-7',
-              state === 'dit' && 'border-primary bg-primary text-on-primary',
+              state === 'dit' && 'border-primary-fill bg-primary-fill text-on-primary',
               state === 'courant' && 'border-ink bg-ink text-paper ring-2 ring-primary ring-offset-2 ring-offset-paper',
               state === 'avenir' && 'border-line-field text-ink-3',
             )}

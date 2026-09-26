@@ -42,7 +42,7 @@ export const PublicFooter = () => (
       <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-6">
         <div className="md:col-span-5">
           <p className="m-0 font-serif text-h2 text-on-primary">Jàngu Bi</p>
-          <p className="mb-0 mt-4 max-w-[40ch] text-base leading-relaxed text-tint-200">
+          <p className="mb-0 mt-4 max-w-[40ch] text-base leading-relaxed text-on-night-muted">
             « La Leçon », en wolof. La Parole du jour, votre paroisse, vos demandes d&apos;actes et vos prêtres, pour les
             catholiques du Sénégal. Une application éditée par Numerisen.
           </p>

@@ -84,7 +84,7 @@ const DayButton = ({
       <span
         className={cn(
           'tnum text-meta',
-          selected && !disabled ? 'text-tint-100' : '',
+          selected && !disabled ? 'text-on-primary' : '',
         )}
       >
         {hint}
