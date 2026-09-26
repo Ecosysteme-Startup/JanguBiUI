@@ -5,11 +5,11 @@ import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
 import { Textarea } from '@/components/ui/textarea';
-import type { Prayer, RosaryToday } from '@/features/chapelet/api/get-rosary-today';
 import { DecadeBeads } from '@/features/chapelet/components/decade-beads';
 import { MysteryList } from '@/features/chapelet/components/mystery-list';
 import { isAtStart, progressReducer, START } from '@/features/chapelet/utils/progress';
 import { beadsOf, decadeOf, fruitLabel, mysteryTitle, ordinal, remainingMinutes } from '@/features/chapelet/utils/rosary';
+import type { Prayer, RosaryToday } from '@/hooks/use-rosary-today';
 import { cn } from '@/utils/cn';
 import { frenchTypo } from '@/utils/french-typo';
 
