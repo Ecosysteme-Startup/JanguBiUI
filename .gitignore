@@ -48,3 +48,10 @@ tsconfig.tsbuildinfo
 
 # sentry wizard logs
 sentry-wizard-installation-error-*.logpackage-lock.json
+
+# Recette : captures et rapports Playwright (volumineux, régénérables)
+docs/v1/recette/captures/
+playwright-report-stack/
+playwright-report-audit/
+e2e/**/.auth/
+e2e/**/test-results/
