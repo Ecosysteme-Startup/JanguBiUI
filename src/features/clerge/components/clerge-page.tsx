@@ -256,7 +256,7 @@ export const ClergePage = () => {
               </EmptyState>
             ) : (
               <>
-                <Table>
+                <Table label="Déclarations en attente, défilement horizontal">
                   <thead>
                     <tr>
                       <Th>Clerc</Th>

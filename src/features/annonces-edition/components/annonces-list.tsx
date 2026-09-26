@@ -237,7 +237,7 @@ export const AnnoncesList = ({ nodeId }: { nodeId: string }) => {
           </EmptyState>
         ) : (
           <>
-            <Table className="table-fixed">
+            <Table className="table-fixed" label="Annonces, défilement horizontal">
               <thead>
                 <tr>
                   <Th>Annonce</Th>

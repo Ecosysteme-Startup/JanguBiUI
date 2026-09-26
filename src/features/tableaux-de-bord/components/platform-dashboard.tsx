@@ -94,7 +94,7 @@ export const PlatformDashboardView = () => {
           {beat.length === 0 ? (
             <p className="m-0 text-sm text-ink-2">Aucune tâche planifiée déclarée.</p>
           ) : (
-            <Table>
+            <Table label="Tâches planifiées, défilement horizontal">
               <thead>
                 <tr>
                   <Th>Tâche</Th>
