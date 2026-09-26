@@ -34,7 +34,11 @@ test.describe('site public', () => {
   test('le formulaire de contact des paroisses est joignable par son ancre', async ({ page }) => {
     await page.goto('/pour-les-paroisses#contact');
     await expect(page.getByRole('heading', { name: 'Demander une présentation' })).toBeVisible();
-    await page.getByRole('button', { name: 'Envoyer la demande' }).click();
-    await expect(page.getByText('Indiquez votre prénom et votre nom.')).toBeVisible();
+    // Un clic avant l'hydratation ne déclenche pas la validation : on réessaie jusqu'à ce que
+    // le formulaire (îlot client) réponde.
+    await expect(async () => {
+      await page.getByRole('button', { name: 'Envoyer la demande' }).click();
+      await expect(page.getByText('Indiquez votre prénom et votre nom.')).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
   });
 });

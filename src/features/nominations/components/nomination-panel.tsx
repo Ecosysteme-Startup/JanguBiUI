@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { OfficeQualityField } from '@/components/signature/office-quality-field';
 import { PersonCombobox } from '@/components/signature/person-combobox';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
@@ -27,6 +28,7 @@ const schema = z.object({
   person_id: z.string().min(1, 'Choisissez la personne à nommer.'),
   node_id: z.string().min(1, 'Choisissez le lieu.'),
   office: z.string().min(1, 'Choisissez l’office.'),
+  quality: z.string(),
   start_date: z.string().min(1, 'Indiquez la date de début.'),
   decree_ref: z.string().max(120, '120 caractères au plus.'),
 });
@@ -49,9 +51,9 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
       onClose();
     },
   });
-  const { register, handleSubmit, setValue, setError, formState } = useForm<Values>({
+  const { register, handleSubmit, setValue, setError, formState, watch } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { person_id: '', node_id: nodeId, office: '', start_date: dayjs().format('YYYY-MM-DD'), decree_ref: '' },
+    defaultValues: { person_id: '', node_id: nodeId, office: '', quality: '', start_date: dayjs().format('YYYY-MM-DD'), decree_ref: '' },
   });
 
   const context: Place = { id: nodeId, name: nodeName, type: nodeType };
@@ -60,6 +62,7 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
   const [chosen, setChosen] = React.useState<Place>(context);
   const options = [context, ...(chosen.id !== nodeId && !found.some((p) => p.id === chosen.id) ? [chosen] : []), ...found];
   const available = (offices.data ?? []).filter((o) => o.node_types.length === 0 || o.node_types.includes(chosen.type));
+  const qualities = offices.data?.find((o) => o.code === watch('office'))?.qualities ?? [];
 
   const onSubmit = handleSubmit(async (v) => {
     try {
@@ -114,6 +117,7 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
               onChange: (ev: React.ChangeEvent<HTMLSelectElement>) => {
                 setChosen(options.find((o) => o.id === ev.target.value) ?? context);
                 setValue('office', '');
+                setValue('quality', '');
               },
             })}
           >
@@ -125,7 +129,12 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
           </Select>
         </Field>
         <Field id="nn-office" label="Office" required error={e.office?.message}>
-          <Select {...register('office')}>
+          <Select
+            {...register('office', {
+              onChange: (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                setValue('quality', offices.data?.find((o) => o.code === ev.target.value)?.qualities[0]?.code ?? ''),
+            })}
+          >
             <option value="">Choisir un office</option>
             {available.map((o) => (
               <option key={o.code} value={o.code}>
@@ -134,6 +143,7 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
             ))}
           </Select>
         </Field>
+        <OfficeQualityField id="nn-qualite" qualities={qualities} error={e.quality?.message} {...register('quality')} />
         <Field id="nn-debut" label="Début" required hint="Une date future crée une nomination proposée." error={e.start_date?.message}>
           <Input type="date" {...register('start_date')} />
         </Field>

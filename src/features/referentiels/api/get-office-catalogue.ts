@@ -14,6 +14,7 @@ const officeTypeSchema = z.object({
   appointed_by_platform: z.boolean().optional(),
   capabilities: z.array(z.string()),
   inherits_down: z.boolean().optional(),
+  qualities: z.array(z.object({ code: z.string(), label: z.string() })).default([]),
 });
 export type OfficeType = z.infer<typeof officeTypeSchema>;
 

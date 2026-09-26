@@ -110,11 +110,58 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
     await fillRequired(user);
 
     await user.upload(screen.getByLabelText('Image de bannière'), new File(['x'], 'parvis.jpg', { type: 'image/jpeg' }));
-    expect(await screen.findByRole('img', { name: 'Bannière de l’annonce' })).toHaveAttribute('src', 'blob:banniere');
+    const alt = await screen.findByLabelText(/texte alternatif/i);
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
+    expect(await screen.findByText('Décrivez la bannière, ou indiquez qu’elle est décorative.')).toBeInTheDocument();
+    expect(f8aState.lastBody).toBeNull();
+
+    await user.type(alt, 'Parvis de Saint-Dominique à la sortie de la messe');
+    expect(screen.getByRole('img', { name: 'Parvis de Saint-Dominique à la sortie de la messe' })).toHaveAttribute('src', 'blob:banniere');
     await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
 
     await vi.waitFor(() => expect(navigation.replace).toHaveBeenCalled());
-    expect(f8aState.lastBody).toMatchObject({ cover_image_id: 777, notify_followers: true });
+    expect(f8aState.lastBody).toMatchObject({
+      cover_image_id: 777,
+      cover_image_alt: 'Parvis de Saint-Dominique à la sortie de la messe',
+      cover_image_decorative: false,
+      notify_followers: true,
+    });
+  });
+
+  it('déclare une bannière décorative : alternative vide', async () => {
+    const user = userEvent.setup();
+    server.use(http.post(apiUrl('/files/upload/standard/'), () => HttpResponse.json({ id: 778 }, { status: 201 })));
+    URL.createObjectURL = vi.fn(() => 'blob:ornement');
+    await renderNew();
+    await fillRequired(user);
+
+    await user.upload(screen.getByLabelText('Image de bannière'), new File(['x'], 'ornement.png', { type: 'image/png' }));
+    await user.type(await screen.findByLabelText(/texte alternatif/i), 'Brouillon');
+    await user.click(screen.getByRole('checkbox', { name: /image décorative/i }));
+
+    expect(screen.queryByLabelText(/texte alternatif/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
+    await vi.waitFor(() => expect(navigation.replace).toHaveBeenCalled());
+    expect(f8aState.lastBody).toMatchObject({ cover_image_id: 778, cover_image_alt: '', cover_image_decorative: true });
+  });
+
+  it('affiche le refus du serveur sur le texte alternatif', async () => {
+    const user = userEvent.setup();
+    server.use(
+      http.post(apiUrl('/files/upload/standard/'), () => HttpResponse.json({ id: 779 }, { status: 201 })),
+      http.post(apiUrl('/staff/news/'), () => v1Error(400, 'cover_alt_required', 'Décrivez la bannière (texte alternatif) ou indiquez qu’elle est décorative.')),
+    );
+    URL.createObjectURL = vi.fn(() => 'blob:x');
+    await renderNew();
+    await fillRequired(user);
+    await user.upload(screen.getByLabelText('Image de bannière'), new File(['x'], 'parvis.jpg', { type: 'image/jpeg' }));
+    await user.type(await screen.findByLabelText(/texte alternatif/i), 'Parvis');
+
+    await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
+
+    const field = await screen.findByLabelText(/texte alternatif/i);
+    await vi.waitFor(() => expect(field).toHaveAttribute('aria-invalid', 'true'));
   });
 
   it('refuse une bannière qui n’est pas une image', async () => {

@@ -26,6 +26,7 @@ import type { StaffArticle } from '../api/staff-article';
 import { sanitizeArticleHtml, textToHtml } from '../utils/sanitize-html';
 
 import { stamp, statusLabel } from './article-status';
+import { CoverAltFields } from './cover-alt-fields';
 import { CoverPicker } from './cover-picker';
 import { type EditorValues, editorSchema, TITLE_MAX, EXCERPT_MAX } from './editor-schema';
 import { PublicationPanel } from './publication-panel';
@@ -43,12 +44,14 @@ const SERVER_FIELDS: Record<string, keyof EditorValues> = {
   publish_at: 'publish_date',
   place_id: 'place_id',
   cover_image_id: 'cover_image_id',
+  cover_image_alt: 'cover_image_alt',
 };
 
 /** Codes d'erreur métier rattachés à un champ du formulaire. */
 const CODE_FIELDS: [prefix: string, field: keyof EditorValues][] = [
   ['sunday_date', 'sunday_date'],
   ['place_not_in_node', 'place_id'],
+  ['cover_alt', 'cover_image_alt'],
   ['cover_', 'cover_image_id'],
   ['file_', 'cover_image_id'],
 ];
@@ -64,6 +67,8 @@ const defaultsOf = (article: StaffArticle | null): EditorValues => ({
   place_id: article?.scope.place_id ? String(article.scope.place_id) : '',
   cover_image_id: article?.cover_image_id ?? null,
   cover_image_url: article?.cover_image_url ?? null,
+  cover_image_alt: article?.cover_image_alt ?? '',
+  cover_image_decorative: article?.cover_image_decorative ?? false,
   notify_followers: article?.notify_followers ?? true,
   when: article?.status === 'scheduled' ? 'schedule' : 'now',
   publish_date: article?.publish_at ? dayjs(article.publish_at).format('YYYY-MM-DD') : '',
@@ -91,6 +96,9 @@ const buildInput = (nodeId: string, article: StaffArticle | null, values: Editor
     sunday_date: values.is_sunday_notice ? values.sunday_date : null,
     place_id: values.place_id ? Number(values.place_id) : null,
     cover_image_id: values.cover_image_id,
+    // Bannière décorative : alternative vide ; sans bannière, rien à décrire.
+    cover_image_alt: values.cover_image_id !== null && !values.cover_image_decorative ? values.cover_image_alt.trim() : '',
+    cover_image_decorative: values.cover_image_id !== null && values.cover_image_decorative,
     notify_followers: values.notify_followers,
   };
   if (article) return { id: article.id, update: common, publish };
@@ -287,6 +295,7 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
                 <CoverPicker
                   id="ed-banniere"
                   value={{ id: field.value, url: watch('cover_image_url') }}
+                  alt={watch('cover_image_decorative') ? '' : watch('cover_image_alt')}
                   error={fieldState.error?.message}
                   onChange={(cover) => {
                     field.onChange(cover.id);
@@ -295,6 +304,7 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
                 />
               )}
             />
+            {watch('cover_image_id') !== null && <CoverAltFields form={form} />}
           </div>
           <div className="flex flex-col gap-2">
             <p id="ed-corps-titre" className="m-0 text-sm font-semibold text-ink">

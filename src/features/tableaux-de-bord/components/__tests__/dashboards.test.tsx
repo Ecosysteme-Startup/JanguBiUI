@@ -69,6 +69,15 @@ describe('Tableau de bord diocésain', () => {
 });
 
 describe('Tableau de bord paroissial', () => {
+  it('nomme la qualité réelle du titulaire en minuscules, jamais la double forme', async () => {
+    const grants = grantsSecretaire.map((g) => ({ ...g, office: 'cure', office_label: 'Administrateur paroissial' }));
+    renderApp(<NodeDashboardView nodeId={ids.saintDominique} />, { capacites: grants });
+
+    const line = await screen.findByText(/vous agissez comme/i);
+    expect(line).toHaveTextContent(/vous agissez comme administrateur paroissial$/i);
+    expect(line).not.toHaveTextContent(/curé/i);
+  });
+
   it('liste ce qui est à traiter, avec les seuls liens permis par les capacités', async () => {
     renderApp(<NodeDashboardView nodeId={ids.saintDominique} />, { capacites: grantsSecretaire });
 

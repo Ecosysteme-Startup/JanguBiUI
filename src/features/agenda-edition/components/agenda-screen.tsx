@@ -14,14 +14,21 @@ import { dayjs, hour } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
 
 import { type StaffEvent, useStaffEvents } from '../api/staff-events';
-import { inMonth, monthTitle, monthWeeks, onDay } from '../utils/calendar';
+import { type AgendaView, periodBounds, useAgendaPeriod } from '../hooks/use-agenda-period';
+import { inMonth, inWeek, monthTitle, monthWeeks, onDay, weekRange, weekStart, weekTitle } from '../utils/calendar';
 
 import { EventDetail } from './event-detail';
 import { EventForm } from './event-form';
+import { WeekGrid } from './week-grid';
 
 const DAYS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
 
-type View = 'mois' | 'liste';
+const VIEWS: readonly (readonly [AgendaView, string])[] = [
+  ['mois', 'Mois'],
+  ['semaine', 'Semaine'],
+  ['liste', 'Liste'],
+];
+
 type Editing = { event: StaffEvent | null; day: string | null } | null;
 
 const MonthGrid = ({
@@ -88,13 +95,23 @@ const MonthGrid = ({
   );
 };
 
-const MonthList = ({ events, selectedId, onSelect }: { events: StaffEvent[]; selectedId: number | null; onSelect: (event: StaffEvent) => void }) => (
+const MonthList = ({
+  events,
+  selectedId,
+  onSelect,
+  week = false,
+}: {
+  events: StaffEvent[];
+  selectedId: number | null;
+  onSelect: (event: StaffEvent) => void;
+  week?: boolean;
+}) => (
   <section aria-labelledby="ag-liste" className="mt-10">
     <h2 id="ag-liste" className="tnum m-0 border-t border-line-strong pt-2 text-meta font-normal text-ink-2">
-      <span className="text-primary">04</span> — Ce mois-ci
+      <span className="text-primary">04</span> — {week ? 'Cette semaine' : 'Ce mois-ci'}
     </h2>
     {events.length === 0 ? (
-      <p className="m-0 mt-3 text-sm text-ink-3">Aucun événement ce mois-ci.</p>
+      <p className="m-0 mt-3 text-sm text-ink-3">Aucun événement {week ? 'cette semaine' : 'ce mois-ci'}.</p>
     ) : (
       <ol className="m-0 mt-2 list-none p-0">
         {events.map((event) => {
@@ -123,25 +140,40 @@ const MonthList = ({ events, selectedId, onSelect }: { events: StaffEvent[]; sel
   </section>
 );
 
-/** PAR-Agenda : calendrier du mois, liste, détail d'un événement, création et modification. */
+/** Point d'ancrage d'un mois : aujourd'hui s'il en fait partie, sinon le 1er. */
+const monthAnchor = (month: dayjs.Dayjs) => (month.isSame(dayjs(), 'month') ? dayjs() : month.startOf('month')).format('YYYY-MM-DD');
+
+/** PAR-Agenda : calendrier du mois ou de la semaine, liste, détail d'un événement, création et modification. */
 export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
-  const [month, setMonth] = useState(() => dayjs().startOf('month'));
-  const [view, setView] = useState<View>('mois');
+  const { period, update } = useAgendaPeriod(nodeId);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [editing, setEditing] = useState<Editing>(null);
-  // Période affichée : les semaines complètes de la grille (jours des mois voisins compris).
-  const weeks = monthWeeks(month);
-  const events = useStaffEvents(nodeId, { from: weeks[0][0], to: weeks[weeks.length - 1][6] });
+  const isWeek = period.view === 'semaine';
+  const month = dayjs(period.date).startOf('month');
+  // Période chargée : la semaine affichée, ou les semaines complètes de la grille du mois.
+  const events = useStaffEvents(nodeId, periodBounds(period));
   const places = useBackofficePlaces(nodeId);
 
-  const monthEvents = (events.data?.results ?? []).filter((e) => inMonth(e, month));
-  const selected = monthEvents.find((e) => e.id === selectedId) ?? null;
-  const prev = month.subtract(1, 'month');
-  const next = month.add(1, 'month');
-  const go = (target: dayjs.Dayjs) => {
-    setMonth(target);
+  const shownEvents = (events.data?.results ?? []).filter((e) => (isWeek ? inWeek(e, period.date) : inMonth(e, month)));
+  const selected = shownEvents.find((e) => e.id === selectedId) ?? null;
+  const go = (date: string) => {
+    update({ date });
     setSelectedId(null);
   };
+  const week = weekStart(period.date);
+  const nav = isWeek
+    ? {
+        title: weekTitle(period.date),
+        prev: { label: `Semaine précédente : ${weekRange(week.subtract(7, 'day'))}`, date: week.subtract(7, 'day').format('YYYY-MM-DD') },
+        next: { label: `Semaine suivante : ${weekRange(week.add(7, 'day'))}`, date: week.add(7, 'day').format('YYYY-MM-DD') },
+        count: `cette semaine`,
+      }
+    : {
+        title: monthTitle(month),
+        prev: { label: `Mois précédent : ${month.subtract(1, 'month').format('MMMM')}`, date: monthAnchor(month.subtract(1, 'month')) },
+        next: { label: `Mois suivant : ${month.add(1, 'month').format('MMMM')}`, date: monthAnchor(month.add(1, 'month')) },
+        count: `en ${month.format('MMMM')}`,
+      };
 
   return (
     <div>
@@ -152,38 +184,36 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
             {events.data && (
               <>
                 {' '}
-                · {monthEvents.length} événement{monthEvents.length > 1 ? 's' : ''} en {month.format('MMMM')}
+                · {shownEvents.length} événement{shownEvents.length > 1 ? 's' : ''} {nav.count}
               </>
             )}
           </p>
-          <div className="mt-2 flex items-center gap-3">
-            <h1 className="m-0 font-serif text-title font-normal text-ink">{monthTitle(month)}</h1>
-            <button type="button" aria-label={`Mois précédent : ${prev.format('MMMM')}`} onClick={() => go(prev)} className="hit inline-flex size-10 items-center justify-center rounded border border-line hover:bg-surface-2">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="m-0 font-serif text-title font-normal text-ink">{nav.title}</h1>
+            <button type="button" aria-label={nav.prev.label} onClick={() => go(nav.prev.date)} className="hit inline-flex size-10 items-center justify-center rounded border border-line hover:bg-surface-2">
               <Icon name="chevron-gauche" size={18} />
             </button>
-            <button type="button" aria-label={`Mois suivant : ${next.format('MMMM')}`} onClick={() => go(next)} className="hit inline-flex size-10 items-center justify-center rounded border border-line hover:bg-surface-2">
+            <button type="button" aria-label={nav.next.label} onClick={() => go(nav.next.date)} className="hit inline-flex size-10 items-center justify-center rounded border border-line hover:bg-surface-2">
               <Icon name="chevron-droite" size={18} />
             </button>
-            <Button variant="tertiary" onClick={() => go(dayjs().startOf('month'))}>
+            <Button variant="tertiary" onClick={() => go(dayjs().format('YYYY-MM-DD'))}>
               Aujourd’hui
             </Button>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div role="radiogroup" aria-label="Affichage" className="grid grid-cols-2 rounded border border-ink">
-            {(
-              [
-                ['mois', 'Mois'],
-                ['liste', 'Liste'],
-              ] as const
-            ).map(([value, label]) => (
+          <div role="radiogroup" aria-label="Affichage" className="grid grid-cols-3 rounded border border-ink">
+            {VIEWS.map(([value, label]) => (
               <button
                 key={value}
                 type="button"
                 role="radio"
-                aria-checked={view === value}
-                onClick={() => setView(value)}
-                className={cn('h-10 px-4 text-sm', view === value ? 'bg-ink text-paper' : 'text-ink hover:bg-surface-2')}
+                aria-checked={period.view === value}
+                onClick={() => {
+                  update({ view: value });
+                  setSelectedId(null);
+                }}
+                className={cn('h-10 px-4 text-sm', period.view === value ? 'bg-ink text-paper' : 'text-ink hover:bg-surface-2')}
               >
                 {label}
               </button>
@@ -206,8 +236,9 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
       ) : (
         <div className={cn('grid items-start gap-8', selected && 'xl:grid-cols-[minmax(0,1fr)_360px]')}>
           <div className="min-w-0">
-            {view === 'mois' && <MonthGrid month={month} events={monthEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />}
-            <MonthList events={monthEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />
+            {period.view === 'mois' && <MonthGrid month={month} events={shownEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />}
+            {isWeek && <WeekGrid date={period.date} events={shownEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />}
+            <MonthList events={shownEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} week={isWeek} />
           </div>
           {selected && (
             <div className="xl:sticky xl:top-6 xl:mt-6">
@@ -227,7 +258,7 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
           onSaved={(saved) => {
             toast.ok(editing.event ? 'Événement modifié.' : 'Événement créé.');
             setEditing(null);
-            setMonth(dayjs(saved.start_at).startOf('month'));
+            update({ date: dayjs(saved.start_at).format('YYYY-MM-DD') });
             setSelectedId(saved.id);
           }}
         />

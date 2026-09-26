@@ -8,7 +8,9 @@ export const assignmentSchema = z.object({
   id: z.number(),
   person: z.object({ id: z.string(), email: z.string(), full_name: z.string() }),
   office: z.string(),
+  /** Titre du titulaire : « Curé », « Administrateur paroissial », « Vicaire paroissial »… */
   office_label: z.string(),
+  quality: z.string().default(''),
   node: z.object({ id: z.string(), name: z.string(), code: z.string(), type: z.string() }),
   start_date: z.string(),
   end_date: z.string().nullable(),
@@ -44,6 +46,26 @@ export const createAssignment = async (body: AssignmentCreateBody) => assignment
 export const endAssignment = async (id: number, endDate: string) => {
   const body: AssignmentUpdateBody = { action: 'terminer', end_date: endDate };
   return assignmentSchema.parse(await api.patch(`/hierarchy/assignments/${id}/`, body));
+};
+
+export const setAssignmentQuality = async (id: number, quality: string) => {
+  const body: AssignmentUpdateBody = { action: 'qualifier', quality };
+  return assignmentSchema.parse(await api.patch(`/hierarchy/assignments/${id}/`, body));
+};
+
+/** Change la qualité d'une nomination ; les droits en cache de la personne changent de titre si c'est moi. */
+export const useSetAssignmentQuality = ({ meId, onSuccess }: { meId?: string; onSuccess?: (a: Assignment) => void } = {}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, quality }: { id: number; quality: string }) => setAssignmentQuality(id, quality),
+    onSuccess: async (updated) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: assignmentsKey }),
+        updated.person.id === meId ? queryClient.invalidateQueries({ queryKey: ['me', 'capacites'] }) : undefined,
+      ]);
+      onSuccess?.(updated);
+    },
+  });
 };
 
 export const useCreateAssignment = ({ onSuccess }: { onSuccess?: (a: Assignment) => void } = {}) => {

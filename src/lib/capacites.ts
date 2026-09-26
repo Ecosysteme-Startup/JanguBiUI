@@ -29,6 +29,8 @@ const grantSchema = z.object({
   node_type: z.string().default(''),
   herite: z.boolean(),
   office: z.string(),
+  /** Titre de la nomination qui accorde la capacité : « Curé », « Administrateur paroissial »… */
+  office_label: z.string().default(''),
 });
 export type Grant = z.infer<typeof grantSchema>;
 

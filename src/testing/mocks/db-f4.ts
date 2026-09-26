@@ -130,7 +130,7 @@ export const saintDominiqueSheet = {
     ],
   },
   clergy: [
-    { name: 'Augustin Ndiaye', office: 'Curé / administrateur paroissial' },
+    { name: 'Augustin Ndiaye', office: 'Administrateur paroissial' },
     { name: 'Emmanuel Tine', office: 'Vicaire paroissial' },
   ],
   acts: { delay_days: 3, welcome_message: 'L’original se retire au secrétariat, aux heures d’accueil.' },
@@ -228,6 +228,8 @@ export const publicAnnouncements = [
     is_sunday_notice: true,
     sunday_date: '2026-09-27',
     cover_image_url: null,
+    cover_image_alt: '',
+    cover_image_decorative: false,
     published_at: '2026-09-22T09:00:00Z',
     reactions: { counts: {}, mine: [] },
   },

@@ -26,7 +26,7 @@ export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; c
   const node = useNode(!direct && platform && nodeId ? nodeId : null);
   const context =
     direct ??
-    (platform && node.data ? { nodeId, name: node.data.name, type: node.data.type.code, offices: platform.offices } : undefined);
+    (platform && node.data ? { nodeId, name: node.data.name, type: node.data.type.code, offices: platform.offices, officeLabels: platform.officeLabels } : undefined);
   const parentName = useNodeParentName(context ? nodeId : null);
 
   if (isPending || node.isLoading) {

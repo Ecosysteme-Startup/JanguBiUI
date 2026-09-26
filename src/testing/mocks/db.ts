@@ -21,6 +21,7 @@ export const grantsSecretaire: Grant[] = [
   node_type: 'paroisse',
   herite: true,
   office: 'secretaire_paroissial',
+  office_label: 'Secrétaire paroissiale',
 }));
 
 export const grantsChancelier: Grant[] = ['structure.gerer', 'offices.nommer', 'personnes.verifier', 'tableau_bord.voir'].map(
@@ -31,6 +32,7 @@ export const grantsChancelier: Grant[] = ['structure.gerer', 'offices.nommer', '
     node_type: 'diocese',
     herite: true,
     office: 'chancelier',
+    office_label: 'Chancelier',
   }),
 );
 
@@ -41,6 +43,7 @@ export const grantsPlateforme: Grant[] = ['plateforme.admin', 'structure.gerer',
   node_type: 'plateforme',
   herite: true,
   office: 'plateforme',
+  office_label: 'Administrateur plateforme',
 }));
 
 export const mockState: { grants: Grant[] } = { grants: [] };

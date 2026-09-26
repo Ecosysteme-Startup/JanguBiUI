@@ -718,7 +718,7 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Terminer ou annuler une nomination
+         * Terminer, annuler ou changer la qualité d'une nomination
          * @description À placer en premier dans les bases des vues V1.
          */
         patch: operations["v1_hierarchy_assignments_partial_update"];
@@ -3024,6 +3024,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/documents/nodes/{node_id}/type-delays/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Délais indicatifs par type d'acte (horaires.gerer ou structure.gerer)
+         * @description Délais indicatifs par type d'acte d'un nœud (Paramètres, « Actes délivrés »). Mêmes
+         *     capacités que les autres paramètres du secrétariat : ``horaires.gerer`` ou ``structure.gerer``.
+         */
+        get: operations["v1_staff_documents_nodes_type_delays_retrieve"];
+        /**
+         * Régler les délais indicatifs par type d'acte (horaires.gerer ou structure.gerer)
+         * @description Délais indicatifs par type d'acte d'un nœud (Paramètres, « Actes délivrés »). Mêmes
+         *     capacités que les autres paramètres du secrétariat : ``horaires.gerer`` ou ``structure.gerer``.
+         */
+        put: operations["v1_staff_documents_nodes_type_delays_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/documents/stats/": {
         parameters: {
             query?: never;
@@ -3244,9 +3270,10 @@ export interface components {
         /**
          * @description * `terminer` - terminer
          *     * `annuler` - annuler
+         *     * `qualifier` - qualifier
          * @enum {string}
          */
-        ActionEnum: "terminer" | "annuler";
+        ActionEnum: "terminer" | "annuler" | "qualifier";
         /**
          * @description * `announcement` - Annonce
          *     * `article` - Article
@@ -3277,6 +3304,10 @@ export interface components {
             sunday_date?: string | null;
             /** @description Bannière : fichier image téléversé via /files/upload/ */
             cover_image_id?: number | null;
+            /** @description Texte alternatif de la bannière (requis si bannière non décorative) */
+            cover_image_alt?: string;
+            /** @description Bannière purement décorative : texte alternatif vide */
+            cover_image_decorative?: boolean;
             /**
              * @description Notifier les fidèles à la publication
              * @default true
@@ -3309,6 +3340,10 @@ export interface components {
              */
             sunday_date?: string | null;
             readonly cover_image_url: string | null;
+            /** Texte alternatif de la bannière */
+            cover_image_alt?: string;
+            /** Bannière décorative */
+            cover_image_decorative?: boolean;
             /**
              * Publié le
              * Format: date-time
@@ -3346,6 +3381,10 @@ export interface components {
              */
             sunday_date?: string | null;
             readonly cover_image_url: string | null;
+            /** Texte alternatif de la bannière */
+            cover_image_alt?: string;
+            /** Bannière décorative */
+            cover_image_decorative?: boolean;
             /**
              * Publié le
              * Format: date-time
@@ -3406,12 +3445,17 @@ export interface components {
             decree_ref: string;
             /** @default  */
             note: string;
+            /** @description Qualité parmi celles de l'office (ex. cure, administrateur) ; défaut : la première */
+            quality?: string;
         };
         AssignmentOutput: {
             readonly id: number;
             readonly person: components["schemas"]["PersonRef"];
             readonly office: string;
+            /** @description Titre du titulaire : « Curé », « Administrateur paroissial », « Vicaire paroissial »… */
             readonly office_label: string;
+            /** @description Code de la qualité (vide si l'office n'en a pas) */
+            readonly quality: string;
             readonly node: components["schemas"]["NodeRef"];
             /**
              * Début
@@ -3565,6 +3609,8 @@ export interface components {
             node_type: string;
             herite: boolean;
             office: string;
+            /** @description Titre de la nomination qui accorde la capacité (« Curé », « Administrateur paroissial »…) */
+            office_label: string;
         };
         /**
          * @description * `one` - Un seul titulaire
@@ -3702,7 +3748,7 @@ export interface components {
             incardination_node_id?: string | null;
             /** Format: uuid */
             institut_node_id?: string | null;
-            /** @description Justificatifs à ajouter (celebret, lettre d'obédience…), envoyés d'abord via /files/upload/ */
+            /** @description Justificatifs à ajouter (PDF ou image : celebret, lettre d'obédience…), envoyés d'abord via /files/upload/ ; 5 au plus au total */
             attachment_file_ids?: number[];
         };
         /**
@@ -4253,6 +4299,10 @@ export interface components {
             /** @description Heures, ex. « 9 h-12 h · 15 h 30-18 h » ou « Fermé » */
             hours: string;
         };
+        OfficeQuality: {
+            code: string;
+            label: string;
+        };
         OfficeTypeOutput: {
             code: string;
             /** Libellé */
@@ -4271,6 +4321,8 @@ export interface components {
             readonly capabilities: string[];
             /** Hérite sur le sous-arbre */
             inherits_down?: boolean;
+            /** @description Titres possibles du titulaire ; le premier est le titre par défaut. */
+            readonly qualities: components["schemas"]["OfficeQuality"][];
         };
         PaginatedAccountOutputList: {
             limit: number;
@@ -4432,6 +4484,10 @@ export interface components {
             place_id?: number | null;
             /** @description Bannière (vide : la retirer) */
             cover_image_id?: number | null;
+            /** @description Texte alternatif de la bannière (requis si bannière non décorative) */
+            cover_image_alt?: string;
+            /** @description Bannière purement décorative : texte alternatif vide */
+            cover_image_decorative?: boolean;
             notify_followers?: boolean;
         };
         PatchedAssignmentUpdateInput: {
@@ -4441,6 +4497,8 @@ export interface components {
              * @description Terminer : date de fin (défaut : aujourd'hui)
              */
             end_date?: string | null;
+            /** @description Qualifier : nouvelle qualité */
+            quality?: string;
         };
         PatchedEventUpdateInput: {
             title?: string;
@@ -4695,7 +4753,7 @@ export interface components {
         PriestOfficeOutput: {
             /** @description Code de l'office (cure, vicaire_paroissial, aumonier…) */
             code: string;
-            /** @description Libellé de l'office : Curé, Vicaire paroissial… */
+            /** @description Titre du prêtre : Curé, Administrateur paroissial, Vicaire paroissial… */
             label: string;
         };
         /** @description Vue de la paroisse : identité complète, registre, lieu de retrait. */
@@ -4736,7 +4794,7 @@ export interface components {
             } | null;
             readonly history: components["schemas"]["ProcessorStatusLog"][];
             readonly can_cancel: boolean;
-            /** @description Délai indicatif de la paroisse (jours) */
+            /** @description Délai indicatif (jours) : type d'acte, sinon paroisse, sinon réglage hérité, sinon défaut */
             readonly indicative_days: number;
             /**
              * Format: date
@@ -4777,7 +4835,7 @@ export interface components {
         };
         PublicClergy: {
             name: string;
-            /** @description Libellé de l'office (Curé, Vicaire paroissial…) */
+            /** @description Titre du clerc (Curé, Administrateur paroissial, Vicaire paroissial…) */
             office: string;
         };
         /** @description Fiche publique : ajoute le secrétariat (s'il est publié), le clergé et l'accueil des demandes d'actes. */
@@ -5082,7 +5140,7 @@ export interface components {
             } | null;
             readonly history: components["schemas"]["StatusLog"][];
             readonly can_cancel: boolean;
-            /** @description Délai indicatif de la paroisse (jours) */
+            /** @description Délai indicatif (jours) : type d'acte, sinon paroisse, sinon réglage hérité, sinon défaut */
             readonly indicative_days: number;
             /**
              * Format: date
@@ -5338,6 +5396,10 @@ export interface components {
             unpublish_reason?: string;
             readonly cover_image_id: number | null;
             readonly cover_image_url: string | null;
+            /** Texte alternatif de la bannière */
+            cover_image_alt?: string;
+            /** Bannière décorative */
+            cover_image_decorative?: boolean;
             /** Notifier les fidèles */
             notify_followers?: boolean;
             /** @default 0 */
@@ -5441,6 +5503,36 @@ export interface components {
             pickup_place_id?: number | null;
             /** @default  */
             pickup_hours: string;
+        };
+        TypeDelayItemInput: {
+            document_type: components["schemas"]["TypeDelayItemInputDocumentTypeEnum"];
+            /** @description Jours ouvrés ; null : retirer (délai global) */
+            days: number | null;
+        };
+        /**
+         * @description * `baptism` - Certificat de baptême
+         *     * `first_communion` - Attestation de première communion
+         *     * `confirmation` - Attestation de confirmation
+         *     * `religious_marriage` - Attestation de mariage religieux
+         *     * `godparent` - Attestation parrain / marraine
+         * @enum {string}
+         */
+        TypeDelayItemInputDocumentTypeEnum: "baptism" | "first_communion" | "confirmation" | "religious_marriage" | "godparent";
+        TypeDelayItemOutput: {
+            document_type: components["schemas"]["DocumentTypeEnum"];
+            document_type_label: string;
+            /** @description Délai du type (jours ouvrés) ; null : délai global */
+            days: number | null;
+        };
+        TypeDelaysOutput: {
+            /** Format: uuid */
+            node_id: string;
+            /** @description Délai appliqué aux types sans réglage propre (paroisse, sinon hérité, sinon défaut) */
+            default_days: number;
+            items: components["schemas"]["TypeDelayItemOutput"][];
+        };
+        TypeDelaysUpdateInput: {
+            items: components["schemas"]["TypeDelayItemInput"][];
         };
         /**
          * @description * `SIGN_OF_CROSS` - Signe de la croix
@@ -9937,6 +10029,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CountsOutput"];
+                };
+            };
+        };
+    };
+    v1_staff_documents_nodes_type_delays_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TypeDelaysOutput"];
+                };
+            };
+        };
+    };
+    v1_staff_documents_nodes_type_delays_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TypeDelaysUpdateInput"];
+                "multipart/form-data": components["schemas"]["TypeDelaysUpdateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["TypeDelaysUpdateInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TypeDelaysOutput"];
                 };
             };
         };

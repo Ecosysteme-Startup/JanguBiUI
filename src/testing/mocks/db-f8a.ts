@@ -28,6 +28,8 @@ const article = (overrides: Partial<Article> & { id: string; title: string; stat
   unpublish_reason: '',
   cover_image_id: null,
   cover_image_url: null,
+  cover_image_alt: '',
+  cover_image_decorative: false,
   notify_followers: true,
   reads_count: 0,
   created_at: '2026-09-20T09:00:00+00:00',
@@ -143,7 +145,11 @@ export const registrations = [
 export const officeCatalogue = [
   {
     code: 'cure',
-    label: 'Curé',
+    label: 'Curé / administrateur paroissial',
+    qualities: [
+      { code: 'cure', label: 'Curé' },
+      { code: 'administrateur', label: 'Administrateur paroissial' },
+    ],
     node_types: ['paroisse'],
     required_order: 'pretre',
     cardinality: 'un',
@@ -184,6 +190,7 @@ type MockAssignment = {
   person: { id: string; email: string; full_name: string };
   office: string;
   office_label: string;
+  quality?: string;
   node: typeof sdRef;
   start_date: string;
   end_date: string | null;
@@ -200,6 +207,7 @@ const initialAssignments = (): MockAssignment[] => [
     person: person('p-ndiaye', 'Abbé Augustin Ndiaye'),
     office: 'cure',
     office_label: 'Curé',
+    quality: 'cure',
     node: sdRef,
     start_date: '2021-09-01',
     end_date: null,
@@ -274,6 +282,26 @@ export const nodeSettingsDetail = {
   updated_at: '2026-09-18T10:00:00Z',
 };
 
+/** Délais par type d'acte (`GET/PUT /staff/documents/nodes/{id}/type-delays/`). */
+export const TYPE_DELAY_LABELS: [string, string][] = [
+  ['baptism', 'Certificat de baptême'],
+  ['first_communion', 'Attestation de première communion'],
+  ['confirmation', 'Attestation de confirmation'],
+  ['religious_marriage', 'Attestation de mariage religieux'],
+  ['godparent', 'Attestation parrain / marraine'],
+];
+const initialTypeDelays = (): Record<string, number | null> => ({ baptism: 2, religious_marriage: 7 });
+
+export const typeDelaysOf = (delays: Record<string, number | null>, defaultDays: number | null) => ({
+  node_id: ids.saintDominique,
+  default_days: defaultDays ?? 7,
+  items: TYPE_DELAY_LABELS.map(([document_type, document_type_label]) => ({
+    document_type,
+    document_type_label,
+    days: delays[document_type] ?? null,
+  })),
+});
+
 export const nodeChildren = [
   { ...nodeDetail, id: 'c0000000-0000-4000-8000-000000000001', type: { code: 'ceb', label: 'CEB' }, name: 'CEB Saint-Charles-Lwanga', code: 'SD-CEB1', address: '', city: 'Point E', has_children: false, parent_id: ids.saintDominique, depth: 4, erected_at: null },
 ];
@@ -287,6 +315,8 @@ export const f8aState = {
   assignments: initialAssignments(),
   node: { ...nodeDetail },
   settings: { ...nodeSettingsDetail },
+  typeDelays: initialTypeDelays(),
+  lastTypeDelaysBody: null as unknown,
   lastBody: null as unknown,
   lastPublishBody: null as Record<string, unknown> | null,
   lastNewsQuery: null as Record<string, string> | null,
@@ -303,6 +333,8 @@ export const resetF8a = () => {
   f8aState.assignments = initialAssignments();
   f8aState.node = { ...nodeDetail };
   f8aState.settings = { ...nodeSettingsDetail };
+  f8aState.typeDelays = initialTypeDelays();
+  f8aState.lastTypeDelaysBody = null;
   f8aState.lastBody = null;
   f8aState.lastPublishBody = null;
   f8aState.lastNewsQuery = null;

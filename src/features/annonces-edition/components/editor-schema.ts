@@ -5,6 +5,7 @@ import { isSunday } from '../utils/sundays';
 
 export const TITLE_MAX = 90;
 export const EXCERPT_MAX = 280;
+export const COVER_ALT_MAX = 250;
 
 /** Formulaire de l'éditeur. Les limites de la maquette sont plus strictes que celles du serveur (200 / 400). */
 export const editorSchema = z
@@ -19,12 +20,21 @@ export const editorSchema = z
     place_id: z.string(),
     cover_image_id: z.number().nullable(),
     cover_image_url: z.string().nullable(),
+    cover_image_alt: z.string().max(COVER_ALT_MAX, `${COVER_ALT_MAX} caractères au plus.`),
+    cover_image_decorative: z.boolean(),
     notify_followers: z.boolean(),
     when: z.enum(['now', 'schedule']),
     publish_date: z.string(),
     publish_time: z.string(),
   })
   .superRefine((values, ctx) => {
+    // Bannière non décorative : son texte alternatif est requis (lecteurs d'écran, WCAG 1.1.1).
+    if (values.cover_image_id !== null && !values.cover_image_decorative && !values.cover_image_alt.trim())
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cover_image_alt'],
+        message: 'Décrivez la bannière, ou indiquez qu’elle est décorative.',
+      });
     if (!values.is_sunday_notice) return;
     if (!values.sunday_date) ctx.addIssue({ code: 'custom', path: ['sunday_date'], message: 'Indiquez le dimanche concerné.' });
     else if (!isSunday(values.sunday_date))

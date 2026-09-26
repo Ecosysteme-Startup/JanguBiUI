@@ -41,6 +41,8 @@ const summary = (a: {
   is_sunday_notice: Boolean(a.sunday),
   sunday_date: a.sunday ? day(3) : null,
   cover_image_url: null,
+  cover_image_alt: '',
+  cover_image_decorative: false,
   published_at: at(a.publishedOffset, '08:05:00'),
   reactions,
 });

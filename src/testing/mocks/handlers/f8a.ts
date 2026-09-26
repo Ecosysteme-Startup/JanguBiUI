@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import { apiUrl } from '@/testing/mocks/api-url';
 import { ids } from '@/testing/mocks/db';
-import { f8aCategories, f8aState, nodeChildren, officeCatalogue, personsDirectory, places, registrations } from '@/testing/mocks/db-f8a';
+import { f8aCategories, f8aState, nodeChildren, officeCatalogue, personsDirectory, places, registrations, typeDelaysOf } from '@/testing/mocks/db-f8a';
 
 /** Enveloppe d'erreur V1 (SRS §7). */
 export const v1Error = (status: number, code: string, message: string, details: Record<string, unknown> = {}) =>
@@ -61,6 +61,8 @@ const articleHandlers = [
       created_at: now(),
       updated_at: now(),
       notify_followers: true,
+      cover_image_alt: '',
+      cover_image_decorative: false,
       ...body,
       cover_image_id: body.cover_image_id ?? null,
       cover_image_url: body.cover_image_id ? `https://minio.test/covers/${String(body.cover_image_id)}.jpg` : null,
@@ -202,6 +204,10 @@ export const personSearchHandler = http.get(apiUrl('/hierarchy/persons/'), ({ re
   );
 });
 
+/** Titre de la nomination, comme l'API : libellé de la qualité, sinon de la première, sinon de l'office. */
+const titleOf = (office: { label: string; qualities?: { code: string; label: string }[] } | undefined, quality: string | undefined, code: string) =>
+  office?.qualities?.find((q) => q.code === quality)?.label ?? office?.qualities?.[0]?.label ?? office?.label ?? code;
+
 const equipeHandlers = [
   personSearchHandler,
   http.get(apiUrl('/hierarchy/assignments/'), ({ request }) => {
@@ -220,7 +226,8 @@ const equipeHandlers = [
       id: 500,
       person: { id: body.person_id, email: 'elisabeth@example.sn', full_name: 'Élisabeth Gomis' },
       office: body.office,
-      office_label: office?.label ?? body.office,
+      office_label: titleOf(office, body.quality, body.office),
+      quality: body.quality || office?.qualities?.[0]?.code || '',
       node: { id: body.node_id, name: 'Saint-Dominique', code: 'SD', type: 'paroisse' },
       start_date: body.start_date,
       end_date: null,
@@ -234,10 +241,17 @@ const equipeHandlers = [
     return HttpResponse.json(created, { status: 201 });
   }),
   http.patch(apiUrl('/hierarchy/assignments/:id/'), async ({ params, request }) => {
-    const body = (await request.json()) as { action: string };
+    const body = (await request.json()) as { action: string; quality?: string };
     f8aState.lastBody = body;
     const found = f8aState.assignments.find((a) => a.id === Number(params.id));
     if (!found) return v1Error(404, 'not_found', 'Nomination introuvable.');
+    if (body.action === 'qualifier') {
+      const office = officeCatalogue.find((o) => o.code === found.office);
+      if (!office?.qualities?.some((q) => q.code === body.quality)) return v1Error(400, 'invalid_quality', 'Qualité inconnue pour cet office.');
+      const qualified = { ...found, quality: body.quality, office_label: titleOf(office, body.quality, found.office) };
+      f8aState.assignments = f8aState.assignments.map((a) => (a.id === found.id ? qualified : a));
+      return HttpResponse.json(qualified);
+    }
     const updated = { ...found, status: body.action === 'terminer' ? 'terminee' : 'annulee', end_date: '2026-09-25' };
     f8aState.assignments = f8aState.assignments.map((a) => (a.id === found.id ? updated : a));
     return HttpResponse.json(updated);
@@ -264,6 +278,21 @@ export const f8aOverrides = [
     f8aState.lastBody = body;
     f8aState.settings = { ...f8aState.settings, ...body, updated_at: '2026-09-26T09:00:00Z' } as typeof f8aState.settings;
     return HttpResponse.json(f8aState.settings);
+  }),
+  http.get(apiUrl('/staff/documents/nodes/:nodeId/type-delays/'), ({ params }) =>
+    params.nodeId === ids.saintDominique
+      ? HttpResponse.json(typeDelaysOf(f8aState.typeDelays, f8aState.settings.acts_delay_days))
+      : v1Error(404, 'not_found', 'Nœud introuvable.'),
+  ),
+  http.put(apiUrl('/staff/documents/nodes/:nodeId/type-delays/'), async ({ request }) => {
+    const body = (await request.json()) as { items: { document_type: string; days: number | null }[] };
+    f8aState.lastTypeDelaysBody = body;
+    const next = { ...f8aState.typeDelays };
+    body.items.forEach((item) => {
+      next[item.document_type] = item.days;
+    });
+    f8aState.typeDelays = next;
+    return HttpResponse.json(typeDelaysOf(f8aState.typeDelays, f8aState.settings.acts_delay_days));
   }),
   http.get(apiUrl('/hierarchy/nodes/:nodeId/'), ({ params }) =>
     params.nodeId === ids.saintDominique ? HttpResponse.json(f8aState.node) : v1Error(404, 'not_found', 'Nœud introuvable.'),

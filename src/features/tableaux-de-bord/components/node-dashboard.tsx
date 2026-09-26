@@ -29,7 +29,7 @@ export const NodeDashboardView = ({ nodeId }: { nodeId: string }) => {
     );
   }
   return backofficeKindOf(type) === 'paroisse' ? (
-    <ParishDashboard nodeId={nodeId} offices={direct?.offices ?? []} />
+    <ParishDashboard nodeId={nodeId} offices={direct?.offices ?? []} officeLabels={direct?.officeLabels} />
   ) : (
     <DioceseDashboard nodeId={nodeId} />
   );

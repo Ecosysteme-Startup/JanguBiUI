@@ -1,11 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import type * as React from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { CapabilityChips } from '@/components/signature/capability-chips';
+import { OfficeQualityField } from '@/components/signature/office-quality-field';
 import { PersonCombobox } from '@/components/signature/person-combobox';
 import { Button } from '@/components/ui/button';
 import { Field } from '@/components/ui/field';
@@ -25,6 +27,7 @@ const schema = z.object({
   person_id: z.string().min(1, 'Choisissez la personne à nommer.'),
   node_id: z.string().min(1, 'Choisissez le lieu.'),
   office: z.string().min(1, 'Choisissez l’office.'),
+  quality: z.string(),
   start_date: z.string().min(1, 'Indiquez la date de début.'),
   decree_ref: z.string().max(120, '120 caractères au plus.'),
   note: z.string().max(255, '255 caractères au plus.'),
@@ -64,7 +67,7 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
   const [person, setPerson] = useState<PersonOption | null>(null);
   const { register, handleSubmit, watch, setError, setValue, formState } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { person_id: '', node_id: targets[0]?.id ?? '', office: '', start_date: dayjs().format('YYYY-MM-DD'), decree_ref: '', note: '' },
+    defaultValues: { person_id: '', node_id: targets[0]?.id ?? '', office: '', quality: '', start_date: dayjs().format('YYYY-MM-DD'), decree_ref: '', note: '' },
   });
   const nodeType = targets.find((t) => t.id === watch('node_id'))?.type;
   const available = offices.filter((o) => !nodeType || o.node_types.length === 0 || o.node_types.includes(nodeType));
@@ -117,7 +120,12 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
         </Select>
       </Field>
       <Field id="n-office" label="Office" required error={e.office?.message}>
-        <Select {...register('office')}>
+        <Select
+          {...register('office', {
+            onChange: (ev: React.ChangeEvent<HTMLSelectElement>) =>
+              setValue('quality', offices.find((o) => o.code === ev.target.value)?.qualities[0]?.code ?? ''),
+          })}
+        >
           <option value="">Choisir un office</option>
           {available.map((o) => (
             <option key={o.code} value={o.code}>
@@ -126,6 +134,7 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
           ))}
         </Select>
       </Field>
+      <OfficeQualityField id="n-qualite" qualities={office?.qualities ?? []} error={e.quality?.message} {...register('quality')} />
       <Field id="n-debut" label="Début" required error={e.start_date?.message}>
         <Input type="date" {...register('start_date')} />
       </Field>

@@ -14,13 +14,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { apiErrorCode, apiErrorMessage, apiFieldErrors, isForbidden } from '@/utils/api-errors';
 
 import { type ParishLife, type ParishLifeUpdate, useUpdateParishLife } from '../api/node-settings';
+import { type TypeDelays, type TypeDelaysUpdate, useUpdateTypeDelays } from '../api/type-delays';
+
+type TypeDelaysUpdateItem = TypeDelaysUpdate['items'][number];
 
 import { SectionTitle } from './section-title';
+import { TypeDelayFields } from './type-delay-fields';
 
 const OFFICE_HOURS_MAX = 7;
 const ACTS_DELAY_MAX = 90;
 const WELCOME_MAX = 1000;
 const PHONE_PATTERN = /^\+?[0-9 ().-]{6,30}$/;
+
+const delayDays = z
+  .string()
+  .trim()
+  .refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= ACTS_DELAY_MAX), `Entre 1 et ${ACTS_DELAY_MAX} jours.`);
 
 const schema = z.object({
   phone: z
@@ -42,15 +51,14 @@ const schema = z.object({
     )
     .max(OFFICE_HOURS_MAX),
   secretariat_public: z.boolean(),
-  acts_delay_days: z
-    .string()
-    .trim()
-    .refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= ACTS_DELAY_MAX), `Entre 1 et ${ACTS_DELAY_MAX} jours.`),
+  acts_delay_days: delayDays,
+  /** Délai propre à chaque type d'acte (vide : délai de la paroisse). Enregistré à part (documents). */
+  type_delays: z.array(z.object({ document_type: z.string(), label: z.string(), days: delayDays })),
   acts_welcome_message: z.string().trim().max(WELCOME_MAX, `${WELCOME_MAX} caractères au plus.`),
 });
 type Values = z.infer<typeof schema>;
 
-const toValues = (s: ParishLife): Values => ({
+const toValues = (s: ParishLife, delays: TypeDelays): Values => ({
   phone: s.phone,
   email: s.email,
   address: s.address,
@@ -59,12 +67,20 @@ const toValues = (s: ParishLife): Values => ({
   secretariat_public: s.secretariat_public,
   acts_delay_days: s.acts_delay_days === null ? '' : String(s.acts_delay_days),
   acts_welcome_message: s.acts_welcome_message,
+  type_delays: delays.items.map((i) => ({ document_type: i.document_type, label: i.document_type_label, days: i.days === null ? '' : String(i.days) })),
 });
 
-const toBody = (v: Values): ParishLifeUpdate => ({
+const toBody = ({ type_delays: _typeDelays, ...v }: Values): ParishLifeUpdate => ({
   ...v,
   acts_delay_days: v.acts_delay_days === '' ? null : Number(v.acts_delay_days),
 });
+
+export type ParishLifeValues = Values;
+
+const toDelaysBody = (v: Values) => ({
+  items: v.type_delays.map((d) => ({ document_type: d.document_type as TypeDelayType, days: d.days === '' ? null : Number(d.days) })),
+});
+type TypeDelayType = TypeDelaysUpdateItem['document_type'];
 
 const saveErrorMessage = (error: unknown) =>
   apiErrorCode(error) === 'mfa_required'
@@ -77,27 +93,40 @@ const saveErrorMessage = (error: unknown) =>
  * Sections « 02 — Secrétariat » et « 05 — Demandes d’actes » de PAR-Parametres : le secrétariat
  * les modifie avec `horaires.gerer`. Sans capacité, lecture seule.
  */
-export const ParishLifeForm = ({ nodeId, settings, canEdit }: { nodeId: string; settings: ParishLife; canEdit: boolean }) => {
+export const ParishLifeForm = ({
+  nodeId,
+  settings,
+  typeDelays,
+  canEdit,
+}: {
+  nodeId: string;
+  settings: ParishLife;
+  typeDelays: TypeDelays;
+  canEdit: boolean;
+}) => {
   const [saved, setSaved] = useState(false);
   const { register, control, handleSubmit, reset, setError, watch, formState } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: toValues(settings),
+    defaultValues: toValues(settings, typeDelays),
   });
   const hours = useFieldArray({ control, name: 'office_hours' });
-  const update = useUpdateParishLife(nodeId, {
-    onSuccess: (updated) => {
-      reset(toValues(updated));
-      setSaved(true);
-    },
-  });
-  const dirtyCount = Object.keys(formState.dirtyFields).length;
+  const update = useUpdateParishLife(nodeId);
+  const updateDelays = useUpdateTypeDelays(nodeId);
+  const { type_delays: dirtyDelays, ...dirtySettings } = formState.dirtyFields;
+  const dirtyDelayCount = (dirtyDelays ?? []).filter((row) => row?.days).length;
+  const dirtyCount = Object.keys(dirtySettings).length + dirtyDelayCount;
   const errors = formState.errors;
   const disabled = !canEdit;
+  const saveError = update.isError ? update.error : updateDelays.isError ? updateDelays.error : null;
 
   const onSubmit = handleSubmit(async (values) => {
     setSaved(false);
     try {
-      await update.mutateAsync(toBody(values));
+      // Deux ressources : les paramètres du nœud, puis les délais par type d'acte (documents).
+      const nextSettings = Object.keys(dirtySettings).length > 0 ? await update.mutateAsync(toBody(values)) : settings;
+      const nextDelays = dirtyDelayCount > 0 ? await updateDelays.mutateAsync(toDelaysBody(values)) : typeDelays;
+      reset(toValues(nextSettings, nextDelays));
+      setSaved(true);
     } catch (error) {
       Object.entries(apiFieldErrors(error)).forEach(([field, message]) => {
         if (field in values) setError(field as keyof Values, { message });
@@ -172,13 +201,14 @@ export const ParishLifeForm = ({ nodeId, settings, canEdit }: { nodeId: string; 
         <div className="mt-4 flex flex-col gap-4">
           <Field
             id="p-delai"
-            label="Délai indicatif de traitement (jours ouvrés)"
-            hint="Laissez vide pour ne pas afficher de délai."
+            label="Délai indicatif de traitement, tous actes (jours ouvrés)"
+            hint="Laissez vide pour reprendre le délai du diocèse."
             error={errors.acts_delay_days?.message}
             className="max-w-xs"
           >
             <Input inputMode="numeric" {...register('acts_delay_days')} disabled={disabled} />
           </Field>
+          <TypeDelayFields rows={watch('type_delays')} register={register} errors={errors} fallback={watch('acts_delay_days') || String(typeDelays.default_days)} disabled={disabled} />
           <Field
             id="p-accueil"
             label="Message d’accueil des demandes"
@@ -195,9 +225,9 @@ export const ParishLifeForm = ({ nodeId, settings, canEdit }: { nodeId: string; 
         <p className="m-0 min-h-5 text-sm" aria-live="polite">
           {saved && <span className="text-ok">Paramètres enregistrés.</span>}
         </p>
-        {update.isError && (
+        {saveError !== null && (
           <p role="alert" className="m-0 mt-2 text-sm text-err">
-            {saveErrorMessage(update.error)}
+            {saveErrorMessage(saveError)}
           </p>
         )}
         {canEdit && (
@@ -208,8 +238,8 @@ export const ParishLifeForm = ({ nodeId, settings, canEdit }: { nodeId: string; 
             <Button variant="secondary" disabled={dirtyCount === 0} onClick={() => reset()}>
               Annuler
             </Button>
-            <Button type="submit" disabled={dirtyCount === 0 || update.isPending}>
-              {update.isPending ? 'Enregistrement…' : 'Enregistrer'}
+            <Button type="submit" disabled={dirtyCount === 0 || update.isPending || updateDelays.isPending}>
+              {update.isPending || updateDelays.isPending ? 'Enregistrement…' : 'Enregistrer'}
             </Button>
           </div>
         )}
