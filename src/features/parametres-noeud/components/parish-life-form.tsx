@@ -240,12 +240,12 @@ export const ParishLifeForm = ({
           <div className="flex flex-col gap-4">
             <Field
               id="p-delai"
-              label="Délai indicatif de traitement, tous actes (jours ouvrés)"
-              hint="Laissez vide pour reprendre le délai du diocèse."
+              label="Délai indicatif, tous actes"
+              hint="Jours ouvrés. Vide : le délai du diocèse s’applique."
               error={errors.acts_delay_days?.message}
-              className="max-w-xs"
+              className="grid grid-cols-[minmax(0,1fr)_64px] items-center gap-x-4 border-b border-line pb-4 [&>p]:col-span-2"
             >
-              <Input inputMode="numeric" controlSize="sm" className="tnum text-15" {...register('acts_delay_days')} disabled={disabled} />
+              <Input inputMode="numeric" controlSize="sm" className="tnum text-center text-15" {...register('acts_delay_days')} disabled={disabled} />
             </Field>
             <TypeDelayFields rows={watch('type_delays')} register={register} errors={errors} fallback={watch('acts_delay_days') || String(typeDelays.default_days)} disabled={disabled} />
             <Field
@@ -262,13 +262,13 @@ export const ParishLifeForm = ({
         {aside}
       </div>
 
-      <div className="sticky bottom-4 z-10 lg:col-span-2">
+      <div className="lg:col-span-2">
         {saveError !== null && (
           <p role="alert" className="m-0 mb-2 rounded-12 bg-err-bg px-4 py-2 text-14 text-err">
             {saveErrorMessage(saveError)}
           </p>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-line bg-surface px-6 py-3 shadow-menu">{footer}</div>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-16 border border-line bg-surface px-6 py-3">{footer}</div>
       </div>
     </form>
   );
