@@ -43,7 +43,7 @@ export const ProfileNav = () => {
   }, []);
 
   return (
-    <nav aria-label="Réglages" className="lg:sticky lg:top-6">
+    <nav aria-label="Réglages" className="min-w-0 lg:sticky lg:top-6">
       <ul className="m-0 flex list-none gap-0.5 overflow-x-auto p-0 lg:flex-col lg:overflow-visible">
         {PROFILE_SECTIONS.map((section) => {
           const active = section.id === current;

@@ -25,3 +25,12 @@ Traité : 0f93800 — `variant="card" | "pinned"`, `audience="fidele" | "pretre"
 FID-Pretres (piste 320 px, 2 colonnes égales), FID-Conversation (segments 32 px), PAR-Messagerie (segments 36 px avec compteur « Sans réponse 3 » : compteur 14/500 `ink-3`). Aujourd'hui `md` = 34 px et `lg` = 36 px mais en 15 px. Besoin : une taille « 36 px / 14 px » (et idéalement 32 px), et un `items[].count` optionnel pour le compteur. En attendant j'utilise `md`.
 Traité : 0f93800 — `size="sm"` (36/14) ou `size="xs"` (32/14), `block` (colonnes égales), compteur `items[].count` (SegmentedLinks) ou `counts={{ valeur: 3 }}` (SegmentedControl).
 
+
+---
+**État au 26/09 (lot D)** : demandes 1 à 4 livrées par les fondations (`TopbarContent`, `ShellLayout fullBleed/hideTopbar`, `ConfessionNotice variant/audience`, `SegmentedControl size xs/sm + counts + block`) et intégrées. Merci. Restent ouvertes :
+
+## 5. `ShellLayout fullBleed` sous 1024 px (barre du bas)
+FID-Conversation et PAR-Messagerie à 375 px : le `<main>` plein cadre garde un espace vide d'environ 140 px entre la saisie et la `BottomNav` (padding bas mobile conservé + hauteur non déduite de la barre du bas). Besoin : en `fullBleed`, sous lg, hauteur = 100dvh − barre du haut − `BottomNav`, sans `pb-24`, pour que la saisie repose juste au-dessus de la barre du bas.
+
+## 6. `SlotPicker` (src/components/signature/slot-picker.tsx) au style Ciel (FID-Confession-RDV)
+Grille 3 colonnes, gap 8, cases 56 px rayon 12, texte centré ; heure 15/600 au format `16:20` (Libre Franklin, pas de serif), sous-libellé 12/16 ; libre = fond `paper` bordure `line` (« Libre », `ink-2`) ; choisi = aplat `primary-fill` texte `on-primary`, sous-libellé « Choisi » `tint-100` ; complet = fond `surface`, heure barrée `ink-3`, « Complet ». Garder `slots[].priest` comme sous-libellé optionnel (je passe « A. Ndiaye » quand « Tous » est choisi, « Libre » sinon).

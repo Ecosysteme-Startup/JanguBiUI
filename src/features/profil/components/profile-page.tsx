@@ -56,7 +56,7 @@ export const ProfilePage = ({ accountUrl, onAccountDeleted = leaveAfterDeletion 
         </div>
       </header>
       <DeclarationComplementNotice />
-      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-8">
+      <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-8">
         <ProfileNav />
         <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
           <IdentitySection me={me} accountUrl={accountUrl} />

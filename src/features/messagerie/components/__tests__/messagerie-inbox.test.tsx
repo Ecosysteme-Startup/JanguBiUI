@@ -75,7 +75,7 @@ describe('MessagerieInbox (PAR-Messagerie)', () => {
     await user.click(await screen.findByRole('button', { name: 'Archiver' }));
 
     await vi.waitFor(() => expect(f7State.conversations[0].is_archived).toBe(true));
-    await user.click(screen.getByRole('radio', { name: /archivées/i }));
+    await user.click(await screen.findByRole('button', { name: 'Voir les archivées (1)' }));
     expect(await screen.findByRole('list', { name: 'Archivées' })).toHaveTextContent('Emmanuel Tine');
   });
 

@@ -120,31 +120,42 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
             {me.data ? `${displayName(me.data).full} · messages chiffrés` : 'Messages chiffrés'}
           </p>
           <AvailabilityStatus />
-          <SegmentedControl
-            label="Filtrer les conversations"
-            value={filter}
-            onChange={(value) => setFilter(value)}
-            options={[
-              ['sans_reponse', 'Sans réponse'],
-              ['toutes', 'Toutes'],
-              ['archivees', 'Archivées'],
-            ]}
-            counts={{ sans_reponse: unansweredCount, toutes: activeCount, ...(archivedCount ? { archivees: archivedCount } : {}) }}
-            size="sm"
-            block
-            className="mt-4"
-          />
+          {filter === 'archivees' ? (
+            <p className="m-0 mt-4 flex items-center justify-between gap-3 text-15 font-semibold text-ink">
+              Conversations archivées
+              <Button variant="ghost" size="sm" onClick={() => setFilter('sans_reponse')}>
+                Retour
+              </Button>
+            </p>
+          ) : (
+            <SegmentedControl
+              label="Filtrer les conversations"
+              value={filter}
+              onChange={(value) => setFilter(value)}
+              options={[
+                ['sans_reponse', 'Sans réponse'],
+                ['toutes', 'Toutes'],
+              ]}
+              counts={{ sans_reponse: unansweredCount, toutes: activeCount }}
+              size="sm"
+              block
+              className="mt-4"
+            />
+          )}
           <label htmlFor="conv-filtre" className="sr-only">
             Rechercher une conversation
           </label>
-          <Input
-            id="conv-filtre"
-            type="search"
-            placeholder="Nom du fidèle"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mt-3"
-          />
+          <div className="mt-3">
+            <Input
+              id="conv-filtre"
+              type="search"
+              placeholder="Nom du fidèle"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              controlSize="sm"
+              icon="recherche"
+            />
+          </div>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
           {conversations.isPending ? (
@@ -180,6 +191,12 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
                 />
               </div>
             ))
+          )}
+          {filter !== 'archivees' && archivedCount > 0 && (
+            <Button variant="ghost" size="sm" className="mx-1 mt-3" onClick={() => setFilter('archivees')}>
+              <Icon name="archive" size={16} />
+              Voir les archivées ({archivedCount})
+            </Button>
           )}
         </div>
         <p className="m-4 flex items-start gap-2 rounded-12 border border-line bg-surface px-3.5 py-3 text-13 text-ink-3">
