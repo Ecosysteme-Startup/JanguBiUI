@@ -85,3 +85,40 @@ export const messagesOf = (request: DocumentRequest): ParishMessage[] =>
       text: entry.comment,
       status: entry.to_status,
     }));
+
+export type ProgressStep = {
+  key: (typeof MAIN_PATH)[number];
+  label: string;
+  when: string | null;
+  state: 'done' | 'current' | 'upcoming';
+};
+
+const PROGRESS_LABELS: Record<(typeof MAIN_PATH)[number], string> = {
+  submitted: 'Soumise',
+  under_verification: 'Vérification',
+  ready_for_pickup: 'Prête à retirer',
+  collected: 'Retirée',
+};
+
+const shortDay = (iso: string, now: Date) =>
+  dayjs(iso).isSame(dayjs(now), 'day') ? 'aujourd’hui' : dayjs(iso).format('D MMM');
+
+/**
+ * Barre de progression d'une carte de demande (FID-Demandes) : les quatre étapes du chemin
+ * nominal, la date où chacune a été atteinte. Complément demandé = étape de vérification.
+ * Rejetée ou annulée : pas de progression.
+ */
+export const progressOf = (request: DocumentRequest, now: Date = new Date()): ProgressStep[] => {
+  const status = request.status === 'info_requested' ? 'under_verification' : request.status;
+  const position = (MAIN_PATH as readonly string[]).indexOf(status);
+  if (position < 0) return [];
+  const finished = request.status === 'collected';
+  const reachedAt = (step: string) =>
+    request.history.find((h) => h.to_status === step || (step === 'under_verification' && h.to_status === 'info_requested'))?.created_at ??
+    (step === 'submitted' ? request.created_at : undefined);
+  return MAIN_PATH.map((key, index) => {
+    const state = index < position || finished ? 'done' : index === position ? 'current' : 'upcoming';
+    const at = state === 'upcoming' ? undefined : reachedAt(key);
+    return { key, label: PROGRESS_LABELS[key], when: at ? shortDay(at, now) : null, state };
+  });
+};

@@ -3,151 +3,123 @@
 import NextLink from 'next/link';
 import { useMemo, useState } from 'react';
 
-import { StatusDot } from '@/components/signature/status-dot';
 import { buttonVariants } from '@/components/ui/button';
 import { Chip, ChipGroup } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { Notice } from '@/components/ui/notice';
 import { Pagination } from '@/components/ui/pagination';
-import { SkeletonLine } from '@/components/ui/skeleton';
-import { Table, Td, Th, Tr } from '@/components/ui/table';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import { Skeleton } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { cn } from '@/utils/cn';
-import { dotDate } from '@/utils/dates';
+import { dayjs } from '@/utils/dates';
 
 import { REQUESTS_PAGE_SIZE, useRequests } from '../api/get-requests';
-import { type DocumentRequest, documentLabel, reasonLabel } from '../types/request';
+import { type DocumentRequest, documentLabel } from '../types/request';
 import { isOpen } from '../utils/timeline';
 
 import { ActesPrimer } from './actes-primer';
+import { RequestCard } from './request-card';
 
-type Filter = 'en-cours' | 'terminees' | 'toutes';
+type Filter = 'en-cours' | 'terminees';
 
-const FILTERS: { key: Filter; label: string; keep: (r: DocumentRequest) => boolean }[] = [
-  { key: 'en-cours', label: 'En cours', keep: (r) => isOpen(r.status) },
-  { key: 'terminees', label: 'Terminées', keep: (r) => !isOpen(r.status) },
-  { key: 'toutes', label: 'Toutes', keep: () => true },
-];
-
-/** Précision sous le statut, du point de vue du fidèle. */
-const statusHint = (r: DocumentRequest): string => {
-  switch (r.status) {
-    case 'submitted':
-      return 'Non ouverte';
-    case 'under_verification':
-      return 'Registre ouvert';
-    case 'info_requested':
-      return 'À vous de répondre';
-    case 'ready_for_pickup':
-      return 'Au secrétariat';
-    case 'collected':
-      return r.closed_at ? `Remise le ${dotDate(r.closed_at)}` : 'Original remis';
-    case 'rejected':
-      return 'Motif transmis';
-    case 'cancelled':
-      return 'Par vous';
-  }
+const FILTERS: Record<Filter, (r: DocumentRequest) => boolean> = {
+  'en-cours': (r) => isOpen(r.status),
+  terminees: (r) => !isOpen(r.status),
 };
 
-const headline = (requests: DocumentRequest[]): string => {
+/** Ce qui attend le fidèle, en tête de liste (prête à retirer, complément demandé). */
+const headline = (requests: DocumentRequest[]): { tone: 'ok' | 'warn'; text: string } | null => {
   const ready = requests.filter((r) => r.status === 'ready_for_pickup');
-  if (ready.length === 1) return `Une demande prête à retirer à ${ready[0].target_node?.name ?? 'la paroisse'}.`;
-  if (ready.length > 1) return `${ready.length} demandes prêtes à retirer.`;
-  if (requests.some((r) => r.status === 'info_requested')) return 'Une paroisse attend un complément de votre part.';
-  return 'L’acte se demande à la paroisse où le sacrement a été célébré.';
+  if (ready.length === 1) return { tone: 'ok', text: `Une demande prête à retirer à ${ready[0].target_node?.name ?? 'la paroisse'}.` };
+  if (ready.length > 1) return { tone: 'ok', text: `${ready.length} demandes prêtes à retirer.` };
+  if (requests.some((r) => r.status === 'info_requested')) return { tone: 'warn', text: 'Une paroisse attend un complément de votre part.' };
+  return null;
 };
 
-/** FID-Demandes : onglets en cours / terminées / toutes, filtre par type, tableau. */
+const ListSkeleton = () => (
+  <div role="status" data-testid="demandes-squelette" className="mt-6 flex flex-col gap-4">
+    <span className="sr-only">Chargement de vos demandes…</span>
+    {[0, 1].map((i) => (
+      <Skeleton key={i} className="h-[184px] rounded-16" />
+    ))}
+  </div>
+);
+
+/** FID-Demandes : en cours / terminées, filtre par type d'acte, cartes de suivi. */
 export const RequestsList = () => {
   const [offset, setOffset] = useState(0);
-  const [filter, setFilter] = useState<Filter>('toutes');
+  const [chosen, setChosen] = useState<Filter | null>(null);
   const [type, setType] = useState<string | null>(null);
   const { data, isPending, isError, refetch } = useRequests(offset);
   const all = useMemo(() => data?.results ?? [], [data]);
 
-  const byTab = all.filter(FILTERS.find((f) => f.key === filter)!.keep);
+  // Sans choix explicite : les demandes en cours, ou les terminées s'il n'y en a aucune en cours.
+  const filter: Filter = chosen ?? (all.length > 0 && !all.some(FILTERS['en-cours']) ? 'terminees' : 'en-cours');
+  const byTab = all.filter(FILTERS[filter]);
   const types = [...new Map(byTab.map((r) => [r.document_type, r.document_type_label])).entries()];
   const rows = type ? byTab.filter((r) => r.document_type === type) : byTab;
+  const lastClosed = all.filter(FILTERS.terminees).sort((a, b) => (b.closed_at ?? b.updated_at).localeCompare(a.closed_at ?? a.updated_at))[0];
+  const alert = data ? headline(all) : null;
 
   return (
     <>
-      <NextLink href={paths.app.root.getHref()} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
-        <Icon name="fleche-gauche" size={18} />
-        Retour · Accueil
-      </NextLink>
-      <header className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
         <div>
-          <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">03</span> — Mes demandes d’actes
-          </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
-            Mes demandes <em className="italic text-primary">d’actes</em>
-          </h1>
+          <h1 className="m-0 text-28 font-semibold text-ink sm:text-32">Mes demandes</h1>
+          <p className="m-0 mt-2 text-16 text-ink-2">Vos demandes d’actes, adressées à chaque paroisse où le sacrement a été célébré.</p>
         </div>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
-          {/* Place réservée (deux lignes) : la phrase arrive avec les données sans pousser le bouton. */}
-          <p className="m-0 min-h-[3em] max-w-xs text-sm text-ink-2 lg:text-right">
-            {data ? headline(all) : <SkeletonLine width="w-56" />}
-          </p>
-          <NextLink href={paths.app.demandes.nouvelle.getHref()} className={cn(buttonVariants(), 'hover:no-underline')}>
-            <Icon name="plus" size={18} />
-            Nouvelle demande
-          </NextLink>
-        </div>
+        <NextLink href={paths.app.demandes.nouvelle.getHref()} className={cn(buttonVariants({ size: 'lg' }), 'self-start whitespace-nowrap hover:no-underline sm:self-auto')}>
+          <Icon name="plus" size={20} />
+          Nouvelle demande
+        </NextLink>
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-12 lg:gap-6">
-        <section aria-labelledby="dem-liste" className="min-w-0 lg:col-span-8">
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_336px]">
+        <section aria-labelledby="dem-liste" className="min-w-0">
           <h2 id="dem-liste" className="sr-only">
             Liste de mes demandes
           </h2>
-          <div className="flex items-center justify-between gap-4 border-b border-line">
-            <div role="group" aria-label="Filtrer par état" className="flex gap-6 overflow-x-auto lg:gap-8">
-              {FILTERS.map((f) => {
-                const active = f.key === filter;
-                return (
-                  <button
-                    key={f.key}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => {
-                      setFilter(f.key);
-                      setType(null);
-                    }}
-                    className={cn(
-                      '-mb-px inline-flex h-11 items-center gap-2 whitespace-nowrap border-b-2 text-base',
-                      active ? 'border-primary font-semibold text-ink' : 'border-transparent text-ink-2 hover:text-primary',
-                    )}
-                  >
-                    {f.label}
-                    <span className={cn('tnum text-meta', active ? 'text-primary' : 'text-ink-3')}>{all.filter(f.keep).length}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <span className="tnum hidden text-meta text-ink-3 sm:inline">Tri : date de la demande</span>
-          </div>
+          {alert && <Notice tone={alert.tone} title={alert.text} className="mb-6" />}
+          <SegmentedControl
+            label="Statut des demandes"
+            size="sm"
+            block
+            className="w-full sm:w-80"
+            value={filter}
+            options={[
+              ['en-cours', 'En cours'],
+              ['terminees', 'Terminées'],
+            ]}
+            counts={{ 'en-cours': all.filter(FILTERS['en-cours']).length, terminees: all.filter(FILTERS.terminees).length }}
+            onChange={(value) => {
+              setChosen(value);
+              setType(null);
+            }}
+          />
 
           {types.length > 1 && (
             <ChipGroup label="Filtrer par type d’acte" className="mt-4">
-              <Chip pressed={type === null} onClick={() => setType(null)}>
-                Tous · {byTab.length}
+              <Chip pressed={type === null} count={byTab.length} onClick={() => setType(null)}>
+                Tous
               </Chip>
               {types.map(([value, label]) => (
-                <Chip key={value} pressed={type === value} onClick={() => setType(value)}>
-                  {label} · {byTab.filter((r) => r.document_type === value).length}
+                <Chip key={value} pressed={type === value} count={byTab.filter((r) => r.document_type === value).length} onClick={() => setType(value)}>
+                  {label}
                 </Chip>
               ))}
             </ChipGroup>
           )}
 
-          <div className="mt-4" aria-live="polite">
+          <div aria-live="polite">
             {isPending ? (
-              <RequestsTableSkeleton />
+              <ListSkeleton />
             ) : isError ? (
               <EmptyState
                 tone="err"
                 icon="alerte"
+                className="mt-6"
                 title="Vos demandes n’ont pas pu être chargées."
                 action={
                   <button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={() => refetch()}>
@@ -156,105 +128,34 @@ export const RequestsList = () => {
                 }
               />
             ) : all.length === 0 ? (
-              <EmptyState icon="document" title="Aucune demande pour l’instant.">
+              <EmptyState icon="document" className="mt-6" title="Aucune demande pour l’instant.">
                 Extrait de baptême, attestation de confirmation… Faites votre demande en ligne, puis retirez l’original au secrétariat.
               </EmptyState>
             ) : rows.length === 0 ? (
-              <EmptyState icon="document" title={filter === 'en-cours' ? 'Aucune demande en cours.' : 'Aucune demande terminée.'} />
+              <EmptyState icon="document" className="mt-6" title={filter === 'en-cours' ? 'Aucune demande en cours.' : 'Aucune demande terminée.'} />
             ) : (
-              <RequestsTable rows={rows} />
+              <ul aria-label={filter === 'en-cours' ? 'Demandes en cours' : 'Demandes terminées'} className="m-0 mt-6 flex list-none flex-col gap-4 p-0">
+                {rows.map((r) => (
+                  <RequestCard key={r.id} request={r} />
+                ))}
+              </ul>
             )}
           </div>
-          {data && (
-            <Pagination offset={offset} limit={REQUESTS_PAGE_SIZE} total={data.count} onChange={setOffset} className="mt-2" />
+          {data && data.count > REQUESTS_PAGE_SIZE && (
+            <Pagination offset={offset} limit={REQUESTS_PAGE_SIZE} total={data.count} onChange={setOffset} className="mt-4" />
           )}
-          <p className="m-0 mt-4 text-sm text-ink-3">Les demandes terminées restent consultables deux ans.</p>
+          {filter === 'en-cours' && lastClosed ? (
+            <p className="m-0 mt-4 px-1 text-14 text-ink-3">
+              Dernière demande terminée : {lastClosed.reference}, {documentLabel(lastClosed).toLowerCase()},{' '}
+              {lastClosed.status_label.toLowerCase()} le {dayjs(lastClosed.closed_at ?? lastClosed.updated_at).format('D MMM')}.
+            </p>
+          ) : (
+            data && <p className="m-0 mt-4 px-1 text-14 text-ink-3">Les demandes terminées restent consultables deux ans.</p>
+          )}
         </section>
 
-        <ActesPrimer className="lg:col-span-4" />
+        <ActesPrimer />
       </div>
     </>
   );
 };
-
-const RequestsTableHead = () => (
-  <thead>
-    <tr>
-      <Th className="w-[40%]">Demande</Th>
-      <Th className="hidden w-[26%] md:table-cell">Paroisse du sacrement</Th>
-      <Th>Statut</Th>
-      <Th className="hidden text-right sm:table-cell">Mise à jour</Th>
-      <Th className="w-9">
-        <span className="sr-only">Ouvrir</span>
-      </Th>
-    </tr>
-  </thead>
-);
-
-const SKELETON_ROWS = 3;
-
-/** Le tableau lui-même, en-tête compris, avec des lignes de 72 px factices : pas de saut à l'arrivée. */
-const RequestsTableSkeleton = () => (
-  <div role="status" data-testid="demandes-squelette">
-    <span className="sr-only">Chargement de vos demandes…</span>
-    <Table aria-hidden="true">
-      <RequestsTableHead />
-      <tbody>
-        {Array.from({ length: SKELETON_ROWS }, (_, i) => (
-          <tr key={i}>
-            <Td className="h-18 py-3">
-              <SkeletonLine className="text-base font-semibold" width="w-40" />
-              <SkeletonLine className="mt-1 text-xs" width="w-28" />
-            </Td>
-            <Td className="hidden md:table-cell">
-              <SkeletonLine className="text-sm" width="w-32" />
-            </Td>
-            <Td>
-              <SkeletonLine className="text-sm" width="w-24" />
-              <SkeletonLine className="mt-1 pl-4 text-meta" width="w-20" />
-            </Td>
-            <Td className="hidden sm:table-cell">
-              <SkeletonLine className="text-right text-xs" width="w-16" />
-            </Td>
-            <Td />
-          </tr>
-        ))}
-      </tbody>
-    </Table>
-  </div>
-);
-
-const RequestsTable = ({ rows }: { rows: DocumentRequest[] }) => (
-  <Table label="Mes demandes, défilement horizontal">
-    <RequestsTableHead />
-    <tbody>
-      {rows.map((r) => (
-        <Tr key={r.id}>
-          <Td className="h-18 py-3">
-            <NextLink href={paths.app.demandes.detail.getHref(r.id)} className="block text-ink hover:text-primary">
-              <span className="block text-base font-semibold">{documentLabel(r)}</span>
-              <span className="tnum mt-1 block text-xs text-ink-3">
-                {r.reference} · {reasonLabel(r)}
-              </span>
-            </NextLink>
-          </Td>
-          <Td className="hidden leading-snug text-ink-2 md:table-cell">{r.target_node?.name}</Td>
-          <Td>
-            <StatusDot status={r.status} />
-            <span className="tnum mt-1 block pl-4 text-meta text-ink-3">{statusHint(r)}</span>
-          </Td>
-          <Td className="tnum hidden text-right text-xs sm:table-cell">{dotDate(r.updated_at)}</Td>
-          <Td className="text-right">
-            <NextLink
-              href={paths.app.demandes.detail.getHref(r.id)}
-              aria-label={`Ouvrir la demande ${r.reference}`}
-              className="inline-flex size-9 items-center justify-center rounded text-ink hover:bg-surface-2"
-            >
-              <Icon name="chevron-droite" size={18} />
-            </NextLink>
-          </Td>
-        </Tr>
-      ))}
-    </tbody>
-  </Table>
-);

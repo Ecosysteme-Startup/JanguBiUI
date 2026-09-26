@@ -1,5 +1,5 @@
 import { requestSchema } from '../../types/request';
-import { buildTimeline, messagesOf, pendingInfoRequest } from '../timeline';
+import { buildTimeline, messagesOf, pendingInfoRequest, progressOf } from '../timeline';
 import { actesHandlers } from '@/testing/mocks/handlers/f6-actes';
 import { server } from '@/testing/mocks/server';
 
@@ -99,5 +99,34 @@ describe('messagesOf', () => {
       ['paroisse', 'Précisez.'],
       ['fidele', 'Complément fourni par le demandeur.'],
     ]);
+  });
+});
+
+describe('progressOf', () => {
+  const now = new Date('2026-09-24T12:00:00');
+  it('situe une demande en vérification : deux segments franchis, la vérification en cours', () => {
+    const r = request({
+      status: 'under_verification',
+      history: [
+        { from_status: '', to_status: 'submitted', comment: '', created_at: '2026-09-16T10:12:00' },
+        { from_status: 'submitted', to_status: 'under_verification', comment: '', created_at: '2026-09-24T09:05:00' },
+      ],
+    });
+    expect(progressOf(r, now)).toEqual([
+      { key: 'submitted', label: 'Soumise', when: '16 sept.', state: 'done' },
+      { key: 'under_verification', label: 'Vérification', when: 'aujourd’hui', state: 'current' },
+      { key: 'ready_for_pickup', label: 'Prête à retirer', when: null, state: 'upcoming' },
+      { key: 'collected', label: 'Retirée', when: null, state: 'upcoming' },
+    ]);
+  });
+
+  it('range un complément demandé dans l’étape de vérification', () => {
+    const r = request({ status: 'info_requested', history: [{ from_status: 'submitted', to_status: 'info_requested', comment: '', created_at: '2026-09-20T09:00:00' }] });
+    expect(progressOf(r, now).map((s) => s.state)).toEqual(['done', 'current', 'upcoming', 'upcoming']);
+  });
+
+  it('marque tout franchi une fois l’original retiré, et rien pour une demande rejetée', () => {
+    expect(progressOf(request({ status: 'collected' }), now).every((s) => s.state === 'done')).toBe(true);
+    expect(progressOf(request({ status: 'rejected' }), now)).toEqual([]);
   });
 });
