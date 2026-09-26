@@ -35,31 +35,36 @@ describe('Profil (/app/profil)', () => {
   it('n’affiche aucune demande de complément pour une déclaration ordinaire', async () => {
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
 
-    expect(await screen.findByRole('heading', { level: 1, name: /mon profil/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Marie-Thérèse Diouf' })).toBeInTheDocument();
     expect(screen.queryByText('Complément demandé pour votre déclaration')).not.toBeInTheDocument();
   });
 
-  it('présente l’identité, la paroisse suivie, la sécurité (Keycloak) et la confidentialité', async () => {
+  it('présente le compte, la paroisse suivie, la sécurité (Keycloak), la confidentialité et les onglets de réglages', async () => {
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
 
-    expect(await screen.findByRole('heading', { level: 1, name: /mon profil/i })).toBeInTheDocument();
-    const identite = screen.getByRole('region', { name: /identité/i });
-    expect(within(identite).getByText('marie-therese.diouf@example.sn')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Marie-Thérèse Diouf' })).toBeInTheDocument();
+    const compte = screen.getByRole('region', { name: 'Compte' });
+    expect(within(compte).getByLabelText('E-mail')).toHaveValue('marie-therese.diouf@example.sn');
+    expect(within(compte).getByRole('link', { name: /changer le mot de passe/i })).toHaveAttribute('href', ACCOUNT_URL);
     expect(within(screen.getByRole('region', { name: /paroisse suivie/i })).getByText('Saint-Dominique')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /gérer sur l.espace de connexion/i })).toHaveAttribute('href', ACCOUNT_URL);
+    const nav = screen.getByRole('navigation', { name: 'Réglages' });
+    expect(within(nav).getByRole('link', { name: 'Mon état de vie' })).toHaveAttribute('href', '#etat-de-vie');
+    expect(within(nav).getByRole('button', { name: 'Se déconnecter' })).toBeInTheDocument();
     expect(screen.getByText(/messages chiffrés · aucun administrateur n.y a accès/i)).toBeInTheDocument();
     expect(screen.queryByText(/bout en bout/i)).not.toBeInTheDocument();
     expect(screen.getByText(/conditions acceptées le 21 septembre 2026/i)).toBeInTheDocument();
   });
 
-  it('modifie l’identité (PATCH /me/) et affiche les erreurs de champ du serveur', async () => {
+  it('modifie le compte (PATCH /me/) et affiche les erreurs de champ du serveur', async () => {
     const user = userEvent.setup();
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
-    const identite = await screen.findByRole('region', { name: /identité/i });
+    const identite = await screen.findByRole('region', { name: 'Compte' });
 
-    await user.click(within(identite).getByRole('button', { name: 'Modifier' }));
+    expect(within(identite).getByText('Toutes vos informations sont enregistrées')).toBeInTheDocument();
     const prenom = within(identite).getByLabelText(/prénom/i);
     await user.clear(prenom);
+    expect(within(identite).getByText('1 modification non enregistrée')).toBeInTheDocument();
     await user.click(within(identite).getByRole('button', { name: 'Enregistrer' }));
     expect(await within(identite).findByText('Indiquez votre prénom.')).toBeInTheDocument();
 
@@ -76,7 +81,7 @@ describe('Profil (/app/profil)', () => {
         { title: '', first_name: 'Marie', last_name: 'Diouf', date_of_birth: null, phone: '+221 77 548 21 36' },
       ]),
     );
-    expect(await within(identite).findByRole('button', { name: 'Modifier' })).toBeInTheDocument();
+    expect(await within(identite).findByText('Toutes vos informations sont enregistrées')).toBeInTheDocument();
   });
 
   it('change de paroisse suivie', async () => {
@@ -122,7 +127,7 @@ describe('Profil (/app/profil)', () => {
     const onAccountDeleted = vi.fn();
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} onAccountDeleted={onAccountDeleted} />);
 
-    await user.click(await screen.findByRole('button', { name: 'Supprimer' }));
+    await user.click(await screen.findByRole('button', { name: 'Supprimer mon compte' }));
     const dialog = await screen.findByRole('dialog', { name: /supprimer mon compte/i });
     const confirm = within(dialog).getByRole('button', { name: /supprimer définitivement/i });
     expect(confirm).toBeDisabled();
@@ -145,7 +150,7 @@ describe('Profil (/app/profil)', () => {
     const onAccountDeleted = vi.fn();
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} onAccountDeleted={onAccountDeleted} />);
 
-    await user.click(await screen.findByRole('button', { name: 'Supprimer' }));
+    await user.click(await screen.findByRole('button', { name: 'Supprimer mon compte' }));
     const dialog = await screen.findByRole('dialog');
     await user.type(within(dialog).getByLabelText(/pour confirmer/i), 'SUPPRIMER');
     await user.click(within(dialog).getByRole('button', { name: /supprimer définitivement/i }));

@@ -270,11 +270,14 @@ export const ConfessionBooking = ({
 }) => {
   const today = dayjs().format(DAY_FORMAT);
   const thisMonth = monthStartOf(today);
-  const [month, setMonth] = useState(thisMonth);
+  // Mois affiché : choisi par la personne, sinon celui du premier créneau libre (sinon le mois courant).
+  const [chosenMonth, setMonth] = useState<string | null>(null);
   const [priest, setPriest] = useState<string>(ANY);
   const [day, setDay] = useState<string | null>(null);
   const [slotId, setSlotId] = useState<number | null>(null);
-  const slots = useSlots(nodeId, month < today ? today : month);
+  const slots = useSlots(nodeId, chosenMonth && chosenMonth > today ? chosenMonth : today);
+  const firstSlot = slots.data?.map((s) => s.starts_at).sort()[0];
+  const month = chosenMonth ?? (firstSlot ? monthStartOf(firstSlot) : thisMonth);
 
   const inMonth = (slots.data ?? []).filter((s) => monthStartOf(s.starts_at) === month);
   const priests = priestsOf(inMonth);

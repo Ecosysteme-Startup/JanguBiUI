@@ -2,8 +2,10 @@
 
 import NextLink from 'next/link';
 
+import { ShellLayout } from '@/components/layouts/shell-slots';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { iconButtonClasses } from '@/components/ui/icon-button';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { NextBookingCard } from '@/features/confession/components/next-booking-card';
@@ -16,8 +18,6 @@ import { cn } from '@/utils/cn';
 
 import { conversationsHref, PretresTabs } from './pretres-tabs';
 
-const iconLinkClass =
-  'inline-flex size-11 shrink-0 items-center justify-center rounded-10 text-ink transition-colors hover:bg-surface-2 hover:text-ink';
 
 /** Colonne « Parler à un prêtre » : titre, bascule, prochain rendez-vous, conversations. */
 const ConversationsColumn = ({ activeId }: { activeId: string | null }) => {
@@ -32,11 +32,11 @@ const ConversationsColumn = ({ activeId }: { activeId: string | null }) => {
           <h1 id="liste-titre" className="m-0 text-24 font-semibold text-ink">
             Parler à un prêtre
           </h1>
-          <NextLink href={paths.app.pretres.list.getHref()} aria-label="Nouvelle conversation" className={iconLinkClass}>
+          <NextLink href={paths.app.pretres.list.getHref()} aria-label="Nouvelle conversation" className={iconButtonClasses()}>
             <Icon name="crayon" size={20} />
           </NextLink>
         </div>
-        <PretresTabs current="conversations" className="mt-4 w-full" />
+        <PretresTabs current="conversations" size="xs" className="mt-4" />
       </div>
       <div className="px-4 pb-2 lg:px-5">
         <NextBookingCard />
@@ -73,7 +73,8 @@ const ConversationsColumn = ({ activeId }: { activeId: string | null }) => {
  * Sous lg, une seule colonne : la liste, ou le fil avec un retour à la liste.
  */
 export const FideleConversations = ({ activeId }: { activeId: string | null }) => (
-  <div className="grid h-[calc(100dvh-4rem)] min-h-[560px] grid-cols-1 lg:h-dvh lg:grid-cols-[360px_minmax(0,1fr)]">
+  <div className="grid h-full grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)]">
+    <ShellLayout fullBleed hideTopbar />
     <div className={cn('min-h-0', activeId ? 'hidden lg:flex' : 'flex', 'flex-col')}>
       <ConversationsColumn activeId={activeId} />
     </div>
@@ -82,9 +83,9 @@ export const FideleConversations = ({ activeId }: { activeId: string | null }) =
         <ConversationThread
           key={activeId}
           conversationId={activeId}
-          notice={{ bookingHref: paths.app.confession.getHref(), description: 'Prenez rendez-vous pour une confession en présentiel.' }}
+          notice={{ bookingHref: paths.app.confession.getHref() }}
           leading={
-            <NextLink href={conversationsHref()} aria-label="Retour aux conversations" className={cn(iconLinkClass, 'lg:hidden')}>
+            <NextLink href={conversationsHref()} aria-label="Retour aux conversations" className={cn(iconButtonClasses(), 'lg:hidden')}>
               <Icon name="fleche-gauche" size={20} />
             </NextLink>
           }

@@ -97,6 +97,7 @@ export const Composer = ({
           placeholder={`Écrire à ${peerName}…`}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? 'message-erreur message-aide' : 'message-aide'}
+          controlSize="sm"
           className="max-h-40 min-h-12 min-w-0 flex-1 resize-none py-3 text-15 leading-[22px]"
           onKeyDown={(event) => {
             if (event.key === 'Enter' && !event.shiftKey) {

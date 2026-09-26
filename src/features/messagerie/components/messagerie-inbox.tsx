@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
+import { ShellLayout } from '@/components/layouts/shell-slots';
 import { ConfessionNotice } from '@/components/signature/confession-notice';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -107,7 +108,8 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
   };
 
   return (
-    <div className="grid h-[calc(100dvh-4rem)] min-h-[560px] grid-cols-1 lg:grid-cols-[372px_minmax(0,1fr)]">
+    <div className="grid h-full grid-cols-1 lg:grid-cols-[372px_minmax(0,1fr)]">
+      <ShellLayout fullBleed />
       <section aria-labelledby="messagerie-titre" className={cn('min-h-0 flex-col border-line lg:flex lg:border-r', selected ? 'hidden' : 'flex')}>
         <div className="px-4 pt-6 lg:px-5">
           <h1 id="messagerie-titre" className="m-0 text-28 font-semibold text-ink">
@@ -123,11 +125,14 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
             value={filter}
             onChange={(value) => setFilter(value)}
             options={[
-              ['sans_reponse', `Sans réponse ${unansweredCount}`],
-              ['toutes', `Toutes ${activeCount}`],
-              ['archivees', `Archivées${archivedCount ? ` ${archivedCount}` : ''}`],
+              ['sans_reponse', 'Sans réponse'],
+              ['toutes', 'Toutes'],
+              ['archivees', 'Archivées'],
             ]}
-            className="mt-4 grid w-full grid-cols-3"
+            counts={{ sans_reponse: unansweredCount, toutes: activeCount, ...(archivedCount ? { archivees: archivedCount } : {}) }}
+            size="sm"
+            block
+            className="mt-4"
           />
           <label htmlFor="conv-filtre" className="sr-only">
             Rechercher une conversation
@@ -191,6 +196,7 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
             key={selected}
             conversationId={selected}
             notice={notice}
+            audience="pretre"
             quickReplies={QUICK_REPLIES}
             leading={
               <button
@@ -211,7 +217,7 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
           />
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
-            <ConfessionNotice {...notice} className="shrink-0 rounded-none border-x-0 border-t-0" />
+            <ConfessionNotice variant="pinned" audience="pretre" {...notice} className="shrink-0" />
             <EmptyState icon="message" title="Choisissez une conversation" className="m-auto">
               Les messages des fidèles s’affichent ici. Personne d’autre que vous ne les lit.
             </EmptyState>

@@ -45,7 +45,7 @@ export const DeleteAccountDialog = ({ open, onOpenChange, onDeleted }: { open: b
         </>
       }
     >
-      <ul className="m-0 flex flex-col gap-2 pl-5 text-base text-ink-2">
+      <ul className="m-0 flex flex-col gap-2 pl-5 text-15 text-ink-2">
         <li>Vos conversations avec les prêtres sont effacées.</li>
         <li>Vos demandes d’actes sont anonymisées ; vos rendez-vous et inscriptions sont libérés.</li>
         <li>Les registres paroissiaux ne sont pas modifiés.</li>
@@ -54,7 +54,7 @@ export const DeleteAccountDialog = ({ open, onOpenChange, onDeleted }: { open: b
         <Input value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" />
       </Field>
       {error && (
-        <p role="alert" className="m-0 mt-3 text-sm text-err">
+        <p role="alert" className="m-0 mt-3 text-14 text-err">
           {error}
         </p>
       )}

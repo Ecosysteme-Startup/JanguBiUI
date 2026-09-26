@@ -13,6 +13,7 @@ import { type Declaration, useDeclaration } from '../api/get-declaration';
 import { DEGRE_LABELS, ETAT_LABELS, statusOf } from '../utils/life-state-labels';
 
 import { DeclarationForm } from './declaration-form';
+import { SettingsCard } from './settings-card';
 
 export const LIFE_STATE_ANCHOR = 'etat-de-vie';
 
@@ -24,11 +25,13 @@ const Summary = ({ declaration: d }: { declaration: Declaration }) => {
     d.institut_node ? `Institut : ${d.institut_node.name}` : null,
   ].filter(Boolean);
   return (
-    <div className="mt-4 flex flex-col gap-2">
-      <p className="m-0 font-serif text-h3 text-ink">{ETAT_LABELS[d.etat_de_vie].court}</p>
-      {lines.length > 0 && <p className="m-0 text-sm text-ink-2">{lines.join(' · ')}</p>}
-      <StatusDot tone={status.tone} label={status.label} />
-      <p className="m-0 text-sm text-ink-2">
+    <div className="mt-5 flex flex-col gap-2 rounded-12 border border-line p-4">
+      <p className="m-0 flex flex-wrap items-center gap-2 text-16 font-semibold text-ink">
+        {ETAT_LABELS[d.etat_de_vie].court}
+        <StatusDot tone={status.tone} label={status.label} />
+      </p>
+      {lines.length > 0 && <p className="m-0 text-14 text-ink-2">{lines.join(' · ')}</p>}
+      <p className="m-0 text-14 text-ink-2">
         {status.detail}
         {d.declared_at && d.etat_de_vie !== 'laic' && <> Dernière déclaration le {dayjs(d.declared_at).format('D MMMM YYYY')}.</>}
       </p>
@@ -39,19 +42,19 @@ const Summary = ({ declaration: d }: { declaration: Declaration }) => {
 const Attachments = ({ declaration: d }: { declaration: Declaration }) =>
   d.attachments.length === 0 ? null : (
     <div className="mt-4">
-      <p className="m-0 text-sm font-semibold text-ink">Justificatifs joints</p>
+      <p className="m-0 text-15 font-semibold text-ink">Justificatifs joints</p>
       <ul aria-label="Justificatifs joints" className="m-0 mt-2 flex list-none flex-col gap-2 p-0">
         {d.attachments.map((a) => (
-          <li key={a.id} className="flex items-center gap-3 rounded border border-line bg-surface px-4 py-2">
+          <li key={a.id} className="flex items-center gap-3 rounded-12 border border-line bg-surface px-4 py-2.5">
             <Icon name="document" size={20} className="shrink-0 text-ink-3" />
             {a.url ? (
-              <a href={a.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-sm text-primary underline">
+              <a href={a.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-14 font-medium text-primary">
                 {a.file_name}
               </a>
             ) : (
-              <span className="min-w-0 flex-1 truncate text-sm text-ink">{a.file_name}</span>
+              <span className="min-w-0 flex-1 truncate text-14 text-ink">{a.file_name}</span>
             )}
-            <span className="tnum text-meta text-ink-3">{dayjs(a.created_at).format('D MMM YYYY')}</span>
+            <span className="tnum text-13 text-ink-3">{dayjs(a.created_at).format('D MMM YYYY')}</span>
           </li>
         ))}
       </ul>
@@ -78,7 +81,7 @@ const actionLabel = (d: Declaration) => {
   return d.etat_de_vie === 'laic' ? 'Déclarer un autre état de vie' : 'Modifier ma déclaration';
 };
 
-/** 06 — Mon état de vie : statut, justificatifs, déclaration ou complément (EF-PER-01). */
+/** Mon état de vie : statut, justificatifs, déclaration ou complément (EF-PER-01). */
 export const LifeStateSection = () => {
   const { data, isPending, isError } = useDeclaration();
   const [editing, setEditing] = useState(false);
@@ -86,18 +89,15 @@ export const LifeStateSection = () => {
   const open = editing || needsComplement;
 
   return (
-    <section id={LIFE_STATE_ANCHOR} aria-labelledby="pf-etat" className="scroll-mt-24">
-      <h2 id="pf-etat" className="tnum m-0 border-t border-line-strong pt-2 text-meta font-normal text-ink-2">
-        <span className="text-primary">06</span> — Mon état de vie
-      </h2>
-      <p className="m-0 mt-4 max-w-reading text-sm text-ink-2">
-        Clerc ou consacré(e), déclarez-le ici avec vos justificatifs. Votre déclaration n’ouvre aucun droit tant qu’elle n’est pas vérifiée
-        par la chancellerie de votre diocèse d’incardination ou par votre institut.
-      </p>
+    <SettingsCard
+      id={LIFE_STATE_ANCHOR}
+      title="Mon état de vie"
+      description="Clerc ou consacré(e), déclarez-le ici avec vos justificatifs. Votre déclaration n’ouvre aucun droit tant qu’elle n’est pas vérifiée par la chancellerie de votre diocèse d’incardination ou par votre institut."
+    >
       {isPending ? (
         <LoadingBlock label="Chargement de votre déclaration…" lines={3} />
       ) : isError ? (
-        <p className="m-0 mt-4 text-sm text-ink-2">Votre déclaration n’a pas pu être chargée.</p>
+        <p className="m-0 mt-5 text-14 text-ink-2">Votre déclaration n’a pas pu être chargée.</p>
       ) : (
         <>
           <Summary declaration={data} />
@@ -111,12 +111,12 @@ export const LifeStateSection = () => {
           {open ? (
             <DeclarationForm declaration={data} onDone={() => setEditing(false)} onCancel={needsComplement ? undefined : () => setEditing(false)} />
           ) : (
-            <Button variant="secondary" size="sm" className="mt-4" onClick={() => setEditing(true)}>
+            <Button variant="outline" className="mt-5" onClick={() => setEditing(true)}>
               {actionLabel(data)}
             </Button>
           )}
         </>
       )}
-    </section>
+    </SettingsCard>
   );
 };

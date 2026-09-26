@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { useMe } from '@/hooks/use-me';
+import { cn } from '@/utils/cn';
 
 import { useConversation } from '../api/get-conversation';
 import { useMessages } from '../api/get-messages';
@@ -38,6 +39,8 @@ type ConversationThreadProps = {
   leading?: ReactNode;
   /** Réponses toutes prêtes insérées dans la saisie (côté prêtre). */
   quickReplies?: QuickReply[];
+  /** Fidèle (défaut) ou prêtre : textes et marges du bandeau confession. */
+  audience?: 'fidele' | 'pretre';
   headingLevel?: 'h1' | 'h2';
 };
 
@@ -165,6 +168,7 @@ export const ConversationThread = ({
   actions,
   leading,
   quickReplies,
+  audience = 'fidele',
   headingLevel = 'h2',
 }: ConversationThreadProps) => {
   const me = useMe();
@@ -175,7 +179,12 @@ export const ConversationThread = ({
 
   return (
     <section aria-labelledby="conversation-titre" className="flex h-full min-h-0 min-w-0 flex-col bg-paper">
-      <header className="flex min-h-[72px] shrink-0 items-center justify-between gap-4 border-b border-line py-3 pl-4 pr-4 lg:pl-8 lg:pr-6">
+      <header
+        className={cn(
+          'flex min-h-18 shrink-0 items-center justify-between gap-4 border-b border-line py-3 pl-4 pr-4 lg:pr-6',
+          audience === 'fidele' ? 'lg:pl-8' : 'lg:pl-6',
+        )}
+      >
         <div className="flex min-w-0 items-center gap-3">
           {leading}
           {peer && <Avatar name={peer.full_name} size={40} className="text-14" />}
@@ -188,7 +197,7 @@ export const ConversationThread = ({
         </div>
         {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </header>
-      <ConfessionNotice {...notice} className="shrink-0 rounded-none border-x-0 border-t-0" />
+      <ConfessionNotice variant="pinned" audience={audience} {...notice} className="shrink-0" />
       {conversation.isError ? (
         <div className="p-4">
           <EmptyState tone="err" icon="alerte" title="Conversation introuvable">

@@ -42,10 +42,10 @@ export const JustificatifsPicker = ({ id, files, remaining, onChange }: Justific
       {files.length > 0 && (
         <ul aria-label="Justificatifs à envoyer" className="m-0 flex list-none flex-col gap-2 p-0">
           {files.map((file, index) => (
-            <li key={`${file.name}-${index}`} className="flex items-center gap-3 rounded border border-line bg-surface px-4 py-2">
+            <li key={`${file.name}-${index}`} className="flex items-center gap-3 rounded-12 border border-line bg-surface px-4 py-2">
               <Icon name="document" size={20} className="shrink-0 text-ink-3" />
-              <span className="min-w-0 flex-1 truncate text-sm text-ink">{file.name}</span>
-              <span className="tnum text-meta text-ink-3">{fileSize(file.size)}</span>
+              <span className="min-w-0 flex-1 truncate text-14 text-ink">{file.name}</span>
+              <span className="tnum text-13 text-ink-3">{fileSize(file.size)}</span>
               <IconButton icon="x" size="sm" label={`Retirer ${file.name}`} onClick={() => onChange(files.filter((_, i) => i !== index))} />
             </li>
           ))}
@@ -54,14 +54,14 @@ export const JustificatifsPicker = ({ id, files, remaining, onChange }: Justific
       {!full && (
         <label
           htmlFor={id}
-          className="flex cursor-pointer items-center gap-3 rounded border border-dashed border-line-field bg-surface px-4 py-4 hover:border-ink"
+          className="flex cursor-pointer items-center gap-3 rounded border border-dashed border-line-field bg-surface px-4 py-4 hover:border-line-active"
         >
           <Icon name="import" size={22} className="shrink-0 text-primary" />
           <span>
-            <span className="block text-base text-ink">
+            <span className="block text-15 text-ink">
               Joindre un justificatif ou <span className="text-primary underline">parcourir</span>
             </span>
-            <span className="block text-sm text-ink-3">Celebret, lettre d’obédience… · PDF ou photo · 5 Mo au plus</span>
+            <span className="block text-14 text-ink-3">Celebret, lettre d’obédience… · PDF ou photo · 5 Mo au plus</span>
           </span>
         </label>
       )}
@@ -81,7 +81,7 @@ export const JustificatifsPicker = ({ id, files, remaining, onChange }: Justific
         }}
       />
       {error && (
-        <p id={`${id}-err`} role="alert" className="m-0 text-sm text-err">
+        <p id={`${id}-err`} role="alert" className="m-0 text-14 text-err">
           {error}
         </p>
       )}

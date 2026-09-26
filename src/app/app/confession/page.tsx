@@ -1,6 +1,9 @@
 'use client';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { LoadingBlock } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
 import { useSlots } from '@/features/confession/api/get-slots';
 import { ConfessionBooking, type UnavailablePriest } from '@/features/confession/components/confession-booking';
 import { nextConfessionDay } from '@/features/confession/utils/next-confession';
@@ -32,7 +35,15 @@ const ConfessionPage = () => {
     .map((p) => ({ id: p.user_id, name: p.full_name, until: p.availability!.absent_until! }));
 
   return (
-    <div className="mx-auto w-full max-w-content">
+    <>
+      <TopbarContent
+        start={<Breadcrumbs items={[{ label: 'Parler à un prêtre', href: paths.app.pretres.list.getHref() }, { label: 'Rendez-vous de confession' }]} />}
+        end={
+          <a href="#mes-rendez-vous" className="text-15 font-semibold no-underline hover:underline">
+            Mes rendez-vous
+          </a>
+        }
+      />
       <h1 className="m-0 text-28 font-semibold text-ink sm:text-32">Rendez-vous de confession</h1>
       <p className="m-0 mt-2 text-16 text-ink-2">{subtitle}</p>
       <div className="mt-8">
@@ -42,7 +53,7 @@ const ConfessionPage = () => {
           <ConfessionBooking nodeId={parish?.id ?? null} parishName={parish?.name ?? null} unavailablePriests={unavailable} />
         )}
       </div>
-    </div>
+    </>
   );
 };
 

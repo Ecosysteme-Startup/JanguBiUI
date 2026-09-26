@@ -4,7 +4,9 @@ import NextLink from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
 import { ConfessionNotice } from '@/components/signature/confession-notice';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 import { NextConfessionCard } from '@/features/confession/components/next-confession-card';
@@ -16,7 +18,7 @@ import { useMe } from '@/hooks/use-me';
 import { parishLabel } from '@/utils/parish-name';
 
 import { FideleConversations } from './_components/fidele-conversations';
-import { CONVERSATIONS_VIEW, PretresTabs } from './_components/pretres-tabs';
+import { CONVERSATIONS_VIEW, conversationsHref, PretresTabs } from './_components/pretres-tabs';
 
 /** Prêtre → conversation déjà ouverte (« Reprendre la conversation »). */
 const useConversationByPriest = (meId: string | undefined) => {
@@ -41,7 +43,10 @@ const PriestsView = () => {
   const count = priests.data?.length;
 
   return (
-    <div className="mx-auto w-full max-w-content">
+    <>
+      <TopbarContent
+        start={<Breadcrumbs items={[{ label: 'Parler à un prêtre', href: conversationsHref() }, { label: 'Prêtres joignables' }]} />}
+      />
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
         <div className="min-w-0">
           <h1 className="m-0 text-28 font-semibold text-ink sm:text-32">Prêtres joignables</h1>
@@ -51,7 +56,7 @@ const PriestsView = () => {
               {parish ? parishLabel(parish.name) : 'Aucune paroisse suivie'}
               {count !== undefined && ` · ${count} prêtre${count > 1 ? 's' : ''}`}
             </span>
-            <NextLink href={`${paths.app.profil.getHref()}#paroisse`} className="ml-2 inline-flex min-h-11 items-center text-15 font-medium">
+            <NextLink href={`${paths.app.profil.getHref()}#paroisse`} className="ml-2 inline-flex min-h-11 items-center text-15 font-medium no-underline hover:underline">
               {parish ? 'Changer' : 'Choisir ma paroisse'}
             </NextLink>
           </p>
@@ -70,7 +75,7 @@ const PriestsView = () => {
       </div>
 
       <MessagingPrivacyNote className="mt-6" />
-    </div>
+    </>
   );
 };
 

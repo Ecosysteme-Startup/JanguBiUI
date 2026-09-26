@@ -90,7 +90,7 @@ export const DeclarationForm = ({ declaration, onDone, onCancel }: DeclarationFo
   return (
     <form onSubmit={onSubmit} noValidate aria-label="Déclaration d’état de vie" className="mt-5 flex flex-col gap-5">
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-        <legend className="mb-3 p-0 text-sm font-semibold text-ink">Mon état de vie</legend>
+        <legend className="mb-3 p-0 text-14 font-semibold text-ink">Mon état de vie</legend>
         {ETATS_DE_VIE.map((value) => (
           <Choice key={value} type="radio" value={value} label={ETAT_LABELS[value].long} {...register('etat_de_vie')} />
         ))}
@@ -99,7 +99,7 @@ export const DeclarationForm = ({ declaration, onDone, onCancel }: DeclarationFo
       {etat === 'clerc' && (
         <>
           <Field id="ev-degre" label="Degré d’ordre" required error={formState.errors.degre_ordre?.message}>
-            <Select {...register('degre_ordre')}>
+            <Select controlSize="md" {...register('degre_ordre')}>
               <option value="aucun">Choisissez…</option>
               {DEGRES_ORDRE.filter((d) => d !== 'aucun').map((d) => (
                 <option key={d} value={d}>
@@ -146,11 +146,11 @@ export const DeclarationForm = ({ declaration, onDone, onCancel }: DeclarationFo
 
       {etat !== 'laic' && (
         <div className="flex flex-col gap-2">
-          <span className="text-sm font-semibold text-ink">Justificatifs</span>
+          <span className="text-14 font-semibold text-ink">Justificatifs</span>
           {remaining > 0 ? (
             <JustificatifsPicker id="ev-justificatifs" files={files} remaining={remaining} onChange={setFiles} />
           ) : (
-            <p className="m-0 text-sm text-ink-2">Vous avez joint {MAX_JUSTIFICATIFS} justificatifs, le maximum.</p>
+            <p className="m-0 text-14 text-ink-2">Vous avez joint {MAX_JUSTIFICATIFS} justificatifs, le maximum.</p>
           )}
         </div>
       )}
@@ -165,7 +165,7 @@ export const DeclarationForm = ({ declaration, onDone, onCancel }: DeclarationFo
           {pending ? 'Envoi…' : 'Envoyer ma déclaration'}
         </Button>
         {onCancel && (
-          <Button variant="tertiary" onClick={onCancel} disabled={pending}>
+          <Button variant="ghost" onClick={onCancel} disabled={pending}>
             Annuler
           </Button>
         )}

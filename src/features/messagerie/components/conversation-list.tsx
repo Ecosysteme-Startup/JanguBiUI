@@ -2,16 +2,16 @@ import NextLink from 'next/link';
 
 import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/utils/cn';
-import { dayjs, hour } from '@/utils/dates';
+import { dayjs } from '@/utils/dates';
 
 import type { Conversation } from '../api/schemas';
 import { otherParticipant, previewOf } from '../utils/participants';
 
-/** « 10 h 13 » aujourd'hui, « hier », puis « 2 août ». */
+/** « 10:13 » aujourd'hui, « hier », puis « 2 août ». */
 export const whenOf = (iso: string | null | undefined, now = dayjs()) => {
   if (!iso) return '';
   const d = dayjs(iso);
-  if (d.isSame(now, 'day')) return hour(iso);
+  if (d.isSame(now, 'day')) return d.format('HH:mm');
   if (d.isSame(now.subtract(1, 'day'), 'day')) return 'hier';
   return d.format('D MMM');
 };
