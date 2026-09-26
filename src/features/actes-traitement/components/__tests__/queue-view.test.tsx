@@ -48,6 +48,43 @@ describe('PAR-Demandes', () => {
     await vi.waitFor(() => expect(within(screen.getByRole('table')).getByText('DOC-20260921-00412')).toBeInTheDocument());
   });
 
+  it('montre le motif et la personne assignée, et filtre par motif, période et assignation', async () => {
+    const user = userEvent.setup();
+    renderApp(<QueueView nodeId={ids.saintDominique} />);
+    const table = await screen.findByRole('table');
+
+    const row = within(table).getByRole('link', { name: 'DOC-20260921-00412' }).closest('tr') as HTMLElement;
+    expect(within(row).getByText('Germaine Faye')).toBeInTheDocument();
+    expect(within(row).getByText('Mariage religieux')).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Motif'), 'personal');
+    expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?motif=personal`, { scroll: false });
+    await vi.waitFor(() => expect(within(screen.getByRole('table')).getAllByRole('row')).toHaveLength(2));
+    expect(within(screen.getByRole('table')).getByText('DOC-20260904-00399')).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText('Motif'), '');
+    await user.selectOptions(screen.getByLabelText('Assignation'), 'aucun');
+    expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?assigne=aucun`, { scroll: false });
+    await vi.waitFor(() => expect(within(screen.getByRole('table')).queryByText('DOC-20260921-00412')).not.toBeInTheDocument());
+
+    await user.selectOptions(screen.getByLabelText('Période de réception'), '7j');
+    expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?periode=7j&assigne=aucun`, { scroll: false });
+  });
+
+  it('garde les filtres dans le lien vers le détail (flèches précédent / suivant)', async () => {
+    const user = userEvent.setup();
+    renderApp(<QueueView nodeId={ids.saintDominique} />);
+    await screen.findByRole('table');
+
+    await user.selectOptions(screen.getByLabelText('Type d’acte'), 'baptism');
+    await vi.waitFor(() =>
+      expect(within(screen.getByRole('table')).getByRole('link', { name: 'DOC-20260921-00412' })).toHaveAttribute(
+        'href',
+        `${base}/${ACTE_IDS.verification}?type=baptism`,
+      ),
+    );
+  });
+
   it('recherche par nom ou référence', async () => {
     const user = userEvent.setup();
     renderApp(<QueueView nodeId={ids.saintDominique} />);

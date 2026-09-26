@@ -56,7 +56,10 @@ export const buildTimeline = (request: DocumentRequest): TimelineStep[] => {
   if (position < 0) return past;
   const upcoming: TimelineStep[] = MAIN_PATH.slice(position + 1).map((status) => ({
     key: `u-${status}`,
-    when: 'À venir',
+    when:
+      status === 'ready_for_pickup' && request.estimated_ready_on
+        ? `À venir · estimé ${dayjs(request.estimated_ready_on).format('ddd DD.MM')}`
+        : 'À venir',
     title: TITLES[status],
     detail: UPCOMING_DETAIL[status],
     state: 'upcoming',

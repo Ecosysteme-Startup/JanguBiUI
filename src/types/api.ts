@@ -2827,6 +2827,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/documents/{request_id}/assign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confier la demande à une personne de l'équipe (ou la remettre « à assigner »)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_documents_assign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/documents/{request_id}/assignees/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Personnes de l'équipe à qui confier la demande (actes.traiter sur la paroisse)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_documents_assignees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/documents/{request_id}/attachments/{attachment_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consulter une pièce jointe du fidèle (lien à durée limitée)
+         * @description Ouverture d'une pièce jointe par son lien de consultation (onglet du navigateur, sans
+         *     en-tête d'authentification) : le jeton signé tient lieu d'accès, et le service revérifie
+         *     que la personne qu'il désigne traite toujours les actes de la paroisse.
+         */
+        get: operations["staff_documents_attachment_content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/documents/{request_id}/logs/": {
         parameters: {
             query?: never;
@@ -2835,7 +2897,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Journal des statuts
+         * Journal des statuts (avec l'auteur)
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["v1_staff_documents_logs_list"];
@@ -3233,6 +3295,18 @@ export interface components {
             /** @default  */
             reason: string;
         };
+        AssignInput: {
+            /**
+             * Format: uuid
+             * @description Personne de l'équipe, ou null pour « à assigner »
+             */
+            assignee_id: string | null;
+        };
+        AssigneeOutput: {
+            /** Format: uuid */
+            id: string;
+            readonly full_name: string;
+        };
         AssignmentCreateInput: {
             /** Format: uuid */
             person_id: string;
@@ -3286,6 +3360,19 @@ export interface components {
          * @enum {string}
          */
         AssignmentStatusEnum: "proposee" | "active" | "terminee" | "annulee";
+        AttachmentOutput: {
+            id: number;
+            name: string;
+            content_type: string;
+            /** @description Octets ; null si le fichier est illisible */
+            size: number | null;
+            /** Format: date-time */
+            uploaded_at: string;
+            /** @description Lien de consultation personnel, à durée limitée */
+            url: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
         AttendanceInput: {
             attended: boolean;
         };
@@ -3945,6 +4032,7 @@ export interface components {
             readonly id: number;
             /** Format: uuid */
             readonly author_id: string | null;
+            readonly author_name: string;
             content: string;
             /** Format: date-time */
             created_at?: string;
@@ -4397,6 +4485,7 @@ export interface components {
             readonly document_type_label: string;
             document_type_free?: string;
             reason: components["schemas"]["ReasonEnum"];
+            readonly reason_label: string;
             reason_free?: string;
             status?: components["schemas"]["DocumentRequestStatusEnum"];
             readonly status_label: string;
@@ -4423,10 +4512,15 @@ export interface components {
             readonly pickup: {
                 [key: string]: unknown;
             } | null;
-            readonly history: {
-                [key: string]: unknown;
-            }[];
+            readonly history: components["schemas"]["ProcessorStatusLog"][];
             readonly can_cancel: boolean;
+            /** @description Délai indicatif de la paroisse (jours) */
+            readonly indicative_days: number;
+            /**
+             * Format: date
+             * @description Mise à disposition estimée (indicative) ; null une fois l'acte prêt ou la demande close
+             */
+            readonly estimated_ready_on: string | null;
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -4438,7 +4532,22 @@ export interface components {
             };
             /** Format: uuid */
             readonly assigned_to_id: string | null;
+            readonly assigned_to_name: string | null;
             pickup_mode?: components["schemas"]["PickupModeEnum"];
+            readonly attachments: components["schemas"]["AttachmentOutput"][];
+        };
+        /** @description Historique vu de la paroisse : auteur de chaque changement. */
+        ProcessorStatusLog: {
+            from_status?: string;
+            to_status: string;
+            comment?: string;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: uuid */
+            readonly changed_by_id: string | null;
+            readonly changed_by_name: string;
+            /** @description Changement fait par le fidèle lui-même */
+            readonly by_requester: boolean;
         };
         PushDeviceInput: {
             platform: components["schemas"]["PlatformEnum"];
@@ -4456,6 +4565,9 @@ export interface components {
             reference: string;
             document_type: components["schemas"]["DocumentTypeEnum"];
             readonly document_type_label: string;
+            reason: components["schemas"]["ReasonEnum"];
+            readonly reason_label: string;
+            reason_free?: string;
             status?: components["schemas"]["DocumentRequestStatusEnum"];
             readonly status_label: string;
             readonly target_node: {
@@ -4464,6 +4576,7 @@ export interface components {
             readonly requester_name: string;
             /** Format: uuid */
             readonly assigned_to_id: string | null;
+            readonly assigned_to_name: string | null;
             readonly age_days: number | null;
             readonly is_overdue: boolean;
             /** Format: date-time */
@@ -4586,6 +4699,7 @@ export interface components {
             readonly document_type_label: string;
             document_type_free?: string;
             reason: components["schemas"]["ReasonEnum"];
+            readonly reason_label: string;
             reason_free?: string;
             status?: components["schemas"]["DocumentRequestStatusEnum"];
             readonly status_label: string;
@@ -4612,10 +4726,15 @@ export interface components {
             readonly pickup: {
                 [key: string]: unknown;
             } | null;
-            readonly history: {
-                [key: string]: unknown;
-            }[];
+            readonly history: components["schemas"]["StatusLog"][];
             readonly can_cancel: boolean;
+            /** @description Délai indicatif de la paroisse (jours) */
+            readonly indicative_days: number;
+            /**
+             * Format: date
+             * @description Mise à disposition estimée (indicative) ; null une fois l'acte prêt ou la demande close
+             */
+            readonly estimated_ready_on: string | null;
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -4897,6 +5016,7 @@ export interface components {
          * @enum {string}
          */
         Status993Enum: "libre" | "reserve" | "bloque";
+        /** @description Historique vu du fidèle : jamais le nom des membres de l'équipe. */
         StatusLog: {
             from_status?: string;
             to_status: string;
@@ -9041,6 +9161,8 @@ export interface operations {
     staff_documents_list: {
         parameters: {
             query?: {
+                /** @description « me » (moi), « none » (à assigner) ou l'identifiant d'une personne */
+                assignee?: string;
                 /**
                  * @description * `baptism` - Certificat de baptême
                  *     * `first_communion` - Attestation de première communion
@@ -9056,6 +9178,19 @@ export interface operations {
                 /** @description Décalage */
                 offset?: number;
                 overdue?: boolean;
+                /**
+                 * @description * `religious_marriage` - Mariage religieux
+                 *     * `godparent` - Parrain / marraine
+                 *     * `catechism` - Inscription catéchèse
+                 *     * `parish_file` - Dossier paroissial
+                 *     * `personal` - Usage personnel
+                 *     * `other` - Autre
+                 */
+                reason?: "religious_marriage" | "godparent" | "catechism" | "parish_file" | "personal" | "other";
+                /** @description Reçue à partir de (inclus) */
+                received_from?: string;
+                /** @description Reçue jusqu'au (inclus) */
+                received_to?: string;
                 /** @description Référence ou nom du demandeur */
                 search?: string;
                 /**
@@ -9134,6 +9269,86 @@ export interface operations {
             };
         };
     };
+    staff_documents_assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignInput"];
+                "multipart/form-data": components["schemas"]["AssignInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssignInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProcessorOutput"];
+                };
+            };
+        };
+    };
+    staff_documents_assignees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssigneeOutput"][];
+                };
+            };
+        };
+    };
+    staff_documents_attachment_content: {
+        parameters: {
+            query: {
+                /** @description Jeton du lien de consultation */
+                token: string;
+            };
+            header?: never;
+            path: {
+                attachment_id: number;
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            /** @description No response body */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     v1_staff_documents_logs_list: {
         parameters: {
             query?: never;
@@ -9150,7 +9365,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StatusLog"][];
+                    "application/json": components["schemas"]["ProcessorStatusLog"][];
                 };
             };
         };

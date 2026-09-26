@@ -129,6 +129,54 @@ describe('PAR-Demande-Detail', () => {
     expect(await screen.findByText('Acte retrouvé.')).toBeInTheDocument();
   });
 
+  it('liste les pièces du fidèle avec un lien de consultation, sans aucun fichier d’acte', async () => {
+    render(ACTE_IDS.verification);
+
+    const pieces = await screen.findByRole('list', { name: 'Pièces jointes du fidèle' });
+    expect(within(pieces).getByText('carte-bapteme-1992.jpg')).toBeInTheDocument();
+    expect(within(pieces).getByText(/412 Ko · déposée le 21\.09/)).toBeInTheDocument();
+    const link = within(pieces).getByRole('link', { name: /consulter carte-bapteme-1992\.jpg/i });
+    expect(link).toHaveAttribute('href', expect.stringContaining('token='));
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('nomme l’auteur de chaque étape de l’historique et de chaque note', async () => {
+    render(ACTE_IDS.verification);
+
+    const history = await screen.findByRole('region', { name: /historique des statuts/i });
+    expect(within(history).getByText('Marie-Thérèse Diouf, depuis l’espace fidèle')).toBeInTheDocument();
+    expect(within(history).getByText('Germaine Faye')).toBeInTheDocument();
+    expect(await screen.findByText(/^Germaine Faye · 22\.09/)).toBeInTheDocument();
+  });
+
+  it('assigne la demande à une personne de l’équipe, puis la remet à assigner', async () => {
+    const user = userEvent.setup();
+    render(ACTE_IDS.submitted);
+    const section = await screen.findByRole('region', { name: 'Assignation' });
+    expect(within(section).getByText('À assigner', { selector: 'span' })).toBeInTheDocument();
+
+    await user.selectOptions(within(section).getByLabelText('Confier la demande à'), await within(section).findByRole('option', { name: 'Germaine Faye' }));
+    await user.click(within(section).getByRole('button', { name: 'Enregistrer l’assignation' }));
+
+    await vi.waitFor(() => expect(actesState.lastAssign).toEqual({ id: ACTE_IDS.submitted, body: { assignee_id: '5f0c0000-0000-4000-8000-0000000000bb' } }));
+    expect(await screen.findByText('Assignée à Germaine Faye', { selector: 'header span' })).toBeInTheDocument();
+
+    const again = screen.getByRole('region', { name: 'Assignation' });
+    await user.selectOptions(within(again).getByLabelText('Confier la demande à'), '');
+    await user.click(within(again).getByRole('button', { name: 'Enregistrer l’assignation' }));
+    await vi.waitFor(() => expect(actesState.lastAssign?.body).toEqual({ assignee_id: null }));
+  });
+
+  it('propose de se l’assigner', async () => {
+    const user = userEvent.setup();
+    render(ACTE_IDS.submitted);
+
+    await user.click(await screen.findByRole('button', { name: 'Me l’assigner' }));
+
+    await vi.waitFor(() => expect(actesState.lastAssign?.body).toEqual({ assignee_id: '5f0c0000-0000-4000-8000-0000000000aa' }));
+  });
+
   it('signale une demande hors de la file', async () => {
     render('inconnue');
 

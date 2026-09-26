@@ -31,7 +31,25 @@ export const TYPE_LABELS: Record<string, string> = {
   other: 'Autre document',
 };
 
-export type Log = { from_status: string; to_status: string; comment: string; created_at: string };
+export type Log = { from_status: string; to_status: string; comment: string; created_at: string; changed_by_name?: string; by_requester?: boolean };
+
+/** Équipe de la paroisse (titulaires d'actes.traiter) : `aa` est l'utilisateur connecté des tests. */
+export const TEAM = [
+  { id: '5f0c0000-0000-4000-8000-0000000000aa', full_name: 'Marie-Thérèse Diouf' },
+  { id: '5f0c0000-0000-4000-8000-0000000000bb', full_name: 'Germaine Faye' },
+];
+export const teamName = (id: string | null) => TEAM.find((t) => t.id === id)?.full_name ?? null;
+
+export const REASON_LABELS_MOCK: Record<string, string> = {
+  religious_marriage: 'Mariage religieux',
+  godparent: 'Parrain / marraine',
+  catechism: 'Inscription catéchèse',
+  parish_file: 'Dossier paroissial',
+  personal: 'Usage personnel',
+  other: 'Autre',
+};
+
+export type MockAttachment = { id: number; name: string; content_type: string; size: number | null; uploaded_at: string };
 
 export type MockActe = {
   id: string;
@@ -66,6 +84,7 @@ export type MockActe = {
   history: Log[];
   register: { volume: string; page: string; number: string; marginal_notes: string };
   assigned_to_id: string | null;
+  attachments: MockAttachment[];
   age_days: number | null;
   is_overdue: boolean;
   created_at: string;
@@ -74,7 +93,8 @@ export type MockActe = {
   mine: boolean;
 };
 
-const log = (from: string, to: string, created_at: string, comment = ''): Log => ({ from_status: from, to_status: to, comment, created_at });
+const log = (from: string, to: string, created_at: string, comment = ''): Log =>
+  from === '' ? { from_status: from, to_status: to, comment, created_at, changed_by_name: 'Marie-Thérèse Diouf', by_requester: true } : { from_status: from, to_status: to, comment, created_at, changed_by_name: 'Germaine Faye', by_requester: false };
 
 const base = (over: Partial<MockActe> & Pick<MockActe, 'id' | 'reference' | 'status'>): MockActe => ({
   document_type: 'baptism',
@@ -106,6 +126,7 @@ const base = (over: Partial<MockActe> & Pick<MockActe, 'id' | 'reference' | 'sta
   history: [log('', 'submitted', '2026-09-21T10:14:00+00:00')],
   register: { volume: '', page: '', number: '', marginal_notes: '' },
   assigned_to_id: null,
+  attachments: [],
   age_days: 1,
   is_overdue: false,
   created_at: '2026-09-21T10:14:00+00:00',
@@ -127,6 +148,7 @@ const seed = (): MockActe[] => [
     ],
     register: { volume: 'II', page: '47', number: '187', marginal_notes: '' },
     assigned_to_id: '5f0c0000-0000-4000-8000-0000000000bb',
+    attachments: [{ id: 31, name: 'carte-bapteme-1992.jpg', content_type: 'image/jpeg', size: 421_888, uploaded_at: '2026-09-21T10:14:00+00:00' }],
     age_days: 9,
     is_overdue: true,
   }),
@@ -192,21 +214,23 @@ const seed = (): MockActe[] => [
 
 export const actesState: {
   requests: MockActe[];
-  notes: Record<string, { id: number; author_id: string | null; content: string; created_at: string }[]>;
+  notes: Record<string, { id: number; author_id: string | null; author_name: string; content: string; created_at: string }[]>;
+  lastAssign: { id: string; body: Record<string, unknown> } | null;
   lastCreate: Record<string, unknown> | null;
   lastSupplement: Record<string, unknown> | null;
   lastTransition: { id: string; transition: string; body: Record<string, unknown> } | null;
   uploads: number;
-} = { requests: [], notes: {}, lastCreate: null, lastSupplement: null, lastTransition: null, uploads: 0 };
+} = { requests: [], notes: {}, lastAssign: null, lastCreate: null, lastSupplement: null, lastTransition: null, uploads: 0 };
 
 export const resetActes = () => {
   actesState.requests = seed();
   actesState.notes = {
     [ACTE_IDS.verification]: [
-      { id: 1, author_id: '5f0c0000-0000-4000-8000-0000000000bb', content: 'Deux baptêmes au même nom en 1992 : vérifier la marraine.', created_at: '2026-09-22T10:36:00+00:00' },
+      { id: 1, author_id: '5f0c0000-0000-4000-8000-0000000000bb', author_name: 'Germaine Faye', content: 'Deux baptêmes au même nom en 1992 : vérifier la marraine.', created_at: '2026-09-22T10:36:00+00:00' },
     ],
   };
   actesState.lastCreate = null;
+  actesState.lastAssign = null;
   actesState.lastSupplement = null;
   actesState.lastTransition = null;
   actesState.uploads = 0;

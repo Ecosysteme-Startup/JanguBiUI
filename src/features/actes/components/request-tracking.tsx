@@ -30,6 +30,15 @@ const Heading = ({ id, n, title, aside }: { id: string; n: string; title: string
   </div>
 );
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** « Délai indicatif : 7 jours » tant que la demande avance, sinon l'étape courante. */
+const indicativeAside = (request: DocumentRequest, current: number, total: number) => {
+  if (request.estimated_ready_on && request.indicative_days)
+    return `Délai indicatif : ${request.indicative_days} jour${request.indicative_days > 1 ? 's' : ''}`;
+  return current >= 0 ? `Étape ${current + 1} sur ${total}` : undefined;
+};
+
 /** FID-Demande-Suivi / MOB-Demande-Suivi. */
 export const RequestTracking = ({ id }: { id: string }) => {
   const { data: request, isPending, isError, error } = useRequest(id);
@@ -84,6 +93,12 @@ const Tracking = ({ request }: { request: DocumentRequest }) => {
             <dt className="tnum text-meta text-ink-3">Demandée le</dt>
             <dd className="tnum m-0 mt-1.5 text-base text-ink">{dayjs(request.created_at).format('D MMMM YYYY')}</dd>
           </div>
+          {request.estimated_ready_on && (
+            <div>
+              <dt className="tnum text-meta text-ink-3">Mise à disposition estimée</dt>
+              <dd className="tnum m-0 mt-1.5 text-base text-ink">{capitalize(dayjs(request.estimated_ready_on).format('dddd D MMMM'))}</dd>
+            </div>
+          )}
         </dl>
       </header>
 
@@ -96,7 +111,7 @@ const Tracking = ({ request }: { request: DocumentRequest }) => {
               id="sv-avancement"
               n="01"
               title="Avancement"
-              aside={current >= 0 ? `Étape ${current + 1} sur ${steps.length}` : 'Délai indicatif : 3 à 7 jours'}
+              aside={indicativeAside(request, current, steps.length)}
             />
             <RequestTimeline steps={steps} label="Avancement de la demande" />
           </section>
