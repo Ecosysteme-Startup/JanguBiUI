@@ -11,6 +11,7 @@ import {
   places,
   platformDashboard,
 } from '@/testing/mocks/db-f8b';
+import { personsDirectory } from '@/testing/mocks/db-f8a';
 
 const page = <T>(items: T[], url: URL) => {
   const limit = Number(url.searchParams.get('limit') ?? 10);
@@ -132,6 +133,28 @@ export const f8bHandlers = [
     );
     return HttpResponse.json(page(items, url));
   }),
+  http.post(apiUrl('/hierarchy/assignments/'), async ({ request }) => {
+    await log(request);
+    const body = (await request.clone().json()) as Record<string, string>;
+    const found = personsDirectory.find((p) => p.id === body.person_id);
+    const node = f8bState.nodes.find((n) => n.id === body.node_id);
+    const created = {
+      id: 900 + f8bState.assignments.length,
+      person: { id: body.person_id, email: 'personne@example.sn', full_name: found?.full_name ?? 'Personne' },
+      office: body.office,
+      office_label: officeCatalogue.find((o) => o.code === body.office)?.label ?? body.office,
+      node: { id: body.node_id, name: node?.name ?? '', code: node?.code ?? '', type: node?.type.code ?? '' },
+      start_date: body.start_date,
+      end_date: null,
+      status: 'active',
+      appointed_by_id: null,
+      decree_ref: body.decree_ref ?? '',
+      note: body.note ?? '',
+      created_at: '2026-09-25T09:41:00+00:00',
+    };
+    f8bState.assignments = [created, ...f8bState.assignments];
+    return HttpResponse.json(created, { status: 201 });
+  }),
   http.patch(apiUrl('/hierarchy/assignments/:id/'), async ({ request, params }) => {
     await log(request);
     const body = (await request.json()) as { action: 'terminer' | 'annuler' };
@@ -150,13 +173,27 @@ export const f8bHandlers = [
   }),
 
   // Vérifications
-  http.get(apiUrl('/hierarchy/verifications/'), ({ request }) => HttpResponse.json(page(f8bState.verifications, new URL(request.url)))),
+  http.get(apiUrl('/hierarchy/verifications/'), ({ request }) => {
+    const url = new URL(request.url);
+    const statut = url.searchParams.get('statut');
+    return HttpResponse.json(page(f8bState.verifications.filter((v) => !statut || v.statut_verification === statut), url));
+  }),
   http.post(apiUrl('/hierarchy/verifications/:personId/decision/'), async ({ request, params }) => {
     await log(request);
     const body = (await request.json()) as { decision: string; note: string };
+    if (body.decision === 'complement' && !body.note?.trim())
+      return HttpResponse.json(
+        { error: { code: 'note_required', message: 'Indiquez ce qui manque : le motif est transmis à la personne.', details: { note: 'obligatoire' } } },
+        { status: 400 },
+      );
     const person = f8bState.verifications.find((v) => v.id === params.personId);
-    f8bState.verifications = f8bState.verifications.filter((v) => v.id !== params.personId);
-    return HttpResponse.json({ ...person, statut_verification: body.decision, verification_note: body.note });
+    const decided = { ...person!, statut_verification: body.decision, verification_note: body.note };
+    // Complément demandé : la déclaration reste dans la file, en attente de la personne.
+    f8bState.verifications =
+      body.decision === 'complement'
+        ? f8bState.verifications.map((v) => (v.id === params.personId ? decided : v))
+        : f8bState.verifications.filter((v) => v.id !== params.personId);
+    return HttpResponse.json(decided);
   }),
 
   // Retraits de capacités

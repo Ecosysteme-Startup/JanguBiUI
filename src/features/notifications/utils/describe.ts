@@ -74,6 +74,14 @@ export const describeNotification = (n: AppNotification): NotificationView => {
           : 'Rendez-vous de confession';
     return { title, detail, href: paths.app.confession.getHref(), category: 'confession' };
   }
+  if (type === 'personnes.complement') {
+    return {
+      title: 'Complément demandé pour votre déclaration',
+      detail: 'La chancellerie attend un justificatif : le détail est dans votre profil.',
+      href: paths.app.profil.getHref(),
+      category: 'autre',
+    };
+  }
   return { title: 'Nouvelle notification', category: 'autre' };
 };
 

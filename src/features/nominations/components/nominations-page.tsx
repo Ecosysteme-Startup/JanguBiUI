@@ -28,6 +28,8 @@ import { useSubnodes } from '../api/get-subnodes';
 import { useImportAssignments } from '../api/import-assignments';
 import { useUpdateAssignment } from '../api/update-assignment';
 
+import { NominationPanel } from './nomination-panel';
+
 const d = (iso: string) => dayjs(iso).format('DD.MM.YYYY');
 
 const STATUS_FILTERS: { value: AssignmentStatus | undefined; label: string }[] = [
@@ -288,12 +290,15 @@ const MovementImport = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-/** Registre des nominations et import du mouvement annuel (DIO-Nominations). */
+type Panel = 'import' | 'nomination' | null;
+
+/** Registre des nominations, nomination unitaire et import du mouvement annuel (DIO-Nominations). */
 export const NominationsPage = ({ nodeId }: { nodeId: string }) => {
   const node = useNode(nodeId);
-  const [importing, setImporting] = React.useState(true);
+  const [panel, setPanel] = React.useState<Panel>('import');
   const active = useAssignmentCounts(nodeId).active;
   const name = node.data?.name ?? '';
+  const toggle = (p: Exclude<Panel, null>) => setPanel((current) => (current === p ? null : p));
 
   return (
     <div>
@@ -302,18 +307,32 @@ export const NominationsPage = ({ nodeId }: { nodeId: string }) => {
         eyebrow={`Gouvernance · ${active === undefined ? '…' : `${active} nomination${active > 1 ? 's' : ''} active${active > 1 ? 's' : ''}`}`}
         title="Nominations"
         actions={
-          <Button variant={importing ? 'secondary' : 'primary'} aria-pressed={importing} onClick={() => setImporting((v) => !v)}>
-            Importer le mouvement
-          </Button>
+          <>
+            <Button
+              variant={panel === 'nomination' ? 'secondary' : 'primary'}
+              aria-pressed={panel === 'nomination'}
+              onClick={() => toggle('nomination')}
+            >
+              Nouvelle nomination
+            </Button>
+            <Button variant="secondary" aria-pressed={panel === 'import'} onClick={() => toggle('import')}>
+              Importer le mouvement
+            </Button>
+          </>
         }
       />
       <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-        <div className={importing ? 'min-w-0 lg:col-span-5' : 'min-w-0 lg:col-span-12'}>
+        <div className={panel ? 'min-w-0 lg:col-span-5' : 'min-w-0 lg:col-span-12'}>
           <Registre nodeId={nodeId} nodeName={name} />
         </div>
-        {importing && (
+        {panel === 'import' && (
           <div className="min-w-0 lg:col-span-7">
-            <MovementImport onClose={() => setImporting(false)} />
+            <MovementImport onClose={() => setPanel(null)} />
+          </div>
+        )}
+        {panel === 'nomination' && node.data && (
+          <div className="min-w-0 lg:col-span-7">
+            <NominationPanel nodeId={nodeId} nodeName={name} nodeType={node.data.type.code} onClose={() => setPanel(null)} />
           </div>
         )}
       </div>

@@ -54,7 +54,9 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
 
     await user.click(await screen.findByRole('button', { name: /nommer une personne/i }));
     const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
-    await user.type(within(panel).getByLabelText(/identifiant de la personne/i), '5f0c0000-0000-4000-8000-0000000000bb');
+    await user.type(within(panel).getByRole('combobox', { name: /personne/i }), 'élis');
+    await user.click(await within(panel).findByRole('option', { name: /élisabeth gomis/i }));
+    expect(within(panel).getByText(/personne choisie : élisabeth gomis/i)).toBeInTheDocument();
     await user.selectOptions(await within(panel).findByLabelText(/^office/i), 'Catéchiste');
     expect(within(panel).getByText('Sans accès aux demandes d’actes, à la messagerie prêtre ni aux confessions.', { exact: false })).toBeInTheDocument();
     expect(within(panel).getByRole('list', { name: 'Capacités' })).toHaveTextContent(/Événements.*Annonces/);
@@ -63,7 +65,7 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
 
     await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'Nommer une personne' })).not.toBeInTheDocument());
     expect(f8aState.lastBody).toMatchObject({
-      person_id: '5f0c0000-0000-4000-8000-0000000000bb',
+      person_id: '5f0c0000-0000-4000-8000-0000000000e1',
       office: 'catechiste',
       node_id: ids.saintDominique,
       decree_ref: 'Lettre de mission du 22.09',
@@ -72,17 +74,35 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     expect(await screen.findByText('Élisabeth Gomis')).toBeInTheDocument();
   });
 
-  it('valide l’identifiant et l’office', async () => {
+  it('exige de choisir une personne dans la recherche, et l’office', async () => {
     const user = userEvent.setup();
     await renderPage();
     await user.click(await screen.findByRole('button', { name: /nommer une personne/i }));
     const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
 
-    await user.type(within(panel).getByLabelText(/identifiant de la personne/i), 'Élisabeth');
+    await user.type(within(panel).getByRole('combobox', { name: /personne/i }), 'Élisabeth');
     await user.click(within(panel).getByRole('button', { name: 'Nommer' }));
 
-    expect(await within(panel).findByText('Identifiant invalide : 36 caractères, tirets compris.')).toBeInTheDocument();
+    expect(await within(panel).findByText('Choisissez la personne à nommer.')).toBeInTheDocument();
     expect(within(panel).getByText('Choisissez l’office.')).toBeInTheDocument();
+    expect(f8aState.lastBody).toBeNull();
+  });
+
+  it('recherche au clavier : 2 caractères au moins, flèches puis Entrée', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await user.click(await screen.findByRole('button', { name: /nommer une personne/i }));
+    const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
+    const combo = within(panel).getByRole('combobox', { name: /personne/i });
+
+    await user.type(combo, 'n');
+    expect(within(panel).getByText('Saisissez au moins 2 caractères.')).toBeInTheDocument();
+    await user.type(combo, 'dour');
+    expect(await within(panel).findByRole('option', { name: /abbé ignace ndour/i })).toHaveTextContent('i•••r@example.sn');
+    await user.keyboard('{ArrowDown}{Enter}');
+
+    expect(combo).toHaveValue('Abbé Ignace Ndour');
+    expect(within(panel).getByText(/prêtre · statut vérifié · diocèse de thiès/i)).toBeInTheDocument();
   });
 
   it('explique un refus pour MFA manquante', async () => {
@@ -91,7 +111,8 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     await renderPage();
     await user.click(await screen.findByRole('button', { name: /nommer une personne/i }));
     const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
-    await user.type(within(panel).getByLabelText(/identifiant de la personne/i), '5f0c0000-0000-4000-8000-0000000000bb');
+    await user.type(within(panel).getByRole('combobox', { name: /personne/i }), 'gomis');
+    await user.click(await within(panel).findByRole('option', { name: /élisabeth gomis/i }));
     await user.selectOptions(await within(panel).findByLabelText(/^office/i), 'Catéchiste');
     await user.click(within(panel).getByRole('button', { name: 'Nommer' }));
 

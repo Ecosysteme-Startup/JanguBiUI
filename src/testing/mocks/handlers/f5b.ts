@@ -75,6 +75,7 @@ export const f5bHandlers = [
     if (typeof body.topic_annonces === 'boolean') onboardingState.annonces = body.topic_annonces;
     return HttpResponse.json(f5bState.preferences);
   }),
+  http.get(apiUrl('/me/declaration/'), () => HttpResponse.json(f5bState.declaration)),
   http.patch(apiUrl('/me/'), async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     if (typeof body.phone === 'string' && body.phone.startsWith('+000')) {

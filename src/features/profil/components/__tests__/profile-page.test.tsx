@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { ProfilePage } from '@/features/profil/components/profile-page';
 import { onboardingState } from '@/testing/mocks/db';
-import { f5bState, resetF5bState } from '@/testing/mocks/db-f5b';
+import { f5bState, laicDeclaration, resetF5bState } from '@/testing/mocks/db-f5b';
 import { renderApp } from '@/testing/test-utils';
 import { f5bHandlers } from '@/testing/mocks/handlers/f5b';
 import { server } from '@/testing/mocks/server';
@@ -19,6 +19,26 @@ beforeEach(() => {
 });
 
 describe('Profil (/app/profil)', () => {
+  it('affiche la demande de complément de la chancellerie, et rien sinon', async () => {
+    f5bState.declaration = laicDeclaration({
+      etat_de_vie: 'clerc',
+      degre_ordre: 'pretre',
+      statut_verification: 'complement',
+      verification_note: 'Joindre la lettre d’obédience du provincial.',
+    });
+    renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
+
+    expect(await screen.findByText('Complément demandé pour votre déclaration')).toBeInTheDocument();
+    expect(screen.getByText(/joindre la lettre d.obédience du provincial/i)).toBeInTheDocument();
+  });
+
+  it('n’affiche aucune demande de complément pour une déclaration ordinaire', async () => {
+    renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
+
+    expect(await screen.findByRole('heading', { level: 1, name: /mon profil/i })).toBeInTheDocument();
+    expect(screen.queryByText('Complément demandé pour votre déclaration')).not.toBeInTheDocument();
+  });
+
   it('présente l’identité, la paroisse suivie, la sécurité (Keycloak) et la confidentialité', async () => {
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
 

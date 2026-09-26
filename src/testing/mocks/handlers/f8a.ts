@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import { apiUrl } from '@/testing/mocks/api-url';
 import { ids } from '@/testing/mocks/db';
-import { f8aCategories, f8aState, nodeChildren, officeCatalogue, places, registrations } from '@/testing/mocks/db-f8a';
+import { f8aCategories, f8aState, nodeChildren, officeCatalogue, personsDirectory, places, registrations } from '@/testing/mocks/db-f8a';
 
 /** Enveloppe d'erreur V1 (SRS §7). */
 export const v1Error = (status: number, code: string, message: string, details: Record<string, unknown> = {}) =>
@@ -148,7 +148,20 @@ const agendaHandlers = [
   http.get(apiUrl('/staff/agenda/:id/registrations/'), ({ request }) => page(registrations, new URL(request.url))),
 ];
 
+/** Recherche de la personne à nommer (offices.nommer) : 2 caractères au moins, sinon 400. */
+export const personSearchHandler = http.get(apiUrl('/hierarchy/persons/'), ({ request }) => {
+  const url = new URL(request.url);
+  const q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+  if (q.length < 2) return v1Error(400, 'validation_error', 'Les données envoyées sont invalides.', { q: ['Au moins 2 caractères.'] });
+  const words = q.split(/\s+/);
+  return page(
+    personsDirectory.filter((p) => words.every((w) => `${p.full_name} ${p.email_masked}`.toLowerCase().includes(w))),
+    url,
+  );
+});
+
 const equipeHandlers = [
+  personSearchHandler,
   http.get(apiUrl('/hierarchy/assignments/'), ({ request }) => {
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
