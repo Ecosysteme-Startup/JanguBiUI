@@ -75,11 +75,14 @@ menus, toasts, dialogues. `shadow-modal` = alias de `shadow-menu`.
 | `text-16` | 16/24 | corps, champs, boutons lg/xl, onglets lg |
 | `text-17` | 17/24 | titre de carte |
 | `text-18` | 18/28 | titre de dialogue, chapô public, citation biblique (serif italique) |
+| `text-19` | 19/30 | versets de l'aperçu du psaume (serif, WEB-Accueil) |
 | `text-20` | 20/28 | sous-section, titre d'encart, texte de la Parole (serif, `leading-8`) |
 | `text-22` | 22/28 | logotype d'en-tête |
 | `text-24` | 24/32 | section, titre de lecture |
 | `text-28` | 28/36 | logotype de connexion |
+| `text-30` | 30/42 | citation de l'Évangile, bande « La Parole du jour » (serif, WEB-Accueil) |
 | `text-32` | 32/40 | **titre de page app** |
+| `text-36` | 36/44 | titre d'annonce (FID-Annonce) |
 | `text-40` | 40/48 | **titre de page publique** |
 | `text-48`, `text-56` | 48/56, 56/64 | accueil public |
 
@@ -104,7 +107,7 @@ rabattus sur cette échelle mais **à ne plus employer**.
 `label`. Noms français stables (`accueil`, `parole`, `bible`, `paroisse`, `diocese`, `annonce`,
 `calendrier`, `calendrier-horloge`, `document`, `message`, `cloche`, `recherche`, `reglages`,
 `utilisateurs`, `utilisateur-ok`, `structure`, `aujourdhui`, `tableau-de-bord`, `historique`,
-`plus-vertical`, `plus-horizontal`, `copier`, `partager`, `imprimer`, `taille-texte`, `ecouter`,
+`plus-vertical`, `plus-horizontal`, `copier`, `partager` (share-2, nœuds), `partager-boite` (share, flèche hors de la boîte : FID-Ma-Paroisse, FID-Annonce, FID-Evenement), `imprimer`, `taille-texte`, `ecouter`,
 `lecture`, `itineraire`, `epingle`, `signet`, `trombone`, `erreur`, `succes`, `alerte`, `info`, `aide`,
 `chargement`, `cadenas`, `oeil`, `chevrons-haut-bas`, `fleche-*`, `chevron-*`…, liste complète :
 `ICON_NAMES`) ; `chapelet` et `confession` sont dessinés maison. Tailles des maquettes : 16, 18, 20, 22.

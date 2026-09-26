@@ -3,7 +3,7 @@ import { extendTailwindMerge } from 'tailwind-merge';
 
 /** Échelle typographique de tailwind.config.cjs (tailles « Ciel produit » en px + anciens noms). */
 export const FONT_SIZES = [
-  '11', '12', '13', '14', '15', '16', '17', '18', '20', '22', '24', '28', '32', '40', '48', '56',
+  '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '22', '24', '28', '30', '32', '36', '40', '48', '56',
   'meta', 'xs', 'sm', 'base', 'body', 'lead', 'h4', 'h3', 'h2', 'title', 'h1', 'display',
 ];
 
