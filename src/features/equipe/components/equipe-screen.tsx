@@ -191,7 +191,7 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
         <PageHeader
           compact
           title="Équipe et offices"
-          description={`Les personnes qui servent ${node.data ? ofParish(node.data.name) : 'ce nœud'} sur Jàngu Bi. L’office donne les capacités, pour la paroisse et les nœuds rattachés.`}
+          description={`Les personnes qui servent ${node.data ? ofParish(node.data.name) : 'ce nœud'}. L’office donne les capacités.`}
           actions={
             canNommer && (
               <Button ref={openerRef} className="min-h-11 px-5" aria-expanded={panelOpen} aria-controls="panneau-nomination" onClick={() => setPanelOpen(true)}>
@@ -272,9 +272,9 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
                         <thead>
                           <tr>
                             <Th className="h-10 border-b-0">Personne</Th>
-                            <Th className="h-10 w-[200px] border-b-0">Office</Th>
+                            <Th className="h-10 w-[190px] border-b-0">Office</Th>
                             <Th className="h-10 w-[104px] border-b-0">Depuis</Th>
-                            <Th className="h-10 w-[240px] border-b-0">Capacités clés</Th>
+                            <Th className="h-10 w-[280px] border-b-0">Capacités clés</Th>
                             {canNommer && (
                               <Th className="h-10 w-[56px] border-b-0">
                                 <span className="sr-only">Actions</span>
