@@ -9,6 +9,7 @@ const priestSchema = z.object({
   full_name: z.string(),
   nodes: z.array(z.object({ id: z.string(), name: z.string(), type: z.string() })),
   availability: z.object({ accepts_new_conversations: z.boolean() }).passthrough().nullable(),
+  office: z.object({ code: z.string(), label: z.string() }).nullable(),
 });
 export type ReachablePriest = z.infer<typeof priestSchema>;
 

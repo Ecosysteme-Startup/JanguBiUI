@@ -76,6 +76,7 @@ export const paths = {
     structure: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/structure` },
     nominations: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/nominations` },
     clerge: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/clerge` },
+    audit: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/audit` },
   },
 
   plateforme: {

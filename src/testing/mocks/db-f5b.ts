@@ -281,12 +281,13 @@ export const priests = [
   {
     user_id: f5bIds.pretre,
     full_name: 'Emmanuel Tine',
+    office: { code: 'vicaire_paroissial', label: 'Vicaire' },
     nodes: [{ id: ids.saintDominique, name: 'Saint-Dominique', type: 'paroisse' }],
     availability: { accepts_new_conversations: true, absent_until: null, reply_windows: [], note: '' },
   },
 ];
 
 export const rosaryToday = {
-  day: { id: 4, weekday: 3, weekday_display: 'Thursday', group: { id: 2, name: 'Mystères lumineux', slug: 'lumineux', audio_file: '', mysteries: [] } },
+  day: { id: 4, weekday: 3, weekday_display: 'Jeudi', group: { id: 2, name: 'Mystères lumineux', slug: 'lumineux', audio_file: '', mysteries: [] } },
   standalone_prayers: [],
 };

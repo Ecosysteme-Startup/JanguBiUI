@@ -22,13 +22,13 @@ import { ACTION_FAMILIES, actionLabel, targetLabel } from '../utils/labels';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Filtres → URL (spec §3 : les filtres sont dans l'URL, partageables). */
-export const auditHref = (filters: AuditFilters) => {
+export const auditHref = (filters: AuditFilters, base: string = paths.plateforme.audit.getHref()) => {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== '' && !(key === 'offset' && value === 0)) params.set(key, String(value));
   });
   const qs = params.toString();
-  return `${paths.plateforme.audit.getHref()}${qs ? `?${qs}` : ''}`;
+  return `${base}${qs ? `?${qs}` : ''}`;
 };
 
 const metadataOf = (event: AuditEvent) => {
@@ -79,24 +79,41 @@ const ActorFilter = ({ value, onApply }: { value?: string; onApply: (actor?: str
   );
 };
 
+type AuditJournalProps = {
+  filters: AuditFilters;
+  /** Back-office d'un nœud (`/espace/[nodeId]/audit`) : journal de ce nœud et de son sous-arbre. */
+  scopeNodeId?: string;
+};
+
 /** Journal d'audit (PLA-Audit) ; tous les filtres vivent dans l'URL. */
-export const AuditJournal = ({ filters }: { filters: AuditFilters }) => {
+export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
   const router = useRouter();
-  const events = useAuditEvents(filters);
+  const events = useAuditEvents(scopeNodeId ? { ...filters, node: filters.node ?? scopeNodeId } : filters);
   const dioceses = useAuditDioceses();
   const { contexts } = useContexts();
-  const nodes = [
+  const known = [
     ...contexts.filter((c) => c.nodeId).map((c) => ({ id: c.nodeId as string, name: c.name })),
     ...(dioceses.data ?? []),
   ].filter((n, i, all) => all.findIndex((m) => m.id === n.id) === i);
-  const nodeName = (id: string | null) => (id ? (nodes.find((n) => n.id === id)?.name ?? shortId(id)) : 'Plateforme');
+  // Dans l'espace d'un nœud, le filtre ne propose que ce nœud : le backend borne déjà la portée.
+  const nodes = scopeNodeId ? known.filter((n) => n.id === scopeNodeId) : known;
+  const nodeName = (id: string | null) => (id ? (known.find((n) => n.id === id)?.name ?? shortId(id)) : 'Plateforme');
+  const base = scopeNodeId ? paths.espace.audit.getHref(scopeNodeId) : paths.plateforme.audit.getHref();
 
-  const go = (patch: Partial<AuditFilters>) => router.replace(auditHref({ ...filters, offset: 0, ...patch }), { scroll: false });
+  const go = (patch: Partial<AuditFilters>) => router.replace(auditHref({ ...filters, offset: 0, ...patch }, base), { scroll: false });
   const filtered = Object.entries(filters).some(([k, v]) => k !== 'offset' && v);
 
   return (
     <div>
-      <PageHeader number="04" eyebrow="Conformité · journal des actions sensibles, en insertion seule" title="Journal d’audit" />
+      <PageHeader
+        number="04"
+        eyebrow={
+          scopeNodeId
+            ? 'Pilotage · actions sensibles de ce nœud et de son sous-arbre'
+            : 'Conformité · journal des actions sensibles, en insertion seule'
+        }
+        title="Journal d’audit"
+      />
 
       <div
         role="search"
@@ -156,7 +173,7 @@ export const AuditJournal = ({ filters }: { filters: AuditFilters }) => {
             onChange={(e) => go({ node: e.target.value || undefined })}
             className="h-10 text-sm"
           >
-            <option value="">Tous les nœuds</option>
+            <option value="">{scopeNodeId ? 'Tout le sous-arbre' : 'Tous les nœuds'}</option>
             {nodes.map((n) => (
               <option key={n.id} value={n.id}>
                 {n.name}
@@ -168,7 +185,7 @@ export const AuditJournal = ({ filters }: { filters: AuditFilters }) => {
           <span aria-hidden="true" className="text-meta">
             &nbsp;
           </span>
-          <Button variant="tertiary" size="sm" disabled={!filtered} onClick={() => router.replace(auditHref({}), { scroll: false })}>
+          <Button variant="tertiary" size="sm" disabled={!filtered} onClick={() => router.replace(auditHref({}, base), { scroll: false })}>
             Réinitialiser
           </Button>
         </div>
@@ -195,22 +212,23 @@ export const AuditJournal = ({ filters }: { filters: AuditFilters }) => {
                   <Th>Action</Th>
                   <Th>Cible</Th>
                   <Th>Nœud</Th>
+                  <Th className="text-right">Adresse IP</Th>
                 </tr>
               </thead>
               <tbody>
                 {events.data.results.map((event) => (
                   <Tr key={event.id}>
                     <Td className="tnum whitespace-nowrap">{dayjs(event.at).format('DD.MM HH:mm:ss')}</Td>
-                    <Td className="tnum text-meta">
+                    <Td className="whitespace-nowrap">
                       {event.actor_id ? (
                         <button
                           type="button"
                           title={event.actor_id}
                           onClick={() => go({ actor: event.actor_id ?? undefined })}
                           className="text-left text-primary underline decoration-1 underline-offset-4 hover:decoration-2"
-                          aria-label={`Filtrer sur l’acteur ${event.actor_id}`}
+                          aria-label={`Filtrer sur l’acteur ${event.actor_name ?? event.actor_id}`}
                         >
-                          {shortId(event.actor_id)}
+                          {event.actor_name ?? shortId(event.actor_id)}
                         </button>
                       ) : (
                         <span className="text-ink-3">Système</span>
@@ -222,6 +240,7 @@ export const AuditJournal = ({ filters }: { filters: AuditFilters }) => {
                       {metadataOf(event) && <span className="tnum block text-meta text-ink-3">{metadataOf(event)}</span>}
                     </Td>
                     <Td>{nodeName(event.node_id)}</Td>
+                    <Td className="tnum text-right text-meta text-ink-2">{event.ip ?? '—'}</Td>
                   </Tr>
                 ))}
               </tbody>

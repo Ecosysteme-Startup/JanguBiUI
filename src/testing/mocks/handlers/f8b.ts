@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { apiUrl } from '@/testing/mocks/api-url';
+import { ids } from '@/testing/mocks/db';
 import {
   accountExtras,
   auditEvents,
@@ -216,9 +217,12 @@ export const f8bHandlers = [
     await log(request);
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
+    // `node` : ce nœud et son sous-arbre (Saint-Dominique est dans l'archidiocèse de Dakar).
+    const node = url.searchParams.get('node');
+    const inSubtree = (id: string | null) => !node || id === node || (node === ids.dakar && id === ids.saintDominique);
     return HttpResponse.json(
       page(
-        auditEvents.filter((e) => !action || e.action.startsWith(action)),
+        auditEvents.filter((e) => (!action || e.action.startsWith(action)) && inSubtree(e.node_id)),
         url,
       ),
     );

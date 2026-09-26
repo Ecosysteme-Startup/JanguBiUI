@@ -8,11 +8,14 @@ const eventSchema = z.object({
   id: z.number(),
   at: z.string(),
   actor_id: z.string().nullable(),
+  actor_name: z.string().nullable(),
   action: z.string(),
   target_type: z.string(),
   target_id: z.string(),
   node_id: z.string().nullable(),
   metadata: z.unknown().optional(),
+  // Tronquée par le backend (IPv4 /24, IPv6 /48) ; null pour une action du système.
+  ip: z.string().nullable(),
 });
 export type AuditEvent = z.infer<typeof eventSchema>;
 

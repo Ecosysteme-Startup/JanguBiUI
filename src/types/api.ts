@@ -156,8 +156,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List verses for a specific chapter
-         * @description Returns list of verses for a specific chapter.
+         * Versets d'un chapitre (le chapitre entier en une requête)
+         * @description Versets d'un chapitre. Une page couvre un chapitre entier (le plus long, Ps 119, a
+         *     176 versets) : ``limit`` vaut 200 par défaut et au plus.
          */
         get: operations["v1_bible_books_chapters_verses_list"];
         put?: never;
@@ -3462,12 +3463,16 @@ export interface components {
             readonly at: string;
             /** Format: uuid */
             readonly actor_id: string | null;
+            /** @description Prénom et nom de l'acteur ; null pour une action du système */
+            readonly actor_name: string | null;
             action: string;
             target_type: string;
             target_id: string;
             /** Format: uuid */
             readonly node_id: string | null;
             metadata?: unknown;
+            /** @description Adresse du client, tronquée (IPv4 /24, IPv6 /48) ; null hors requête */
+            readonly ip: string | null;
         };
         Availability: {
             /** Accepte de nouveaux échanges */
@@ -4028,6 +4033,7 @@ export interface components {
             /** @description Scripture reading or meditation for the mystery */
             meditation?: string | null;
             meditation_source?: string;
+            fruit?: string;
             /** Format: uri */
             readonly audio_file: string;
             /** @description Duration in seconds */
@@ -4394,6 +4400,14 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["StaffArticleOutput"][];
         };
+        PaginatedVerseOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["VerseOutput"][];
+        };
         ParoisseSuivieInput: {
             /**
              * Format: uuid
@@ -4678,6 +4692,12 @@ export interface components {
         PresentationRequestOutput: {
             received: boolean;
         };
+        PriestOfficeOutput: {
+            /** @description Code de l'office (cure, vicaire_paroissial, aumonier…) */
+            code: string;
+            /** @description Libellé de l'office : Curé, Vicaire paroissial… */
+            label: string;
+        };
         /** @description Vue de la paroisse : identité complète, registre, lieu de retrait. */
         ProcessorOutput: {
             /** Format: uuid */
@@ -4908,6 +4928,8 @@ export interface components {
                 [key: string]: unknown;
             }[];
             availability: components["schemas"]["Availability"] | null;
+            /** @description Office de la nomination active principale (paroisse suivie d'abord) */
+            office: components["schemas"]["PriestOfficeOutput"] | null;
         };
         ReactInput: {
             emoji: string;
@@ -5084,21 +5106,10 @@ export interface components {
         RequiredOrderEnum: "aucun" | "diacre" | "pretre" | "eveque";
         RosaryDay: {
             readonly id: number;
-            weekday: components["schemas"]["RosaryDayWeekdayEnum"];
+            weekday: components["schemas"]["WeekdayEnum"];
             readonly weekday_display: string;
             readonly group: components["schemas"]["Group"];
         };
-        /**
-         * @description * `0` - Monday
-         *     * `1` - Tuesday
-         *     * `2` - Wednesday
-         *     * `3` - Thursday
-         *     * `4` - Friday
-         *     * `5` - Saturday
-         *     * `6` - Sunday
-         * @enum {integer}
-         */
-        RosaryDayWeekdayEnum: 0 | 1 | 2 | 3 | 4 | 5 | 6;
         RuleCreateInput: {
             place_id: number;
             /** @description 0 = lundi … 6 = dimanche */
@@ -5432,15 +5443,15 @@ export interface components {
             pickup_hours: string;
         };
         /**
-         * @description * `SIGN_OF_CROSS` - Sign of Cross
-         *     * `CREED` - Apostles Creed
-         *     * `OUR_FATHER` - Our Father
-         *     * `HAIL_MARY` - Hail Mary
-         *     * `GLORY_BE` - Glory Be
-         *     * `FATIMA` - Fatima Prayer
-         *     * `HOLY_QUEEN` - Hail Holy Queen
-         *     * `FINAL_PRAYER` - Final Prayer
-         *     * `OTHER` - Other
+         * @description * `SIGN_OF_CROSS` - Signe de la croix
+         *     * `CREED` - Je crois en Dieu
+         *     * `OUR_FATHER` - Notre Père
+         *     * `HAIL_MARY` - Je vous salue Marie
+         *     * `GLORY_BE` - Gloire au Père
+         *     * `FATIMA` - Prière de Fatima
+         *     * `HOLY_QUEEN` - Salve Regina
+         *     * `FINAL_PRAYER` - Prière finale
+         *     * `OTHER` - Autre
          * @enum {string}
          */
         TypeEnum: "SIGN_OF_CROSS" | "CREED" | "OUR_FATHER" | "HAIL_MARY" | "GLORY_BE" | "FATIMA" | "HOLY_QUEEN" | "FINAL_PRAYER" | "OTHER";
@@ -5698,7 +5709,7 @@ export interface operations {
         parameters: {
             query?: {
                 excerpt?: boolean;
-                /** @description Number of results to return per page. */
+                /** @description Versets par page : 200 par défaut et au plus (un chapitre entier). */
                 limit?: number;
                 /** @description The initial index from which to return the results. */
                 offset?: number;
@@ -5719,7 +5730,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["VerseOutput"][];
+                    "application/json": components["schemas"]["PaginatedVerseOutputList"];
                 };
             };
         };

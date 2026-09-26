@@ -34,7 +34,17 @@ const liturgyDaySchema = z.object({
   readings_available: z.boolean(),
   readings: z.array(readingSchema),
   audio_url: z.string().nullable(),
-  meditation: z.object({ id: z.string(), title: z.string(), scope: z.string().nullable() }).nullable(),
+  // Extrait, auteur et date viennent avec le jour liturgique : plus de second appel à /news/{id}/.
+  meditation: z
+    .object({
+      id: z.string(),
+      title: z.string(),
+      scope: z.string().nullable(),
+      excerpt: z.string().nullable(),
+      author_name: z.string(),
+      published_at: z.string().nullable(),
+    })
+    .nullable(),
 });
 export type LiturgyDay = z.infer<typeof liturgyDaySchema>;
 
