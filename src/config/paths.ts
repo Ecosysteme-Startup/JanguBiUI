@@ -15,6 +15,9 @@ export const paths = {
   confidentialite: { getHref: () => '/confidentialite' },
   conditions: { getHref: () => '/conditions' },
   contact: { getHref: () => '/pour-les-paroisses#contact' },
+  /** Aide (en-tête et pied de page publics) : pas encore de page dédiée, renvoie au contact. */
+  aide: { getHref: () => '/pour-les-paroisses#contact' },
+  applicationMobile: { getHref: () => '/#application' },
 
   auth: {
     connexion: {

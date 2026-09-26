@@ -31,7 +31,7 @@ export const Card = ({ as: Tag = 'div', interactive, tone, padding, className, .
 );
 
 /**
- * En-tête de carte : titre 20/28 (ou 17/24 en `sm`) et action discrète à droite (« Tout voir »).
+ * En-tête de carte : titre 20/28 (`md`), 18/26 (`aside` : encarts latéraux DIO/PLA) ou 17/24 (`sm`) et action discrète à droite (« Tout voir »).
  * Le titre est un <h2> par défaut ; passer `as="h3"` sous une section titrée.
  */
 export const CardHeader = ({
@@ -46,14 +46,14 @@ export const CardHeader = ({
   title: React.ReactNode;
   action?: React.ReactNode;
   description?: React.ReactNode;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'aside' | 'md';
   as?: 'h2' | 'h3';
   id?: string;
   className?: string;
 }) => (
   <div className={cn('flex items-start justify-between gap-4', className)}>
     <div className="min-w-0">
-      <Tag id={id} className={cn('m-0 font-semibold text-ink', size === 'md' ? 'text-20' : 'text-17')}>
+      <Tag id={id} className={cn('m-0 font-semibold text-ink', { md: 'text-20', aside: 'text-18 leading-[26px]', sm: 'text-17' }[size])}>
         {title}
       </Tag>
       {description && <p className="m-0 mt-1 text-14 text-ink-2">{description}</p>}

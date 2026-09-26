@@ -31,21 +31,42 @@ export const MenuItem = ({
   tone = 'default',
   className,
   children,
+  asChild,
   ...props
-}: React.ComponentProps<typeof DropdownMenu.Item> & { icon?: IconName; shortcut?: string; tone?: 'default' | 'danger' }) => (
-  <DropdownMenu.Item
-    className={cn(
-      'flex min-h-9 cursor-pointer select-none items-center gap-2.5 rounded-8 px-2.5 text-14 outline-none data-[disabled]:cursor-not-allowed data-[highlighted]:bg-surface-2 data-[disabled]:text-ink-4',
-      tone === 'danger' ? 'text-err' : 'text-ink',
-      className,
-    )}
-    {...props}
-  >
-    {icon && <Icon name={icon} size={18} className={tone === 'danger' ? 'text-err' : 'text-ink-3'} />}
-    <span className="flex-1 whitespace-nowrap">{children}</span>
-    {shortcut && <span className="text-12 text-ink-3">{shortcut}</span>}
-  </DropdownMenu.Item>
-);
+}: React.ComponentProps<typeof DropdownMenu.Item> & { icon?: IconName; shortcut?: string; tone?: 'default' | 'danger' }) => {
+  const iconNode = icon && <Icon name={icon} size={18} className={tone === 'danger' ? 'text-err' : 'text-ink-3'} />;
+  const shortcutNode = shortcut && <span className="text-12 text-ink-3">{shortcut}</span>;
+  // asChild (lien) : l'icône et le raccourci sont insérés DANS l'élément enfant (un seul enfant pour Radix Slot).
+  const content =
+    asChild && React.isValidElement<{ children?: React.ReactNode }>(children) ? (
+      React.cloneElement(
+        children,
+        undefined,
+        iconNode,
+        <span className="flex-1 whitespace-nowrap">{children.props.children}</span>,
+        shortcutNode,
+      )
+    ) : (
+      <>
+        {iconNode}
+        <span className="flex-1 whitespace-nowrap">{children}</span>
+        {shortcutNode}
+      </>
+    );
+  return (
+    <DropdownMenu.Item
+      asChild={asChild}
+      className={cn(
+        'flex min-h-9 cursor-pointer select-none items-center gap-2.5 rounded-8 px-2.5 text-14 outline-none data-[disabled]:cursor-not-allowed data-[highlighted]:bg-surface-2 data-[disabled]:text-ink-4',
+        tone === 'danger' ? 'text-err hover:text-err' : 'text-ink hover:text-ink',
+        className,
+      )}
+      {...props}
+    >
+      {content}
+    </DropdownMenu.Item>
+  );
+};
 
 export const MenuSeparator = ({ className }: { className?: string }) => (
   <DropdownMenu.Separator className={cn('-mx-1.5 my-1 h-px bg-line', className)} />

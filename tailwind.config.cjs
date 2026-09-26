@@ -106,7 +106,7 @@ module.exports = {
       h1: ['2.5rem', { lineHeight: '3rem', letterSpacing: '-0.015em' }],
       display: ['3.5rem', { lineHeight: '4rem', letterSpacing: '-0.02em' }],
     },
-    // Rayons : 6 case, 8 petit, 10 nav, 12 champ et bouton, 14 tuile de jour, 16 carte, 999 pilule.
+    // Rayons : 3 pastille de légende, 6 case, 8 petit, 10 nav, 12 champ et bouton, 14 tuile de jour, 16 carte, 999 pilule.
     borderRadius: {
       none: '0',
       DEFAULT: '10px',
@@ -114,6 +114,7 @@ module.exports = {
       md: '8px',
       lg: '12px',
       xl: '16px',
+      3: '3px',
       6: '6px',
       8: '8px',
       9: '9px',

@@ -7,8 +7,8 @@ export const FONT_SIZES = [
   'meta', 'xs', 'sm', 'base', 'body', 'lead', 'h4', 'h3', 'h2', 'title', 'h1', 'display',
 ];
 
-/** Rayons numériques de tailwind.config.cjs (6, 8, 9, 10, 12, 14, 16). */
-const RADII = ['6', '8', '9', '10', '12', '14', '16'];
+/** Rayons numériques de tailwind.config.cjs (3, 6, 8, 9, 10, 12, 14, 16). */
+const RADII = ['3', '6', '8', '9', '10', '12', '14', '16'];
 
 /**
  * tailwind-merge doit connaître l'échelle typographique et les rayons de la charte :

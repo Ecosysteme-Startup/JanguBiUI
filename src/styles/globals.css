@@ -61,6 +61,17 @@
   }
 }
 
+@layer components {
+  /* Conteneur des pages publiques et du parcours d'inscription : 1200 px de contenu centré,
+     gouttière de 16 px sous 1232 px (maquettes WEB-Accueil, WEB-Erreur-404, WEB-Inscription-*). */
+  .jb-container {
+    width: 100%;
+    max-width: calc(1200px + 2rem);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+}
+
 @layer utilities {
   /* Zone tactile ≥ 44 px sans changer le rendu (WCAG 2.5.5, cibles denses du DS). */
   .hit {

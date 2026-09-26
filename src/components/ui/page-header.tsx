@@ -16,6 +16,7 @@ export const PageHeader = ({
   actions,
   children,
   size = 'app',
+  compact = false,
   className,
 }: {
   /** @deprecated Numérotation retirée de la charte Ciel ; ignoré. */
@@ -27,6 +28,8 @@ export const PageHeader = ({
   actions?: React.ReactNode;
   children?: React.ReactNode;
   size?: 'app' | 'public';
+  /** Phrase à 4 px du titre (back-office DIO-*, PLA-*) au lieu de 8. */
+  compact?: boolean;
   className?: string;
 }) => (
   <header className={cn('flex flex-wrap items-end justify-between gap-x-6 gap-y-4', className)}>
@@ -35,7 +38,7 @@ export const PageHeader = ({
         <p className={cn('m-0 mb-1', eyebrowTone === 'primary' ? 'mb-3 text-15 font-semibold text-primary' : 'text-14 text-ink-3')}>{eyebrow}</p>
       )}
       <h1 className={cn('m-0 font-semibold text-ink', size === 'app' ? 'text-32' : 'text-40')}>{title}</h1>
-      {description && <p className={cn('m-0 text-ink-2', size === 'app' ? 'mt-2 text-16' : 'mt-4 text-18')}>{description}</p>}
+      {description && <p className={cn('m-0 text-ink-2', size === 'app' ? cn(compact ? 'mt-1' : 'mt-2', 'text-16') : 'mt-4 text-18')}>{description}</p>}
       {children}
     </div>
     {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
