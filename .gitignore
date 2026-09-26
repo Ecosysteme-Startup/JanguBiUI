@@ -60,3 +60,7 @@ e2e/**/test-results/
 docs/v1/maquettes-ciel/rendu/
 docs/v1/maquettes-ciel/captures/
 e2e/visuel/resultats/
+
+# harnais visuel (e2e/visuel) : sessions Keycloak et captures générées, jamais versionnées
+/e2e/visuel/.auth/
+/e2e/visuel/resultats/
