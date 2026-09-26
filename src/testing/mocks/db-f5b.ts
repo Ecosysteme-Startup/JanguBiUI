@@ -151,7 +151,13 @@ const event = (id: number, title: string, offset: number, extra: Record<string, 
   node_name: 'Saint-Dominique',
   place_id: null,
   max_participants: 120,
+  registration_closes_at: null as string | null,
   registrations_count: 84,
+  seats_taken: 84,
+  seats_remaining: 36 as number | null,
+  registrations_open: true,
+  my_seats: null as number | null,
+  my_note: null as string | null,
   is_full: false,
   is_registered: false,
   is_cancelled: false,
@@ -168,17 +174,21 @@ export const f5bState = {
   deleted: false,
   deleteConflict: false,
   readArticles: [] as string[],
+  lastRegistration: null as Record<string, unknown> | null,
 };
 
 const now = () => dayjs();
 
 export const resetF5bState = () => {
+  f5bState.lastRegistration = null;
   f5bState.events = {
     [f5bIds.evenementRecollection]: event(f5bIds.evenementRecollection, 'Journée de récollection des CEB', 16),
     [f5bIds.evenementChorale]: event(f5bIds.evenementChorale, 'Répétition de la chorale Sainte-Cécile', 2, {
       event_type: 'other',
       max_participants: null,
       registrations_count: 0,
+      seats_taken: 0,
+      seats_remaining: null,
     }),
   };
   f5bState.preferences = {

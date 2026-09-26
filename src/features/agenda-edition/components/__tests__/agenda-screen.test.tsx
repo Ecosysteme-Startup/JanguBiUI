@@ -41,8 +41,11 @@ describe('Agenda (PAR-Agenda)', () => {
 
     const detail = await screen.findByRole('region', { name: 'Journée de récollection des CEB' });
     expect(within(detail).getByText('Sam. 10.10 · 8 h 30-16 h')).toBeInTheDocument();
-    expect(within(detail).getByRole('img', { name: '2 inscrits sur 60 places' })).toBeInTheDocument();
+    expect(within(detail).getByRole('img', { name: '3 places réservées sur 60' })).toBeInTheDocument();
+    expect(within(detail).getByText(/57 places restantes · clôture jeu\. 08\.10 à 18 h/)).toBeInTheDocument();
     expect(await within(detail).findByText('Thérèse Ndione')).toBeInTheDocument();
+    expect(within(detail).getByText('· 2 personnes')).toBeInTheDocument();
+    expect(within(detail).getByText('« Une place à l’avant du car. »')).toBeInTheDocument();
     expect(screen.getByText(/2 événements en octobre/)).toBeInTheDocument();
   });
 
@@ -69,6 +72,46 @@ describe('Agenda (PAR-Agenda)', () => {
       place_id: null,
     });
     expect(String((f8aState.lastBody as { start_at: string }).start_at)).toMatch(/^2026-10-07T19:00:00/);
+  });
+
+  it('fixe la clôture des inscriptions et refuse une clôture après la fin', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    await user.click(await screen.findByRole('button', { name: /nouvel événement/i }));
+    const dialog = await screen.findByRole('dialog', { name: 'Nouvel événement' });
+    await user.type(within(dialog).getByLabelText(/^titre/i), 'Récollection');
+    await user.type(within(dialog).getByLabelText(/début, date/i), '2026-10-10');
+    await user.type(within(dialog).getByLabelText(/début, heure/i), '08:30');
+    await user.type(within(dialog).getByLabelText(/fin, date/i), '2026-10-10');
+    await user.type(within(dialog).getByLabelText(/fin, heure/i), '16:00');
+    await user.type(within(dialog).getByLabelText(/clôture des inscriptions, date/i), '2026-10-11');
+    await user.type(within(dialog).getByLabelText(/clôture, heure/i), '18:00');
+    await user.click(within(dialog).getByRole('button', { name: 'Créer l’événement' }));
+
+    expect(await within(dialog).findByText('La clôture doit précéder la fin de l’événement.')).toBeInTheDocument();
+    expect(f8aState.lastBody).toBeNull();
+
+    const closes = within(dialog).getByLabelText(/clôture des inscriptions, date/i);
+    await user.clear(closes);
+    await user.type(closes, '2026-10-08');
+    await user.click(within(dialog).getByRole('button', { name: 'Créer l’événement' }));
+
+    await vi.waitFor(() => expect(f8aState.lastBody).not.toBeNull());
+    expect(String((f8aState.lastBody as { registration_closes_at: string }).registration_closes_at)).toMatch(/^2026-10-08T18:00:00/);
+  });
+
+  it('demande la période affichée et enchaîne les pages au-delà de 50 événements', async () => {
+    const base = f8aState.events[1];
+    f8aState.events = Array.from({ length: 55 }, (_, i) => ({ ...base, id: 1000 + i, title: `Messe ${i}` }));
+    const user = userEvent.setup();
+    await renderPage();
+    await openOctober(user);
+
+    expect(await screen.findByText(/55 événements en octobre/)).toBeInTheDocument();
+    const october = f8aState.agendaQueries.filter((q) => q.from === '2026-09-28');
+    expect(october.map((q) => q.offset).sort()).toEqual(['0', '50']);
+    expect(october[0]).toMatchObject({ to: '2026-11-01', limit: '50' });
   });
 
   it('refuse une fin avant le début', async () => {

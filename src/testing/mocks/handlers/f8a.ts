@@ -22,8 +22,25 @@ const articleHandlers = [
     const url = new URL(request.url);
     const status = url.searchParams.get('status');
     const type = url.searchParams.get('type');
-    const items = f8aState.articles.filter((a) => (!status || a.status === status) && (!type || a.content_type === type));
+    const q = (url.searchParams.get('q') ?? '').toLowerCase();
+    const place = url.searchParams.get('place');
+    f8aState.lastNewsQuery = Object.fromEntries(url.searchParams);
+    const items = f8aState.articles.filter(
+      (a) =>
+        (!status || a.status === status) &&
+        (!type || a.content_type === type) &&
+        (!q || `${a.title} ${String(a.content ?? '')}`.toLowerCase().includes(q)) &&
+        (!place || (a.scope as { place_id: number | null }).place_id === Number(place)),
+    );
     return page(items, url);
+  }),
+  http.get(apiUrl('/staff/news/sunday-sheet/'), ({ request }) => {
+    const url = new URL(request.url);
+    const sunday = url.searchParams.get('date') ?? '2026-09-27';
+    const items = f8aState.articles
+      .filter((a) => a.is_sunday_notice && a.sunday_date === sunday && (a.status === 'published' || a.status === 'scheduled'))
+      .map((a) => ({ id: a.id, title: a.title, excerpt: a.excerpt, content: a.content, content_format: a.content_format, scope: a.scope, status: a.status }));
+    return HttpResponse.json({ node_id: url.searchParams.get('node'), node_name: 'Saint-Dominique', sunday, items: [...items, ...f8aState.dioceseSheetItems] });
   }),
   http.post(apiUrl('/staff/news/'), async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
@@ -43,7 +60,10 @@ const articleHandlers = [
       reads_count: 0,
       created_at: now(),
       updated_at: now(),
+      notify_followers: true,
       ...body,
+      cover_image_id: body.cover_image_id ?? null,
+      cover_image_url: body.cover_image_id ? `https://minio.test/covers/${String(body.cover_image_id)}.jpg` : null,
       title: String(body.title),
     };
     f8aState.articles = [created, ...f8aState.articles];
@@ -58,7 +78,17 @@ const articleHandlers = [
     f8aState.lastBody = body;
     const found = f8aState.articles.find((a) => a.id === params.id);
     if (!found) return v1Error(404, 'not_found', 'Article introuvable.');
-    const updated = { ...found, ...body, title: String(body.title ?? found.title), updated_at: now() };
+    const placeId = 'place_id' in body ? (body.place_id as number | null) : (found.scope as { place_id: number | null }).place_id;
+    const updated = {
+      ...found,
+      ...body,
+      scope: { ...(found.scope as object), place_id: placeId, place_name: places.find((p) => p.id === placeId)?.name ?? null },
+      ...('cover_image_id' in body
+        ? { cover_image_url: body.cover_image_id ? `https://minio.test/covers/${String(body.cover_image_id)}.jpg` : null }
+        : {}),
+      title: String(body.title ?? found.title),
+      updated_at: now(),
+    };
     f8aState.articles = f8aState.articles.map((a) => (a.id === found.id ? updated : a));
     return HttpResponse.json(updated);
   }),
@@ -67,12 +97,14 @@ const articleHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
   http.post(apiUrl('/staff/news/:id/publish/'), async ({ params, request }) => {
-    const body = (await request.json()) as { publish_at?: string };
+    const body = (await request.json()) as { publish_at?: string; notify?: boolean };
+    f8aState.lastPublishBody = body;
     const found = f8aState.articles.find((a) => a.id === params.id);
     if (!found) return v1Error(404, 'not_found', 'Article introuvable.');
+    const notify = body.notify ?? found.notify_followers;
     const updated = body.publish_at
-      ? { ...found, status: 'scheduled', publish_at: body.publish_at }
-      : { ...found, status: 'published', published_at: now() };
+      ? { ...found, status: 'scheduled', publish_at: body.publish_at, notify_followers: notify }
+      : { ...found, status: 'published', published_at: now(), notify_followers: notify };
     f8aState.articles = f8aState.articles.map((a) => (a.id === found.id ? updated : a));
     return HttpResponse.json(updated);
   }),
@@ -114,7 +146,14 @@ const placeHandlers = [
 ];
 
 const agendaHandlers = [
-  http.get(apiUrl('/staff/agenda/'), ({ request }) => page(f8aState.events, new URL(request.url))),
+  http.get(apiUrl('/staff/agenda/'), ({ request }) => {
+    const url = new URL(request.url);
+    f8aState.agendaQueries = [...f8aState.agendaQueries, Object.fromEntries(url.searchParams)];
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+    const items = f8aState.events.filter((e) => (!from || e.end_at.slice(0, 10) >= from) && (!to || e.start_at.slice(0, 10) <= to));
+    return page(items, url);
+  }),
   http.post(apiUrl('/staff/agenda/'), async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     f8aState.lastBody = body;
@@ -122,6 +161,9 @@ const agendaHandlers = [
       id: 300 + f8aState.events.length,
       node_name: 'Saint-Dominique',
       registrations_count: 0,
+      seats_taken: 0,
+      seats_remaining: null,
+      registration_closes_at: null,
       is_full: false,
       is_registered: false,
       is_cancelled: false,

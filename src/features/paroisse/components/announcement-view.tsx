@@ -107,6 +107,12 @@ export const AnnouncementView = ({ id }: { id: string }) => {
             </span>
             <span className="tnum text-meta text-ink-3">Lecture · {readingMinutes(article.content)} min</span>
           </div>
+          {article.cover_image_url && (
+            <figure className="m-0 mt-6">
+              {/* URL signée du stockage (MinIO/S3) : pas d'optimisation next/image. */}
+              <img src={article.cover_image_url} alt="" className="aspect-[4/1] w-full border border-line object-cover" />
+            </figure>
+          )}
           <div className="mt-4">
             <ArticleBody content={article.content} format={article.content_format} />
           </div>

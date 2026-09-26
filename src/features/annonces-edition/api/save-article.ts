@@ -18,9 +18,12 @@ export const createArticle = async (body: ArticleCreateBody): Promise<StaffArtic
 export const updateArticle = async (id: string, body: ArticleUpdateBody): Promise<StaffArticle> =>
   staffArticleSchema.parse(await api.patch(base(id), body));
 
-/** Publie tout de suite (`publishAt` absent ou passé) ou programme la publication. */
-export const publishArticle = async (id: string, publishAt: string | null): Promise<StaffArticle> => {
-  const body: PublishBody = publishAt ? { publish_at: publishAt } : {};
+/**
+ * Publie tout de suite (`publishAt` absent ou passé) ou programme la publication.
+ * `notify` : prévenir les fidèles (le serveur applique leurs préférences et la plage de silence).
+ */
+export const publishArticle = async (id: string, publishAt: string | null, notify?: boolean): Promise<StaffArticle> => {
+  const body: PublishBody = { ...(publishAt ? { publish_at: publishAt } : {}), ...(notify === undefined ? {} : { notify }) };
   return staffArticleSchema.parse(await api.post(`${base(id)}publish/`, body));
 };
 
@@ -32,8 +35,8 @@ export const unpublishArticle = async (id: string, reason: string): Promise<Staf
 export const deleteArticle = (id: string): Promise<void> => api.delete(base(id));
 
 export type SaveArticleInput =
-  | { id: null; create: ArticleCreateBody; publish?: { at: string | null } }
-  | { id: string; update: ArticleUpdateBody; publish?: { at: string | null } };
+  | { id: null; create: ArticleCreateBody; publish?: { at: string | null; notify?: boolean } }
+  | { id: string; update: ArticleUpdateBody; publish?: { at: string | null; notify?: boolean } };
 
 /**
  * Enregistre (création du brouillon ou modification), puis publie ou programme si demandé.
@@ -41,7 +44,7 @@ export type SaveArticleInput =
  */
 export const saveArticle = async (input: SaveArticleInput): Promise<StaffArticle> => {
   const saved = input.id === null ? await createArticle(input.create) : await updateArticle(input.id, input.update);
-  return input.publish ? publishArticle(saved.id, input.publish.at) : saved;
+  return input.publish ? publishArticle(saved.id, input.publish.at, input.publish.notify) : saved;
 };
 
 const useInvalidateNews = () => {

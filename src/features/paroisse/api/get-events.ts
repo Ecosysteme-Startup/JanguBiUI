@@ -14,9 +14,16 @@ export const eventSchema = z.object({
   node_id: z.string().nullable(),
   node_name: z.string().nullable(),
   max_participants: z.number().nullable(),
+  registration_closes_at: z.string().nullable(),
   registrations_count: z.number(),
+  /** Places réservées : la jauge compte les personnes, pas les inscriptions. */
+  seats_taken: z.number(),
+  seats_remaining: z.number().nullable(),
   is_full: z.boolean(),
+  registrations_open: z.boolean(),
   is_registered: z.boolean(),
+  my_seats: z.number().nullable(),
+  my_note: z.string().nullable(),
   is_cancelled: z.boolean(),
 });
 export type ParishEvent = z.infer<typeof eventSchema>;
