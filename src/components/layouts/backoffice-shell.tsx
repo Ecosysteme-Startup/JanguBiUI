@@ -3,6 +3,7 @@
 import NextLink from 'next/link';
 import type { ReactNode } from 'react';
 
+import { BackofficeDrawer } from '@/components/layouts/backoffice-drawer';
 import { BackofficeSidebar } from '@/components/layouts/backoffice-sidebar';
 import { BackofficeTopbar } from '@/components/layouts/backoffice-topbar';
 import { LiturgyBannerSlot } from '@/components/layouts/liturgy-banner-slot';
@@ -61,18 +62,30 @@ export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; c
     .map((g) => ({ ...g, items: g.items.filter((i) => i.capacites.some((c) => can(grants, c, nodeId))) }))
     .filter((g) => g.items.length > 0);
 
+  const sidebar = (
+    <BackofficeSidebar kind={kind} context={context} parentName={parentName} contexts={contexts} groups={groups} homeHref={homeHref} />
+  );
+
   return (
     <div className="flex min-h-dvh flex-col bg-paper lg:flex-row">
       <a href="#contenu" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-paper focus:p-3">
         Aller au contenu
       </a>
-      {/* À l'impression (feuille d'annonces…), seul le contenu de la page sort. */}
+      {/* À l'impression (feuille d'annonces…), seul le contenu de la page sort.
+          Sous lg, la sidebar passe dans le tiroir « Menu » de la barre du haut : le contenu d'abord (A11Y-06). */}
       <div className="contents print:hidden">
-        <BackofficeSidebar kind={kind} context={context} parentName={parentName} contexts={contexts} groups={groups} homeHref={homeHref} />
+        <aside className="hidden border-r border-line-strong bg-surface px-4 pb-4 pt-6 lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-68 lg:shrink-0 lg:flex-col lg:overflow-y-auto">
+          {sidebar}
+        </aside>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="contents print:hidden">
-          <BackofficeTopbar rootLabel={context.name} rootHref={homeHref} groups={groups} />
+          <BackofficeTopbar
+            rootLabel={context.name}
+            rootHref={homeHref}
+            groups={groups}
+            menu={<BackofficeDrawer>{sidebar}</BackofficeDrawer>}
+          />
           <LiturgyBannerSlot href={paths.app.parole.getHref()} variant="backoffice" className="px-4 lg:px-8" />
         </div>
         <main id="contenu" className="min-w-0 flex-1 px-4 py-8 lg:px-12 print:p-0">

@@ -27,8 +27,15 @@ export const NodeContextSwitcher = ({ current, contexts, currentId }: Props) => 
       >
         <span className="flex min-w-0 flex-col gap-1">
           <span className="tnum text-meta text-ink-3">{current.eyebrow}</span>
-          <span className="truncate font-serif text-[21px] leading-[1.05]">{current.name}</span>
-          {current.parent && <span className="truncate text-xs text-ink-2">{current.parent}</span>}
+          {/* Deux lignes, puis coupe avec infobulle (A11Y-18) : « Paroisse Saint-Dominique » reste lisible. */}
+          <span title={current.name} className="line-clamp-2 break-words font-serif text-[21px] leading-[1.1]">
+            {current.name}
+          </span>
+          {current.parent && (
+            <span title={current.parent} className="line-clamp-2 break-words text-xs text-ink-2">
+              {current.parent}
+            </span>
+          )}
         </span>
         <Icon name="chevron-bas" size={18} />
       </DropdownMenu.Trigger>
