@@ -18,14 +18,9 @@ import { useNow } from '../hooks/use-parish-now';
 import { nextMassPhrase, upcomingMasses } from '../utils/schedule';
 
 import { ChurchDrawing, type ChurchDrawingVariant } from './church-drawing';
+import { placeAndDeanery } from './parish-row';
 
 const DRAWINGS: ChurchDrawingVariant[] = ['arche', 'cathedrale', 'clocher'];
-
-/** « Point E, Dakar · doyenné Plateau-Médina ». */
-export const parishSubtitle = (parish: DirectoryNode) =>
-  [[parish.address, parish.city].filter(Boolean).join(', '), parish.deanery_name ? `doyenné ${parish.deanery_name.replace(/^Doyenné\s+/i, '')}` : null]
-    .filter(Boolean)
-    .join(' · ');
 
 /** « Prochaine messe aujourd'hui à 18 h 30 » d'une paroisse ouverte (horaires publiés). */
 const NextMassLine = ({ parish }: { parish: DirectoryNode }) => {
@@ -52,7 +47,7 @@ const ParishCard = ({ parish, drawing }: { parish: DirectoryNode; drawing: Churc
         <span className="text-18 font-semibold text-ink">{parish.name.replace(/^Paroisse\s+/i, '')}</span>
         {parish.is_active_on_platform && <Badge tone="ok">Sur Jàngu Bi</Badge>}
       </span>
-      {parishSubtitle(parish) && <span className="text-14 text-ink-2">{parishSubtitle(parish)}</span>}
+      {placeAndDeanery(parish) && <span className="text-14 text-ink-2">{placeAndDeanery(parish)}</span>}
       {parish.is_active_on_platform ? (
         <NextMassLine parish={parish} />
       ) : (

@@ -1,7 +1,7 @@
 import { HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 
-import { diocesesQueryOptions, directoryQueryOptions, doyennesQueryOptions } from '@/features/public-annuaire/api/get-directory';
+import { diocesesQueryOptions, directoryQueryOptions, doyennesQueryOptions, EXCERPT_PARAMS } from '@/features/public-annuaire/api/get-directory';
 import { ParishDirectory } from '@/features/public-annuaire/components/parish-directory';
 import { filtersToParams, parseFilters } from '@/features/public-annuaire/utils/filters';
 import { prefetchPublic } from '@/lib/server-prefetch';
@@ -13,11 +13,12 @@ export const metadata: Metadata = {
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-/** Annuaire public des paroisses (PUB-Paroisses) ; filtres dans l'URL. */
+/** Annuaire public des paroisses (WEB-Paroisses) ; filtres dans l'URL. */
 const ParoissesPage = async ({ searchParams }: Props) => {
   const filters = parseFilters(await searchParams);
   const state = await prefetchPublic(
     directoryQueryOptions(filtersToParams(filters)),
+    directoryQueryOptions(EXCERPT_PARAMS),
     diocesesQueryOptions(),
     ...(filters.diocese ? [doyennesQueryOptions(filters.diocese)] : []),
   );
