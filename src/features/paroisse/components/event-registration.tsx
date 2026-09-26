@@ -12,6 +12,7 @@ import { Notice } from '@/components/ui/notice';
 import { Textarea } from '@/components/ui/textarea';
 import { ApiError } from '@/lib/api-client';
 import { dayjs, hour } from '@/utils/dates';
+import { plural } from '@/utils/plural';
 
 import { useEventRegistration } from '../api/get-event';
 import type { ParishEvent } from '../api/get-events';
@@ -32,7 +33,7 @@ const Capacity = ({ event }: { event: ParishEvent }) => {
         <span className="tnum font-serif text-h3">{left}</span> place{left > 1 ? 's' : ''} restante{left > 1 ? 's' : ''} sur{' '}
         {event.max_participants}
       </p>
-      <div role="img" aria-label={`${event.seats_taken} places réservées sur ${event.max_participants}`} className="mt-3 h-1 bg-line">
+      <div role="img" aria-label={`${plural(event.seats_taken, 'place réservée', 'places réservées')} sur ${event.max_participants}`} className="mt-3 h-1 bg-line">
         <div className="h-1 bg-primary" style={{ width: `${ratio}%` }} />
       </div>
     </>

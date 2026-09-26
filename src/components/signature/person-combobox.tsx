@@ -7,6 +7,7 @@ import { Icon } from '@/components/ui/icon';
 import { useDebounce } from '@/hooks/use-debounce';
 import { PERSON_SEARCH_MIN, type PersonOption, usePersonSearch } from '@/hooks/use-person-search';
 import { cn } from '@/utils/cn';
+import { plural } from '@/utils/plural';
 
 const DEGRE: Record<string, string> = {
   diacre_transitoire: 'Diacre',
@@ -93,7 +94,7 @@ export const PersonCombobox = ({ value, onChange, id, placeholder = 'Nom, préno
       status =
         search.data.count === 0
           ? 'Aucune personne ne correspond.'
-          : `${search.data.count} personne${search.data.count > 1 ? 's' : ''}${search.data.count > results.length ? `, ${results.length} affichées : précisez la recherche` : ''}.`;
+          : `${plural(search.data.count, 'personne', 'personnes')}${search.data.count > results.length ? `, ${results.length} affichées : précisez la recherche` : ''}.`;
   }
 
   const expanded = open && !value && results.length > 0;

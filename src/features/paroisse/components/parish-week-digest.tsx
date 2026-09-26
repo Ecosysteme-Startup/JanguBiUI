@@ -11,6 +11,7 @@ import { useMe } from '@/hooks/use-me';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { plural } from '@/utils/plural';
 
 import { useAnnouncements } from '../api/get-announcements';
 import { useEvents } from '../api/get-events';
@@ -112,7 +113,7 @@ export const ParishWeekDigest = ({ number, className }: { number: string; classN
                   dayjs(event.start_at).format('dddd D MMMM'),
                   event.location,
                   event.max_participants !== null
-                    ? `${Math.max(0, event.max_participants - event.registrations_count)} places restantes`
+                    ? plural(Math.max(0, event.max_participants - event.registrations_count), 'place restante', 'places restantes')
                     : null,
                 ]
                   .filter(Boolean)

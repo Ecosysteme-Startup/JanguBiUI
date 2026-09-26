@@ -13,8 +13,6 @@ export const n = (value: number) => numberFormat.format(value);
 export const dec = (value: number) => decimalFormat.format(value);
 /** « 61 % » */
 export const pct = (part: number, total: number) => (total ? `${Math.round((part / total) * 100)}\u00a0%` : '—');
-/** Pluriel simple : « 2 demandes », « 1 demande ». */
-export const plural = (count: number, one: string, many: string) => `${n(count)} ${count > 1 ? many : one}`;
 
 /** « 24.09 à 06 h 00 » */
 export const stamp = (iso: string) => {

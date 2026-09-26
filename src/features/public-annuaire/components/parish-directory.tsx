@@ -12,6 +12,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Select } from '@/components/ui/select';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks/use-debounce';
+import { plural } from '@/utils/plural';
 
 import { type DirectoryNode, useDioceses, useDirectory, useDoyennes } from '../api/get-directory';
 import { type DirectoryFilters, EMPTY_FILTERS, filtersToParams, filtersToSearch, PAGE_SIZE } from '../utils/filters';
@@ -21,7 +22,6 @@ import { ParishRow } from './parish-row';
 
 type AppliedFilter = { key: string; label: string; clear: Partial<DirectoryFilters> };
 
-const plural = (count: number) => `${count} paroisse${count > 1 ? 's' : ''}`;
 
 /**
  * Annuaire public (PUB-Paroisses) : recherche, diocèse, doyenné, paroisses actives ; les
@@ -172,7 +172,7 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
         <p aria-live="polite" className="m-0 text-sm text-ink-2">
           {directory.data && (
             <>
-              <strong className="font-semibold text-ink">{plural(directory.data.count)}</strong> · triées par nom
+              <strong className="font-semibold text-ink">{plural(directory.data.count, 'paroisse', 'paroisses')}</strong> · triées par nom
             </>
           )}
         </p>
