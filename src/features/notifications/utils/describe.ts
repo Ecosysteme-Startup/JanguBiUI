@@ -78,7 +78,15 @@ export const describeNotification = (n: AppNotification): NotificationView => {
     return {
       title: 'Complément demandé pour votre déclaration',
       detail: 'La chancellerie attend un justificatif : le détail est dans votre profil.',
-      href: paths.app.profil.getHref(),
+      href: paths.app.etatDeVie.getHref(),
+      category: 'autre',
+    };
+  }
+  if (type === 'personnes.complement_fourni') {
+    return {
+      title: 'Déclaration d’état de vie complétée',
+      detail: 'La personne a répondu à votre demande de complément : sa déclaration attend votre vérification.',
+      href: p.node_id ? paths.espace.clerge.getHref(str(p.node_id)) : undefined,
       category: 'autre',
     };
   }

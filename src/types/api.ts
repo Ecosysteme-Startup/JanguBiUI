@@ -3710,7 +3710,7 @@ export interface components {
             incardination_node_id?: string | null;
             /** Format: uuid */
             institut_node_id?: string | null;
-            /** @description Justificatifs à ajouter (celebret, lettre d'obédience…), envoyés d'abord via /files/upload/ */
+            /** @description Justificatifs à ajouter (PDF ou image : celebret, lettre d'obédience…), envoyés d'abord via /files/upload/ ; 5 au plus au total */
             attachment_file_ids?: number[];
         };
         /**

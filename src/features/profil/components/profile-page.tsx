@@ -12,6 +12,7 @@ import { displayName, useMe } from '@/hooks/use-me';
 import { DeclarationComplementNotice } from './declaration-complement-notice';
 import { FollowedParishSection } from './followed-parish-section';
 import { IdentitySection } from './identity-section';
+import { LifeStateSection } from './life-state-section';
 import { NotificationSettingsSection } from './notification-settings-section';
 import { PrivacySection } from './privacy-section';
 import { SecuritySection } from './security-section';
@@ -62,6 +63,7 @@ export const ProfilePage = ({ accountUrl, onAccountDeleted = leaveAfterDeletion 
         <div className="flex flex-col gap-12 lg:col-span-7">
           <IdentitySection me={me} />
           <NotificationSettingsSection />
+          <LifeStateSection />
         </div>
         <div className="flex flex-col gap-12 lg:col-span-5">
           <FollowedParishSection me={me} />

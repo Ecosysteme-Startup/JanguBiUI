@@ -30,7 +30,8 @@
 
 ## ADR-F07 — Gel des features hors V1
 - **Statut** : Verrouillée
-- **Décision** : `dons`, `intentions`, `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `clergy-accounts`, `clergy-declaration`, `analytics`, chapelet communautaire et Offices des Heures : routes retirées, pages qui renvoient `notFound()`, code conservé.
+- **Décision** : `dons`, `intentions`, `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `clergy-accounts`, `analytics`, chapelet communautaire et Offices des Heures : routes retirées, pages qui renvoient `notFound()`, code conservé.
+- **Amendement (26/09/2026)** : la déclaration d'état de vie (`clergy-declaration`) est **dégelée**. Quand la chancellerie demande un complément, la personne ne pouvait pas le fournir sans interface. Elle est reconstruite dans la feature `profil` (section « Mon état de vie » de `/app/profil`) sur `GET/POST /me/declaration/` et l'API fichiers. La déclaration n'ouvre aucun droit tant qu'elle n'est pas vérifiée. Les autres features gelées le restent.
 
 ## ADR-F08 — React 19
 - **Statut** : À trancher en F0
