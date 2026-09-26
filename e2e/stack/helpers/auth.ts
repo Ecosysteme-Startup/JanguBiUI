@@ -1,4 +1,5 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
+
 import { computeFreshTotpCode, extractSecretFromKeyUri, getTotpSecret, saveTotpSecret } from './totp';
 
 export const KC_DEMO_PASSWORD = process.env.KC_DEMO_PASSWORD ?? '';
@@ -86,16 +87,22 @@ async function handlePostLoginChallenges(page: Page, email: string): Promise<voi
   }
 }
 
-/** Déconnexion via le bouton de l'interface (jamais un appel direct à l'endpoint Keycloak). */
+/**
+ * Déconnexion via l'interface (jamais un appel direct à l'endpoint Keycloak).
+ * Coquilles fidèle et back-office (maquette Ciel produit) : bouton ⋮ « Réglages du compte » de la
+ * carte utilisateur de la barre latérale, puis « Se déconnecter ». Sous 1024 px, la barre latérale
+ * est dans le tiroir « Menu » de la barre supérieure : on l'ouvre d'abord.
+ */
 export async function logout(page: Page): Promise<void> {
-  const directButton = page.getByRole('button', { name: /se déconnecter/i }).first();
-  if (!(await directButton.isVisible({ timeout: 2_000 }).catch(() => false))) {
-    // Mobile/tablette : le bouton est replié dans le menu (hamburger) ou le menu profil.
-    const menuButton = page.getByRole('button', { name: /menu|ouvrir la navigation|profil/i }).first();
-    if (await menuButton.count()) await menuButton.click().catch(() => undefined);
+  const accountMenu = page.getByRole('button', { name: 'Réglages du compte' }).first();
+  const drawerButton = page.getByRole('button', { name: /^menu$/i }).first();
+  // La carte du compte n'apparaît qu'une fois le profil chargé : attendre l'un des deux accès.
+  await expect(accountMenu.or(drawerButton)).toBeVisible({ timeout: 15_000 });
+  if (!(await accountMenu.isVisible())) {
+    await drawerButton.click();
+    await expect(accountMenu).toBeVisible();
   }
-  const finalButton = page.getByRole('button', { name: /se déconnecter/i }).first();
-  await finalButton.scrollIntoViewIfNeeded().catch(() => undefined);
-  await finalButton.click({ timeout: 10_000 });
+  await accountMenu.click();
+  await page.getByRole('menuitem', { name: /se déconnecter/i }).click();
   await page.waitForURL(/localhost:\d+\/?$/, { timeout: 15_000 });
 }

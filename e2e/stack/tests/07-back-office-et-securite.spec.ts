@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { KC_DEMO_PASSWORD, loginViaKeycloak, logout } from '../helpers/auth';
 
 const PAROISSE_NODE = 'c64e06b7-cc45-498c-b4c7-a72a5d798756'; // Paroisse Saint-Dominique (id UUID, pas le code)

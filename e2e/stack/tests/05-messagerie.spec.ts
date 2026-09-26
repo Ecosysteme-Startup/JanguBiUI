@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { KC_DEMO_PASSWORD, loginViaKeycloak, logout } from '../helpers/auth';
 
 const FIDELE = 'fidele2@demo.jangubi.sn'; // fidele@ est déjà utilisé par le parcours 04 en parallèle.
@@ -29,14 +30,20 @@ test('Messagerie temps réel : fidèle ↔ vicaire (deux contextes), bandeau con
   }
   await fidelePage.screenshot({ path: `docs/v1/recette/captures/01/messagerie-liste-pretres-${testInfo.project.name}.png`, fullPage: true });
 
-  const writeButtons = fidelePage.getByRole('button', { name: /^écrire à /i });
-  await expect(writeButtons.first()).toBeVisible({ timeout: 10_000 });
-  const writeToVicaire = fidelePage.getByRole('button', { name: /écrire à .*diouf/i });
-  if (await writeToVicaire.count()) {
-    await writeToVicaire.first().click();
+  // Chaque carte de prêtre ouvre la conversation : « Écrire à … » (première fois) ou
+  // « Reprendre la conversation avec … » (conversation existante, cas des relances de la recette).
+  const openButtons = fidelePage
+    .getByRole('button', { name: /^écrire à /i })
+    .or(fidelePage.getByRole('link', { name: /^reprendre la conversation avec /i }));
+  await expect(openButtons.first()).toBeVisible({ timeout: 10_000 });
+  const openVicaire = fidelePage
+    .getByRole('button', { name: /écrire à .*diouf/i })
+    .or(fidelePage.getByRole('link', { name: /reprendre la conversation avec .*diouf/i }));
+  if (await openVicaire.count()) {
+    await openVicaire.first().click();
   } else {
-    testInfo.annotations.push({ type: 'observation', description: 'Bouton « Écrire à » ciblant explicitement vicaire@ (Paul Diouf) introuvable — utilisation du premier prêtre joignable.' });
-    await writeButtons.first().click();
+    testInfo.annotations.push({ type: 'observation', description: 'Carte de vicaire@ (Paul Diouf) introuvable — utilisation du premier prêtre joignable.' });
+    await openButtons.first().click();
   }
   await fidelePage.waitForURL(/\/app\/pretres\/conversations\//, { timeout: 15_000 });
   await fidelePage.waitForLoadState('networkidle').catch(() => undefined);
@@ -54,7 +61,7 @@ test('Messagerie temps réel : fidèle ↔ vicaire (deux contextes), bandeau con
   await expect(composer).toBeVisible({ timeout: 15_000 });
   await composer.fill(messageText);
   await fidelePage.getByRole('button', { name: /envoyer/i }).click();
-  await expect(fidelePage.getByText(messageText)).toBeVisible({ timeout: 10_000 });
+  await expect(fidelePage.getByLabel(/^messages avec /i).getByText(messageText)).toBeVisible({ timeout: 10_000 });
   await fidelePage.screenshot({ path: `docs/v1/recette/captures/01/messagerie-message-envoye-${testInfo.project.name}.png`, fullPage: true });
 
   // --- Vicaire : reçoit et répond, dans un second contexte navigateur (temps réel). ---
@@ -65,15 +72,13 @@ test('Messagerie temps réel : fidèle ↔ vicaire (deux contextes), bandeau con
   await expect(vicairePage.getByRole('heading', { name: /messagerie/i })).toBeVisible({ timeout: 10_000 });
   await vicairePage.screenshot({ path: `docs/v1/recette/captures/01/messagerie-inbox-vicaire-${testInfo.project.name}.png`, fullPage: true });
 
-  const inboxConversation = vicairePage.locator('a,button').filter({ hasText: /moussa|ndiaye|fidele/i }).first();
-  if (await inboxConversation.count()) {
-    await inboxConversation.click();
-  } else {
-    testInfo.annotations.push({ type: 'observation', description: 'Conversation de Moussa introuvable dans la liste par nom — ouverture de la 1ʳᵉ conversation de la liste.' });
-    await vicairePage.locator('aside, [role="list"], nav').first().locator('a,button').first().click().catch(() => undefined);
-  }
+  // La conversation qui contient le message qui vient d'être envoyé (aperçu dans la liste « Sans réponse »).
+  const inboxConversation = vicairePage.getByRole('listitem').filter({ hasText: messageText }).getByRole('button').first();
+  await expect(inboxConversation).toBeVisible({ timeout: 15_000 });
+  await inboxConversation.click();
   await vicairePage.waitForLoadState('networkidle').catch(() => undefined);
-  await expect(vicairePage.getByText(messageText)).toBeVisible({ timeout: 15_000 });
+  // Le fil (et non l'aperçu de la liste) affiche le message.
+  await expect(vicairePage.getByLabel(/^messages avec /i).getByText(messageText)).toBeVisible({ timeout: 15_000 });
   await vicairePage.waitForTimeout(500); // laisse le composeur se monter après le fil de messages.
   const vicaireAcceptConditions = vicairePage.getByRole('button', { name: /j.accepte les conditions de la messagerie/i });
   if (await vicaireAcceptConditions.isVisible({ timeout: 3_000 }).catch(() => false)) {
@@ -85,14 +90,18 @@ test('Messagerie temps réel : fidèle ↔ vicaire (deux contextes), bandeau con
   await expect(vicaireComposer).toBeVisible({ timeout: 15_000 });
   await vicaireComposer.fill(replyText);
   await vicairePage.getByRole('button', { name: /envoyer/i }).click();
-  await expect(vicairePage.getByText(replyText)).toBeVisible({ timeout: 10_000 });
+  await expect(vicairePage.getByLabel(/^messages avec /i).getByText(replyText)).toBeVisible({ timeout: 10_000 });
 
   // --- Vérifie la réception en temps réel côté fidèle, SANS recharger la page. ---
-  const liveReceived = await fidelePage.getByText(replyText).isVisible({ timeout: 8_000 }).catch(() => false);
+  const fideleThread = fidelePage.getByLabel(/^messages avec /i).getByText(replyText);
+  const liveReceived = await expect(fideleThread)
+    .toBeVisible({ timeout: 8_000 })
+    .then(() => true)
+    .catch(() => false);
   await fidelePage.screenshot({ path: `docs/v1/recette/captures/01/messagerie-fidele-recoit-${testInfo.project.name}.png`, fullPage: true });
   if (!liveReceived) {
     await fidelePage.reload();
-    await expect(fidelePage.getByText(replyText)).toBeVisible({ timeout: 10_000 });
+    await expect(fideleThread).toBeVisible({ timeout: 10_000 });
   }
   testInfo.annotations.push({ type: 'temps-reel', description: liveReceived ? 'reçu sans rechargement' : 'reçu SEULEMENT après rechargement (pas de mise à jour temps réel observée)' });
 

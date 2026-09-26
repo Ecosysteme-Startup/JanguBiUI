@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { logout } from '../helpers/auth';
 import { extractFirstLink, waitForLastEmail } from '../helpers/mailpit';
 
 test('Inscription complète : /inscription → vérification e-mail (Mailpit) → /bienvenue → /app, puis déconnexion et reconnexion', async ({
@@ -51,14 +52,6 @@ test('Inscription complète : /inscription → vérification e-mail (Mailpit) �
   await page.screenshot({ path: `docs/v1/recette/captures/01/inscription-app-${testInfo.project.name}.png`, fullPage: true });
 
   // Déconnexion globale puis reconnexion.
-  // La déconnexion est dans le menu « Réglages du compte » de la coquille fidèle (maquette Ciel produit),
-  // lui-même dans le tiroir « Menu » sous 1024 px.
-  const accountMenu = page.getByRole('button', { name: 'Réglages du compte' });
-  if (!(await accountMenu.isVisible().catch(() => false))) {
-    await page.getByRole('button', { name: /^menu$|ouvrir le menu/i }).first().click();
-  }
-  await accountMenu.click();
-  await page.getByRole('menuitem', { name: /se déconnecter/i }).click();
-  await page.waitForURL(/localhost:\d+\/?$/, { timeout: 15_000 });
+  await logout(page);
   await expect(page).toHaveURL(/localhost:\d+\/?$/);
 });
