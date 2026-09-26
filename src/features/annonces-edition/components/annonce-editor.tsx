@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { type UseFormReturn, useForm } from 'react-hook-form';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
 import { Badge, type BadgeTone } from '@/components/ui/badge';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field } from '@/components/ui/field';
@@ -215,8 +217,11 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
       }
     })();
 
+  const pageTitle = heading(article, { is_sunday_notice: isSunday, content_type: contentType });
+
   return (
     <form noValidate onSubmit={(e) => e.preventDefault()}>
+      <TopbarContent start={<Breadcrumbs separator="slash" items={[{ label: 'Annonces', href: listHref }, { label: pageTitle }]} />} />
       <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
           <p className="m-0 flex flex-wrap items-center gap-2" aria-live="polite">
@@ -227,7 +232,7 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
               {savedAt ? `Enregistré à ${savedAt}` : article ? `Modifié le ${dayjs(article.updated_at).format('D MMMM à H:mm')}` : 'Pas encore enregistré'}
             </span>
           </p>
-          <h1 className="m-0 mt-2 text-32 font-semibold text-ink">{heading(article, { is_sunday_notice: isSunday, content_type: contentType })}</h1>
+          <h1 className="m-0 mt-2 text-32 font-semibold text-ink">{pageTitle}</h1>
           {(author || nodeName) && (
             <p className="m-0 mt-1 text-16 text-ink-2">
               {author ? `Rédigée par ${author}` : 'Rédigée'}

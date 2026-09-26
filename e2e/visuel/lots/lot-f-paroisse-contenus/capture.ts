@@ -60,12 +60,13 @@ async function main(): Promise<void> {
   console.log('nœud', node);
 
   const e = `/espace/${node}`;
-  const screens: Array<[string, string | null]> = [
+  const screens: Array<[string, string | null, string?]> = [
     ['PAR-Annonces', `${e}/annonces`],
     ['PAR-Annonce-Editeur', `${e}/annonces/nouvelle`],
     ['PAR-Annonce-Detail', annonce],
     ['PAR-Annonce-Feuille', `${e}/annonces/feuille`],
     ['PAR-Horaires', `${e}/horaires`],
+    ['PAR-Horaires-Dialogue', `${e}/horaires`, 'Ajouter un horaire'],
     ['PAR-Agenda', `${e}/agenda`],
     ['PAR-Agenda-Semaine', `${e}/agenda?vue=semaine`],
     ['PAR-Equipe', `${e}/equipe`],
@@ -77,12 +78,23 @@ async function main(): Promise<void> {
     for (const scheme of schemes) {
       const ctx = await browser.newContext({ baseURL: BASE, storageState: STATE, viewport: { width, height: 900 }, colorScheme: scheme, locale: 'fr-FR' });
       const page = await ctx.newPage();
-      for (const [name, url] of screens) {
+      for (const [name, url, click] of screens) {
         if (filter && !name.includes(filter)) continue;
         if (!url) continue;
-        await page.goto(BASE + url);
-        await page.waitForLoadState('networkidle').catch(() => undefined);
-        await page.waitForTimeout(800);
+        // Les autres lots modifient le dépôt en parallèle : on attend la fin d'une erreur de compilation passagère.
+        for (let attempt = 0; attempt < 12; attempt += 1) {
+          await page.goto(BASE + url);
+          await page.waitForLoadState('networkidle').catch(() => undefined);
+          await page.waitForTimeout(800);
+          const broken = await page.locator('text=/Build Error|Runtime Error/').count();
+          if (!broken) break;
+          console.warn(`  (erreur de compilation d'un autre lot sur ${name}, nouvel essai)`);
+          await page.waitForTimeout(10_000);
+        }
+        if (click) {
+          await page.locator('button', { hasText: click }).first().click();
+          await page.waitForTimeout(600);
+        }
         const suffix = `${scheme === 'light' ? 'clair' : 'sombre'}${width === 1440 ? '' : `-${width}`}`;
         const file = path.join(OUT, `${name}-${suffix}.png`);
         await page.screenshot({ path: file, fullPage: true });

@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/ui/page-header';
 import { Pagination } from '@/components/ui/pagination';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
@@ -73,17 +74,16 @@ export const AnnoncesList = ({ nodeId }: { nodeId: string }) => {
 
   return (
     <div>
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="min-w-0">
-          <h1 className="m-0 text-32 font-semibold text-ink">Annonces</h1>
-          <p className="m-0 mt-1 text-16 text-ink-2">
-            Ce que les fidèles {node.data ? ofParish(node.data.name) : 'de la paroisse'} lisent dans l’application et sur la fiche publique.
-          </p>
-        </div>
-        <NextLink href={paths.espace.annonces.nouvelle.getHref(nodeId)} className={cn(buttonVariants(), 'min-h-11 px-5 hover:no-underline')}>
-          <Icon name="plus" size={18} /> Nouvelle annonce
-        </NextLink>
-      </header>
+      <PageHeader
+        compact
+        title="Annonces"
+        description={`Ce que les fidèles ${node.data ? ofParish(node.data.name) : 'de la paroisse'} lisent dans l’application et sur la fiche publique.`}
+        actions={
+          <NextLink href={paths.espace.annonces.nouvelle.getHref(nodeId)} className={cn(buttonVariants(), 'min-h-11 px-5 hover:no-underline')}>
+            <Icon name="plus" size={18} /> Nouvelle annonce
+          </NextLink>
+        }
+      />
 
       <DraftsPanel nodeId={nodeId} sunday={sunday} draftCount={counts.data?.draft} onShowDrafts={() => changeTab('draft')} />
 

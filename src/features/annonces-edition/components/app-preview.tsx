@@ -43,7 +43,7 @@ export const AppPreview = ({ form, nodeName }: { form: UseFormReturn<EditorValue
         <p className="m-0 mb-3 text-13 font-medium text-ink-3">Annonces {ofParish(nodeName)}</p>
         <article className="rounded-16 border border-line bg-paper p-4 shadow-card">
           <p className="tnum m-0 text-13 text-ink-3">{kicker}</p>
-          <h3 className="m-0 mt-2 break-words font-serif text-20 font-semibold text-ink">{title}</h3>
+          <h3 className="m-0 mt-2 break-words text-20 font-semibold text-ink">{title}</h3>
           {excerpt && <p className="m-0 mt-1.5 line-clamp-3 text-14 text-ink-2">{excerpt}</p>}
         </article>
         {values.notify_followers && (

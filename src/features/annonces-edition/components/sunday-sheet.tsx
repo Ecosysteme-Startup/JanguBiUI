@@ -1,17 +1,20 @@
 'use client';
 
-import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId } from 'react';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { Select } from '@/components/ui/select';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
+import { parishLabel } from '@/utils/parish-name';
 
 import { type SundaySheetItem, useSundaySheet } from '../api/get-sunday-sheet';
 import { sanitizeArticleHtml, textToHtml } from '../utils/sanitize-html';
@@ -28,18 +31,25 @@ const groupByNode = (items: SundaySheetItem[]) =>
 const SheetItem = ({ item, index }: { item: SundaySheetItem; index: number }) => {
   const html = item.content_format === 'html' ? sanitizeArticleHtml(item.content) : textToHtml(item.content);
   return (
-    <article className="break-inside-avoid border-b border-line py-5">
-      <p className="tnum m-0 text-meta text-ink-3">
-        <span className="text-primary">{String(index + 1).padStart(2, '0')}</span>
-        {item.scope.place_name && <> — {item.scope.place_name}</>}
-        {item.status === 'scheduled' && <span className="print:hidden"> · programmée, pas encore publiée</span>}
-      </p>
-      <h3 className="m-0 mt-1 font-serif text-h4 font-normal text-ink">{frenchTypo(item.title)}</h3>
-      {/* HTML assaini par DOMPurify (liste blanche de l'éditeur). */}
-      <div
-        className="mt-2 max-w-reading text-body text-ink [&_blockquote]:font-serif [&_blockquote]:italic [&_h2]:font-serif [&_h2]:text-h4 [&_h3]:font-serif [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-6"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+    <article className="flex break-inside-avoid gap-4 border-t border-line px-5 py-5 first:border-t-0 sm:px-6">
+      <span aria-hidden="true" className="tnum inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-tint-100 text-13 font-semibold text-tint-800">
+        {index + 1}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h3 className="m-0 text-18 font-semibold text-ink">{frenchTypo(item.title)}</h3>
+        {(item.scope.place_name || item.status === 'scheduled') && (
+          <p className="m-0 mt-0.5 text-13 text-ink-3">
+            {item.scope.place_name}
+            {item.scope.place_name && item.status === 'scheduled' && ' · '}
+            {item.status === 'scheduled' && <span className="print:hidden">programmée, pas encore publiée</span>}
+          </p>
+        )}
+        {/* HTML assaini par DOMPurify (liste blanche de l'éditeur). */}
+        <div
+          className="mt-2 max-w-reading text-16 leading-relaxed text-ink [&_blockquote]:italic [&_h2]:text-18 [&_h2]:font-semibold [&_h3]:font-semibold [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-6"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     </article>
   );
 };
@@ -57,34 +67,41 @@ export const SundaySheetView = ({ nodeId, sunday }: { nodeId: string; sunday?: s
   const choices = current && !options.includes(current) ? [current, ...options] : options;
 
   return (
-    <div className="mx-auto max-w-[860px]">
-      <div className="flex flex-wrap items-end justify-between gap-4 print:hidden">
-        <NextLink href={paths.espace.annonces.list.getHref(nodeId)} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
-          <Icon name="fleche-gauche" size={16} /> Retour · Annonces
-        </NextLink>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex flex-col gap-1">
-            <label htmlFor={selectId} className="text-sm font-semibold text-ink">
+    <div>
+      <TopbarContent start={<Breadcrumbs separator="slash" items={[{ label: 'Annonces', href: paths.espace.annonces.list.getHref(nodeId) }, { label: 'Feuille d’annonces' }]} />} />
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4 print:block">
+        <div className="min-w-0">
+          <h1 id="feuille-titre" className="m-0 text-32 font-semibold text-ink">
+            {sheet.data ? `Annonces du ${sundayLabel(sheet.data.sunday).replace(/^D/, 'd')}` : 'Feuille d’annonces'}
+          </h1>
+          <p className="m-0 mt-1 text-16 text-ink-2">
+            {sheet.data ? `${parishLabel(sheet.data.node_name)} · à lire à la fin des messes` : 'À lire à la fin des messes'}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-end gap-2 print:hidden">
+          <div className="flex w-64 flex-col gap-2">
+            <label htmlFor={selectId} className="text-14 font-medium text-ink">
               Dimanche
             </label>
-            <select
+            <Select
               id={selectId}
+              controlSize="sm"
               value={current ?? ''}
               onChange={(e) => router.replace(paths.espace.annonces.feuille.getHref(nodeId, e.target.value))}
-              className="h-11 rounded border border-line-field bg-surface pl-3 pr-8 text-base text-ink"
+              className="text-15"
             >
               {choices.map((d) => (
                 <option key={d} value={d}>
                   {sundayLabel(d)}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
-          <Button onClick={() => window.print()} disabled={!sheet.data || sheet.data.items.length === 0}>
-            <Icon name="document" size={16} /> Imprimer
+          <Button className="min-h-11 px-5" onClick={() => window.print()} disabled={!sheet.data || sheet.data.items.length === 0}>
+            <Icon name="imprimer" size={18} /> Imprimer
           </Button>
         </div>
-      </div>
+      </header>
 
       {sheet.isPending ? (
         <div className="py-6">
@@ -95,19 +112,17 @@ export const SundaySheetView = ({ nodeId, sunday }: { nodeId: string; sunday?: s
           {apiErrorMessage(sheet.error)}
         </EmptyState>
       ) : (
-        <section aria-labelledby="feuille-titre" className="mt-8 print:mt-0">
-          <p className="tnum m-0 text-meta text-ink-2">Paroisse {sheet.data.node_name}</p>
-          <h1 id="feuille-titre" className="m-0 mt-2 font-serif text-title font-normal text-ink">
-            Annonces du {sundayLabel(sheet.data.sunday).replace(/^D/, 'd')}
-          </h1>
+        <section aria-labelledby="feuille-titre" className="mt-8 flex flex-col gap-6 print:mt-4">
           {sheet.data.items.length === 0 ? (
-            <EmptyState icon="annonce" title="Aucune annonce pour ce dimanche" className="mt-6">
+            <EmptyState icon="annonce" title="Aucune annonce pour ce dimanche" className="rounded-16 border border-line">
               Cochez « Annonce du dimanche » dans l’éditeur pour qu’une annonce figure sur la feuille.
             </EmptyState>
           ) : (
             groupByNode(sheet.data.items).map((group, g) => (
-              <div key={`${group.node}-${g}`} className="mt-6">
-                {g > 0 && <h2 className="m-0 border-t border-line-strong pt-4 font-serif text-h4 font-normal text-ink-2">De la part de : {group.node}</h2>}
+              <div key={`${group.node}-${g}`} className="overflow-hidden rounded-16 border border-line bg-paper shadow-card print:rounded-none print:border-0 print:shadow-none">
+                {g > 0 && (
+                  <h2 className="m-0 border-b border-line bg-surface px-5 py-3 text-16 font-semibold text-ink sm:px-6">De la part de : {group.node}</h2>
+                )}
                 {group.items.map((item, i) => (
                   <SheetItem key={item.id} item={item} index={i} />
                 ))}

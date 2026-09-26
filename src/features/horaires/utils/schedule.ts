@@ -65,3 +65,31 @@ export const findOverlap = (
 
 /** Nombre de messes par semaine d'un ensemble d'horaires. */
 export const massesPerWeek = (slots: Pick<Slot, 'kind'>[]) => slots.filter((s) => s.kind === 'messe').length;
+
+/** Heure des grilles et des listes (maquette PAR-Horaires) : « 07:00:00 » → « 7:00 ». */
+export const clock = (time: string): string => {
+  const [h, m] = time.split(':');
+  return `${Number(h)}:${m ?? '00'}`;
+};
+
+/** Jour de la semaine d'une date ISO, lundi = 0 … dimanche = 6 (convention des horaires). */
+export const weekdayOf = (isoDate: string): number => {
+  const [y, mo, d] = isoDate.split('-').map(Number);
+  return (new Date(Date.UTC(y, mo - 1, d)).getUTCDay() + 6) % 7;
+};
+
+type ExceptionLike = { id: number; date: string; kind: ScheduleKind; start_time: string | null };
+
+/**
+ * Prochaine exception qui touche un horaire de la semaine type : même célébration, même jour de
+ * la semaine, et même heure (ou toute la journée quand l'exception n'a pas d'heure).
+ */
+export const exceptionForSlot = <E extends ExceptionLike>(slot: Pick<Slot, 'kind' | 'weekday' | 'start_time'>, exceptions: E[]): E | undefined =>
+  [...exceptions]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .find(
+      (e) =>
+        e.kind === slot.kind &&
+        weekdayOf(e.date) === slot.weekday &&
+        (e.start_time === null || minutesOf(e.start_time) === minutesOf(slot.start_time)),
+    );

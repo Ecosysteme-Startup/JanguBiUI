@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { Choice } from '@/components/ui/choice';
 import { Field } from '@/components/ui/field';
-import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
@@ -64,50 +64,40 @@ export const ExceptionForm = ({ places, onClose }: { places: Place[]; onClose: (
   );
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-3">Exception ponctuelle · * obligatoire</p>
-          <h2 id="h-form-titre" className="m-0 mt-1 font-serif text-h3 font-normal text-ink">
-            Nouvelle exception
-          </h2>
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5 pb-1">
+      <fieldset className="m-0 border-0 p-0">
+        <legend className="mb-2 p-0 text-14 font-medium text-ink">Nature</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Choice type="radio" variant="card" value="annulation" {...register('mode')} label="Annulation" description="Une célébration n’a pas lieu ce jour-là." />
+          <Choice type="radio" variant="card" value="supplementaire" {...register('mode')} label="Horaire supplémentaire" description="Une célébration s’ajoute ce jour-là." />
         </div>
-        <button type="button" aria-label="Fermer le panneau" onClick={onClose} className="hit inline-flex size-10 items-center justify-center rounded hover:bg-surface-2">
-          <Icon name="x" size={20} />
-        </button>
+      </fieldset>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field id="e-lieu" label="Lieu de culte" required error={formState.errors.place_id?.message}>
+          <Select {...register('place_id')} controlSize="sm" className="text-15">
+            {places.map((p) => (
+              <option key={p.id} value={String(p.id)}>
+                {p.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field id="e-type" label="Célébration">
+          <Select {...register('kind')} controlSize="sm" className="text-15">
+            {(Object.keys(KIND_LABELS) as ScheduleKind[]).map((k) => (
+              <option key={k} value={k}>
+                {KIND_LABELS[k]}
+              </option>
+            ))}
+          </Select>
+        </Field>
       </div>
 
-      <Field id="e-lieu" label="Lieu de culte" required error={formState.errors.place_id?.message}>
-        <Select {...register('place_id')}>
-          {places.map((p) => (
-            <option key={p.id} value={String(p.id)}>
-              {p.name}
-            </option>
-          ))}
-        </Select>
-      </Field>
-      <Field id="e-date" label="Date" required error={formState.errors.date?.message}>
-        <Input type="date" {...register('date')} />
-      </Field>
-      <fieldset className="m-0 border-0 p-0">
-        <legend className="mb-2 text-sm font-semibold text-ink">Nature</legend>
-        <label className="flex h-11 cursor-pointer items-center gap-2 text-base text-ink">
-          <input type="radio" value="annulation" {...register('mode')} className="size-5" /> Annulation
-        </label>
-        <label className="flex h-11 cursor-pointer items-center gap-2 text-base text-ink">
-          <input type="radio" value="supplementaire" {...register('mode')} className="size-5" /> Horaire supplémentaire
-        </label>
-      </fieldset>
-      <Field id="e-type" label="Célébration">
-        <Select {...register('kind')}>
-          {(Object.keys(KIND_LABELS) as ScheduleKind[]).map((k) => (
-            <option key={k} value={k}>
-              {KIND_LABELS[k]}
-            </option>
-          ))}
-        </Select>
-      </Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Field id="e-date" label="Date" required error={formState.errors.date?.message}>
+          <Input type="date" {...register('date')} controlSize="sm" className="tnum text-15" />
+        </Field>
         <Field
           id="e-debut"
           label={mode === 'annulation' ? 'Heure annulée' : 'Début'}
@@ -115,26 +105,26 @@ export const ExceptionForm = ({ places, onClose }: { places: Place[]; onClose: (
           hint={mode === 'annulation' ? 'Vide : toute la journée.' : undefined}
           error={formState.errors.start?.message}
         >
-          <Input type="time" {...register('start')} />
+          <Input type="time" {...register('start')} controlSize="sm" className="tnum text-15" />
         </Field>
-        <Field id="e-fin" label="Fin" error={formState.errors.end?.message}>
-          <Input type="time" {...register('end')} />
+        <Field id="e-fin" label="Fin" optional error={formState.errors.end?.message}>
+          <Input type="time" {...register('end')} controlSize="sm" className="tnum text-15" />
         </Field>
       </div>
-      <Field id="e-note" label="Motif" hint="Montré aux fidèles : « récollection du clergé »…" error={formState.errors.note?.message}>
-        <Input {...register('note')} />
+      <Field id="e-note" label="Motif" optional hint="Montré aux fidèles : « récollection du clergé »…" error={formState.errors.note?.message}>
+        <Input {...register('note')} controlSize="sm" className="text-15" />
       </Field>
 
       {create.isError && (
-        <p role="alert" className="m-0 text-sm text-err">
+        <p role="alert" className="m-0 text-14 text-err">
           {apiErrorMessage(create.error)}
         </p>
       )}
-      <div className="flex justify-end gap-3 border-t border-line pt-4">
-        <Button variant="secondary" onClick={onClose}>
+      <div className="mt-1 flex flex-wrap justify-end gap-2 border-t border-line pt-4">
+        <Button variant="outline" className="min-h-11 text-14" onClick={onClose}>
           Annuler
         </Button>
-        <Button type="submit" disabled={create.isPending}>
+        <Button type="submit" className="min-h-11 px-5" disabled={create.isPending}>
           {create.isPending ? 'Enregistrement…' : 'Ajouter l’exception'}
         </Button>
       </div>
