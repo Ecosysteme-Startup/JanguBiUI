@@ -143,7 +143,11 @@ export const registrations = [
 export const officeCatalogue = [
   {
     code: 'cure',
-    label: 'Curé',
+    label: 'Curé / administrateur paroissial',
+    qualities: [
+      { code: 'cure', label: 'Curé' },
+      { code: 'administrateur', label: 'Administrateur paroissial' },
+    ],
     node_types: ['paroisse'],
     required_order: 'pretre',
     cardinality: 'un',
@@ -184,6 +188,7 @@ type MockAssignment = {
   person: { id: string; email: string; full_name: string };
   office: string;
   office_label: string;
+  quality?: string;
   node: typeof sdRef;
   start_date: string;
   end_date: string | null;
@@ -200,6 +205,7 @@ const initialAssignments = (): MockAssignment[] => [
     person: person('p-ndiaye', 'Abbé Augustin Ndiaye'),
     office: 'cure',
     office_label: 'Curé',
+    quality: 'cure',
     node: sdRef,
     start_date: '2021-09-01',
     end_date: null,

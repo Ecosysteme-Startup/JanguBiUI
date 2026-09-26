@@ -32,6 +32,15 @@ describe('BackofficeShell', () => {
     expect(crumbs.getByText(/demandes d.actes/i)).toHaveAttribute('aria-current', 'page');
   });
 
+  it('montre dans le pied le titre réel de la nomination, jamais la double forme du catalogue', async () => {
+    navigation.pathname = `/espace/${ids.saintDominique}`;
+    const grantsAdministrateur = grantsSecretaire.map((g) => ({ ...g, office: 'cure', office_label: 'Administrateur paroissial' }));
+    renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>, { capacites: grantsAdministrateur });
+
+    expect(await screen.findByText('Administrateur paroissial')).toBeInTheDocument();
+    expect(screen.queryByText(/curé/i)).not.toBeInTheDocument();
+  });
+
   it('propose les autres contextes, groupés par niveau', async () => {
     navigation.pathname = `/espace/${ids.saintDominique}`;
     renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>, {

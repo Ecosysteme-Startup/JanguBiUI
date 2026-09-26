@@ -9,7 +9,7 @@ import { Icon } from '@/components/ui/icon';
 import { BACKOFFICE_LABEL, type BackofficeKind, type BackofficeGroup, backofficeKindOf } from '@/config/nav';
 import { displayName, useMe } from '@/hooks/use-me';
 import { useOfficeLabel } from '@/hooks/use-office-types';
-import type { NodeContext } from '@/lib/can';
+import { type NodeContext, officeTitle } from '@/lib/can';
 import { cn } from '@/utils/cn';
 
 const KIND_TAB: Record<BackofficeKind, string> = { paroisse: 'Paroisse', diocese: 'Diocèse', plateforme: 'Plateforme' };
@@ -36,7 +36,8 @@ type Props = {
 /** Sidebar du back-office (272 px) : marque, contexte, onglets de niveau, navigation par capacités, identité. */
 export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups, homeHref }: Props) => {
   const { data: me } = useMe();
-  const office = useOfficeLabel(context.offices[0]);
+  const catalogueLabel = useOfficeLabel(context.offices[0]);
+  const office = officeTitle(context, context.offices[0], catalogueLabel);
   const name = displayName(me);
   const kinds = (['paroisse', 'diocese', 'plateforme'] as const)
     .map((k) => ({ kind: k, first: contexts.find((c) => backofficeKindOf(c.type) === k) }))

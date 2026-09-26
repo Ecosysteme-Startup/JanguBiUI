@@ -202,6 +202,10 @@ export const personSearchHandler = http.get(apiUrl('/hierarchy/persons/'), ({ re
   );
 });
 
+/** Titre de la nomination, comme l'API : libellé de la qualité, sinon de la première, sinon de l'office. */
+const titleOf = (office: { label: string; qualities?: { code: string; label: string }[] } | undefined, quality: string | undefined, code: string) =>
+  office?.qualities?.find((q) => q.code === quality)?.label ?? office?.qualities?.[0]?.label ?? office?.label ?? code;
+
 const equipeHandlers = [
   personSearchHandler,
   http.get(apiUrl('/hierarchy/assignments/'), ({ request }) => {
@@ -220,7 +224,8 @@ const equipeHandlers = [
       id: 500,
       person: { id: body.person_id, email: 'elisabeth@example.sn', full_name: 'Élisabeth Gomis' },
       office: body.office,
-      office_label: office?.label ?? body.office,
+      office_label: titleOf(office, body.quality, body.office),
+      quality: body.quality || office?.qualities?.[0]?.code || '',
       node: { id: body.node_id, name: 'Saint-Dominique', code: 'SD', type: 'paroisse' },
       start_date: body.start_date,
       end_date: null,
@@ -234,10 +239,17 @@ const equipeHandlers = [
     return HttpResponse.json(created, { status: 201 });
   }),
   http.patch(apiUrl('/hierarchy/assignments/:id/'), async ({ params, request }) => {
-    const body = (await request.json()) as { action: string };
+    const body = (await request.json()) as { action: string; quality?: string };
     f8aState.lastBody = body;
     const found = f8aState.assignments.find((a) => a.id === Number(params.id));
     if (!found) return v1Error(404, 'not_found', 'Nomination introuvable.');
+    if (body.action === 'qualifier') {
+      const office = officeCatalogue.find((o) => o.code === found.office);
+      if (!office?.qualities?.some((q) => q.code === body.quality)) return v1Error(400, 'invalid_quality', 'Qualité inconnue pour cet office.');
+      const qualified = { ...found, quality: body.quality, office_label: titleOf(office, body.quality, found.office) };
+      f8aState.assignments = f8aState.assignments.map((a) => (a.id === found.id ? qualified : a));
+      return HttpResponse.json(qualified);
+    }
     const updated = { ...found, status: body.action === 'terminer' ? 'terminee' : 'annulee', end_date: '2026-09-25' };
     f8aState.assignments = f8aState.assignments.map((a) => (a.id === found.id ? updated : a));
     return HttpResponse.json(updated);

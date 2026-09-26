@@ -60,6 +60,10 @@ const accountDetail = (id: string) => {
 };
 
 /** Handlers propres au lot F8b (routes absentes des handlers partagés). */
+/** Titre de la nomination, comme l'API : libellé de la qualité, sinon de la première, sinon de l'office. */
+const titleOf = (office: { label: string; qualities?: { code: string; label: string }[] } | undefined, quality: string | undefined, code: string) =>
+  office?.qualities?.find((q) => q.code === quality)?.label ?? office?.qualities?.[0]?.label ?? office?.label ?? code;
+
 export const f8bHandlers = [
   // Tableaux de bord
   http.get(apiUrl('/dashboards/nodes/:nodeId/'), ({ params }) => {
@@ -143,7 +147,8 @@ export const f8bHandlers = [
       id: 900 + f8bState.assignments.length,
       person: { id: body.person_id, email: 'personne@example.sn', full_name: found?.full_name ?? 'Personne' },
       office: body.office,
-      office_label: officeCatalogue.find((o) => o.code === body.office)?.label ?? body.office,
+      office_label: titleOf(officeCatalogue.find((o) => o.code === body.office), body.quality, body.office),
+      quality: body.quality || officeCatalogue.find((o) => o.code === body.office)?.qualities?.[0]?.code || '',
       node: { id: body.node_id, name: node?.name ?? '', code: node?.code ?? '', type: node?.type.code ?? '' },
       start_date: body.start_date,
       end_date: null,
@@ -158,7 +163,17 @@ export const f8bHandlers = [
   }),
   http.patch(apiUrl('/hierarchy/assignments/:id/'), async ({ request, params }) => {
     await log(request);
-    const body = (await request.json()) as { action: 'terminer' | 'annuler' };
+    const body = (await request.json()) as { action: 'terminer' | 'annuler' | 'qualifier'; quality?: string };
+    if (body.action === 'qualifier') {
+      const found = f8bState.assignments.find((a) => String(a.id) === params.id);
+      const office = officeCatalogue.find((o) => o.code === found?.office);
+      if (!found || !office?.qualities?.some((q) => q.code === body.quality)) {
+        return HttpResponse.json({ error: { code: 'invalid_quality', message: 'Qualité inconnue pour cet office.' } }, { status: 400 });
+      }
+      const qualified = { ...found, quality: body.quality, office_label: titleOf(office, body.quality, found.office) };
+      f8bState.assignments = f8bState.assignments.map((a) => (a.id === found.id ? qualified : a));
+      return HttpResponse.json(qualified);
+    }
     const status = body.action === 'terminer' ? 'terminee' : 'annulee';
     f8bState.assignments = f8bState.assignments.map((a) =>
       String(a.id) === params.id ? { ...a, status, end_date: body.action === 'terminer' ? '2026-09-25' : a.end_date } : a,
