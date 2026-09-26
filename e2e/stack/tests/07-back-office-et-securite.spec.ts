@@ -7,7 +7,7 @@ test.describe('Back-office paroisse : titre selon la qualité', () => {
   test('cure@ voit le titre « Curé »', async ({ page }, testInfo) => {
     await loginViaKeycloak(page, 'cure@demo.jangubi.sn', KC_DEMO_PASSWORD, { entryPath: `/espace/${PAROISSE_NODE}` });
     await page.waitForLoadState('networkidle').catch(() => undefined);
-    await expect(page.getByText('Curé', { exact: false }).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('main').getByText(/vous agissez comme curé/i)).toBeVisible({ timeout: 10_000 });
     await page.screenshot({ path: `docs/v1/recette/captures/01/back-office-cure-tableau-de-bord-${testInfo.project.name}.png`, fullPage: true });
     await logout(page);
   });
@@ -15,7 +15,7 @@ test.describe('Back-office paroisse : titre selon la qualité', () => {
   test('admin_paroissial@ voit le titre « Administrateur paroissial »', async ({ page }, testInfo) => {
     await loginViaKeycloak(page, 'admin_paroissial@demo.jangubi.sn', KC_DEMO_PASSWORD, { entryPath: '/espace' });
     await page.waitForLoadState('networkidle').catch(() => undefined);
-    await expect(page.getByText(/administrateur paroissial/i).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('main').getByText(/vous agissez comme administrateur paroissial/i)).toBeVisible({ timeout: 10_000 });
     await page.screenshot({
       path: `docs/v1/recette/captures/01/back-office-admin-paroissial-tableau-de-bord-${testInfo.project.name}.png`,
       fullPage: true,

@@ -15,7 +15,7 @@ test('Inscription complète : /inscription → vérification e-mail (Mailpit) �
   await page.screenshot({ path: `docs/v1/recette/captures/01/inscription-etape1-${testInfo.project.name}.png`, fullPage: true });
 
   await page.getByLabel(/prénom/i).fill('Agent');
-  await page.getByLabel('Nom', { exact: true }).fill('UnTest');
+  await page.locator('#lastName').fill('UnTest');
   await page.getByLabel(/adresse e-mail/i).fill(email);
   const phoneField = page.getByLabel(/téléphone mobile/i);
   if (await phoneField.count()) await phoneField.fill('771234567');

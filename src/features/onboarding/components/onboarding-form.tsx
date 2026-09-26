@@ -9,10 +9,12 @@ import { z } from 'zod';
 import { Stepper } from '@/components/signature/stepper';
 import { Button } from '@/components/ui/button';
 import { Choice } from '@/components/ui/choice';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { displayName, useMe } from '@/hooks/use-me';
+import { atParish, parishLabel } from '@/utils/parish-name';
 
 import { useCompleteOnboarding } from '../api/complete-onboarding';
 import { useConsent } from '../api/get-consent';
@@ -42,11 +44,30 @@ export const OnboardingForm = () => {
   const name = displayName(me);
 
   if (consent.isPending) return <LoadingBlock label="Préparation de votre inscription…" />;
+  // Sans version courante des conditions, le consentement serait refusé par l'API :
+  // on n'affiche pas un formulaire qui échouerait à l'envoi.
+  const consentVersion = consent.data?.current_version;
+  if (!consentVersion) {
+    return (
+      <EmptyState
+        tone="err"
+        icon="alerte"
+        title="Votre inscription n’a pas pu être préparée"
+        action={
+          <Button variant="secondary" onClick={() => consent.refetch()}>
+            Réessayer
+          </Button>
+        }
+      >
+        Vérifiez votre connexion, puis réessayez.
+      </EmptyState>
+    );
+  }
 
   const onSubmit = handleSubmit((values) =>
     complete.mutate({
       nodeId: (values.parish as Parish).id,
-      consentVersion: consent.data?.current_version ?? '',
+      consentVersion,
       annonces: values.annonces,
     }),
   );
@@ -112,7 +133,7 @@ export const OnboardingForm = () => {
             aria-invalid={Boolean(formState.errors.appartenance)}
             label={
               <>
-                J&apos;accepte que Jàngu Bi enregistre mon appartenance à la paroisse {parish?.name ?? 'choisie'}, et que son secrétariat et ses
+                J&apos;accepte que Jàngu Bi enregistre mon appartenance {parish ? atParish(parishLabel(parish.name)) : 'à la paroisse choisie'}, et que son secrétariat et ses
                 prêtres en aient connaissance. <span className="text-err">*</span>
               </>
             }
