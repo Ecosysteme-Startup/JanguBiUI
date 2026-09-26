@@ -53,7 +53,7 @@ export const PublicFooter = () => (
             <ul className="m-0 flex list-none flex-col gap-3 p-0 text-base">
               {column.links.map((link) => (
                 <li key={link.label}>
-                  <NextLink href={link.href} className="text-on-night hover:text-on-primary">
+                  <NextLink href={link.href} className="hit text-on-night hover:text-on-primary">
                     {link.label}
                   </NextLink>
                 </li>

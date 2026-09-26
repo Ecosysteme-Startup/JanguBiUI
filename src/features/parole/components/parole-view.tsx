@@ -116,7 +116,7 @@ export const ParoleView = ({ date }: { date?: string }) => {
     <div className="mx-auto max-w-[1200px]">
       <NextLink
         href={paths.app.root.getHref()}
-        className="mb-6 hidden h-8 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong lg:inline-flex"
+        className="mb-6 hidden h-11 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong lg:inline-flex"
       >
         <Icon name="fleche-gauche" size={16} />
         Retour · Accueil

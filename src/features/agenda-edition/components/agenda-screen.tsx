@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { useBackofficePlaces } from '@/hooks/use-backoffice-places';
@@ -190,10 +191,10 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h1 className="m-0 font-serif text-title font-normal text-ink">{nav.title}</h1>
-            <button type="button" aria-label={nav.prev.label} onClick={() => go(nav.prev.date)} className="hit inline-flex size-10 items-center justify-center rounded border border-line hover:bg-surface-2">
+            <button type="button" aria-label={nav.prev.label} onClick={() => go(nav.prev.date)} className="inline-flex size-11 items-center justify-center rounded border border-line hover:bg-surface-2">
               <Icon name="chevron-gauche" size={18} />
             </button>
-            <button type="button" aria-label={nav.next.label} onClick={() => go(nav.next.date)} className="hit inline-flex size-10 items-center justify-center rounded border border-line hover:bg-surface-2">
+            <button type="button" aria-label={nav.next.label} onClick={() => go(nav.next.date)} className="inline-flex size-11 items-center justify-center rounded border border-line hover:bg-surface-2">
               <Icon name="chevron-droite" size={18} />
             </button>
             <Button variant="tertiary" onClick={() => go(dayjs().format('YYYY-MM-DD'))}>
@@ -202,23 +203,15 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div role="radiogroup" aria-label="Affichage" className="grid grid-cols-3 rounded border border-ink">
-            {VIEWS.map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={period.view === value}
-                onClick={() => {
-                  update({ view: value });
-                  setSelectedId(null);
-                }}
-                className={cn('h-10 px-4 text-sm', period.view === value ? 'bg-ink text-paper' : 'text-ink hover:bg-surface-2')}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            label="Affichage"
+            value={period.view}
+            options={VIEWS}
+            onChange={(value) => {
+              update({ view: value });
+              setSelectedId(null);
+            }}
+          />
           <Button onClick={() => setEditing({ event: null, day: null })}>
             <Icon name="plus" size={16} /> Nouvel événement
           </Button>

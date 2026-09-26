@@ -23,7 +23,7 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const BackLink = () => (
-  <NextLink href={paths.app.paroisse.root.getHref('agenda')} className="inline-flex items-center gap-2 text-sm text-ink-2 hover:text-primary">
+  <NextLink href={paths.app.paroisse.root.getHref('agenda')} className="inline-flex min-h-11 items-center gap-2 text-sm text-ink-2 hover:text-primary">
     <Icon name="fleche-gauche" size={16} />
     Retour · Ma paroisse
   </NextLink>

@@ -111,7 +111,7 @@ export const ChapterReader = ({ livre, chapitre }: { livre: string; chapitre: nu
     <div className="mx-auto max-w-[1200px]">
       <NextLink
         href={paths.app.parole.getHref()}
-        className="mb-6 inline-flex h-8 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
+        className="mb-6 inline-flex h-11 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
       >
         <Icon name="fleche-gauche" size={16} />
         Retour · Lectures du jour

@@ -71,7 +71,7 @@ export const RequestsList = () => {
 
   return (
     <>
-      <NextLink href={paths.app.root.getHref()} className="inline-flex h-8 items-center gap-2 text-sm font-medium">
+      <NextLink href={paths.app.root.getHref()} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
         <Icon name="fleche-gauche" size={18} />
         Retour · Accueil
       </NextLink>
@@ -175,7 +175,7 @@ export const RequestsList = () => {
 };
 
 const RequestsTable = ({ rows }: { rows: DocumentRequest[] }) => (
-  <Table>
+  <Table label="Mes demandes, défilement horizontal">
     <thead>
       <tr>
         <Th className="w-[40%]">Demande</Th>

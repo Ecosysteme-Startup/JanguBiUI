@@ -43,7 +43,7 @@ export const RequestProcessing = ({ nodeId, id }: { nodeId: string; id: string }
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <NextLink href={paths.espace.demandes.list.getHref(nodeId)} className="inline-flex h-8 items-center gap-2 text-sm font-medium">
+        <NextLink href={paths.espace.demandes.list.getHref(nodeId)} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
           <Icon name="fleche-gauche" size={18} />
           Retour · Demandes d’actes
         </NextLink>
