@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { BackofficeSidebar } from '@/components/layouts/backoffice-sidebar';
 import { BackofficeTopbar } from '@/components/layouts/backoffice-topbar';
 import { LiturgyBannerSlot } from '@/components/layouts/liturgy-banner-slot';
+import { isMfaRequired, MfaRequiredNotice } from '@/components/layouts/mfa-required-notice';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { backofficeKindOf, backofficeNav } from '@/config/nav';
@@ -19,7 +20,7 @@ import { can, useContexts } from '@/lib/can';
  * La navigation est calculée depuis `/me/capacites/` ; le backend reste l'autorité.
  */
 export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; children: ReactNode }) => {
-  const { data: grants = [], contexts, isPending, isError } = useContexts();
+  const { data: grants = [], contexts, isPending, isError, error } = useContexts();
   const direct = contexts.find((c) => c.nodeId === nodeId);
   // La plateforme exerce ses capacités sur tout l'arbre : elle peut ouvrir n'importe quel nœud.
   const platform = contexts.find((c) => c.nodeId === null);
@@ -33,6 +34,13 @@ export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; c
     return (
       <div className="mx-auto max-w-xl p-10">
         <LoadingBlock label="Chargement de votre espace…" />
+      </div>
+    );
+  }
+  if (isError && isMfaRequired(error)) {
+    return (
+      <div className="mx-auto max-w-xl p-10">
+        <MfaRequiredNotice />
       </div>
     );
   }

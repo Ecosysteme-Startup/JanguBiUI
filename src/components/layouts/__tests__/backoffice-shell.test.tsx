@@ -1,9 +1,12 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 
 import { BackofficeShell } from '@/components/layouts/backoffice-shell';
 import { grantsChancelier, grantsPlateforme, grantsSecretaire, ids } from '@/testing/mocks/db';
 import { navigation } from '@/testing/navigation';
+import { apiUrl } from '@/testing/mocks/api-url';
+import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
 const navOf = async (name: RegExp) => within(await screen.findByRole('navigation', { name }));
@@ -77,5 +80,21 @@ describe('BackofficeShell', () => {
 
     expect(await screen.findByRole('button', { name: /changer de contexte : diocèse de thiès/i })).toBeInTheDocument();
     expect(screen.getByText('contenu')).toBeInTheDocument();
+  });
+
+  it('invite à se reconnecter avec la double authentification quand le serveur l\u2019exige', async () => {
+    navigation.pathname = `/espace/${ids.saintDominique}`;
+    server.use(
+      http.get(apiUrl('/me/capacites/'), () =>
+        HttpResponse.json({ error: { code: 'mfa_required', message: 'Authentification à deux facteurs requise.' } }, { status: 403 }),
+      ),
+    );
+    renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>);
+
+    expect(await screen.findByText('Double authentification requise')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /me reconnecter avec la double authentification/i })).toHaveAttribute(
+      'href',
+      `/connexion?redirectTo=%2Fespace%2F${ids.saintDominique}&reauth=1`,
+    );
   });
 });
