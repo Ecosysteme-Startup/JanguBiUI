@@ -2,8 +2,10 @@
 
 import NextLink from 'next/link';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
@@ -50,6 +52,14 @@ export const RequestProcessing = ({ nodeId, id }: { nodeId: string; id: string }
 
   return (
     <>
+      <TopbarContent
+        start={
+          <Breadcrumbs
+            separator="slash"
+            items={[{ label: 'Demandes d’actes', href: paths.espace.demandes.list.getHref(nodeId) }, { label: request.reference }]}
+          />
+        }
+      />
       <header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
