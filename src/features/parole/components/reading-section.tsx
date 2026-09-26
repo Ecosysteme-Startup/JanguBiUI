@@ -39,7 +39,7 @@ export const ReadingSection = ({
         </span>
         <span>{reading.citation}</span>
       </p>
-      <h2 id={titleId} className="m-0 mt-4 font-serif text-[29px] font-normal leading-[1.1] tracking-[-0.01em] text-ink">
+      <h2 id={titleId} className="m-0 mt-4 font-serif text-[1.8125rem] font-normal leading-[1.1] tracking-[-0.01em] text-ink">
         {readingTitle(reading)}
       </h2>
       {reading.verses.length > 0 ? (

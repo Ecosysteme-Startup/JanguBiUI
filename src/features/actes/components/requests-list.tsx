@@ -80,7 +80,7 @@ export const RequestsList = () => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">03</span> — Mes demandes d’actes
           </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[50px] lg:leading-none">
+          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
             Mes demandes <em className="italic text-primary">d’actes</em>
           </h1>
         </div>

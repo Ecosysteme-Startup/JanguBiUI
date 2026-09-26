@@ -9,7 +9,7 @@ export const ActesPrimer = ({ className }: { className?: string }) => (
         <Icon name="info" size={18} />
         Bon à savoir
       </p>
-      <p className="m-0 mt-4 font-serif text-[22px] italic leading-tight text-ink">
+      <p className="m-0 mt-4 font-serif text-[1.375rem] italic leading-tight text-ink">
         L’acte est délivré par la paroisse où le sacrement a été célébré ; il vous est remis en original signé et scellé.
       </p>
       <p className="m-0 mt-4 text-sm leading-normal text-ink">
@@ -24,12 +24,12 @@ export const ActesPrimer = ({ className }: { className?: string }) => (
       <dl className="m-0 mt-4">
         <div className="border-b border-line pb-4">
           <dt className="tnum text-meta text-ink-3">Délai indicatif</dt>
-          <dd className="m-0 mt-2 font-serif text-[43px] leading-none tracking-tight text-ink">3 à 7 jours</dd>
+          <dd className="m-0 mt-2 font-serif text-[2.6875rem] leading-none tracking-tight text-ink">3 à 7 jours</dd>
           <dd className="m-0 mt-1 text-sm text-ink-2">entre l’envoi et la mise à disposition.</dd>
         </div>
         <div className="pt-4">
           <dt className="tnum text-meta text-ink-3">Validité pour un mariage</dt>
-          <dd className="m-0 mt-2 font-serif text-[32px] leading-none text-ink">6 mois</dd>
+          <dd className="m-0 mt-2 font-serif text-[2rem] leading-none text-ink">6 mois</dd>
           <dd className="m-0 mt-1 text-sm text-ink-2">Un extrait plus ancien vous sera redemandé.</dd>
         </div>
       </dl>

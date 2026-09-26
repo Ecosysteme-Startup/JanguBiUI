@@ -16,7 +16,7 @@ export const AuthShell = ({ aside, footer, children }: AuthShellProps) => (
     <div className="grid flex-1 lg:grid-cols-[480px_minmax(0,1fr)]">
       <aside className="flex flex-col justify-between gap-10 bg-night px-6 py-10 text-on-night lg:px-14 lg:py-12">
         <NextLink href={paths.home.getHref()} aria-label="Jàngu Bi, page d’accueil" className="flex items-baseline gap-3 text-on-primary hover:text-on-primary">
-          <span className="font-serif text-[36px] leading-none tracking-[-0.01em]">Jàngu Bi</span>
+          <span className="font-serif text-[2.25rem] leading-none tracking-[-0.01em]">Jàngu Bi</span>
           <span className="tnum text-meta text-on-night-muted">La Leçon</span>
         </NextLink>
         <div>{aside}</div>

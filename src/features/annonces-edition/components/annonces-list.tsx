@@ -55,7 +55,12 @@ const ArticleRow = ({ nodeId, article }: { nodeId: string; article: StaffArticle
   return (
     <Tr>
       <Td className="max-w-0">
-        <NextLink href={editHref} className={cn('block truncate text-base text-ink hover:text-primary', article.status === 'draft' ? 'font-semibold' : 'font-medium')}>
+        {/* Deux lignes puis coupe, titre complet en infobulle et dans le nom accessible (A11Y-18). */}
+        <NextLink
+          href={editHref}
+          title={frenchTypo(article.title)}
+          className={cn('line-clamp-2 break-words text-base text-ink hover:text-primary', article.status === 'draft' ? 'font-semibold' : 'font-medium')}
+        >
           {frenchTypo(article.title)}
         </NextLink>
         <ArticleKicker article={article} />

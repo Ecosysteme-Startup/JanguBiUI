@@ -21,7 +21,7 @@ export const HomeGreeting = () => {
     <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
       <div>
         <p className="tnum m-0 hidden text-meta text-ink-2 lg:block">Mon espace{paroisse ? ` · Paroisse ${paroisse}` : ''}</p>
-        <h1 className="m-0 font-serif text-h3 font-normal text-ink lg:mt-3 lg:text-[50px] lg:leading-none">
+        <h1 className="m-0 font-serif text-h3 font-normal text-ink lg:mt-3 lg:text-[3.125rem] lg:leading-none">
           Jàmm ak jàmm{name.first ? ', ' : ''}
           {name.first && <em className="text-primary">{name.first}</em>}.
         </h1>

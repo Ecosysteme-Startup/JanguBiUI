@@ -69,7 +69,7 @@ export const GuidedRosary = ({ rosary }: { rosary: RosaryToday }) => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">01</span> — Chapelet guidé · le {weekday.toLowerCase()}
           </p>
-          <h1 className="m-0 mt-3 font-serif text-[36px] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[50px]">
+          <h1 className="m-0 mt-3 font-serif text-[2.25rem] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[3.125rem]">
             Les mystères <em className="italic text-primary">{groupName}</em>
           </h1>
         </div>

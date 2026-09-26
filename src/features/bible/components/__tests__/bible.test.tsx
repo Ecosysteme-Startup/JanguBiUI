@@ -24,6 +24,15 @@ describe('Bible — choix du livre', () => {
     expect(within(nav).getByRole('link', { name: /luc/i })).toHaveAttribute('href', '/app/bible/luc/1');
   });
 
+  it('ne crée pas de second défilement sur mobile : la liste suit la page, défilement interne seulement en lg (A11Y-17)', async () => {
+    renderApp(<BibleHome />);
+
+    const nav = await screen.findByRole('navigation', { name: 'Livres de la Bible' });
+    const panel = within(nav).getByRole('tabpanel');
+    expect(panel.className).not.toMatch(/(^|\s)(max-h-|overflow-y-auto)/);
+    expect(panel).toHaveClass('lg:max-h-[60vh]', 'lg:overflow-y-auto');
+  });
+
   it('cherche un mot et renvoie au verset trouvé', async () => {
     const user = userEvent.setup();
     renderApp(<BibleHome />);

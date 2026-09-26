@@ -127,7 +127,7 @@ export const ParoleView = ({ date }: { date?: string }) => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">01</span> — La Parole · {longDate(shown).toLowerCase()}
           </p>
-          <h1 className="m-0 mt-3 font-serif text-[36px] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[50px]">
+          <h1 className="m-0 mt-3 font-serif text-[2.25rem] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[3.125rem]">
             Les lectures du <em className="italic text-primary">jour</em>
           </h1>
           {shown !== today && (

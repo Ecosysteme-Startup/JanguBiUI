@@ -21,7 +21,7 @@ const errorText = (error: unknown) => (error instanceof ApiError ? error.message
 const ChapterGrid = ({ book, chapter }: { book: Book; chapter: number }) => (
   <div>
     <p className="tnum m-0 border-t border-line-strong pt-3 text-meta text-ink-2">Chapitres</p>
-    <div role="group" aria-label={`Chapitres : ${book.name}`} className="mt-4 grid max-h-[50vh] grid-cols-5 gap-2 overflow-y-auto lg:grid-cols-3">
+    <div role="group" aria-label={`Chapitres : ${book.name}`} className="mt-4 grid grid-cols-5 gap-2 lg:max-h-[50vh] lg:grid-cols-3 lg:overflow-y-auto">
       {Array.from({ length: book.chapter_count }, (_, i) => i + 1).map((n) => (
         <NextLink
           key={n}
@@ -149,7 +149,7 @@ export const ChapterReader = ({ livre, chapitre }: { livre: string; chapitre: nu
               <p className="tnum m-0 text-meta text-ink-2">
                 <span className="text-primary">01</span> — La Bible{testament && ` · ${testament.name}`}
               </p>
-              <h1 className="m-0 mt-3 font-serif text-[36px] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[50px]">
+              <h1 className="m-0 mt-3 font-serif text-[2.25rem] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[3.125rem]">
                 {book.name}, <em className="italic text-primary">chapitre {chapitre}</em>
               </h1>
             </div>

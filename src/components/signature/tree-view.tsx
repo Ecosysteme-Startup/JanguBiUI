@@ -172,9 +172,11 @@ export const TreeView = ({
             ) : (
               <span aria-hidden="true" className="size-6 shrink-0" />
             )}
+            {/* Retour à la ligne plutôt que troncature muette (A11Y-18) ; infobulle pour la souris. */}
             <span
+              title={node.label}
               className={cn(
-                'min-w-0 flex-1 truncate text-sm text-ink',
+                'min-w-0 flex-1 break-words py-1 text-sm text-ink',
                 (level <= 2 || selected) && 'font-medium',
                 selected && 'font-semibold',
               )}

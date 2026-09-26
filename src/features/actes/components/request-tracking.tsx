@@ -77,7 +77,7 @@ const Tracking = ({ request }: { request: DocumentRequest }) => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">03</span> — Mes demandes · <span className="text-ink">{request.reference}</span>
           </p>
-          <h1 className="m-0 mt-3 font-serif text-h2 font-normal text-ink lg:text-[50px] lg:leading-none">{label}</h1>
+          <h1 className="m-0 mt-3 font-serif text-h2 font-normal text-ink lg:text-[3.125rem] lg:leading-none">{label}</h1>
           <p className="m-0 mt-3 text-base text-ink-2">
             {parish} · pour {reasonLabel(request)}
           </p>
