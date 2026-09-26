@@ -113,13 +113,13 @@ export const QueueTable = ({ nodeId, rows, query = '', footer }: Props) => {
                 onChange={() => setSelected(allChecked ? new Set() : new Set(rows.map((r) => r.id)))}
               />
             </th>
-            <th scope="col" className="hidden w-[176px] pr-4 font-medium md:table-cell">
+            <th scope="col" className="hidden w-[196px] pr-4 font-medium md:table-cell">
               Référence
             </th>
             <th scope="col" className="pr-4 font-medium">
               Acte demandé
             </th>
-            <th scope="col" className="hidden w-[184px] pr-4 font-medium md:table-cell">
+            <th scope="col" className="hidden w-[168px] pr-4 font-medium md:table-cell">
               Statut
             </th>
             <th scope="col" className="hidden w-[148px] pr-4 font-medium lg:table-cell">
