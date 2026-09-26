@@ -85,7 +85,7 @@ const PriestSuggestion = () => {
             <SkeletonLine className="text-13" width="w-1/2" />
           </span>
         </span>
-        <Skeleton className="mt-4 h-10 w-24" />
+        <Skeleton className="mt-4 h-10 w-24 max-w-full" />
       </div>
     );
   }

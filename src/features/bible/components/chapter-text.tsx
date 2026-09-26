@@ -71,7 +71,7 @@ export const ChapterText = ({
         <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-12 bg-tint-50 px-4 py-3 text-15 text-tint-900">
           <Icon name="info" size={18} className="shrink-0" />
           <span className="min-w-0 flex-1">{passage.label}</span>
-          <button type="button" onClick={() => setWhole(true)} className="hit whitespace-nowrap font-semibold text-primary hover:text-primary-strong">
+          <button type="button" onClick={() => setWhole(true)} className="hit font-semibold text-primary hover:text-primary-strong">
             Lire depuis le verset 1
           </button>
         </div>

@@ -17,7 +17,7 @@ export const DecadeBeads = ({ beads, step }: { beads: Bead[]; step: number }) =>
 
   return (
     <div className="mt-7">
-      <ol aria-label={label} className="m-0 flex list-none items-center justify-between gap-0.5 p-0 sm:gap-1">
+      <ol aria-label={label} className="m-0 flex list-none flex-wrap items-center justify-between gap-x-0.5 gap-y-2 p-0 sm:gap-x-1">
         {beads.map((bead, i) => {
           const state = i < step ? 'dit' : i === step ? 'courant' : 'avenir';
           const square = bead.hailMary === null;

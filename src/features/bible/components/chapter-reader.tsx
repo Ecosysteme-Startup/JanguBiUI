@@ -84,7 +84,7 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
       ) : (
         <ChapterText verses={verses.data} reference={(n) => `${book.name} ${chapter}, ${n}`} size={size} passage={passage} />
       )}
-      <nav aria-label="Chapitres voisins" className="mt-8 flex items-center justify-between gap-4 border-t border-line pt-5">
+      <nav aria-label="Chapitres voisins" className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-5">
         {prev ? (
           <NextLink
             href={paths.app.bible.chapitre.getHref(prev.book.slug, prev.chapter)}

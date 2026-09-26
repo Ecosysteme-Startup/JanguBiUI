@@ -56,7 +56,7 @@ export const GuidedRosary = ({ rosary, today }: { rosary: RosaryToday; today: nu
   const fruit = fruitLabel(mystery ?? mysteries[0]);
 
   return (
-    <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_336px] xl:items-start">
+    <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 xl:grid-cols-[minmax(0,1fr)_336px] xl:items-start">
       {progress.done ? (
         <section aria-labelledby="chapelet-fin" className="rounded-16 border border-line bg-paper p-6 shadow-card sm:p-8">
           <h2 id="chapelet-fin" className="m-0 text-24 font-semibold text-ink">

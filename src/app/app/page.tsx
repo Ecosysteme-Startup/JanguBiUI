@@ -8,11 +8,11 @@ import { PriestCard } from '@/features/accueil/components/priest-card';
 import { RosaryCard } from '@/features/accueil/components/rosary-card';
 import { WordOfTheDay } from '@/features/accueil/components/word-of-the-day';
 
-const row = 'mt-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_336px] xl:items-start';
+const row = 'mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 xl:grid-cols-[minmax(0,1fr)_336px] xl:items-start';
 
 /** Accueil de l'espace fidèle (FID-Accueil) : Parole, messes, demande, confession, annonces, prêtre. */
 const FideleHomePage = () => (
-  <div className="min-w-0">
+  <div className="min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
     <HomeGreeting />
     <div className={row}>
       <WordOfTheDay />

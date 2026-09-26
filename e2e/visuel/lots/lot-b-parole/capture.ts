@@ -59,7 +59,13 @@ for (const c of CASES) {
         })
         .slice(0, 5)
         .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)}`);
-      return { scroll: document.documentElement.scrollWidth, client, culprits };
+      const widest = [...document.querySelectorAll('body *')]
+        .map((el) => ({ el, right: el.getBoundingClientRect().right }))
+        .filter(({ right }) => right > client && right <= document.documentElement.scrollWidth + 1)
+        .sort((a, b) => b.right - a.right)
+        .slice(0, 3)
+        .map(({ el, right }) => `${Math.round(right)} ${el.tagName.toLowerCase()}.${String(el.className).slice(0, 50)}`);
+      return { scroll: document.documentElement.scrollWidth, client, culprits: culprits.length ? culprits : widest };
     });
     const ok = scroll <= client;
     if (!ok) failures += 1;

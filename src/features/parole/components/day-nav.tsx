@@ -28,7 +28,7 @@ export const DayNav = ({ date, current }: { date: string; current?: LiturgyDay }
   });
 
   return (
-    <nav aria-label="Changer de jour" className="grid grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-2">
+    <nav aria-label="Changer de jour" className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
       <NextLink href={paths.app.parole.getHref(shiftDay(date, -7))} aria-label="Semaine précédente" className={iconButtonClasses({ bordered: true })}>
         <Icon name="chevron-gauche" size={18} />
       </NextLink>

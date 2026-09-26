@@ -32,7 +32,7 @@ const RequestCard = ({ request }: { request: CurrentRequest }) => {
         <span className="tnum text-14 text-ink-3">
           {request.reference} · déposée le {shortDay(request.created_at)}
         </span>
-        <Badge tone={TONE_OF[request.status] ?? 'neutral'} dot>
+        <Badge tone={TONE_OF[request.status] ?? 'neutral'} dot className="h-auto min-h-6 shrink whitespace-normal">
           {request.status_label}
         </Badge>
       </span>
@@ -62,8 +62,8 @@ const RequestCardSkeleton = () => (
   <div role="status" data-testid="demande-squelette" className={cardClasses({ padding: 'lg' })}>
     <span className="sr-only">Chargement de votre demande…</span>
     <span aria-hidden="true" className="flex items-center justify-between gap-4">
-      <SkeletonLine className="text-14" width="w-48" />
-      <Skeleton className="h-6 w-28 rounded-full" />
+      <SkeletonLine className="text-14" width="w-48 max-w-full" />
+      <Skeleton className="h-6 w-28 max-w-full rounded-full" />
     </span>
     <SkeletonLine className="mt-2 text-18" width="w-2/3" />
     <SkeletonLine className="text-15" width="w-1/2" />
@@ -71,7 +71,7 @@ const RequestCardSkeleton = () => (
       {STEPS.map((label) => (
         <span key={label}>
           <span className="block h-1.5 rounded-full bg-surface-2" />
-          <SkeletonLine className="mt-2 text-13" width="w-20" />
+          <SkeletonLine className="mt-2 text-13" width="w-20 max-w-full" />
         </span>
       ))}
     </span>

@@ -58,7 +58,7 @@ const LiturgyContent = ({ day, busy }: { day: LiturgyDay; busy: boolean }) => {
   };
 
   return (
-    <div aria-busy={busy} className={cn('mt-10 grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start', busy && 'opacity-60 transition-opacity')}>
+    <div aria-busy={busy} className={cn('mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start', busy && 'opacity-60 transition-opacity')}>
       <div ref={top} className="min-w-0 scroll-mt-6">
         {!day.readings_available || !reading ? (
           <EmptyState icon="parole" title="Les lectures de ce jour ne sont pas encore en ligne.">
@@ -105,7 +105,7 @@ export const ParoleView = ({ date }: { date?: string }) => {
   const today = dayjs().format(ISO);
 
   return (
-    <div className="min-w-0">
+    <div className="min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
           <h1 className="m-0 text-32 font-semibold text-ink">La Parole du jour</h1>

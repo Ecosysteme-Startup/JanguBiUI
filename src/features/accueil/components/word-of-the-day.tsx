@@ -32,18 +32,18 @@ const WordOfTheDaySkeleton = () => (
       La Parole du jour
     </h2>
     <span className="sr-only">Chargement des lectures du jour…</span>
-    <SkeletonLine className="text-14" width="w-40" />
+    <SkeletonLine className="text-14" width="w-40 max-w-full" />
     <SkeletonLine className="mt-2 text-22" width="w-3/4" />
     <ul aria-hidden="true" className="m-0 mt-6 grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-3">
       {[0, 1, 2].map((i) => (
         <li key={i}>
           <span className="block h-1 rounded-full bg-primary-fill-hover" />
-          <SkeletonLine className="mt-2.5 text-13" width="w-24" />
-          <SkeletonLine className="text-15" width="w-20" />
+          <SkeletonLine className="mt-2.5 text-13" width="w-24 max-w-full" />
+          <SkeletonLine className="text-15" width="w-20 max-w-full" />
         </li>
       ))}
     </ul>
-    <Skeleton className="mt-6 h-12 w-60" />
+    <Skeleton className="mt-6 h-12 w-60 max-w-full" />
   </div>
 );
 
@@ -98,7 +98,7 @@ export const WordOfTheDay = ({ className }: { className?: string }) => {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <NextLink
               href={paths.app.parole.getHref()}
-              className="inline-flex min-h-12 items-center gap-2 rounded-12 bg-lit-white px-5 text-16 font-semibold text-primary-fill transition-colors hover:bg-on-night hover:text-primary-fill"
+              className="inline-flex min-h-12 max-w-full items-center gap-2 rounded-12 bg-lit-white px-5 text-16 font-semibold text-primary-fill transition-colors hover:bg-on-night hover:text-primary-fill"
             >
               <Icon name="parole" size={20} />
               Lire la Parole du jour

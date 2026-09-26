@@ -41,7 +41,7 @@ export const ChapeletView = ({ jour = null }: { jour?: number | null }) => {
   const usual = MYSTERIES_BY_DAY.find((r) => r.group.toLowerCase() === group)?.days.toLowerCase();
 
   return (
-    <div className="min-w-0">
+    <div className="min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
       <Header>
         {rosary.data && (
           <p className="m-0 mt-2 text-16 text-ink-2">
