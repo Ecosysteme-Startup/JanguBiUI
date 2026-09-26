@@ -35,17 +35,21 @@ const detailOf = (entry: HistoryEntry, request: DocumentRequest): string | undef
   return entry.comment || undefined;
 };
 
+/** Étape de l'historique : `at` = horodatage réel (étapes franchies ou en cours). */
+export type TrackingStep = TimelineStep & { at?: string };
+
 /** Étapes de la timeline du fidèle : journal réel, puis étapes à venir du chemin nominal. */
-export const buildTimeline = (request: DocumentRequest): TimelineStep[] => {
+export const buildTimeline = (request: DocumentRequest): TrackingStep[] => {
   const history: HistoryEntry[] = request.history.length
     ? request.history
     : [{ from_status: '', to_status: request.status, comment: '', created_at: request.updated_at }];
   const finished = request.status === 'collected';
-  const past: TimelineStep[] = history.map((entry, index) => {
+  const past: TrackingStep[] = history.map((entry, index) => {
     const isLast = index === history.length - 1;
     const current = isLast && !finished;
     return {
       key: `h-${index}`,
+      at: entry.created_at,
       when: current && index > 0 ? `Depuis ${dayjs(entry.created_at).format('ddd DD.MM')}` : stamp(entry.created_at),
       title: TITLES[entry.to_status] ?? entry.to_status,
       detail: detailOf(entry, request),
@@ -54,7 +58,7 @@ export const buildTimeline = (request: DocumentRequest): TimelineStep[] => {
   });
   const position = request.status === 'info_requested' ? 1 : (MAIN_PATH as readonly string[]).indexOf(request.status);
   if (position < 0) return past;
-  const upcoming: TimelineStep[] = MAIN_PATH.slice(position + 1).map((status) => ({
+  const upcoming: TrackingStep[] = MAIN_PATH.slice(position + 1).map((status) => ({
     key: `u-${status}`,
     when:
       status === 'ready_for_pickup' && request.estimated_ready_on
