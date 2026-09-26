@@ -23,10 +23,10 @@ interface TypeDelayFieldsProps {
  */
 export const TypeDelayFields = ({ rows, register, errors, fallback, disabled }: TypeDelayFieldsProps) => (
   <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-describedby="p-delais-aide">
-    <legend className="mb-2 text-sm font-semibold text-ink">Délai par type d&apos;acte</legend>
-    <ul className="m-0 flex list-none flex-col gap-3 p-0">
+    <legend className="mb-1 p-0 text-14 font-medium text-ink">Délai par type d&apos;acte</legend>
+    <ul className="m-0 flex list-none flex-col p-0">
       {rows.map((row, index) => (
-        <li key={row.document_type}>
+        <li key={row.document_type} className="border-b border-line py-3 last:border-b-0">
           <Field
             id={`p-delai-${row.document_type}`}
             label={
@@ -37,14 +37,14 @@ export const TypeDelayFields = ({ rows, register, errors, fallback, disabled }: 
               </>
             }
             error={errors.type_delays?.[index]?.days?.message}
-            className="grid max-w-md grid-cols-[minmax(0,1fr)_96px] items-center gap-x-4 [&>p]:col-span-2"
+            className="grid grid-cols-[minmax(0,1fr)_64px] items-center gap-x-4 [&>label]:font-normal [&>p]:col-span-2"
           >
-            <Input inputMode="numeric" placeholder={fallback} {...register(`type_delays.${index}.days`)} disabled={disabled} />
+            <Input inputMode="numeric" controlSize="sm" className="tnum text-center text-15" placeholder={fallback} {...register(`type_delays.${index}.days`)} disabled={disabled} />
           </Field>
         </li>
       ))}
     </ul>
-    <p id="p-delais-aide" className="m-0 text-sm text-ink-3">
+    <p id="p-delais-aide" className="m-0 text-13 text-ink-3">
       Jours ouvrés, affichés au fidèle. Un type laissé vide reprend le délai de la paroisse ({fallback} j).
     </p>
   </fieldset>

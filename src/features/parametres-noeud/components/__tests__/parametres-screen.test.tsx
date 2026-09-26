@@ -31,7 +31,7 @@ describe('Paramètres (PAR-Parametres)', () => {
     await renderPage(grantsSecretaire);
 
     expect(await screen.findByRole('heading', { name: 'Paramètres de la paroisse', level: 1 })).toBeInTheDocument();
-    const identity = screen.getByRole('region', { name: /identité/i });
+    const identity = await screen.findByRole('region', { name: /identité/i });
     expect(within(identity).getByText('Saint-Dominique')).toBeInTheDocument();
     expect(within(identity).getByText('Érigé, le 07.10.1956')).toBeInTheDocument();
     expect(await within(identity).findByText('Archidiocèse de Dakar')).toBeInTheDocument();
