@@ -14,7 +14,10 @@ type ModalProps = {
   description?: React.ReactNode;
   children?: React.ReactNode;
   footer?: React.ReactNode;
-  size?: 'md' | 'lg';
+  /** `md` 480, `lg` 720, `form` 600 (titre 22/600, pied en bande surface : PAR-Horaires, PAR-Equipe). */
+  size?: 'md' | 'lg' | 'form';
+  /** Aide à gauche du pied (`form`) : « Chaque mercredi et chaque vendredi. » */
+  footerHint?: React.ReactNode;
 };
 
 /**
@@ -26,7 +29,7 @@ type ModalProps = {
  * à `body` à la fermeture (A11Y-05). On mémorise l'élément focalisé à l'ouverture et on le
  * restaure à la fermeture, s'il est toujours dans le document.
  */
-export const Modal = ({ open, onOpenChange, title, description, children, footer, size = 'md' }: ModalProps) => {
+export const Modal = ({ open, onOpenChange, title, description, children, footer, footerHint, size = 'md' }: ModalProps) => {
   const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const rememberTrigger = () => {
     // Appelé avant que Radix déplace le focus : l'élément actif est encore le déclencheur.
@@ -50,22 +53,42 @@ export const Modal = ({ open, onOpenChange, title, description, children, footer
           onCloseAutoFocus={restoreFocus}
           className={cn(
             'fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-16 border border-line bg-paper p-6 shadow-menu focus:outline-none',
-            size === 'md' ? 'max-w-[480px]' : 'max-w-[720px]',
+            { md: 'max-w-[480px]', lg: 'max-w-[720px]', form: 'max-w-[600px]' }[size],
+            size === 'form' && 'overflow-hidden',
           )}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <Dialog.Title className="m-0 text-18 font-semibold leading-6 text-ink">{title}</Dialog.Title>
+              <Dialog.Title className={cn('m-0 font-semibold text-ink', size === 'form' ? 'text-22' : 'text-18 leading-6')}>{title}</Dialog.Title>
               {description && <Dialog.Description className="m-0 mt-2 text-15 text-ink-2">{description}</Dialog.Description>}
             </div>
             <Dialog.Close asChild>
               <IconButton icon="x" label="Fermer" size="sm" className="-mt-1 rounded-8 text-ink-2" />
             </Dialog.Close>
           </div>
-          {children && <div className="-mx-6 mt-4 overflow-y-auto px-6">{children}</div>}
-          {footer && <div className="mt-5 flex flex-wrap justify-end gap-2">{footer}</div>}
+          {size === 'form' ? (
+            // Le pied fait partie de la zone qui défile (collant en bas) : il peut vivre dans un <form>.
+            <div className="-mx-6 -mb-6 mt-4 overflow-y-auto px-6 pb-6">
+              {children}
+              {footer && <ModalFooter hint={footerHint}>{footer}</ModalFooter>}
+            </div>
+          ) : (
+            children && <div className="-mx-6 mt-4 overflow-y-auto px-6">{children}</div>
+          )}
+          {footer && size !== 'form' && <div className="mt-5 flex flex-wrap justify-end gap-2">{footer}</div>}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 };
+
+/**
+ * Pied de dialogue en bande surface (taille `form`) : aide 13 ink3 à gauche, actions à droite.
+ * À poser en dernier enfant d'un <form> rendu dans une modale `size="form"` (bouton submit dans le formulaire).
+ */
+export const ModalFooter = ({ hint, children, className }: { hint?: React.ReactNode; children: React.ReactNode; className?: string }) => (
+  <div className={cn('sticky bottom-0 -mx-6 -mb-6 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-surface px-6 py-4', className)}>
+    <div className="min-w-0 text-13 text-ink-3">{hint}</div>
+    <div className="flex flex-wrap justify-end gap-2">{children}</div>
+  </div>
+);

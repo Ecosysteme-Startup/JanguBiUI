@@ -8,7 +8,7 @@ import { Icon, type IconName } from './icon';
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   /** Valide : coche okT à droite du champ. */
   valid?: boolean;
-  /** 52 (défaut, public), 48 (espace fidèle, fond surface), 44 (back-office). */
+  /** 52 (défaut, public), 48 (espace fidèle, fond surface), 44 (back-office), 36 (recherche compacte). */
   controlSize?: ControlSize;
   /** Icône à gauche (recherche). */
   icon?: IconName;
@@ -25,7 +25,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         className={cn(
           controlClasses(props['aria-invalid'] === true, valid, controlSize),
           CONTROL_HEIGHT[controlSize],
-          icon && (controlSize === 'lg' ? 'pl-12' : 'pl-11'),
+          icon && (controlSize === 'lg' ? 'pl-12' : controlSize === 'xs' ? 'pl-10' : 'pl-11'),
           trailing && 'pr-20',
           className,
         )}
@@ -38,8 +38,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {icon && (
           <Icon
             name={icon}
-            size={20}
-            className={cn('pointer-events-none absolute top-1/2 -translate-y-1/2 text-ink-3', controlSize === 'lg' ? 'left-4' : 'left-3.5')}
+            size={controlSize === 'xs' ? 18 : 20}
+            className={cn('pointer-events-none absolute top-1/2 -translate-y-1/2 text-ink-3', controlSize === 'lg' ? 'left-4' : controlSize === 'xs' ? 'left-3' : 'left-3.5')}
           />
         )}
         {input}

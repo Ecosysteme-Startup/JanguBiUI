@@ -111,7 +111,7 @@ rabattus sur cette échelle mais **à ne plus employer**.
 `utilisateurs`, `utilisateur-ok`, `structure`, `aujourdhui`, `tableau-de-bord`, `historique`,
 `plus-vertical`, `plus-horizontal`, `copier`, `partager` (share-2, nœuds), `partager-boite` (share, flèche hors de la boîte : FID-Ma-Paroisse, FID-Annonce, FID-Evenement), `imprimer`, `taille-texte`, `ecouter`,
 `lecture`, `itineraire`, `epingle`, `signet`, `trombone`, `erreur`, `succes`, `alerte`, `info`, `aide`,
-`chargement`, `cadenas`, `oeil`, `chevrons-haut-bas`, `fleche-*`, `chevron-*`…, liste complète :
+`chargement`, `annuler` (Undo2), `cadenas`, `oeil`, `chevrons-haut-bas`, `fleche-*`, `chevron-*`…, liste complète :
 `ICON_NAMES`) ; `chapelet` et `confession` sont dessinés maison. Tailles des maquettes : 16, 18, 20, 22.
 
 ## 5. Primitives (`src/components/ui/`, importer le fichier, pas de barrel)
@@ -121,11 +121,11 @@ rabattus sur cette échelle mais **à ne plus employer**.
 | `Button` (`button.tsx`) | `variant` : `primary` \| `secondary` \| `outline` \| `ghost` \| `danger` (anciens : `tertiary`→ghost, `night`→outline) ; `size` : `xl` 52 \| `lg` 48 \| `md` 40 (défaut) \| `sm` 32 ; `block`, `loading`, `asChild` | 15/600 (16 en lg/xl, 14 en sm), rayon 12 (10 en sm), cible 44 via `hit` ; `buttonVariants()` pour un lien |
 | `IconButton` | `icon`, `label` (obligatoire), `bordered`, `size` md 40 / sm 32, `dot` | nu rayon 10 survol surface2 ; bordé rayon 12 ; `iconButtonClasses()`, `UnreadDot` |
 | `Field` (`field.tsx`) | `id`, `label`, `optional` (« (facultatif) »), `required` (lecteur d'écran), `labelAside`, `hint`, `error`, `success`, `counter` | libellé 14/500, aide/erreur 13 avec icône |
-| `Input` | `controlSize` : `lg` 52 fond paper (public, défaut) \| `md` 48 fond surface (fidèle) \| `sm` 44 fond paper (back-office) ; `icon`, `trailing`, `valid` | rayon 12, bordure line-field, focus b600 2 px, erreur 2 px |
+| `Input` | `controlSize` : `lg` 52 fond paper (public, défaut) \| `md` 48 fond surface (fidèle) \| `sm` 44 fond paper (back-office) \| `xs` 36 rayon 10 14 px (recherche de barre de filtres) ; `icon`, `trailing`, `valid` | rayon 12, bordure line-field, focus b600 2 px, erreur 2 px |
 | `Kbd` (`input.tsx`) | — | « Ctrl K », « Échap » |
 | `Select`, `Textarea` | `controlSize` | select natif + chevrons ; textarea 92 min |
 | `Choice` | `type` checkbox/radio, `label`, `description`, `variant` `plain` \| `card` | case 20 rayon 6 ; radio anneau 6 ; carte : b600 2 px sur b50 |
-| `Switch` | `checked`, `onCheckedChange`, `label`, `description` | 40 × 24 |
+| `Switch` | `checked`, `onCheckedChange`, `label`, `description`, `size` md \| lg | 40 × 24 (lg : 44 × 26, libellé 500, back-office) |
 | `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent`, `TabLinks` | `size` md (15, écart 24, back-office) \| lg (16, écart 32, Parole) ; `count`, `countPill` (pilule 20 px b100/b800 active, surface2 sinon) | soulignement b600 2 px, 44 px |
 | `SegmentedControl` (radiogroup), `SegmentedLinks` (navigation) | `size` xs 32 \| sm 36/14 \| md 34/14 \| lg 36/15 ; `block` (largeurs égales) ; `counts` / `items[].count` | piste surface2 rayon 12, segment choisi paper + ombre carte |
 | `Chip`, `ChipGroup` | `pressed`, `count`, `tone` `ink` (exclusif) \| `tint` (cumulable, coche) | pilule 36, 14 |
@@ -136,17 +136,18 @@ rabattus sur cette échelle mais **à ne plus employer**.
 | `Notice` | `tone` info/ok/warn/err, `title`, `children`, `role`, `action` | aplat rayon 12, 14/20 |
 | `EmptyState` | `icon` (défaut `boite`), `title`, `children`, `action`, `align` center/start, `tone` | pastille 48, 16/600, une action |
 | `Skeleton`, `SkeletonLine`, `LoadingBlock`, `Progress` (`skeleton.tsx`) | — | surface2 ; piste 6 px |
-| `Modal`, `ConfirmDialog` | `size` md 480 \| lg 720, `footer` ; `tone` danger | rayon 16, voile scrim, titre 18/600, actions à droite |
+| `Modal`, `ModalFooter`, `ConfirmDialog` | `size` md 480 \| lg 720 \| form 600 (titre 22, pied en bande surface), `footer`, `footerHint` ; `<ModalFooter hint>` en fin de `<form>` ; `tone` danger | rayon 16, voile scrim, titre 18/600, actions à droite |
 | `Toaster`, `toast.ok/err/info` | — | aplat d'encre (erreur : fond paper), 5 s |
-| `Table`, `Th`, `Tr`, `Td`, `TableSelectionBar` | `framed`, `Th sort`, `Tr selected` | en-tête 44 surface 13/500, rangées 60, sélection b50 |
+| `Table`, `Th`, `Tr`, `Td`, `TableSelectionBar` | `framed`, `Th sort` (descending ↓, ascending ↑), `Tr selected` | en-tête 44 surface 13/500, rangées 60, sélection b50 |
 | `Pagination` | `offset`, `limit`, `total`, `onChange`, `noun`, `nounPosition` before (« Demandes 1 à 6 sur 17 ») \| after (« 1 à 12 sur 17 demandes »), `compact` (chevrons seuls) | cases 36 rayon 10, courante b50/b800 |
 | `PageHeader` | `title`, `description`, `eyebrow` (+ `eyebrowTone` primary), `actions`, `size` app 32 \| public 40, `compact` (phrase à 4 px) | pas de numéro |
 | `SectionHeading`, `Meta` | `size` lg 24 \| md 20, `aside` | |
 | `Menu`, `MenuTrigger`, `MenuContent`, `MenuItem`, `MenuSeparator`, `MenuLabel` (`menu.tsx`) | `MenuItem icon shortcut tone="danger" asChild` | rayon 12, rangées 36, ombre menu |
 | `Tooltip` | `content` | fond encre 13/18, 300 ms |
 | `Breadcrumbs` | `items: {label, href?}[]`, `separator` chevron \| slash, `back` (chevron de retour) | 14, courante 600 |
+| `CapabilityChips` (`signature/`) | `capabilities`, `max` (+n) | étiquettes 22 px rayon 6 surface2 12/500 |
 | `Checkbox` (`checkbox.tsx`) | `label` (lecteur d'écran), `indeterminate` | case nue 18 px rayon 5, cible 44 (tables) |
-| `FilterPill` (`filter-pill.tsx`) | `id`, `label`, `allLabel`, `value`, `onChange`, `onClear` | sélecteur natif en pilule 36, actif b50/b200/b800 + croix |
+| `FilterPill` (`filter-pill.tsx`) | `id`, `label`, `allLabel`, `value`, `onChange`, `onClear`, `activeTone` soft (b50/b200/b800) \| filled (b100/b900) | sélecteur natif en pilule 36, actif b50/b200/b800 + croix |
 | `RequestStatusBadge` (`signature/status-dot.tsx`) | `status` | badge de statut d'acte (même rendu que `StatusDot status`) |
 | `SlotPicker` (`signature/`) | `slots[].priest` = sous-libellé (« Libre » si vide) | 3 colonnes, cases 56 rayon 12, « 16:20 » |
 | `Avatar` | `name`, `size` 24–48 | initiales b800 sur b100 |

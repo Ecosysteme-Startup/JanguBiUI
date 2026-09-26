@@ -80,11 +80,12 @@ export const Field = ({ id, label, required, optional, labelAside, hint, error, 
  * Hauteur et fond des champs selon l'espace (relevés des maquettes) :
  * - `lg` 52 px, fond paper : pages publiques, inscription, connexion (défaut) ;
  * - `md` 48 px, fond surface : formulaires de l'espace fidèle (FID-Demande-Nouvelle, FID-Profil) ;
- * - `sm` 44 px, fond paper : back-office (PAR-Parametres, PAR-Annonce-Editeur).
+ * - `sm` 44 px, fond paper : back-office (PAR-Parametres, PAR-Annonce-Editeur) ;
+ * - `xs` 36 px, rayon 10, 14 px : recherche compacte d'une barre de filtres (PAR-Annonces).
  */
-export type ControlSize = 'lg' | 'md' | 'sm';
+export type ControlSize = 'lg' | 'md' | 'sm' | 'xs';
 
-export const CONTROL_HEIGHT: Record<ControlSize, string> = { lg: 'h-13', md: 'h-12', sm: 'h-11' };
+export const CONTROL_HEIGHT: Record<ControlSize, string> = { lg: 'h-13', md: 'h-12', sm: 'h-11', xs: 'h-9' };
 
 /**
  * Classes communes des contrôles : rayon 12, bordure lineField ; focus et erreur à 2 px
@@ -92,9 +93,10 @@ export const CONTROL_HEIGHT: Record<ControlSize, string> = { lg: 'h-13', md: 'h-
  */
 export const controlClasses = (invalid?: boolean, valid?: boolean, size: ControlSize = 'lg') =>
   cn(
-    'w-full rounded-12 border text-16 text-ink placeholder:text-ink-3 focus:outline-none focus-visible:outline-none',
+    'w-full border text-ink placeholder:text-ink-3 focus:outline-none focus-visible:outline-none',
     'disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2 disabled:text-ink-3',
-    size === 'lg' ? 'px-4' : 'px-3.5',
+    size === 'xs' ? 'rounded-10 px-3 text-14' : 'rounded-12 text-16',
+    size === 'lg' ? 'px-4' : size === 'xs' ? '' : 'px-3.5',
     size === 'md' ? 'bg-surface' : 'bg-paper',
     invalid
       ? 'border-err-line ring-1 ring-inset ring-err-line'

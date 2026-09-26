@@ -48,7 +48,8 @@ export const Th = ({
     {sort ? (
       <span className="inline-flex items-center gap-1">
         {children}
-        <Icon name={sort === 'ascending' ? 'fleche-bas' : 'fleche-haut'} size={14} />
+        {/* Maquettes (PAR-Demandes, PAR-Annonces, DIO-Nominations) : décroissant = ↓. */}
+        <Icon name={sort === 'descending' ? 'fleche-bas' : 'fleche-haut'} size={14} strokeWidth={2} />
       </span>
     ) : (
       children
