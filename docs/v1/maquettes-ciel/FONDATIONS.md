@@ -104,7 +104,7 @@ rabattus sur cette échelle mais **à ne plus employer**.
 ## 4. Icônes
 
 `<Icon name="…" size={20} />` : Lucide, trait 1,75 (`ICON_STROKE`), `currentColor`, décorative sauf
-`label`. Noms français stables (`accueil`, `parole`, `bible`, `paroisse`, `diocese`, `annonce`,
+`label`. Noms français stables (`accueil`, `parole`, `bible`, `paroisse`, `diocese`, `carte` (province), `couches` (doyenné), `annonce`,
 `calendrier`, `calendrier-horloge`, `document`, `message`, `cloche`, `recherche`, `reglages`,
 `utilisateurs`, `utilisateur-ok`, `structure`, `aujourdhui`, `tableau-de-bord`, `historique`,
 `plus-vertical`, `plus-horizontal`, `copier`, `partager` (share-2, nœuds), `partager-boite` (share, flèche hors de la boîte : FID-Ma-Paroisse, FID-Annonce, FID-Evenement), `imprimer`, `taille-texte`, `ecouter`,
