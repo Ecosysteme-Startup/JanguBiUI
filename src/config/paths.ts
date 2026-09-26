@@ -62,6 +62,10 @@ export const paths = {
       list: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/annonces` },
       nouvelle: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/annonces/nouvelle` },
       detail: { getHref: (nodeId: string, id: number | string) => `/espace/${enc(nodeId)}/annonces/${id}` },
+      feuille: {
+        getHref: (nodeId: string, sunday?: string) =>
+          `/espace/${enc(nodeId)}/annonces/feuille${sunday ? `?date=${encodeURIComponent(sunday)}` : ''}`,
+      },
     },
     horaires: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/horaires` },
     agenda: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/agenda` },

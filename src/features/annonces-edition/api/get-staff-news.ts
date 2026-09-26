@@ -8,7 +8,16 @@ import { type ArticleStatus, staffArticleSchema, staffNewsKey } from './staff-ar
 const pageSchema = z.object({ count: z.number(), results: z.array(staffArticleSchema) });
 export type StaffNewsPage = z.infer<typeof pageSchema>;
 
-export type StaffNewsFilters = { status?: ArticleStatus; type?: 'announcement' | 'article'; limit: number; offset: number };
+export type StaffNewsFilters = {
+  status?: ArticleStatus;
+  type?: 'announcement' | 'article';
+  /** Recherche dans le titre, le chapô et le texte. */
+  q?: string;
+  /** Lieu de culte de l'annonce. */
+  place?: number;
+  limit: number;
+  offset: number;
+};
 
 /** Contenus du nœud et de son sous-arbre, tous statuts (annonces.publier). */
 export const getStaffNews = async (nodeId: string, filters: StaffNewsFilters): Promise<StaffNewsPage> =>

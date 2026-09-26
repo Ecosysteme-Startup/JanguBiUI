@@ -27,12 +27,18 @@ const schema = z
     location: z.string().max(300, '300 caractères au plus.'),
     place_id: z.string(),
     max_participants: z.string().refine((v) => v === '' || (Number.isInteger(Number(v)) && Number(v) >= 1), 'Un nombre entier, au moins 1.'),
+    closes_date: z.string(),
+    closes_time: z.string(),
     description: z.string(),
   })
   .superRefine((v, ctx) => {
+    if (v.closes_date && !v.closes_time) ctx.addIssue({ code: 'custom', path: ['closes_time'], message: 'Indiquez l’heure de clôture.' });
     if (!v.start_date || !v.start_time || !v.end_date || !v.end_time) return;
-    if (!dayjs(`${v.end_date}T${v.end_time}`).isAfter(dayjs(`${v.start_date}T${v.start_time}`)))
+    const end = dayjs(`${v.end_date}T${v.end_time}`);
+    if (!end.isAfter(dayjs(`${v.start_date}T${v.start_time}`)))
       ctx.addIssue({ code: 'custom', path: ['end_time'], message: 'La fin doit suivre le début.' });
+    if (v.closes_date && v.closes_time && dayjs(`${v.closes_date}T${v.closes_time}`).isAfter(end))
+      ctx.addIssue({ code: 'custom', path: ['closes_date'], message: 'La clôture doit précéder la fin de l’événement.' });
   });
 type Values = z.infer<typeof schema>;
 
@@ -42,6 +48,7 @@ const SERVER_FIELDS: Record<string, keyof Values> = {
   end_at: 'end_time',
   location: 'location',
   max_participants: 'max_participants',
+  registration_closes_at: 'closes_date',
 };
 
 const defaultsOf = (event: StaffEvent | null, day: string | null): Values => {
@@ -58,6 +65,8 @@ const defaultsOf = (event: StaffEvent | null, day: string | null): Values => {
     location: event?.location ?? '',
     place_id: event?.place_id ? String(event.place_id) : '',
     max_participants: event?.max_participants ? String(event.max_participants) : '',
+    closes_date: event?.registration_closes_at ? dayjs(event.registration_closes_at).format('YYYY-MM-DD') : '',
+    closes_time: event?.registration_closes_at ? dayjs(event.registration_closes_at).format('HH:mm') : '',
     description: event?.description ?? '',
   };
 };
@@ -88,6 +97,7 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
       end_at: isoOf(v.end_date, v.end_time),
       location: v.location.trim(),
       max_participants: v.max_participants ? Number(v.max_participants) : null,
+      registration_closes_at: v.closes_date && v.closes_time ? isoOf(v.closes_date, v.closes_time) : null,
     };
     try {
       await save.mutateAsync(
@@ -165,6 +175,20 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
         <Field id="ag-places" label="Places disponibles" hint="Vide : sans inscription limitée." error={e.max_participants?.message}>
           <Input type="number" min={1} inputMode="numeric" {...register('max_participants')} className="w-40" />
         </Field>
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Field
+            id="ag-cloture-date"
+            label="Clôture des inscriptions, date"
+            hint="Vide : jusqu’à la fin de l’événement."
+            error={e.closes_date?.message}
+            className="sm:col-span-2"
+          >
+            <Input type="date" {...register('closes_date')} />
+          </Field>
+          <Field id="ag-cloture-heure" label="Clôture, heure" error={e.closes_time?.message} className="sm:col-span-2">
+            <Input type="time" {...register('closes_time')} />
+          </Field>
+        </div>
         <Field id="ag-description" label="Description">
           <Textarea rows={4} {...register('description')} />
         </Field>

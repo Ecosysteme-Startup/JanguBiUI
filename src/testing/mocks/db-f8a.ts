@@ -26,6 +26,9 @@ const article = (overrides: Partial<Article> & { id: string; title: string; stat
   published_at: null,
   unpublished_at: null,
   unpublish_reason: '',
+  cover_image_id: null,
+  cover_image_url: null,
+  notify_followers: true,
   reads_count: 0,
   created_at: '2026-09-20T09:00:00+00:00',
   updated_at: '2026-09-22T09:40:00+00:00',
@@ -102,7 +105,10 @@ const initialEvents = (): Event[] => [
     node_name: 'Saint-Dominique',
     place_id: 11,
     max_participants: 60,
+    registration_closes_at: '2026-10-08T18:00:00',
     registrations_count: 2,
+    seats_taken: 3,
+    seats_remaining: 57,
     is_full: false,
     is_registered: false,
     is_cancelled: false,
@@ -119,7 +125,10 @@ const initialEvents = (): Event[] => [
     node_name: 'Saint-Dominique',
     place_id: null,
     max_participants: null,
+    registration_closes_at: null,
     registrations_count: 0,
+    seats_taken: 0,
+    seats_remaining: null,
     is_full: false,
     is_registered: false,
     is_cancelled: false,
@@ -127,8 +136,8 @@ const initialEvents = (): Event[] => [
 ];
 
 export const registrations = [
-  { id: 1, user_id: 'u1', full_name: 'Thérèse Ndione', email: 'therese@example.sn', registered_at: '2026-09-23T10:00:00+00:00' },
-  { id: 2, user_id: 'u2', full_name: 'Albert Senghor', email: 'albert@example.sn', registered_at: '2026-09-23T11:00:00+00:00' },
+  { id: 1, user_id: 'u1', full_name: 'Thérèse Ndione', email: 'therese@example.sn', seats: 2, note: 'Une place à l’avant du car.', registered_at: '2026-09-23T10:00:00+00:00' },
+  { id: 2, user_id: 'u2', full_name: 'Albert Senghor', email: 'albert@example.sn', seats: 1, note: '', registered_at: '2026-09-23T11:00:00+00:00' },
 ];
 
 export const officeCatalogue = [
@@ -279,6 +288,11 @@ export const f8aState = {
   node: { ...nodeDetail },
   settings: { ...nodeSettingsDetail },
   lastBody: null as unknown,
+  lastPublishBody: null as Record<string, unknown> | null,
+  lastNewsQuery: null as Record<string, string> | null,
+  agendaQueries: [] as Record<string, string>[],
+  /** Annonces du diocèse ajoutées en fin de feuille (nœuds parents). */
+  dioceseSheetItems: [] as Record<string, unknown>[],
 };
 
 export const resetF8a = () => {
@@ -290,6 +304,10 @@ export const resetF8a = () => {
   f8aState.node = { ...nodeDetail };
   f8aState.settings = { ...nodeSettingsDetail };
   f8aState.lastBody = null;
+  f8aState.lastPublishBody = null;
+  f8aState.lastNewsQuery = null;
+  f8aState.agendaQueries = [];
+  f8aState.dioceseSheetItems = [];
 };
 
 /** Annuaire de la recherche de personne à nommer (`GET /hierarchy/persons/`) : e-mail masqué. */

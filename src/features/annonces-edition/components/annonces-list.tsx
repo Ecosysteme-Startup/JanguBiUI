@@ -10,6 +10,8 @@ import { Pagination } from '@/components/ui/pagination';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
 import { paths } from '@/config/paths';
+import { useBackofficePlaces } from '@/hooks/use-backoffice-places';
+import { useDebounce } from '@/hooks/use-debounce';
 import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
@@ -17,6 +19,7 @@ import { frenchTypo } from '@/utils/french-typo';
 
 import { type StaffNewsFilters, useStaffNews, useStaffNewsCounts } from '../api/get-staff-news';
 import type { ArticleStatus, StaffArticle } from '../api/staff-article';
+import { nextSundays } from '../utils/sundays';
 
 import { ArticleStatusCell } from './article-status';
 
@@ -86,10 +89,17 @@ const ArticleRow = ({ nodeId, article }: { nodeId: string; article: StaffArticle
 /** PAR-Annonces : contenus du nœud, par état, avec lectures et accès à l'éditeur. */
 export const AnnoncesList = ({ nodeId }: { nodeId: string }) => {
   const typeId = useId();
+  const searchId = useId();
+  const placeId = useId();
   const [tab, setTab] = useState<'all' | ArticleStatus>('all');
   const [type, setType] = useState<StaffNewsFilters['type']>();
+  const [search, setSearch] = useState('');
+  const [place, setPlace] = useState<number>();
   const [offset, setOffset] = useState(0);
-  const filters: StaffNewsFilters = { status: tab === 'all' ? undefined : tab, type, limit: LIMIT, offset };
+  const q = useDebounce(search.trim(), 300);
+  const places = useBackofficePlaces(nodeId);
+  const filters: StaffNewsFilters = { status: tab === 'all' ? undefined : tab, type, q: q || undefined, place, limit: LIMIT, offset };
+  const sunday = nextSundays(dayjs(), 1)[0];
   const news = useStaffNews(nodeId, filters);
   const counts = useStaffNewsCounts(nodeId);
   const readsThisPage = (news.data?.results ?? []).reduce((sum, a) => sum + a.reads_count, 0);
@@ -115,9 +125,17 @@ export const AnnoncesList = ({ nodeId }: { nodeId: string }) => {
           </p>
           <h1 className="m-0 mt-2 font-serif text-title font-normal text-ink">Annonces</h1>
         </div>
-        <NextLink href={paths.espace.annonces.nouvelle.getHref(nodeId)} className={cn(buttonVariants(), 'hover:no-underline')}>
-          <Icon name="plus" size={16} /> Nouvelle annonce
-        </NextLink>
+        <div className="flex flex-wrap items-center gap-3">
+          <NextLink
+            href={paths.espace.annonces.feuille.getHref(nodeId, sunday)}
+            className={cn(buttonVariants({ variant: 'secondary' }), 'hover:no-underline')}
+          >
+            <Icon name="document" size={16} /> Feuille d’annonces du {dayjs(sunday).format('DD.MM')}
+          </NextLink>
+          <NextLink href={paths.espace.annonces.nouvelle.getHref(nodeId)} className={cn(buttonVariants(), 'hover:no-underline')}>
+            <Icon name="plus" size={16} /> Nouvelle annonce
+          </NextLink>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b border-line">
@@ -142,7 +160,45 @@ export const AnnoncesList = ({ nodeId }: { nodeId: string }) => {
             );
           })}
         </div>
-        <div className="flex items-center gap-2 pb-2">
+        <div className="flex flex-wrap items-center gap-2 pb-2">
+          <label htmlFor={searchId} className="sr-only">
+            Rechercher dans les annonces
+          </label>
+          <input
+            id={searchId}
+            type="search"
+            value={search}
+            placeholder="Rechercher dans les annonces"
+            maxLength={100}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setOffset(0);
+            }}
+            className="h-9 w-64 rounded border border-line-field bg-surface px-3 text-sm text-ink placeholder:text-ink-3"
+          />
+          {(places.data ?? []).length > 0 && (
+            <>
+              <label htmlFor={placeId} className="sr-only">
+                Portée
+              </label>
+              <select
+                id={placeId}
+                value={place ?? ''}
+                onChange={(e) => {
+                  setPlace(e.target.value ? Number(e.target.value) : undefined);
+                  setOffset(0);
+                }}
+                className="h-9 rounded border border-line-field bg-surface pl-3 pr-8 text-sm text-ink"
+              >
+                <option value="">Tous les lieux</option>
+                {(places.data ?? []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
           <label htmlFor={typeId} className="sr-only">
             Type de contenu
           </label>
@@ -172,7 +228,11 @@ export const AnnoncesList = ({ nodeId }: { nodeId: string }) => {
             {apiErrorMessage(news.error)}
           </EmptyState>
         ) : news.data.results.length === 0 ? (
-          <EmptyState icon="annonce" title={tab === 'all' ? 'Aucune annonce pour l’instant' : 'Aucune annonce dans cet état'} className="mt-4">
+          <EmptyState
+            icon="annonce"
+            title={q || place ? 'Aucune annonce ne correspond à ces filtres' : tab === 'all' ? 'Aucune annonce pour l’instant' : 'Aucune annonce dans cet état'}
+            className="mt-4"
+          >
             Les annonces publiées apparaissent dans « Ma paroisse » pour les fidèles qui suivent la paroisse.
           </EmptyState>
         ) : (

@@ -3,7 +3,16 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-const registrationSchema = z.object({ id: z.number(), full_name: z.string(), email: z.string(), registered_at: z.string() });
+const registrationSchema = z.object({
+  id: z.number(),
+  full_name: z.string(),
+  email: z.string(),
+  /** Nombre de personnes de l'inscription. */
+  seats: z.number(),
+  /** Remarque du fidèle, lue par les organisateurs uniquement. */
+  note: z.string(),
+  registered_at: z.string(),
+});
 export type Registration = z.infer<typeof registrationSchema>;
 
 const pageSchema = z.object({ count: z.number(), results: z.array(registrationSchema) });

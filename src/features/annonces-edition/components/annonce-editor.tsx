@@ -26,6 +26,7 @@ import type { StaffArticle } from '../api/staff-article';
 import { sanitizeArticleHtml, textToHtml } from '../utils/sanitize-html';
 
 import { stamp, statusLabel } from './article-status';
+import { CoverPicker } from './cover-picker';
 import { type EditorValues, editorSchema, TITLE_MAX, EXCERPT_MAX } from './editor-schema';
 import { PublicationPanel } from './publication-panel';
 
@@ -40,7 +41,17 @@ const SERVER_FIELDS: Record<string, keyof EditorValues> = {
   category_id: 'category_id',
   sunday_date: 'sunday_date',
   publish_at: 'publish_date',
+  place_id: 'place_id',
+  cover_image_id: 'cover_image_id',
 };
+
+/** Codes d'erreur métier rattachés à un champ du formulaire. */
+const CODE_FIELDS: [prefix: string, field: keyof EditorValues][] = [
+  ['sunday_date', 'sunday_date'],
+  ['place_not_in_node', 'place_id'],
+  ['cover_', 'cover_image_id'],
+  ['file_', 'cover_image_id'],
+];
 
 const defaultsOf = (article: StaffArticle | null): EditorValues => ({
   title: article?.title ?? '',
@@ -51,6 +62,9 @@ const defaultsOf = (article: StaffArticle | null): EditorValues => ({
   sunday_date: article?.sunday_date ?? '',
   category_id: article?.category ? String(article.category.id) : '',
   place_id: article?.scope.place_id ? String(article.scope.place_id) : '',
+  cover_image_id: article?.cover_image_id ?? null,
+  cover_image_url: article?.cover_image_url ?? null,
+  notify_followers: article?.notify_followers ?? true,
   when: article?.status === 'scheduled' ? 'schedule' : 'now',
   publish_date: article?.publish_at ? dayjs(article.publish_at).format('YYYY-MM-DD') : '',
   publish_time: article?.publish_at ? dayjs(article.publish_at).format('HH:mm') : '12:00',
@@ -65,7 +79,7 @@ export const scheduledAt = (values: Pick<EditorValues, 'publish_date' | 'publish
   return { iso: at.toISOString() };
 };
 
-const buildInput = (nodeId: string, article: StaffArticle | null, values: EditorValues, publish?: { at: string | null }): SaveArticleInput => {
+const buildInput = (nodeId: string, article: StaffArticle | null, values: EditorValues, publish?: { at: string | null; notify?: boolean }): SaveArticleInput => {
   const common = {
     content_type: values.content_type,
     title: values.title.trim(),
@@ -75,9 +89,12 @@ const buildInput = (nodeId: string, article: StaffArticle | null, values: Editor
     category_id: Number(values.category_id),
     is_sunday_notice: values.is_sunday_notice,
     sunday_date: values.is_sunday_notice ? values.sunday_date : null,
+    place_id: values.place_id ? Number(values.place_id) : null,
+    cover_image_id: values.cover_image_id,
+    notify_followers: values.notify_followers,
   };
   if (article) return { id: article.id, update: common, publish };
-  return { id: null, create: { ...common, node_id: nodeId, place_id: values.place_id ? Number(values.place_id) : null }, publish };
+  return { id: null, create: { ...common, node_id: nodeId }, publish };
 };
 
 const heading = (article: StaffArticle | null, values: Pick<EditorValues, 'is_sunday_notice' | 'content_type'>) => {
@@ -96,8 +113,10 @@ const applyServerErrors = (form: UseFormReturn<EditorValues>, error: unknown): b
       mapped = true;
     }
   });
-  if (apiErrorCode(error)?.startsWith('sunday_date')) {
-    form.setError('sunday_date', { message: apiErrorMessage(error) });
+  const code = apiErrorCode(error);
+  const byCode = code ? CODE_FIELDS.find(([prefix]) => code.startsWith(prefix)) : undefined;
+  if (byCode) {
+    form.setError(byCode[1], { message: apiErrorMessage(error) });
     mapped = true;
   }
   return mapped;
@@ -142,16 +161,16 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
   const run = (action: Action) =>
     handleSubmit(async (values) => {
       setFailure(null);
-      let publish: { at: string | null } | undefined;
+      let publish: { at: string | null; notify?: boolean } | undefined;
       if (action === 'schedule') {
         const at = scheduledAt(values);
         if ('error' in at) {
           setError('publish_date', { message: at.error });
           return;
         }
-        publish = { at: at.iso };
+        publish = { at: at.iso, notify: values.notify_followers };
       } else if (action === 'publish') {
-        publish = { at: null };
+        publish = { at: null, notify: values.notify_followers };
       }
       setPending(action);
       try {
@@ -258,8 +277,28 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
             <Textarea {...register('excerpt')} rows={2} />
           </Field>
           <div className="flex flex-col gap-2">
+            <p id="ed-banniere-titre" className="m-0 text-sm font-semibold text-ink">
+              <span className="tnum text-primary">03</span> — Bannière
+            </p>
+            <Controller
+              control={control}
+              name="cover_image_id"
+              render={({ field, fieldState }) => (
+                <CoverPicker
+                  id="ed-banniere"
+                  value={{ id: field.value, url: watch('cover_image_url') }}
+                  error={fieldState.error?.message}
+                  onChange={(cover) => {
+                    field.onChange(cover.id);
+                    setValue('cover_image_url', cover.url, { shouldDirty: true });
+                  }}
+                />
+              )}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
             <p id="ed-corps-titre" className="m-0 text-sm font-semibold text-ink">
-              <span className="tnum text-primary">03</span> — Corps{' '}
+              Corps{' '}
               <span className="text-err" aria-hidden="true">
                 *
               </span>

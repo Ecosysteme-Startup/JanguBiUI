@@ -5,7 +5,7 @@ import { http } from 'msw';
 import AnnoncesPage from '@/app/espace/[nodeId]/annonces/page';
 import { apiUrl } from '@/testing/mocks/api-url';
 import { grantsChancelier, grantsSecretaire, ids } from '@/testing/mocks/db';
-import { resetF8a } from '@/testing/mocks/db-f8a';
+import { f8aState, resetF8a } from '@/testing/mocks/db-f8a';
 import { v1Error } from '@/testing/mocks/handlers/f8a';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
@@ -47,6 +47,31 @@ describe('Annonces (PAR-Annonces)', () => {
 
     expect(await screen.findByRole('link', { name: /^messe d.action de grâce/i })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /^quête impérée/i })).not.toBeInTheDocument();
+  });
+
+  it('cherche dans les annonces et filtre par lieu de culte', async () => {
+    const user = userEvent.setup();
+    f8aState.articles = f8aState.articles.map((a, i) =>
+      i === 2 ? { ...a, scope: { ...(a.scope as object), place_id: 12, place_name: 'Chapelle de la Cité universitaire' } } : a,
+    );
+    await renderPage();
+
+    await user.type(await screen.findByLabelText('Rechercher dans les annonces'), 'chorale');
+    expect(await screen.findByRole('link', { name: /^répétition de la chorale/i })).toBeInTheDocument();
+    await vi.waitFor(() => expect(screen.queryByRole('link', { name: /^quête impérée/i })).not.toBeInTheDocument());
+    expect(f8aState.lastNewsQuery).toMatchObject({ q: 'chorale' });
+
+    await user.clear(screen.getByLabelText('Rechercher dans les annonces'));
+    await user.selectOptions(await screen.findByLabelText('Portée'), 'Chapelle de la Cité universitaire');
+    await vi.waitFor(() => expect(f8aState.lastNewsQuery).toMatchObject({ place: '12' }));
+    expect(await screen.findByRole('link', { name: /^répétition de la chorale/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /^messe d.action de grâce/i })).not.toBeInTheDocument();
+  });
+
+  it('mène à la feuille d’annonces du dimanche à venir', async () => {
+    await renderPage();
+    const link = await screen.findByRole('link', { name: /feuille d’annonces du/i });
+    expect(link.getAttribute('href')).toMatch(new RegExp(`^/espace/${ids.saintDominique}/annonces/feuille\\?date=\\d{4}-\\d{2}-\\d{2}$`));
   });
 
   it('affiche un état vide explicite', async () => {

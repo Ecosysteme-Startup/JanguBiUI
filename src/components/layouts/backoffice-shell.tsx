@@ -58,11 +58,16 @@ export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; c
       <a href="#contenu" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-paper focus:p-3">
         Aller au contenu
       </a>
-      <BackofficeSidebar kind={kind} context={context} parentName={parentName} contexts={contexts} groups={groups} homeHref={homeHref} />
+      {/* À l'impression (feuille d'annonces…), seul le contenu de la page sort. */}
+      <div className="contents print:hidden">
+        <BackofficeSidebar kind={kind} context={context} parentName={parentName} contexts={contexts} groups={groups} homeHref={homeHref} />
+      </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <BackofficeTopbar rootLabel={context.name} rootHref={homeHref} groups={groups} />
-        <LiturgyBannerSlot href={paths.app.parole.getHref()} variant="backoffice" className="px-4 lg:px-8" />
-        <main id="contenu" className="min-w-0 flex-1 px-4 py-8 lg:px-12">
+        <div className="contents print:hidden">
+          <BackofficeTopbar rootLabel={context.name} rootHref={homeHref} groups={groups} />
+          <LiturgyBannerSlot href={paths.app.parole.getHref()} variant="backoffice" className="px-4 lg:px-8" />
+        </div>
+        <main id="contenu" className="min-w-0 flex-1 px-4 py-8 lg:px-12 print:p-0">
           {children}
         </main>
       </div>

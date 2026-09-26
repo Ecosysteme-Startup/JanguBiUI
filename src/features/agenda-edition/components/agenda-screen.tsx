@@ -109,7 +109,7 @@ const MonthList = ({ events, selectedId, onSelect }: { events: StaffEvent[]; sel
                   <span className="block text-sm text-ink-3">
                     {hour(event.start_at)}
                     {event.location && <> · {event.location}</>}
-                    {event.max_participants ? <> · {event.registrations_count} / {event.max_participants} inscrits</> : null}
+                    {event.max_participants ? <> · {event.seats_taken} / {event.max_participants} places</> : null}
                     {event.is_cancelled && <> · annulé</>}
                   </span>
                 </span>
@@ -129,9 +129,9 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
   const [view, setView] = useState<View>('mois');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [editing, setEditing] = useState<Editing>(null);
-  // Le serveur ne filtre pas par dates : les mois passés demandent aussi les événements terminés.
-  const includePast = month.isBefore(dayjs().startOf('month'));
-  const events = useStaffEvents(nodeId, includePast);
+  // Période affichée : les semaines complètes de la grille (jours des mois voisins compris).
+  const weeks = monthWeeks(month);
+  const events = useStaffEvents(nodeId, { from: weeks[0][0], to: weeks[weeks.length - 1][6] });
   const places = useBackofficePlaces(nodeId);
 
   const monthEvents = (events.data?.results ?? []).filter((e) => inMonth(e, month));
