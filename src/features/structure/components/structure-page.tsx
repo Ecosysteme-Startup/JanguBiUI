@@ -44,9 +44,9 @@ const Hint = ({ node }: { node: StructureNode }) =>
 
 /** Icône de type de nœud dans l'arbre (WEB-DIO-Structure). */
 const TYPE_ICON: Record<string, IconName> = {
-  province: 'globe',
+  province: 'carte',
   diocese: 'diocese',
-  doyenne: 'structure',
+  doyenne: 'couches',
   paroisse: 'paroisse',
   quasi_paroisse: 'paroisse',
   ceb: 'utilisateurs',
