@@ -85,7 +85,7 @@ const EndAssignmentModal = ({ assignment, onClose }: { assignment: Assignment; o
 
 const PAST_REASON: Record<string, string> = { terminee: 'Fin de mandat', annulee: 'Annulée' };
 
-/** PAR-Equipe : offices actifs et passés du nœud ; nomination si `offices.nommer`, sinon lecture. */
+/** PAR-Equipe : offices actifs et passés du nœud ; nomination si `offices.nommer`, lecture avec `tableau_bord.voir`. */
 export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
   const canNommer = useCan('offices.nommer', nodeId);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -128,8 +128,7 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
         )}
         {!canNommer && (
           <Notice tone="info" title="Consultation seule" className="mt-4">
-            Nommer ou terminer une nomination demande la capacité « Nominations » sur ce nœud. Vous voyez les nominations que le serveur vous
-            ouvre.
+            Vous voyez l’équipe de ce nœud et des nœuds rattachés. Nommer ou terminer une nomination demande la capacité « Nominations ».
           </Notice>
         )}
 

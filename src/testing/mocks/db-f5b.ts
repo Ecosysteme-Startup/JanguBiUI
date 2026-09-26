@@ -168,7 +168,24 @@ export const f5bState = {
   deleted: false,
   deleteConflict: false,
   readArticles: [] as string[],
+  declaration: null as Record<string, unknown> | null,
 };
+
+/** Déclaration d'état de vie d'un fidèle laïc (GET /me/declaration/). */
+export const laicDeclaration = (overrides: Record<string, unknown> = {}) => ({
+  id: '5f0c0000-0000-4000-8000-000000000001',
+  email: 'fidele@example.sn',
+  full_name: 'Marie Diop',
+  etat_de_vie: 'laic',
+  degre_ordre: 'aucun',
+  statut_verification: 'declare',
+  verification_note: '',
+  declared_at: null,
+  incardination_node: null,
+  institut_node: null,
+  attachments: [],
+  ...overrides,
+});
 
 const now = () => dayjs();
 
@@ -229,6 +246,7 @@ export const resetF5bState = () => {
   f5bState.deleted = false;
   f5bState.deleteConflict = false;
   f5bState.readArticles = [];
+  f5bState.declaration = laicDeclaration();
 };
 resetF5bState();
 

@@ -683,7 +683,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Nominations visibles (celles des nœuds où j'ai offices.nommer, et les miennes)
+         * Nominations visibles : celles des nœuds où j'ai offices.nommer, en lecture celles des nœuds où j'ai tableau_bord.voir, et les miennes
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["hierarchy_assignments_list"];
@@ -1023,6 +1023,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/hierarchy/persons/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rechercher la personne à nommer (offices.nommer ; e-mail masqué)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["hierarchy_persons_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/hierarchy/places/{place_id}/": {
         parameters: {
             query?: never;
@@ -1151,7 +1171,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Déclarations d'état de vie à vérifier (personnes.verifier)
+         * Déclarations d'état de vie à vérifier ou en attente de complément (personnes.verifier)
          * @description À placer en premier dans les bases des vues V1.
          */
         get: operations["v1_hierarchy_verifications_retrieve"];
@@ -1173,7 +1193,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Vérifier ou rejeter une déclaration (personnes.verifier sur l'incardination)
+         * Vérifier, rejeter ou demander un complément (personnes.verifier sur l'incardination)
          * @description À placer en premier dans les bases des vues V1.
          */
         post: operations["v1_hierarchy_verifications_decision_create"];
@@ -1483,7 +1503,7 @@ export interface paths {
         get: operations["v1_me_declaration_retrieve"];
         put?: never;
         /**
-         * Déclarer mon état de vie (reste « déclaré » jusqu'à vérification ; aucun effet sur les droits)
+         * Déclarer ou compléter mon état de vie (reste « déclaré » jusqu'à vérification ; aucun effet sur les droits). Les justificatifs s'ajoutent aux précédents.
          * @description À placer en premier dans les bases des vues V1.
          */
         post: operations["v1_me_declaration_create"];
@@ -3509,9 +3529,19 @@ export interface components {
         /**
          * @description * `verifie` - verifie
          *     * `rejete` - rejete
+         *     * `complement` - complement
          * @enum {string}
          */
-        DecisionEnum: "verifie" | "rejete";
+        DecisionEnum: "verifie" | "rejete" | "complement";
+        DeclarationAttachmentOutput: {
+            id: number;
+            file_name: string;
+            file_type: string;
+            /** @description Lien de téléchargement (présigné en stockage S3) */
+            readonly url: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
         DeclarationInput: {
             etat_de_vie: components["schemas"]["EtatDeVieEnum"];
             /** @default aucun */
@@ -3520,6 +3550,8 @@ export interface components {
             incardination_node_id?: string | null;
             /** Format: uuid */
             institut_node_id?: string | null;
+            /** @description Justificatifs à ajouter (celebret, lettre d'obédience…), envoyés d'abord via /files/upload/ */
+            attachment_file_ids?: number[];
         };
         /**
          * @description * `aucun` - Aucun
@@ -4097,6 +4129,14 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["NodeOutput"][];
         };
+        PaginatedPersonSearchOutputList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["PersonSearchOutput"][];
+        };
         PaginatedPersonStatusOutputList: {
             limit: number;
             offset: number;
@@ -4233,17 +4273,37 @@ export interface components {
             email: string;
             readonly full_name: string;
         };
+        /** @description Juste ce qu'il faut pour choisir la personne à nommer (jamais l'e-mail en clair). */
+        PersonSearchOutput: {
+            /** Format: uuid */
+            id: string;
+            readonly full_name: string;
+            readonly email_masked: string;
+            etat_de_vie: string;
+            degre_ordre: string;
+            statut_verification: components["schemas"]["StatutVerificationEnum"];
+            incardination_node: components["schemas"]["NodeRef"] | null;
+        };
         PersonStatusOutput: {
             /** Format: uuid */
             id: string;
             /** Format: email */
             email: string;
+            /** @description Prénom et nom ; vide s'ils ne sont pas renseignés */
+            readonly full_name: string;
             etat_de_vie: string;
             degre_ordre: string;
-            statut_verification: string;
+            statut_verification: components["schemas"]["StatutVerificationEnum"];
+            /** @description Motif du refus ou du complément demandé */
             verification_note: string;
+            /**
+             * Format: date-time
+             * @description Date de la dernière déclaration
+             */
+            declared_at: string | null;
             incardination_node: components["schemas"]["NodeRef"] | null;
             institut_node: components["schemas"]["NodeRef"] | null;
+            readonly attachments: components["schemas"]["DeclarationAttachmentOutput"][];
         };
         /**
          * @description * `secretariat` - Au secrétariat de la paroisse du sacrement
@@ -4904,6 +4964,14 @@ export interface components {
             /** Format: date-time */
             created_at?: string;
         };
+        /**
+         * @description * `declare` - Déclaré
+         *     * `verifie` - Vérifié
+         *     * `rejete` - Rejeté
+         *     * `complement` - Complément demandé
+         * @enum {string}
+         */
+        StatutVerificationEnum: "declare" | "verifie" | "rejete" | "complement";
         SupplementInput: {
             /** @default  */
             additional_info: string;
@@ -4956,7 +5024,10 @@ export interface components {
         TypeEnum: "SIGN_OF_CROSS" | "CREED" | "OUR_FATHER" | "HAIL_MARY" | "GLORY_BE" | "FATIMA" | "HOLY_QUEEN" | "FINAL_PRAYER" | "OTHER";
         VerificationDecisionInput: {
             decision: components["schemas"]["DecisionEnum"];
-            /** @default  */
+            /**
+             * @description Motif, obligatoire pour « complement » ; transmis à la personne
+             * @default
+             */
             note: string;
         };
         VerseOutput: {
@@ -6581,6 +6652,32 @@ export interface operations {
             };
         };
     };
+    hierarchy_persons_list: {
+        parameters: {
+            query: {
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /** @description Décalage */
+                offset?: number;
+                /** @description Nom, prénom ou e-mail (2 caractères au moins) */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPersonSearchOutputList"];
+                };
+            };
+        };
+    };
     v1_hierarchy_places_retrieve: {
         parameters: {
             query?: never;
@@ -6753,6 +6850,13 @@ export interface operations {
                 limit?: number;
                 /** @description Décalage */
                 offset?: number;
+                /**
+                 * @description « declare » : à vérifier ; « complement » : en attente du complément demandé
+                 *
+                 *     * `declare` - declare
+                 *     * `complement` - complement
+                 */
+                statut?: "declare" | "complement";
             };
             header?: never;
             path?: never;

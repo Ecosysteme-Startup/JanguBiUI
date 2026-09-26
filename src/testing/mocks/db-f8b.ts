@@ -10,6 +10,7 @@ export const f8bIds = {
   sainteTherese: '0b7b1f0e-0000-4000-8000-000000000032',
   cebBakhita: '0b7b1f0e-0000-4000-8000-000000000040',
   prePersonne: '5f0c0000-0000-4000-8000-0000000000b1',
+  complementPersonne: '5f0c0000-0000-4000-8000-0000000000b2',
   accountFaye: '5f0c0000-0000-4000-8000-0000000000c1',
   accountNdour: '5f0c0000-0000-4000-8000-0000000000c2',
 };
@@ -272,12 +273,43 @@ export const initialVerifications = () => [
   {
     id: f8bIds.prePersonne,
     email: 'luc.bassene@example.sn',
+    full_name: 'Père Luc Bassène',
     etat_de_vie: 'clerc',
     degre_ordre: 'pretre',
     statut_verification: 'declare',
     verification_note: '',
+    declared_at: '2026-09-22T17:05:00+00:00',
     incardination_node: null,
     institut_node: ref('i-svd', 'Société du Verbe Divin', 'SVD', 'institut'),
+    attachments: [
+      {
+        id: 71,
+        file_name: 'celebret-2026.pdf',
+        file_type: 'application/pdf',
+        url: 'https://files.example.sn/celebret-2026.pdf',
+        created_at: '2026-09-22T17:04:00+00:00',
+      },
+      {
+        id: 72,
+        file_name: 'lettre-provincial.pdf',
+        file_type: 'application/pdf',
+        url: 'https://files.example.sn/lettre-provincial.pdf',
+        created_at: '2026-09-22T17:04:30+00:00',
+      },
+    ],
+  },
+  {
+    id: f8bIds.complementPersonne,
+    email: 'basile.ndione@example.sn',
+    full_name: 'Père Basile Ndione',
+    etat_de_vie: 'clerc',
+    degre_ordre: 'pretre',
+    statut_verification: 'complement',
+    verification_note: 'Joindre la lettre d’obédience du provincial.',
+    declared_at: '2026-09-18T09:30:00+00:00',
+    incardination_node: null,
+    institut_node: ref('i-cssp', 'Spiritains', 'CSSP', 'institut'),
+    attachments: [],
   },
 ];
 

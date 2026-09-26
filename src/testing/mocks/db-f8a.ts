@@ -272,3 +272,34 @@ export const resetF8a = () => {
   f8aState.node = { ...nodeDetail };
   f8aState.lastBody = null;
 };
+
+/** Annuaire de la recherche de personne à nommer (`GET /hierarchy/persons/`) : e-mail masqué. */
+export const personsDirectory = [
+  {
+    id: '5f0c0000-0000-4000-8000-0000000000e1',
+    full_name: 'Élisabeth Gomis',
+    email_masked: 'e•••s@example.sn',
+    etat_de_vie: 'laic',
+    degre_ordre: 'aucun',
+    statut_verification: 'declare' as const,
+    incardination_node: null,
+  },
+  {
+    id: '5f0c0000-0000-4000-8000-0000000000e2',
+    full_name: 'Abbé Ignace Ndour',
+    email_masked: 'i•••r@example.sn',
+    etat_de_vie: 'clerc',
+    degre_ordre: 'pretre',
+    statut_verification: 'verifie' as const,
+    incardination_node: { id: '0b7b1f0e-0000-4000-8000-0000000000f1', name: 'Diocèse de Thiès', code: 'THI', type: 'diocese' },
+  },
+  {
+    id: '5f0c0000-0000-4000-8000-0000000000e3',
+    full_name: 'Joseph Gomez',
+    email_masked: 'j•••z@example.sn',
+    etat_de_vie: 'laic',
+    degre_ordre: 'aucun',
+    statut_verification: 'declare' as const,
+    incardination_node: null,
+  },
+];

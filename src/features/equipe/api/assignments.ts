@@ -25,8 +25,8 @@ const pageSchema = z.object({ count: z.number(), results: z.array(assignmentSche
 const assignmentsKey = ['hierarchy', 'assignments'] as const;
 
 /**
- * Nominations du nœud et de son sous-arbre. Le serveur ne renvoie que celles des nœuds
- * où l'on a `offices.nommer`, plus les siennes (plafond : 50 par page).
+ * Nominations du nœud et de son sous-arbre : celles des nœuds où l'on a `offices.nommer`,
+ * en lecture celles où l'on a `tableau_bord.voir`, plus les siennes (plafond : 50 par page).
  */
 export const getNodeAssignments = async (nodeId: string) =>
   pageSchema.parse(await api.get('/hierarchy/assignments/', { params: { node: nodeId, limit: 50 } }));
