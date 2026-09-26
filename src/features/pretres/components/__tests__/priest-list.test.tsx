@@ -33,6 +33,7 @@ describe('PriestList (FID-Pretres)', () => {
     expect(
       within(parish).getByText('Abbé Augustin Ndiaye'),
     ).toBeInTheDocument();
+    expect(within(parish).getByText('· curé')).toBeInTheDocument();
     expect(
       within(parish).getByText(/répond mar\. 15 h-18 h/),
     ).toBeInTheDocument();

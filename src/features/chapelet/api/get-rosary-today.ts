@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-const prayerSchema = z.object({ id: z.union([z.string(), z.number()]), type: z.string(), text: z.string() });
+// `type_display` : libellé français servi par le backend (« Je vous salue Marie »).
+const prayerSchema = z.object({ id: z.union([z.string(), z.number()]), type: z.string(), type_display: z.string(), text: z.string() });
 export type Prayer = z.infer<typeof prayerSchema>;
 
 const mysterySchema = z.object({
@@ -12,6 +13,8 @@ const mysterySchema = z.object({
   title: z.string(),
   meditation: z.string().nullable(),
   meditation_source: z.string().nullable().optional(),
+  // Grâce demandée en priant le mystère (« la confiance »).
+  fruit: z.string(),
   prayers: z.array(z.object({ order: z.number(), prayer: prayerSchema })),
 });
 export type Mystery = z.infer<typeof mysterySchema>;
@@ -19,6 +22,7 @@ export type Mystery = z.infer<typeof mysterySchema>;
 const rosaryTodaySchema = z.object({
   day: z.object({
     weekday: z.number(),
+    weekday_display: z.string(),
     group: z.object({ name: z.string(), slug: z.string(), mysteries: z.array(mysterySchema) }),
   }),
   standalone_prayers: z.array(prayerSchema),

@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { AuditJournal } from '@/features/audit/components/audit-journal';
-import { grantsPlateforme, ids } from '@/testing/mocks/db';
+import { grantsChancelier, grantsPlateforme, ids } from '@/testing/mocks/db';
 import { f8bState, resetF8b } from '@/testing/mocks/db-f8b';
 import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
@@ -51,5 +51,25 @@ describe('Journal d’audit', () => {
     expect(within(row).getByText('Demande d’acte n° 403')).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Capacité retirée à un office').closest('tr')).toHaveTextContent('Archidiocèse de Dakar'));
     expect(screen.getByText('Capacité retirée à un office').closest('tr')).toHaveTextContent('Système');
+  });
+
+  it('affiche le nom de l’acteur et son adresse IP tronquée', async () => {
+    renderApp(<AuditJournal filters={{}} />, { capacites: grantsPlateforme });
+
+    const row = (await screen.findByText('Nomination créée')).closest('tr')!;
+    expect(within(row).getByRole('button', { name: 'Filtrer sur l’acteur Abbé Théodore Diatta' })).toHaveTextContent('Abbé Théodore Diatta');
+    expect(within(row).getByText('196.207.228.0')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Adresse IP' })).toBeInTheDocument();
+  });
+
+  it('dans l’espace d’un nœud, borne la requête à ce nœud et écrit l’URL de l’espace', async () => {
+    const user = userEvent.setup();
+    const grants = [...grantsChancelier, { ...grantsChancelier[0], capacite: 'audit.voir' as const }];
+    renderApp(<AuditJournal filters={{}} scopeNodeId={ids.dakar} />, { capacites: grants });
+
+    expect(await screen.findByText('Nomination créée')).toBeInTheDocument();
+    expect(new URL(f8bState.requests.at(-1)!.url).searchParams.get('node')).toBe(ids.dakar);
+    await user.selectOptions(screen.getByLabelText('Action'), 'office.');
+    expect(navigation.replace).toHaveBeenLastCalledWith(`/espace/${ids.dakar}/audit?action=office.`, { scroll: false });
   });
 });

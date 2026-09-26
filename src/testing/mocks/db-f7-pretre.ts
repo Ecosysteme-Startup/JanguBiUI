@@ -29,12 +29,14 @@ export const priests = [
   {
     user_id: f7Ids.ndiaye,
     full_name: 'Abbé Augustin Ndiaye',
+    office: { code: 'cure', label: 'Curé' },
     nodes: [parish],
     availability: null,
   },
   {
     user_id: f7Ids.tine,
     full_name: 'Père Emmanuel Tine',
+    office: { code: 'vicaire_paroissial', label: 'Vicaire paroissial' },
     nodes: [parish],
     availability: {
       accepts_new_conversations: true,
@@ -46,6 +48,7 @@ export const priests = [
   {
     user_id: f7Ids.sagna,
     full_name: 'Abbé Robert Sagna',
+    office: { code: 'vicaire_paroissial', label: 'Vicaire paroissial' },
     nodes: [parish],
     availability: {
       accepts_new_conversations: true,
@@ -57,6 +60,7 @@ export const priests = [
   {
     user_id: f7Ids.manga,
     full_name: 'Abbé Pascal Manga',
+    office: { code: 'aumonier', label: 'Aumônier' },
     nodes: [
       {
         id: f7Ids.aumonerie,
