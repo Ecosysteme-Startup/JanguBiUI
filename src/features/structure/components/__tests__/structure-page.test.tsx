@@ -66,7 +66,8 @@ describe('Structure', () => {
 
     await user.click(within(await item(/^doyenné plateau-médina/i)).getByText('Doyenné Plateau-Médina'));
     await screen.findByRole('heading', { level: 2, name: 'Doyenné Plateau-Médina' });
-    await user.click(screen.getByRole('button', { name: 'Ajouter un enfant' }));
+    await user.click(screen.getByRole('button', { name: 'Plus d’actions' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Ajouter un enfant' }));
 
     const dialog = await screen.findByRole('dialog', { name: /ajouter un nœud/i });
     const typeSelect = within(dialog).getByLabelText(/type de nœud/i);

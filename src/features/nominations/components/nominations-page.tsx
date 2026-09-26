@@ -19,6 +19,7 @@ import { Pagination } from '@/components/ui/pagination';
 import { Select } from '@/components/ui/select';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/toast';
 import { useMe } from '@/hooks/use-me';
 import { useNode } from '@/hooks/use-node';
@@ -55,57 +56,31 @@ const STATUS_FILTERS: { value: AssignmentStatus | undefined; label: string }[] =
     { value: 'annulee', label: 'Annulées' },
   ];
 
+const tabValue = (v: AssignmentStatus | undefined) => v ?? 'toutes';
+
 /** Onglets de statut (WEB-DIO-Nominations) : souligné b600, compteur en pilule. */
 const StatusTabs = ({
-  value,
   counts,
   total,
   onChange,
 }: {
-  value: AssignmentStatus | undefined;
   counts: Record<AssignmentStatus, number | undefined>;
   total: number | undefined;
   onChange: (value: AssignmentStatus | undefined) => void;
 }) => (
-  <div
-    role="group"
-    aria-label="Filtrer par statut"
-    className="mt-6 flex gap-7 overflow-x-auto border-b border-line"
-  >
-    {STATUS_FILTERS.map((f) => {
-      const count = f.value ? counts[f.value] : total;
-      const active = value === f.value;
-      return (
-        <button
-          key={f.label}
-          type="button"
-          aria-pressed={active}
-          onClick={() => onChange(f.value)}
-          className={cn(
-            '-mb-px inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-0.5 text-15 transition-colors',
-            active
-              ? 'border-primary font-semibold text-ink'
-              : 'border-transparent font-medium text-ink-3 hover:text-ink',
-          )}
-        >
-          {f.label}
-          {count !== undefined && (
-            <span
-              className={cn(
-                'tnum inline-flex h-5 min-w-[22px] items-center justify-center rounded-full px-1.5 text-12 font-semibold',
-                active
-                  ? 'bg-tint-100 text-tint-800'
-                  : 'bg-surface-2 text-ink-2',
-              )}
-            >
-              <span className="sr-only">· </span>
-              {count}
-            </span>
-          )}
-        </button>
-      );
-    })}
-  </div>
+  <TabsList aria-label="Filtrer par statut" className="mt-6 gap-7 px-0">
+    {STATUS_FILTERS.map((f) => (
+      <TabsTrigger
+        key={f.label}
+        value={tabValue(f.value)}
+        count={f.value ? counts[f.value] : total}
+        countPill
+        onClick={() => onChange(f.value)}
+      >
+        {f.label}
+      </TabsTrigger>
+    ))}
+  </TabsList>
 );
 
 /** Filtre en pilule (Office, Nœud) : contour line, teinté b50 quand une valeur est choisie. */
@@ -176,252 +151,262 @@ const Registre = ({
   };
 
   return (
-    <section
-      aria-label="Registre des nominations"
-      className="flex min-w-0 flex-col"
-    >
-      <StatusTabs
-        value={status}
-        counts={counts}
-        total={total}
-        onChange={(v) => {
-          setStatus(v);
-          setOffset(0);
-        }}
-      />
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <div>
-          <label htmlFor="n-noeud" className="sr-only">
-            Nœud
-          </label>
-          <Select
-            id="n-noeud"
-            controlSize="sm"
-            value={scope}
-            onChange={(e) => {
-              setScope(e.target.value);
-              setOffset(0);
-            }}
-            className={pillSelect(scope !== nodeId)}
-          >
-            <option value={nodeId}>{nodeName || 'Tout le sous-arbre'}</option>
-            {(subnodes.data ?? []).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </Select>
+    <Tabs asChild value={tabValue(status)}>
+      <section
+        aria-label="Registre des nominations"
+        className="flex min-w-0 flex-col"
+      >
+        <StatusTabs
+          value={status}
+          counts={counts}
+          total={total}
+          onChange={(v) => {
+            setStatus(v);
+            setOffset(0);
+          }}
+        />
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div>
+            <label htmlFor="n-noeud" className="sr-only">
+              Nœud
+            </label>
+            <Select
+              id="n-noeud"
+              controlSize="sm"
+              value={scope}
+              onChange={(e) => {
+                setScope(e.target.value);
+                setOffset(0);
+              }}
+              className={pillSelect(scope !== nodeId)}
+            >
+              <option value={nodeId}>{nodeName || 'Tout le sous-arbre'}</option>
+              {(subnodes.data ?? []).map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <label htmlFor="n-office" className="sr-only">
+              Office
+            </label>
+            <Select
+              id="n-office"
+              controlSize="sm"
+              value={office}
+              onChange={(e) => {
+                setOffice(e.target.value);
+                setOffset(0);
+              }}
+              className={pillSelect(Boolean(office))}
+            >
+              <option value="">Tous les offices</option>
+              {(offices.data ?? []).map((o) => (
+                <option key={o.code} value={o.code}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
-        <div>
-          <label htmlFor="n-office" className="sr-only">
-            Office
-          </label>
-          <Select
-            id="n-office"
-            controlSize="sm"
-            value={office}
-            onChange={(e) => {
-              setOffice(e.target.value);
-              setOffset(0);
-            }}
-            className={pillSelect(Boolean(office))}
-          >
-            <option value="">Tous les offices</option>
-            {(offices.data ?? []).map((o) => (
-              <option key={o.code} value={o.code}>
-                {o.label}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </div>
-      <div className="mt-4">
-        {list.isPending ? (
-          <LoadingBlock label="Chargement du registre…" lines={5} />
-        ) : list.isError ? (
-          <EmptyState
-            tone="err"
-            icon="alerte"
-            title="Le registre n’a pas pu être chargé"
-          >
-            {list.error.message}
-          </EmptyState>
-        ) : list.data.results.length === 0 ? (
-          <EmptyState icon="utilisateurs" title="Aucune nomination">
-            Aucune nomination ne correspond à ces filtres.
-          </EmptyState>
-        ) : (
-          <Card padding="none" className="overflow-hidden">
-            <Table label="Nominations, défilement horizontal">
-              <thead>
-                <tr>
-                  <Th className="h-10">Personne</Th>
-                  <Th className="h-10">Office</Th>
-                  <Th className="h-10">Nœud</Th>
-                  <Th className="h-10">Début</Th>
-                  <Th className="h-10">Fin</Th>
-                  <Th className="h-10">Statut</Th>
-                  <Th className="h-10">
-                    <span className="sr-only">Actions</span>
-                  </Th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.data.results.map((a) => {
-                  const badge = assignmentBadge(a);
-                  return (
-                    <Tr key={a.id}>
-                      <Td className="h-13 py-1.5">
-                        <span className="flex items-center gap-2.5">
-                          <Avatar name={a.person.full_name} size={32} />
-                          <span className="whitespace-nowrap text-15 font-semibold">
-                            {a.person.full_name}
+        <TabsContent
+          value={tabValue(status)}
+          className="mt-4 focus-visible:outline-none"
+        >
+          {list.isPending ? (
+            <LoadingBlock label="Chargement du registre…" lines={5} />
+          ) : list.isError ? (
+            <EmptyState
+              tone="err"
+              icon="alerte"
+              title="Le registre n’a pas pu être chargé"
+            >
+              {list.error.message}
+            </EmptyState>
+          ) : list.data.results.length === 0 ? (
+            <EmptyState icon="utilisateurs" title="Aucune nomination">
+              Aucune nomination ne correspond à ces filtres.
+            </EmptyState>
+          ) : (
+            <Card padding="none" className="overflow-hidden">
+              <Table label="Nominations, défilement horizontal">
+                <thead>
+                  <tr>
+                    <Th className="h-10">Personne</Th>
+                    <Th className="h-10">Office</Th>
+                    <Th className="h-10">Nœud</Th>
+                    <Th className="h-10">Début</Th>
+                    <Th className="h-10">Fin</Th>
+                    <Th className="h-10">Statut</Th>
+                    <Th className="h-10">
+                      <span className="sr-only">Actions</span>
+                    </Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.data.results.map((a) => {
+                    const badge = assignmentBadge(a);
+                    return (
+                      <Tr key={a.id}>
+                        <Td className="h-13 py-1.5">
+                          <span className="flex items-center gap-2.5">
+                            <Avatar name={a.person.full_name} size={32} />
+                            <span className="whitespace-nowrap text-15 font-semibold">
+                              {a.person.full_name}
+                            </span>
                           </span>
-                        </span>
-                      </Td>
-                      <Td className="h-13 py-1.5 text-ink-2">
-                        {a.office_label}
-                      </Td>
-                      <Td className="h-13 py-1.5 text-ink-2">{a.node.name}</Td>
-                      <Td className="tnum h-13 py-1.5">
-                        <ShortDate iso={a.start_date} />
-                      </Td>
-                      <Td
-                        className={cn(
-                          'tnum h-13 py-1.5',
-                          badge.endingSoon
-                            ? 'font-semibold text-warn'
-                            : 'text-ink-2',
-                        )}
-                      >
-                        {a.end_date ? (
-                          <ShortDate iso={a.end_date} />
-                        ) : (
-                          <span className="text-ink-3">—</span>
-                        )}
-                      </Td>
-                      <Td className="h-13 py-1.5">
-                        <Badge tone={badge.tone} dot>
-                          {badge.label}
-                        </Badge>
-                      </Td>
-                      <Td className="h-13 whitespace-nowrap py-1.5 text-right">
-                        {a.status === 'active' &&
-                          canNommer &&
-                          qualitiesOf(a.office).length > 0 && (
+                        </Td>
+                        <Td className="h-13 py-1.5 text-ink-2">
+                          {a.office_label}
+                        </Td>
+                        <Td className="h-13 py-1.5 text-ink-2">
+                          {a.node.name}
+                        </Td>
+                        <Td className="tnum h-13 py-1.5">
+                          <ShortDate iso={a.start_date} />
+                        </Td>
+                        <Td
+                          className={cn(
+                            'tnum h-13 py-1.5',
+                            badge.endingSoon
+                              ? 'font-semibold text-warn'
+                              : 'text-ink-2',
+                          )}
+                        >
+                          {a.end_date ? (
+                            <ShortDate iso={a.end_date} />
+                          ) : (
+                            <span className="text-ink-3">—</span>
+                          )}
+                        </Td>
+                        <Td className="h-13 py-1.5">
+                          <Badge tone={badge.tone} dot>
+                            {badge.label}
+                          </Badge>
+                        </Td>
+                        <Td className="h-13 whitespace-nowrap py-1.5 text-right">
+                          {a.status === 'active' &&
+                            canNommer &&
+                            qualitiesOf(a.office).length > 0 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setQualifying(a)}
+                                aria-label={`Modifier la qualité : ${a.person.full_name}, ${a.office_label}`}
+                              >
+                                Qualité
+                              </Button>
+                            )}
+                          {a.status === 'active' && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setQualifying(a)}
-                              aria-label={`Modifier la qualité : ${a.person.full_name}, ${a.office_label}`}
+                              onClick={() =>
+                                setPending({
+                                  assignment: a,
+                                  action: 'terminer',
+                                })
+                              }
+                              aria-label={`Terminer : ${a.person.full_name}, ${a.office_label}`}
                             >
-                              Qualité
+                              Terminer
                             </Button>
                           )}
-                        {a.status === 'active' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              setPending({ assignment: a, action: 'terminer' })
-                            }
-                            aria-label={`Terminer : ${a.person.full_name}, ${a.office_label}`}
-                          >
-                            Terminer
-                          </Button>
-                        )}
-                        {a.status === 'proposee' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              setPending({ assignment: a, action: 'annuler' })
-                            }
-                            aria-label={`Annuler : ${a.person.full_name}, ${a.office_label}`}
-                          >
-                            Annuler
-                          </Button>
-                        )}
-                      </Td>
-                    </Tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-            {list.data.count > ASSIGNMENTS_PAGE ? (
-              <Pagination
-                offset={offset}
-                limit={ASSIGNMENTS_PAGE}
-                total={list.data.count}
-                onChange={setOffset}
-                noun="Nominations"
-                className="px-5 py-3"
-              />
-            ) : (
-              <p className="tnum m-0 px-5 py-3 text-14 text-ink-2">
-                {list.data.count} nomination{list.data.count > 1 ? 's' : ''}
-              </p>
-            )}
-          </Card>
-        )}
-      </div>
-      {qualifying && (
-        <QualityModal
-          subject={`${qualifying.person.full_name} · ${qualifying.node.name}`}
-          qualities={qualitiesOf(qualifying.office)}
-          current={qualifying.quality}
-          pending={setQuality.isPending}
-          error={
-            setQuality.isError ? apiErrorMessage(setQuality.error) : undefined
-          }
-          onSubmit={(quality) =>
-            setQuality.mutate(
-              { id: qualifying.id, quality },
-              {
-                onSuccess: (a) => {
-                  toast.ok(
-                    `Qualité modifiée : ${a.person.full_name}, ${a.office_label.toLowerCase()}. Inscrit au journal d’audit.`,
-                  );
-                  setQualifying(null);
-                  setQuality.reset();
+                          {a.status === 'proposee' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                setPending({ assignment: a, action: 'annuler' })
+                              }
+                              aria-label={`Annuler : ${a.person.full_name}, ${a.office_label}`}
+                            >
+                              Annuler
+                            </Button>
+                          )}
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+              {list.data.count > ASSIGNMENTS_PAGE ? (
+                <Pagination
+                  offset={offset}
+                  limit={ASSIGNMENTS_PAGE}
+                  total={list.data.count}
+                  onChange={setOffset}
+                  noun="Nominations"
+                  className="px-5 py-3"
+                />
+              ) : (
+                <p className="tnum m-0 px-5 py-3 text-14 text-ink-2">
+                  {list.data.count} nomination{list.data.count > 1 ? 's' : ''}
+                </p>
+              )}
+            </Card>
+          )}
+        </TabsContent>
+        {qualifying && (
+          <QualityModal
+            subject={`${qualifying.person.full_name} · ${qualifying.node.name}`}
+            qualities={qualitiesOf(qualifying.office)}
+            current={qualifying.quality}
+            pending={setQuality.isPending}
+            error={
+              setQuality.isError ? apiErrorMessage(setQuality.error) : undefined
+            }
+            onSubmit={(quality) =>
+              setQuality.mutate(
+                { id: qualifying.id, quality },
+                {
+                  onSuccess: (a) => {
+                    toast.ok(
+                      `Qualité modifiée : ${a.person.full_name}, ${a.office_label.toLowerCase()}. Inscrit au journal d’audit.`,
+                    );
+                    setQualifying(null);
+                    setQuality.reset();
+                  },
                 },
-              },
-            )
+              )
+            }
+            onClose={() => {
+              setQualifying(null);
+              setQuality.reset();
+            }}
+          />
+        )}
+        <ConfirmDialog
+          open={pending !== null}
+          onOpenChange={(open) => !open && setPending(null)}
+          title={
+            pending?.action === 'terminer'
+              ? 'Terminer cette nomination ?'
+              : 'Annuler cette nomination ?'
           }
-          onClose={() => {
-            setQualifying(null);
-            setQuality.reset();
-          }}
-        />
-      )}
-      <ConfirmDialog
-        open={pending !== null}
-        onOpenChange={(open) => !open && setPending(null)}
-        title={
-          pending?.action === 'terminer'
-            ? 'Terminer cette nomination ?'
-            : 'Annuler cette nomination ?'
-        }
-        description={
-          pending &&
-          `${pending.assignment.person.full_name} · ${pending.assignment.office_label} · ${pending.assignment.node.name}`
-        }
-        confirmLabel={
-          pending?.action === 'terminer'
-            ? 'Terminer aujourd’hui'
-            : 'Annuler la nomination'
-        }
-        tone="danger"
-        pending={update.isPending}
-        onConfirm={confirm}
-      >
-        <p className="m-0 text-15 text-ink-2">
-          {pending?.action === 'terminer'
-            ? 'Les capacités liées à cet office cessent aujourd’hui. L’opération est inscrite au journal d’audit.'
-            : 'La nomination proposée ne prendra jamais effet. L’opération est inscrite au journal d’audit.'}
-        </p>
-      </ConfirmDialog>
-    </section>
+          description={
+            pending &&
+            `${pending.assignment.person.full_name} · ${pending.assignment.office_label} · ${pending.assignment.node.name}`
+          }
+          confirmLabel={
+            pending?.action === 'terminer'
+              ? 'Terminer aujourd’hui'
+              : 'Annuler la nomination'
+          }
+          tone="danger"
+          pending={update.isPending}
+          onConfirm={confirm}
+        >
+          <p className="m-0 text-15 text-ink-2">
+            {pending?.action === 'terminer'
+              ? 'Les capacités liées à cet office cessent aujourd’hui. L’opération est inscrite au journal d’audit.'
+              : 'La nomination proposée ne prendra jamais effet. L’opération est inscrite au journal d’audit.'}
+          </p>
+        </ConfirmDialog>
+      </section>
+    </Tabs>
   );
 };
 
@@ -479,6 +464,7 @@ export const NominationsPage = ({ nodeId }: { nodeId: string }) => {
   return (
     <div>
       <PageHeader
+        compact
         title="Nominations"
         description="Chaque office est daté, rattaché à un nœud, et ouvre ses droits sur Jàngu Bi."
         actions={

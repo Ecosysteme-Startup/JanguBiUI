@@ -29,8 +29,8 @@ describe('Nominations', () => {
     renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: grantsChancelier });
 
     expect(await screen.findByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
-    const statuses = screen.getByRole('group', { name: /filtrer par statut/i });
-    await user.click(await within(statuses).findByRole('button', { name: /à venir · 1/i }));
+    const statuses = screen.getByRole('tablist', { name: /filtrer par statut/i });
+    await user.click(await within(statuses).findByRole('tab', { name: /à venir\s*1/i }));
 
     await waitFor(() => expect(screen.queryByText('Abbé Augustin Ndiaye')).not.toBeInTheDocument());
     const row = screen.getByText('Abbé Ignace Ndour').closest('tr')!;
