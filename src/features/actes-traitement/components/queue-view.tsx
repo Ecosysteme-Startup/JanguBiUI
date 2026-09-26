@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { EmptyState } from '@/components/ui/empty-state';
+import { FilterPill } from '@/components/ui/filter-pill';
 import { Icon } from '@/components/ui/icon';
 import { Pagination } from '@/components/ui/pagination';
 import { LoadingBlock } from '@/components/ui/skeleton';
@@ -16,7 +17,6 @@ import { useQueueCounts } from '../api/get-queue-counts';
 import { filtersToQuery, useQueueFilters } from '../hooks/use-queue-filters';
 import { DOCUMENT_TYPES, REASONS } from '../types/processing';
 
-import { FilterPill } from './filter-pill';
 import { QueueTable } from './queue-table';
 
 /** Onglets par statut : le serveur ne filtre qu'un statut à la fois (l'annulée reste dans « Toutes »). */
@@ -103,28 +103,28 @@ export const QueueView = ({ nodeId }: { nodeId: string }) => {
             className="h-full min-w-0 flex-1 border-0 bg-transparent text-14 text-ink placeholder:text-ink-3 focus:outline-none"
           />
         </label>
-        <FilterPill id="dem-type" label="Type d’acte" value={filters.type} onChange={(type) => update({ type })} allLabel="Type d’acte">
+        <FilterPill id="dem-type" label="Type d’acte" value={filters.type} onChange={(type) => update({ type })} onClear={() => update({ type: '' })} allLabel="Type d’acte">
           {DOCUMENT_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
               {t.label}
             </option>
           ))}
         </FilterPill>
-        <FilterPill id="dem-assigne" label="Assignation" value={filters.assigne} onChange={(v) => update({ assigne: v as AssigneeFilter | '' })} allLabel="Suivie par">
+        <FilterPill id="dem-assigne" label="Assignation" value={filters.assigne} onChange={(v) => update({ assigne: v as AssigneeFilter | '' })} onClear={() => update({ assigne: '' })} allLabel="Suivie par">
           {ASSIGNEE_FILTERS.map((a) => (
             <option key={a.value} value={a.value}>
               {a.label}
             </option>
           ))}
         </FilterPill>
-        <FilterPill id="dem-motif" label="Motif" value={filters.motif} onChange={(motif) => update({ motif })} allLabel="Motif">
+        <FilterPill id="dem-motif" label="Motif" value={filters.motif} onChange={(motif) => update({ motif })} onClear={() => update({ motif: '' })} allLabel="Motif">
           {REASONS.map((r) => (
             <option key={r.value} value={r.value}>
               {r.label}
             </option>
           ))}
         </FilterPill>
-        <FilterPill id="dem-periode" label="Période de réception" value={filters.periode} onChange={(v) => update({ periode: v as Period | '' })} allLabel="Reçues le">
+        <FilterPill id="dem-periode" label="Période de réception" value={filters.periode} onChange={(v) => update({ periode: v as Period | '' })} onClear={() => update({ periode: '' })} allLabel="Reçues le">
           {PERIODS.map((p) => (
             <option key={p.value} value={p.value}>
               Reçues : {p.label.toLowerCase()}

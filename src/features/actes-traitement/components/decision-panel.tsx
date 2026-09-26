@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { RequestStatusBadge } from '@/components/signature/status-dot';
 import { Button } from '@/components/ui/button';
 import { Choice } from '@/components/ui/choice';
 import { toast } from '@/components/ui/toast';
@@ -13,7 +14,6 @@ import type { ProcessorRequest } from '../types/processing';
 import { statusSince } from '../utils/history';
 import { allowedTransitions, isClosed, NEXT_STEP, type Transition } from '../utils/transitions';
 
-import { RequestStatusBadge } from './request-status-badge';
 import { TransitionModal } from './transition-modal';
 
 const LABELS: Record<Transition, string> = {

@@ -3,6 +3,7 @@
 import NextLink from 'next/link';
 
 import { TopbarContent } from '@/components/layouts/shell-slots';
+import { RequestStatusBadge } from '@/components/signature/status-dot';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
@@ -24,7 +25,6 @@ import { DecisionPanel } from './decision-panel';
 import { InternalNotes } from './internal-notes';
 import { QueueNeighbours } from './queue-neighbours';
 import { RegisterSection } from './register-section';
-import { RequestStatusBadge } from './request-status-badge';
 import { StatusHistory } from './status-history';
 
 const documentLabel = (r: ProcessorRequest) => (r.document_type === 'other' && r.document_type_free ? r.document_type_free : r.document_type_label);

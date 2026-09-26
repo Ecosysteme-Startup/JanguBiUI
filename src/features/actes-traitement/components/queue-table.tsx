@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import type * as React from 'react';
 import { useState } from 'react';
 
+import { RequestStatusBadge } from '@/components/signature/status-dot';
 import { Avatar } from '@/components/ui/avatar';
 import { Choice } from '@/components/ui/choice';
 import { toast } from '@/components/ui/toast';
@@ -15,7 +16,6 @@ import { useTransitionRequest } from '../api/transition-request';
 import { type QueueItem, reasonText } from '../types/processing';
 import { allowedTransitions } from '../utils/transitions';
 
-import { RequestStatusBadge } from './request-status-badge';
 
 type Props = {
   nodeId: string;

@@ -2,19 +2,11 @@
 
 import NextLink from 'next/link';
 
-import { REQUEST_STATUS, type RequestStatus } from '@/components/signature/status-dot';
-import { Badge, type BadgeTone } from '@/components/ui/badge';
+import { REQUEST_STATUS, RequestStatusBadge, type RequestStatus } from '@/components/signature/status-dot';
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 
 import type { OverdueRequest } from '../api/get-overdue-requests';
-
-const TONE: Partial<Record<RequestStatus, BadgeTone>> = {
-  submitted: 'neutral',
-  under_verification: 'info',
-  info_requested: 'warn',
-  ready_for_pickup: 'ok',
-};
 
 const grid = 'grid grid-cols-[minmax(0,1fr)_40px] gap-4 sm:grid-cols-[124px_minmax(0,1fr)_148px_40px]';
 
@@ -63,11 +55,7 @@ export const OverdueRequestsCard = ({ nodeId, total, rows }: { nodeId: string; t
               <span className="tnum truncate text-13 text-ink-3 sm:hidden">{r.reference}</span>
             </span>
             <span role="cell" className="hidden sm:block">
-              {status in REQUEST_STATUS && (
-                <Badge tone={TONE[status] ?? 'neutral'} dot>
-                  {REQUEST_STATUS[status].label}
-                </Badge>
-              )}
+              {status in REQUEST_STATUS && <RequestStatusBadge status={status} />}
             </span>
             <span role="cell" className="tnum whitespace-nowrap text-right text-14 font-semibold text-warn">
               {r.age_days ?? '—'}&nbsp;j
