@@ -16,6 +16,8 @@ type CoverPickerProps = {
   id: string;
   value: CoverValue;
   onChange: (value: CoverValue) => void;
+  /** Texte alternatif saisi (vide : bannière décorative ou pas encore décrite). */
+  alt?: string;
   /** Erreur renvoyée par le serveur à l'enregistrement (fichier refusé). */
   error?: string;
 };
@@ -24,7 +26,7 @@ type CoverPickerProps = {
  * Bannière de l'annonce (PAR-Annonce-Editeur §03) : image téléversée tout de suite
  * (`/files/upload/standard/`), attachée à l'enregistrement. L'aperçu local précède l'URL serveur.
  */
-export const CoverPicker = ({ id, value, onChange, error }: CoverPickerProps) => {
+export const CoverPicker = ({ id, value, onChange, alt = '', error }: CoverPickerProps) => {
   const upload = useUploadCover();
   const [localError, setLocalError] = useState<string | null>(null);
   const message = localError ?? error ?? (upload.isError ? apiErrorMessage(upload.error) : null);
@@ -53,7 +55,7 @@ export const CoverPicker = ({ id, value, onChange, error }: CoverPickerProps) =>
       {value.id !== null ? (
         <figure className="m-0">
           {/* URL signée du stockage (MinIO/S3) ou aperçu local : balise img simple. */}
-          {value.url && <img src={value.url} alt="Bannière de l’annonce" className="aspect-[4/1] w-full border border-line object-cover" />}
+          {value.url && <img src={value.url} alt={alt} className="aspect-[4/1] w-full border border-line object-cover" />}
           <figcaption className="mt-2 flex flex-wrap items-center gap-3">
             <label htmlFor={id} className="inline-flex h-9 cursor-pointer items-center gap-2 rounded border border-line-field px-3 text-sm text-ink hover:border-ink">
               <Icon name="import" size={16} /> Remplacer

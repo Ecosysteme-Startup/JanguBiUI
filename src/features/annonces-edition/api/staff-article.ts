@@ -30,6 +30,8 @@ export const staffArticleSchema = z.object({
   unpublish_reason: z.string(),
   cover_image_id: z.number().nullable(),
   cover_image_url: z.string().nullable(),
+  cover_image_alt: z.string(),
+  cover_image_decorative: z.boolean(),
   notify_followers: z.boolean(),
   reads_count: z.number(),
   created_at: z.string(),

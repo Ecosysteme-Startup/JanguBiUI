@@ -1,7 +1,9 @@
 import { screen } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 
 import { AnnouncementView } from '@/features/paroisse/components/announcement-view';
-import { f5bIds, f5bState, resetF5bState } from '@/testing/mocks/db-f5b';
+import { announcementDetails, f5bIds, f5bState, resetF5bState } from '@/testing/mocks/db-f5b';
+import { apiUrl } from '@/testing/mocks/api-url';
 import { renderApp } from '@/testing/test-utils';
 import { f5bHandlers } from '@/testing/mocks/handlers/f5b';
 import { server } from '@/testing/mocks/server';
@@ -23,6 +25,44 @@ describe('Annonce (/app/paroisse/annonces/[id])', () => {
     expect(screen.getByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
     expect(await screen.findByRole('region', { name: /à lire aussi/i })).toBeInTheDocument();
     await vi.waitFor(() => expect(f5bState.readArticles).toEqual([f5bIds.annonceRentree]));
+  });
+
+  it('affiche la bannière avec son texte alternatif', async () => {
+    server.use(
+      http.get(apiUrl(`/news/${f5bIds.annonceRentree}/`), () =>
+        HttpResponse.json({
+          ...announcementDetails[f5bIds.annonceRentree],
+          cover_image_url: 'https://minio.test/covers/parvis.jpg',
+          cover_image_alt: 'Étudiants à la sortie de la messe de 9 h 30',
+          cover_image_decorative: false,
+        }),
+      ),
+    );
+    renderApp(<AnnouncementView id={f5bIds.annonceRentree} />);
+
+    expect(await screen.findByRole('img', { name: 'Étudiants à la sortie de la messe de 9 h 30' })).toHaveAttribute(
+      'src',
+      'https://minio.test/covers/parvis.jpg',
+    );
+  });
+
+  it('ignore une bannière décorative pour les lecteurs d’écran', async () => {
+    server.use(
+      http.get(apiUrl(`/news/${f5bIds.annonceRentree}/`), () =>
+        HttpResponse.json({
+          ...announcementDetails[f5bIds.annonceRentree],
+          cover_image_url: 'https://minio.test/covers/ornement.png',
+          cover_image_alt: '',
+          cover_image_decorative: true,
+        }),
+      ),
+    );
+    const { container } = renderApp(<AnnouncementView id={f5bIds.annonceRentree} />);
+
+    await screen.findByRole('heading', { level: 1, name: /messe d.action de grâce/i });
+    const img = container.querySelector('img[src="https://minio.test/covers/ornement.png"]');
+    expect(img).toHaveAttribute('alt', '');
+    expect(screen.queryByRole('img', { name: /./ })).not.toBeInTheDocument();
   });
 
   it('neutralise un contenu HTML malveillant', async () => {

@@ -9,6 +9,8 @@ const announcementSchema = announcementSummarySchema.extend({
   content: z.string(),
   content_format: z.enum(['text', 'html']).catch('text'),
   cover_image_url: z.string().nullable().optional(),
+  cover_image_alt: z.string().catch(''),
+  cover_image_decorative: z.boolean().catch(false),
 });
 export type Announcement = z.infer<typeof announcementSchema>;
 
