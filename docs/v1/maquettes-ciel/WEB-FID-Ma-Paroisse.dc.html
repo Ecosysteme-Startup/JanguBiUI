@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ma paroisse</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p:hover{background:#085887 !important}
+.jb-btn-o:hover{background:#F7FAFD !important;border-color:#8391A4 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-card:hover{border-color:#B3D8F0 !important}
+.jb-row:hover{background:#F7FAFD}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-seg:hover{color:#0E1A2B !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1768px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 264px minmax(0, 1fr); background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px;">
+
+  <aside style="display: flex; flex-direction: column; background: #F7FAFD; border-right: 1px solid #DDE5EE; padding: 20px 16px; box-sizing: border-box;">
+    <a href="WEB-FID-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 8px; height: 40px; color: #0E1A2B;">
+      <span style="width: 30px; height: 30px; border-radius: 8px; background: #0A6BA3; display: inline-flex; align-items: center; justify-content: center; color: #FFFFFF;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></span>
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-weight: 600;">Jàngu Bi</span>
+    </a>
+    <label style="margin-top: 16px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #FFFFFF; border: 1px solid #DDE5EE; color: #586677; font-size: 14px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input type="search" placeholder="Rechercher" aria-label="Rechercher" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 14px; color: #0E1A2B; outline: none;">
+      <span style="font-size: 12px; color: #586677; border: 1px solid #DDE5EE; border-radius: 6px; padding: 0 6px; line-height: 20px;">Ctrl K</span>
+    </label>
+
+    <nav aria-label="Navigation principale" style="margin-top: 20px; display: flex; flex-direction: column; gap: 2px;">
+      <a href="WEB-FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;">
+        <span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Accueil
+      </a>
+      <a href="WEB-FID-Parole.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;">
+        <span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></span>La Parole
+      </a>
+      <a href="WEB-FID-Ma-Paroisse.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; background: #EEF6FC; color: #06466C; font-size: 15px; font-weight: 600;">
+        <span style="display: inline-flex; color: #0A6BA3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 9h4"></path><path d="M12 7v5"></path><path d="M14 22v-4a2 2 0 0 0-4 0v4"></path><path d="M18 22V5.618a1 1 0 0 0-.553-.894l-4.553-2.277a2 2 0 0 0-1.788 0L6.553 4.724A1 1 0 0 0 6 5.618V22"></path><path d="m18 7 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-10.382a1 1 0 0 1 .553-.894L6 7"></path></svg></span>Ma paroisse
+      </a>
+      <a href="WEB-FID-Demandes.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;">
+        <span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg></span><span style="flex: 1;">Mes demandes</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #D9EBF7; color: #06466C; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">1</span>
+      </a>
+      <a href="WEB-FID-Conversation.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;">
+        <span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg></span><span style="flex: 1;">Parler à un prêtre</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #0A6BA3; color: #FFFFFF; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">1</span>
+      </a>
+    </nav>
+
+    <div style="flex: 1;"></div>
+
+    <a href="WEB-FID-Ma-Paroisse.dc.html" class="jb-card" style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; background: #FFFFFF; border: 1px solid #DDE5EE; color: #0E1A2B;">
+      <span style="font-size: 12px; color: #586677;">Paroisse suivie</span>
+      <span style="font-size: 15px; font-weight: 600;">Saint-Dominique</span>
+      <span style="font-size: 13px; color: #3A4859;">Messe ce soir à 18&nbsp;h&nbsp;30</span>
+    </a>
+    <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px; padding: 0 4px;">
+      <span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">MD</span>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Marie-Thérèse Diouf</span><span style="font-size: 12px; color: #586677; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">mt.diouf@orange.sn</span></span>
+      <a href="WEB-FID-Profil.dc.html" class="jb-icon" aria-label="Réglages du compte" style="width: 32px; height: 32px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #3A4859;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></a>
+    </div>
+  </aside>
+
+  <div style="display: flex; flex-direction: column; min-width: 0;">
+    <div style="height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #DDE5EE;">
+      <span style="font-size: 14px; color: #586677;">Jeudi 24 septembre 2026</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="WEB-FID-Notifications.dc.html" class="jb-icon" aria-label="Notifications, 3 non lues" style="position: relative; width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #0E1A2B;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+          <span style="position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3; border: 2px solid #FFFFFF;"></span>
+        </a>
+      </div>
+    </div>
+
+    <main style="padding: 32px 40px 48px; max-width: 1120px; box-sizing: border-box; width: 100%;">
+      <!-- Photos -->
+      <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px;">
+        <div data-photo-slot="paroisse-saint-dominique-facade" style="height: 184px; border-radius: 16px; overflow: hidden; background: #EEF6FC;">
+          <svg width="100%" height="100%" viewBox="0 0 690 184" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <path d="M0 184v-36h690v36z" fill="#D9EBF7"></path>
+            <path d="M265 232V120a80 80 0 0 1 160 0v112" fill="#D9EBF7"></path>
+            <path d="M292 232V128a53 53 0 0 1 106 0v104" fill="#EEF6FC"></path>
+            <path d="M345 18v52M328 36h34" stroke="#7FC0E8" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M345 86 120 232M345 86 570 232M345 86v146" stroke="#B3D8F0" stroke-width="1"></path>
+            <circle cx="345" cy="164" r="20" fill="none" stroke="#B3D8F0" stroke-width="1.5"></circle>
+          </svg>
+        </div>
+        <div data-photo-slot="paroisse-chapelle-cite-universitaire" style="height: 184px; border-radius: 16px; overflow: hidden; background: #EEF6FC;">
+          <svg width="100%" height="100%" viewBox="0 0 340 184" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M0 184v-30h340v30z" fill="#D9EBF7"></path><path d="M110 184v-96l60-50 60 50v96z" fill="#D9EBF7"></path><path d="M150 184v-52a20 20 0 0 1 40 0v52" fill="#EEF6FC"></path><path d="M170 8v24M160 18h20" stroke="#7FC0E8" stroke-width="2" stroke-linecap="round"></path></svg>
+        </div>
+      </div>
+
+      <!-- En-tête paroisse -->
+      <div style="margin-top: 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+        <div>
+          <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em;">Paroisse Saint-Dominique</h1>
+          <p style="margin: 8px 0 0; font-size: 16px; color: #3A4859;">Paroisse universitaire, Point&nbsp;E, Dakar · Doyenné Plateau-Médina, archidiocèse de Dakar</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex: none;">
+          <a href="#" class="jb-icon" aria-label="Partager la paroisse" style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #DDE5EE; color: #0E1A2B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v13"></path><path d="m16 6-4-4-4 4"></path><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path></svg></a>
+          <button type="button" aria-pressed="true" aria-haspopup="menu" style="height: 44px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid #B3D8F0; background: #EEF6FC; color: #06466C; font-size: 15px; font-weight: 600; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Paroisse suivie<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+        </div>
+      </div>
+
+      <!-- Onglets -->
+      <div role="tablist" aria-label="Sections de la paroisse" style="margin-top: 24px; display: flex; gap: 32px; border-bottom: 1px solid #DDE5EE;">
+        <a href="WEB-FID-Ma-Paroisse.dc.html" role="tab" aria-selected="true" style="padding: 0 0 12px; color: #0E1A2B; font-size: 16px; font-weight: 600; border-bottom: 2px solid #0A6BA3; margin-bottom: -1px;">Aperçu</a>
+        <a href="#" role="tab" aria-selected="false" class="jb-seg" style="padding: 0 0 14px; color: #586677; font-size: 16px; font-weight: 500;">Horaires</a>
+        <a href="#" role="tab" aria-selected="false" class="jb-seg" style="padding: 0 0 14px; color: #586677; font-size: 16px; font-weight: 500;">Annonces <span style="font-size: 13px; color: #586677;">6</span></a>
+        <a href="#" role="tab" aria-selected="false" class="jb-seg" style="padding: 0 0 14px; color: #586677; font-size: 16px; font-weight: 500;">Agenda</a>
+      </div>
+
+      <div style="margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 32px; align-items: start;">
+
+        <!-- ===== COLONNE PRINCIPALE ===== -->
+        <div style="display: flex; flex-direction: column; gap: 40px; min-width: 0;">
+
+          <section aria-labelledby="messes-titre">
+            <div style="display: flex; align-items: baseline; justify-content: space-between;">
+              <h2 id="messes-titre" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Prochaines messes</h2>
+              <a href="#" style="font-size: 15px; font-weight: 500;">Tous les horaires</a>
+            </div>
+            <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+              <div style="padding: 16px; border-radius: 16px; background: #EEF6FC; border: 1px solid #B3D8F0;">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; font-variant-numeric: tabular-nums;"><span style="font-size: 20px; line-height: 28px; font-weight: 600;">18:30</span><span style="font-size: 13px; color: #06466C; font-weight: 500;">ce soir</span></div>
+                <div style="margin-top: 8px; font-size: 15px; font-weight: 600;">Messe du soir</div>
+                <div style="font-size: 14px; line-height: 20px; color: #3A4859;">Église Saint-Dominique</div>
+              </div>
+              <div style="padding: 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #DDE5EE;">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; font-variant-numeric: tabular-nums;"><span style="font-size: 20px; line-height: 28px; font-weight: 600;">18:30</span><span style="font-size: 13px; color: #586677;">sam. 26</span></div>
+                <div style="margin-top: 8px; font-size: 15px; font-weight: 600;">Messe anticipée</div>
+                <div style="font-size: 14px; line-height: 20px; color: #3A4859;">Église Saint-Dominique</div>
+              </div>
+              <div style="padding: 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #DDE5EE;">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; font-variant-numeric: tabular-nums;"><span style="font-size: 20px; line-height: 28px; font-weight: 600;">09:30</span><span style="font-size: 13px; color: #586677;">dim. 27</span></div>
+                <div style="margin-top: 8px; font-size: 15px; font-weight: 600;">Messe des étudiants</div>
+                <div style="font-size: 14px; line-height: 20px; color: #3A4859;">Église Saint-Dominique</div>
+              </div>
+            </div>
+          </section>
+
+          <section aria-labelledby="annonces-titre">
+            <div style="display: flex; align-items: baseline; justify-content: space-between;">
+              <h2 id="annonces-titre" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Annonces récentes</h2>
+              <a href="#" style="font-size: 15px; font-weight: 500;">Voir les 6 annonces</a>
+            </div>
+            <p style="margin: 4px 0 0; font-size: 15px; line-height: 22px; color: #3A4859;">Lues à la fin des messes du 26 et 27&nbsp;septembre.</p>
+            <div style="margin-top: 16px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); overflow: hidden;">
+              <a href="WEB-FID-Annonce.dc.html" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 16px 24px; color: #0E1A2B;">
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; color: #586677;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A6BA3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg><span style="color: #0A6BA3; font-weight: 500;">Épinglée</span> · Liturgie · mar. 22&nbsp;sept.</span>
+                  <span style="display: block; margin-top: 4px; font-size: 16px; font-weight: 600;">Quête impérée pour le Grand Séminaire de Brin</span>
+                  <span style="display: block; margin-top: 2px; font-size: 15px; color: #3A4859; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">À toutes les messes de ce dimanche 27&nbsp;septembre, pour la formation des séminaristes.</span>
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+              <div style="height: 1px; background: #DDE5EE; margin-left: 24px;"></div>
+              <a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 16px 24px; color: #0E1A2B;">
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font-size: 13px; line-height: 18px; color: #586677;">Catéchèse · lun. 21&nbsp;sept.</span>
+                  <span style="display: block; margin-top: 4px; font-size: 16px; font-weight: 600;">Inscriptions au catéchisme 2026-2027</span>
+                  <span style="display: block; margin-top: 2px; font-size: 15px; color: #3A4859; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Au secrétariat, jusqu'au 11&nbsp;octobre. Apportez l'extrait de baptême de l'enfant.</span>
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+              <div style="height: 1px; background: #DDE5EE; margin-left: 24px;"></div>
+              <a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 16px 24px; color: #0E1A2B;">
+                <span style="flex: 1; min-width: 0;">
+                  <span style="display: block; font-size: 13px; line-height: 18px; color: #586677;">Vie paroissiale · dim. 20&nbsp;sept.</span>
+                  <span style="display: block; margin-top: 4px; font-size: 16px; font-weight: 600;">Répétition de la chorale Sainte-Cécile</span>
+                  <span style="display: block; margin-top: 2px; font-size: 15px; color: #3A4859; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Samedi 26&nbsp;septembre à 16&nbsp;h, salle paroissiale. Nouvelles voix bienvenues.</span>
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+            </div>
+          </section>
+
+          <section aria-labelledby="agenda-titre">
+            <div style="display: flex; align-items: baseline; justify-content: space-between;">
+              <h2 id="agenda-titre" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Événements à venir</h2>
+              <a href="#" style="font-size: 15px; font-weight: 500;">Agenda complet</a>
+            </div>
+            <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+              <a href="WEB-FID-Evenement.dc.html" class="jb-card" style="display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; color: #0E1A2B;">
+                <span style="flex: none; width: 52px; height: 56px; border-radius: 12px; background: #EEF6FC; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #06466C;"><span style="font-size: 12px; line-height: 16px;">oct.</span><span style="font-size: 20px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums;">4</span></span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 16px; font-weight: 600;">Messe d'action de grâce pour la rentrée universitaire</span><span style="font-size: 14px; line-height: 20px; color: #3A4859;">Dimanche, 9&nbsp;h&nbsp;30 · Église Saint-Dominique</span></span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+              <a href="#" class="jb-card" style="display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; color: #0E1A2B;">
+                <span style="flex: none; width: 52px; height: 56px; border-radius: 12px; background: #F7FAFD; border: 1px solid #DDE5EE; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0E1A2B;"><span style="font-size: 12px; line-height: 16px; color: #586677;">oct.</span><span style="font-size: 20px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums;">10</span></span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 16px; font-weight: 600;">Journée de récollection des CEB</span><span style="font-size: 14px; line-height: 20px; color: #3A4859;">Samedi, 9&nbsp;h-16&nbsp;h · Salle paroissiale</span></span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+              <a href="#" class="jb-card" style="display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; color: #0E1A2B;">
+                <span style="flex: none; width: 52px; height: 56px; border-radius: 12px; background: #F7FAFD; border: 1px solid #DDE5EE; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0E1A2B;"><span style="font-size: 12px; line-height: 16px; color: #586677;">oct.</span><span style="font-size: 20px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums;">13</span></span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 16px; font-weight: 600;">Préparation du pèlerinage à Popenguine</span><span style="font-size: 14px; line-height: 20px; color: #3A4859;">Mardi, 19&nbsp;h&nbsp;15 · Salle paroissiale, après la messe du soir</span></span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+              </a>
+            </div>
+          </section>
+
+          <section aria-labelledby="lieux-titre">
+            <div style="display: flex; align-items: baseline; justify-content: space-between;">
+              <h2 id="lieux-titre" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Lieux de culte</h2>
+              <span style="font-size: 15px; color: #586677;">2 lieux</span>
+            </div>
+            <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+              <div style="border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); overflow: hidden;">
+                <div style="height: 104px; background: #EDF3F9;">
+                  <svg width="100%" height="100%" viewBox="0 0 352 120" preserveAspectRatio="xMidYMid slice" aria-label="Plan : église Saint-Dominique, Point E" role="img">
+                    <path d="M0 16h120v44H0zM140 0h110v52H140zM270 0h82v80h-82zM0 80h150v40H0zM170 72h80v48h-80z" fill="#F7FAFD"></path>
+                    <path d="M-10 68 362 60M130 -10l26 140M260 -10v140M0 12l352 26" stroke="#FFFFFF" stroke-width="10" fill="none"></path>
+                    <circle cx="205" cy="54" r="14" fill="#B3D8F0" opacity="0.6"></circle>
+                    <circle cx="205" cy="54" r="7" fill="#0A6BA3" stroke="#FFFFFF" stroke-width="3"></circle>
+                  </svg>
+                </div>
+                <div style="padding: 16px 20px 20px;">
+                  <div style="font-size: 16px; line-height: 24px; font-weight: 600;">Église Saint-Dominique</div>
+                  <div style="font-size: 14px; line-height: 20px; color: #3A4859;">Boulevard de l'Est, Point&nbsp;E, Dakar</div>
+                  <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 14px;"><a href="#" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>Itinéraire</a><span style="color: #586677;">à 350 m</span></div>
+                </div>
+              </div>
+              <div style="border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); overflow: hidden;">
+                <div style="height: 104px; background: #EDF3F9;">
+                  <svg width="100%" height="100%" viewBox="0 0 352 120" preserveAspectRatio="xMidYMid slice" aria-label="Plan : chapelle de la Cité universitaire, campus UCAD" role="img">
+                    <path d="M20 8h140v60H20zM190 8h140v34H190zM190 62h140v58H190zM0 88h160v32H0z" fill="#F7FAFD"></path>
+                    <path d="M-10 78h372M175 -10v140M0 52 160 78" stroke="#FFFFFF" stroke-width="10" fill="none"></path>
+                    <circle cx="120" cy="40" r="14" fill="#B3D8F0" opacity="0.6"></circle>
+                    <circle cx="120" cy="40" r="7" fill="#0A6BA3" stroke="#FFFFFF" stroke-width="3"></circle>
+                  </svg>
+                </div>
+                <div style="padding: 16px 20px 20px;">
+                  <div style="font-size: 16px; line-height: 24px; font-weight: 600;">Chapelle de la Cité universitaire</div>
+                  <div style="font-size: 14px; line-height: 20px; color: #3A4859;">Campus de l'UCAD, Fann, Dakar</div>
+                  <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 14px;"><a href="#" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>Itinéraire</a><span style="color: #586677;">à 1,2 km</span></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ===== COLONNE DROITE ===== -->
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+          <section aria-labelledby="confession-titre" style="padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #DDE5EE; box-shadow: 0 1px 2px rgba(14,26,43,0.06);">
+            <h2 id="confession-titre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Confessions</h2>
+            <p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: #3A4859;">Chaque samedi de 16&nbsp;h à 18&nbsp;h, à l'église. Réservez un créneau pour éviter l'attente.</p>
+            <div style="margin-top: 16px; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: #E4F2EE;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F6B5C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+              <span style="font-size: 14px; line-height: 20px; color: #1F6B5C;"><span style="font-weight: 600;">Samedi 26 à 16&nbsp;h&nbsp;20</span><br>Abbé Augustin Ndiaye · 10&nbsp;min</span>
+            </div>
+            <a href="WEB-FID-Confession-RDV.dc.html" class="jb-btn-o" style="margin-top: 12px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #DDE5EE; color: #0E1A2B; font-size: 15px; font-weight: 600;">Gérer mon rendez-vous</a>
+          </section>
+
+          <section aria-labelledby="clerge-titre" style="padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #DDE5EE; box-shadow: 0 1px 2px rgba(14,26,43,0.06);">
+            <div style="display: flex; align-items: baseline; justify-content: space-between;">
+              <h2 id="clerge-titre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Clergé et secrétariat</h2>
+            </div>
+            <div style="margin-top: 8px; display: flex; flex-direction: column;">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #DDE5EE;">
+                <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">AN</span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 15px; font-weight: 600;">Abbé Augustin Ndiaye</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Curé</span></span>
+                <a href="WEB-FID-Pretres.dc.html" style="font-size: 14px; font-weight: 600;">Écrire</a>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #DDE5EE;">
+                <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">ET</span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 15px; font-weight: 600;">Père Emmanuel Tine</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Vicaire, aumônier</span></span>
+                <a href="WEB-FID-Conversation.dc.html" style="font-size: 14px; font-weight: 600;">Écrire</a>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #DDE5EE;">
+                <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">RS</span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 15px; font-weight: 600;">Abbé Robert Sagna</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Vicaire</span></span>
+                <a href="WEB-FID-Pretres.dc.html" style="font-size: 14px; font-weight: 600;">Écrire</a>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0 0;">
+                <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #EDF3F9; color: #3A4859; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">GF</span>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 15px; font-weight: 600;">Mme Germaine Faye</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Secrétaire paroissiale</span></span>
+              </div>
+            </div>
+            <p style="margin: 12px 0 0; display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; color: #586677;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Échanges chiffrés de bout en bout.</p>
+          </section>
+
+          <section aria-labelledby="contact-titre" style="padding: 20px; border-radius: 16px; background: #FFFFFF; border: 1px solid #DDE5EE; box-shadow: 0 1px 2px rgba(14,26,43,0.06);">
+            <h2 id="contact-titre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Contact</h2>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 20px;">
+              <div style="display: flex; gap: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path></svg><span><a href="#" style="font-weight: 600; font-variant-numeric: tabular-nums;">+221 33 825 47 12</a><br><span style="color: #3A4859;">Secrétariat du lundi au vendredi,<br>9&nbsp;h-12&nbsp;h et 15&nbsp;h-18&nbsp;h</span></span></div>
+              <div style="display: flex; gap: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg><a href="#" style="font-weight: 500;">secretariat@saintdominique.sn</a></div>
+              <div style="display: flex; gap: 12px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#586677" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg><span style="color: #0E1A2B;">Boulevard de l'Est, Point&nbsp;E, Dakar</span></div>
+            </div>
+          </section>
+
+          <section aria-labelledby="demarches-titre" style="padding: 20px; border-radius: 16px; background: #F7FAFD; border: 1px solid #DDE5EE;">
+            <h2 id="demarches-titre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Extrait d'acte</h2>
+            <p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: #3A4859;">La demande va à la paroisse où le sacrement a été célébré. L'original papier, signé et scellé, se retire au secrétariat de cette paroisse.</p>
+            <a href="WEB-FID-Demande-Nouvelle.dc.html" class="jb-btn-o" style="margin-top: 16px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #DDE5EE; background: #FFFFFF; color: #0E1A2B; font-size: 15px; font-weight: 600;">Demander un extrait</a>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1768}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

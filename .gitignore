@@ -55,3 +55,8 @@ playwright-report-stack/
 playwright-report-audit/
 e2e/**/.auth/
 e2e/**/test-results/
+
+# Maquettes Ciel produit : rendus et captures régénérables (scripts/maquettes-*.)
+docs/v1/maquettes-ciel/rendu/
+docs/v1/maquettes-ciel/captures/
+e2e/visuel/resultats/

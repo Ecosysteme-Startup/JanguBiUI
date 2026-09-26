@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Espace diocèse · Tableau de bord</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p:hover{background:#085887 !important}
+.jb-btn-o:hover{background:#F7FAFD !important;border-color:#8391A4 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-card:hover{border-color:#B3D8F0 !important}
+.jb-row:hover{background:#F7FAFD}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-lk:hover{color:#085887 !important;text-decoration:underline}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1415px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 264px minmax(0, 1fr); background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px;">
+  <!-- ===== BARRE LATÉRALE ESPACE DIOCÈSE ===== -->
+  <aside style="display: flex; flex-direction: column; background: #F7FAFD; border-right: 1px solid #DDE5EE; padding: 20px 16px; box-sizing: border-box;">
+    <a href="#" class="jb-card" aria-label="Changer de contexte : Archidiocèse de Dakar, espace diocèse" style="width: 232px; height: 56px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 10px 0 12px; border-radius: 12px; background: #FFFFFF; border: 1px solid #DDE5EE; color: #0E1A2B;">
+      <span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #D9EBF7; color: #085887; display: inline-flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon></svg></span>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 18px;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap;">Archidiocèse de Dakar</span><span style="font-size: 13px; color: #586677;">Espace diocèse</span></span>
+      <span style="display: inline-flex; margin-left: -6px; color: #586677;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></span>
+    </a>
+    <nav aria-label="Navigation de l'espace diocèse" style="margin-top: 20px; display: flex; flex-direction: column; gap: 2px;">
+      <a href="WEB-DIO-Tableau-de-bord.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; background: #EEF6FC; color: #06466C; font-weight: 600; font-size: 15px;"><span style="display: inline-flex; color: #0A6BA3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg></span><span style="flex: 1;">Tableau de bord</span></a>
+      <a href="WEB-DIO-Structure.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="16" y="16" width="6" height="6" rx="1"></rect><rect x="2" y="16" width="6" height="6" rx="1"></rect><rect x="9" y="2" width="6" height="6" rx="1"></rect><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"></path><path d="M12 12V8"></path></svg></span><span style="flex: 1;">Structure</span></a>
+      <a href="WEB-DIO-Nominations.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path></svg></span><span style="flex: 1;">Nominations</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #D9EBF7; color: #06466C; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">1</span></a>
+      <a href="WEB-DIO-Clerge.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 2v2"></path><path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"></path><path d="M8 2v2"></path><circle cx="12" cy="11" r="3"></circle><rect x="3" y="4" width="18" height="18" rx="2"></rect></svg></span><span style="flex: 1;">Clergé</span></a>
+      <div role="separator" style="height: 1px; background: #DDE5EE; margin: 12px 12px;"></div>
+      <a href="#" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></span><span style="flex: 1;">Paramètres</span></a>
+    </nav>
+    <div style="flex: 1;"></div>
+    <div style="border-top: 1px solid #DDE5EE; padding-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 0 4px;">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">TD</span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 18px;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap;">Abbé Théodore Diatta</span><span style="font-size: 13px; color: #586677; white-space: nowrap;">Chancelier</span></span>
+      </div>
+      <a href="WEB-FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 14px;"><span style="display: inline-flex; color: #586677;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg></span>Revenir à mon espace fidèle</a>
+    </div>
+  </aside>
+
+  <!-- ===== CONTENU ===== -->
+  <div style="display: flex; flex-direction: column; min-width: 0;">
+    <div style="height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #DDE5EE;">
+      <span style="font-size: 14px; color: #586677;">Archidiocèse de Dakar · Province de Dakar</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="#" class="jb-icon" aria-label="Notifications, 2 non lues" style="position: relative; width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #0E1A2B;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+          <span style="position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3; border: 2px solid #FFFFFF;"></span>
+        </a>
+      </div>
+    </div>
+
+    <main style="padding: 32px 40px 48px; max-width: 1120px; box-sizing: border-box; width: 100%;">
+      <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+        <div>
+          <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em;">Tableau de bord</h1>
+          <p style="margin: 4px 0 0; font-size: 16px; color: #3A4859;">Le déploiement de Jàngu Bi et l'activité des paroisses ouvertes, en chiffres agrégés.</p>
+        </div>
+        <div style="display: flex; gap: 8px; flex: none;">
+          <a href="#" class="jb-btn-o" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px 0 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #DDE5EE; box-sizing: border-box; color: #0E1A2B; font-size: 14px; font-weight: 600; white-space: nowrap;"><span style="display: inline-flex; color: #3A4859;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg></span>Septembre 2026<span style="display: inline-flex; color: #586677;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></span></a>
+          <a href="#" class="jb-btn-o" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #DDE5EE; box-sizing: border-box; color: #0E1A2B; font-size: 14px; font-weight: 600; white-space: nowrap;"><span style="display: inline-flex; color: #3A4859;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><path d="M12 15V3"></path></svg></span>Exporter le rapport</a>
+        </div>
+      </header>
+
+      <div style="margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start;">
+        <!-- Colonne principale -->
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+
+          <section aria-labelledby="t-dep" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); overflow: hidden;">
+            <div style="padding: 20px 24px 20px;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+                <h2 id="t-dep" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Déploiement dans l'archidiocèse</h2>
+                <a href="WEB-DIO-Structure.dc.html" class="jb-lk" style="font-size: 14px; font-weight: 600; white-space: nowrap;">Voir les 62 paroisses</a>
+              </div>
+              <p style="margin: 4px 0 0; font-size: 15px; color: #3A4859;">5 paroisses sur 62 sont engagées : 1 ouverte aux fidèles, 4 en préparation.</p>
+              <div role="img" aria-label="Sur 62 paroisses : 1 active, 4 en préparation, 57 pas encore engagées" style="margin-top: 16px; display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; background: #EDF3F9;">
+                <span style="width: 1.6%; background: #1F6B5C;"></span><span style="width: 6.5%; background: #3FA3DD;"></span>
+              </div>
+              <div style="margin-top: 10px; display: flex; gap: 20px; font-size: 13px; color: #3A4859; font-variant-numeric: tabular-nums;">
+                <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #1F6B5C;"></span>1 active</span>
+                <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #3FA3DD;"></span>4 en préparation</span>
+                <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: #EDF3F9; border: 1px solid #DDE5EE; box-sizing: border-box;"></span>57 pas encore engagées</span>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 136px 200px; gap: 16px; padding: 8px 24px; background: #F7FAFD; border-top: 1px solid #DDE5EE; font-size: 13px; color: #586677;">
+              <span>Paroisse</span><span>Statut</span><span>Prochaine étape</span>
+            </div>
+            <div class="jb-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 136px 200px; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid #DDE5EE;">
+              <span style="min-width: 0; display: flex; flex-direction: column;"><a href="WEB-DIO-Structure.dc.html" style="font-size: 15px; line-height: 22px; font-weight: 600; color: #0E1A2B;">Saint-Dominique</a><span style="font-size: 13px; line-height: 18px; color: #586677;">Plateau-Médina · paroisse pilote</span></span>
+              <span><span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #E4F2EE; color: #1F6B5C; font-size: 12px; font-weight: 600; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #1F6B5C;"></span>Active</span></span>
+              <span style="display: flex; flex-direction: column; font-size: 14px; line-height: 20px; color: #3A4859;"><span>Ouverte le 1<sup style="font-size: 11px; line-height: 0;">er</sup>&nbsp;septembre</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Bilan du pilote le 30&nbsp;nov.</span></span>
+            </div>
+            <div class="jb-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 136px 200px; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid #DDE5EE;">
+              <span style="min-width: 0; display: flex; flex-direction: column;"><a href="WEB-DIO-Structure.dc.html" style="font-size: 15px; line-height: 22px; font-weight: 600; color: #0E1A2B;">Cathédrale Notre-Dame-des-Victoires</a><span style="font-size: 13px; line-height: 18px; color: #586677;">Plateau-Médina</span></span>
+              <span><span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #EEF6FC; color: #06466C; font-size: 12px; font-weight: 600; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #0A6BA3;"></span>En préparation</span></span>
+              <span style="display: flex; flex-direction: column; font-size: 14px; line-height: 20px; color: #3A4859;"><span>Formation de l'équipe</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Ouverture prévue le 11&nbsp;oct.</span></span>
+            </div>
+            <div class="jb-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 136px 200px; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid #DDE5EE;">
+              <span style="min-width: 0; display: flex; flex-direction: column;"><a href="WEB-DIO-Structure.dc.html" style="font-size: 15px; line-height: 22px; font-weight: 600; color: #0E1A2B;">Saint-Joseph de Médina</a><span style="font-size: 13px; line-height: 18px; color: #586677;">Plateau-Médina</span></span>
+              <span><span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #EEF6FC; color: #06466C; font-size: 12px; font-weight: 600; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #0A6BA3;"></span>En préparation</span></span>
+              <span style="display: flex; flex-direction: column; font-size: 14px; line-height: 20px; color: #3A4859;"><span>Saisie des horaires</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Ouverture prévue le 18&nbsp;oct.</span></span>
+            </div>
+            <div class="jb-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 136px 200px; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid #DDE5EE;">
+              <span style="min-width: 0; display: flex; flex-direction: column;"><a href="WEB-DIO-Structure.dc.html" style="font-size: 15px; line-height: 22px; font-weight: 600; color: #0E1A2B;">Sainte-Thérèse de Grand-Dakar</a><span style="font-size: 13px; line-height: 18px; color: #586677;">Grand Dakar-Yoff</span></span>
+              <span><span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #EEF6FC; color: #06466C; font-size: 12px; font-weight: 600; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #0A6BA3;"></span>En préparation</span></span>
+              <span style="display: flex; flex-direction: column; font-size: 14px; line-height: 20px; color: #8A5A0B;"><span>Référent numérique à nommer</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Ouverture prévue le 8&nbsp;nov.</span></span>
+            </div>
+            <div class="jb-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 136px 200px; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid #DDE5EE;">
+              <span style="min-width: 0; display: flex; flex-direction: column;"><a href="WEB-DIO-Structure.dc.html" style="font-size: 15px; line-height: 22px; font-weight: 600; color: #0E1A2B;">Notre-Dame des Anges de Ouakam</a><span style="font-size: 13px; line-height: 18px; color: #586677;">Grand Dakar-Yoff</span></span>
+              <span><span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #EEF6FC; color: #06466C; font-size: 12px; font-weight: 600; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #0A6BA3;"></span>En préparation</span></span>
+              <span style="display: flex; flex-direction: column; font-size: 14px; line-height: 20px; color: #3A4859;"><span>Convention à signer</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Date d'ouverture à fixer</span></span>
+            </div>
+          </section>
+
+          <section aria-labelledby="t-act" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 24px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+              <h2 id="t-act" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Demandes d'actes en septembre</h2>
+              <span style="font-size: 13px; color: #586677;">Du 1<sup style="font-size: 11px; line-height: 0;">er</sup> au 24&nbsp;sept.</span>
+            </div>
+            <p style="margin: 4px 0 0; font-size: 15px; line-height: 22px; color: #3A4859;">Comptées par paroisse du sacrement. Le traitement reste à la paroisse ; aucun nom de demandeur n'apparaît ici.</p>
+
+            <div style="margin-top: 16px; border: 1px solid #DDE5EE; border-radius: 12px; overflow: hidden;">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 72px 96px 80px 96px; gap: 12px; padding: 8px 16px; background: #F7FAFD; font-size: 13px; color: #586677;">
+                <span>Paroisse</span><span style="text-align: right;">Reçues</span><span style="text-align: right;">Délai moyen</span><span style="text-align: right;">En retard</span><span style="text-align: right;">À retirer</span>
+              </div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) 72px 96px 80px 96px; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid #DDE5EE; font-size: 15px; font-variant-numeric: tabular-nums;">
+                <span style="font-weight: 600;">Saint-Dominique</span><span style="text-align: right;">17</span><span style="text-align: right;">4,2&nbsp;j</span><span style="text-align: right; font-weight: 600; color: #8A5A0B;">2</span><span style="text-align: right;">3</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid #DDE5EE; font-size: 13px; color: #586677;"><span style="display: inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg></span>Les 4 paroisses en préparation apparaîtront ici à leur ouverture.</div>
+            </div>
+
+            <div style="margin-top: 24px; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 32px; align-items: start;">
+              <figure style="margin: 0;">
+                <figcaption style="font-size: 14px; font-weight: 600; color: #0E1A2B; margin-bottom: 12px;">Demandes reçues par semaine</figcaption>
+                <svg width="300" height="176" viewBox="0 0 300 176" role="img" aria-label="Demandes reçues par semaine à Saint-Dominique : 3 du 1er au 6 septembre, 5 du 7 au 13, 6 du 14 au 20, et 3 depuis le 21, semaine en cours." style="display: block; overflow: visible;">
+                  <line x1="24" x2="300" y1="132" y2="132" stroke="#DDE5EE" stroke-width="1"></line>
+                  <line x1="24" x2="300" y1="72" y2="72" stroke="#DDE5EE" stroke-width="1"></line>
+                  <line x1="24" x2="300" y1="12" y2="12" stroke="#DDE5EE" stroke-width="1"></line>
+                  <text x="0" y="132" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">0</text>
+                  <text x="0" y="72" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">4</text>
+                  <text x="0" y="12" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">8</text>
+                  <rect x="44" y="87" width="36" height="45" rx="4" fill="#0A6BA3"></rect>
+                  <text x="62" y="80" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">3</text>
+                  <text x="62" y="154" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">1-6</text>
+                  <rect x="112" y="57" width="36" height="75" rx="4" fill="#0A6BA3"></rect>
+                  <text x="130" y="50" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">5</text>
+                  <text x="130" y="154" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">7-13</text>
+                  <rect x="180" y="42" width="36" height="90" rx="4" fill="#0A6BA3"></rect>
+                  <text x="198" y="35" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">6</text>
+                  <text x="198" y="154" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">14-20</text>
+                  <rect x="248" y="87" width="36" height="45" rx="4" fill="#B3D8F0"></rect>
+                  <text x="266" y="80" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">3</text>
+                  <text x="266" y="154" font-size="12" fill="#0E1A2B" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">21-24</text>
+                  <text x="162" y="172" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">septembre</text>
+                </svg>
+                <p style="margin: 12px 0 0; font-size: 13px; line-height: 18px; color: #586677;">Saint-Dominique. La barre claire correspond à la semaine en cours.</p>
+              </figure>
+              <div>
+                <h3 style="margin: 0 0 4px; font-size: 14px; line-height: 20px; font-weight: 600;">Par type d'acte</h3>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE; font-size: 14px;"><span style="color: #3A4859;">Extrait d'acte de baptême</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">9</strong></div>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE; font-size: 14px;"><span style="color: #3A4859;">Attestation de confirmation</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">3</strong></div>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE; font-size: 14px;"><span style="color: #3A4859;">Certificat de première communion</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">2</strong></div>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE; font-size: 14px;"><span style="color: #3A4859;">Attestation de mariage religieux</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">2</strong></div>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE; font-size: 14px;"><span style="color: #3A4859;">Attestation de parrain/marraine</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">1</strong></div>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0 0; border-top: 1px solid #DDE5EE; font-size: 13px; color: #586677;"><span>Réorientées vers une paroisse non ouverte</span><span style="font-variant-numeric: tabular-nums;">1</span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Colonne latérale -->
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+
+          <section aria-labelledby="t-nom" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 20px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;">
+              <h2 id="t-nom" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Prochaines nominations</h2>
+              <a href="WEB-DIO-Nominations.dc.html" class="jb-lk" style="font-size: 14px; font-weight: 600;">Tout voir</a>
+            </div>
+            <p style="margin: 2px 0 0; font-size: 14px; color: #3A4859;">Prennent effet le jeudi 1<sup style="font-size: 11px; line-height: 0;">er</sup>&nbsp;octobre</p>
+            <ul style="margin: 12px 0 0; padding: 0; list-style: none;">
+              <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">PM</span><span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-size: 15px; line-height: 22px; font-weight: 600;">Abbé Pascal Manga</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Curé de Saint-Joseph de Médina</span></span></li>
+              <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">CM</span><span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-size: 15px; line-height: 22px; font-weight: 600;">Abbé Charles Mendy</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Doyen de Grand Dakar-Yoff</span></span></li>
+              <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">AS</span><span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-size: 15px; line-height: 22px; font-weight: 600;">Abbé Alphonse Sène</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Curé de Sainte-Thérèse de Grand-Dakar</span></span></li>
+              <li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">IS</span><span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-size: 15px; line-height: 22px; font-weight: 600;">Abbé Ignace Sarr</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Vicaire à la Cathédrale</span></span></li>
+            </ul>
+            <div style="margin-top: 4px; padding: 12px 14px; border-radius: 12px; background: #FBF1DF; display: flex; gap: 10px; font-size: 14px; line-height: 20px; color: #8A5A0B;">
+              <span style="display: inline-flex; flex: none; margin-top: 2px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg></span>
+              <span>Mouvement annuel : 1 ligne sur 42 reste à corriger avant publication. <a href="WEB-DIO-Nominations.dc.html" style="color: #8A5A0B; font-weight: 600; text-decoration: underline;">Reprendre l'import</a></span>
+            </div>
+          </section>
+
+          <section aria-labelledby="t-fid" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 20px;">
+            <h2 id="t-fid" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Fidèles sur Jàngu Bi</h2>
+            <p style="margin: 2px 0 0; font-size: 14px; color: #3A4859;">Saint-Dominique, cette semaine</p>
+            <div style="margin-top: 12px;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Fidèles rattachés</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">214</strong></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Actifs cette semaine</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">131</strong></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Lectures d'annonces</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">1&nbsp;480</strong></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Conversations avec un prêtre</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">9</strong></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Rendez-vous de confession, samedi</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">12</strong></div>
+            </div>
+            <p style="margin: 8px 0 0; display: flex; gap: 8px; font-size: 13px; line-height: 18px; color: #586677;"><span style="display: inline-flex; flex: none; margin-top: 1px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>Le diocèse ne voit que des totaux. Les noms des fidèles et le contenu des messages restent à la paroisse.</p>
+          </section>
+
+          <section aria-labelledby="t-suivre" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 20px;">
+            <h2 id="t-suivre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">À suivre</h2>
+            <ul style="margin: 12px 0 0; padding: 0; list-style: none;">
+              <li style="display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="width: 8px; height: 8px; margin-top: 7px; flex: none; border-radius: 50%; background: #B7801F;"></span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">2 demandes en retard à Saint-Dominique</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Plus de 5 jours ouvrés, dont un registre de 1994 à consulter aux archives.</span></span></li>
+              <li style="display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="width: 8px; height: 8px; margin-top: 7px; flex: none; border-radius: 50%; background: #0A6BA3;"></span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">Convention de Ouakam à signer</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Envoyée au curé le 15&nbsp;septembre</span></span></li>
+              <li style="display: flex; gap: 10px; padding: 12px 0 0; border-top: 1px solid #DDE5EE;"><span style="width: 8px; height: 8px; margin-top: 7px; flex: none; border-radius: 50%; background: #0A6BA3;"></span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">Référent numérique à nommer</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Sainte-Thérèse de Grand-Dakar</span></span></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1415}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

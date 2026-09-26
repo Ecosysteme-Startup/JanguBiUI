@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Consentements</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p:hover{background:#085887 !important}
+.jb-btn-o:hover{background:#F7FAFD !important;border-color:#8391A4 !important}
+.jb-check:hover{border-color:#B3D8F0 !important}
+.jb-foot:hover{color:#0E1A2B !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 986px; box-sizing: border-box; overflow: hidden; position: relative; background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px; display: flex; flex-direction: column;">
+
+  <!-- EN-TÊTE PARCOURS D'INSCRIPTION -->
+  <header style="height: 72px; flex: none; border-bottom: 1px solid #DDE5EE; background: #FFFFFF;">
+    <div style="max-width: 1200px; height: 72px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+      <a href="WEB-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: inline-flex; align-items: center; gap: 10px; color: #0E1A2B;">
+        <span style="width: 32px; height: 32px; border-radius: 9px; background: #0A6BA3; display: inline-flex; align-items: center; justify-content: center; color: #FFFFFF;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+        </span>
+        <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Jàngu Bi</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 12px; font-size: 15px; color: #3A4859;">
+        Déjà un compte&nbsp;?
+        <a href="WEB-Connexion.dc.html" class="jb-btn-o" style="height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 12px; border: 1px solid #DDE5EE; color: #0E1A2B; font-size: 15px; font-weight: 600;">Se connecter</a>
+      </div>
+    </div>
+  </header>
+
+  <main style="flex: 1; width: 1200px; margin: 0 auto; padding: 32px 0 48px; box-sizing: border-box;">
+
+    <!-- Stepper -->
+    <ol aria-label="Étapes de l'inscription" style="margin: 0; padding: 0; list-style: none; display: flex; align-items: center; gap: 16px; font-size: 15px; line-height: 20px;">
+      <li style="display: flex; align-items: center; gap: 10px; color: #3A4859;"><span style="width: 28px; height: 28px; border-radius: 50%; background: #D9EBF7; color: #06466C; display: inline-flex; align-items: center; justify-content: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Terminée" role="img"><path d="M20 6 9 17l-5-5"></path></svg></span><a href="WEB-Inscription-Compte.dc.html" style="color: #3A4859;">Vos informations</a></li>
+      <li aria-hidden="true" style="width: 64px; height: 1px; background: #B3D8F0;"></li>
+      <li style="display: flex; align-items: center; gap: 10px; color: #3A4859;"><span style="width: 28px; height: 28px; border-radius: 50%; background: #D9EBF7; color: #06466C; display: inline-flex; align-items: center; justify-content: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-label="Terminée" role="img"><path d="M20 6 9 17l-5-5"></path></svg></span><a href="WEB-Inscription-Paroisse.dc.html" style="color: #3A4859;">Votre paroisse</a></li>
+      <li aria-hidden="true" style="width: 64px; height: 1px; background: #B3D8F0;"></li>
+      <li aria-current="step" style="display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0E1A2B;"><span style="width: 28px; height: 28px; border-radius: 50%; background: #0A6BA3; color: #FFFFFF; font-size: 14px; display: inline-flex; align-items: center; justify-content: center;">3</span>Consentements</li>
+    </ol>
+
+    <div style="margin-top: 32px; display: grid; grid-template-columns: 560px minmax(0, 1fr); gap: 80px; align-items: start;">
+
+      <!-- ===== CONSENTEMENTS ===== -->
+      <form>
+        <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em;">Avant de terminer</h1>
+        <p style="margin: 8px 0 0; font-size: 16px; line-height: 24px; color: #3A4859;">Chaque accord est séparé et aucune case n'est cochée d'avance. Vous pourrez retirer un accord à tout moment dans votre profil.</p>
+
+        <div style="margin-top: 24px; font-size: 14px; line-height: 20px; font-weight: 500; color: #3A4859;">Requis pour créer le compte</div>
+        <label class="jb-check" style="margin-top: 8px; display: flex; gap: 14px; padding: 16px 20px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; cursor: pointer;">
+          <span style="width: 22px; height: 22px; flex: none; box-sizing: border-box; margin-top: 1px; border-radius: 6px; border: 1.5px solid #8391A4; background: #FFFFFF;"></span>
+          <input type="checkbox" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+          <span>
+            <span style="display: block; font-size: 16px; line-height: 24px;">J'accepte les <a href="#" style="font-weight: 600;">conditions d'utilisation</a> et j'ai lu la <a href="#" style="font-weight: 600;">politique de confidentialité</a>.</span>
+            <span style="display: block; margin-top: 4px; font-size: 13px; line-height: 18px; color: #586677;">Traitement de vos données personnelles selon la loi n°&nbsp;2008-12.</span>
+          </span>
+        </label>
+        <label class="jb-check" style="margin-top: 8px; display: flex; gap: 14px; padding: 16px 20px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; cursor: pointer;">
+          <span style="width: 22px; height: 22px; flex: none; box-sizing: border-box; margin-top: 1px; border-radius: 6px; border: 1.5px solid #8391A4; background: #FFFFFF;"></span>
+          <input type="checkbox" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+          <span>
+            <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #FBF1DF; color: #8A5A0B; font-size: 12px; line-height: 16px; font-weight: 500;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>Donnée sensible</span>
+            <span style="display: block; margin-top: 8px; font-size: 16px; line-height: 24px;">J'accepte que Jàngu Bi traite des données qui révèlent mon appartenance religieuse&nbsp;: paroisse suivie, demandes d'actes de sacrements, rendez-vous avec un prêtre.</span>
+            <span style="display: block; margin-top: 4px; font-size: 13px; line-height: 18px; color: #586677;">Consentement exprès exigé par la loi. Ces données ne sont transmises qu'aux paroisses concernées. Si vous retirez cet accord, le compte est fermé.</span>
+          </span>
+        </label>
+
+        <div style="margin-top: 24px; font-size: 14px; line-height: 20px; font-weight: 500; color: #3A4859;">Facultatif</div>
+        <label class="jb-check" style="margin-top: 8px; display: flex; gap: 14px; padding: 16px 20px; border-radius: 16px; border: 1px solid #DDE5EE; background: #FFFFFF; cursor: pointer;">
+          <span style="width: 22px; height: 22px; flex: none; box-sizing: border-box; margin-top: 1px; border-radius: 6px; border: 1.5px solid #8391A4; background: #FFFFFF;"></span>
+          <input type="checkbox" style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+          <span>
+            <span style="display: block; font-size: 16px; line-height: 24px;">Recevoir par e-mail les changements d'horaires et les annonces de ma paroisse.</span>
+            <span style="display: block; margin-top: 4px; font-size: 13px; line-height: 18px; color: #586677;">Au plus un message par semaine, sauf changement d'horaire le jour même.</span>
+          </span>
+        </label>
+
+        <div style="margin-top: 32px; display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 12px;">
+          <a href="WEB-Inscription-Paroisse.dc.html" class="jb-btn-o" style="height: 52px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #DDE5EE; color: #0E1A2B; font-size: 16px; font-weight: 600;">Retour</a>
+          <button type="button" disabled="disabled" aria-describedby="creer-aide" style="height: 52px; border: 0; border-radius: 12px; background: #EDF3F9; color: #586677; font-size: 16px; font-weight: 600; cursor: not-allowed;">Créer mon compte</button>
+        </div>
+        <p id="creer-aide" style="margin: 10px 0 0; text-align: right; font-size: 13px; line-height: 18px; color: #586677;">Cochez les 2 accords requis pour créer votre compte.</p>
+      </form>
+
+      <!-- ===== RÉCAPITULATIF ===== -->
+      <aside style="padding: 40px; border-radius: 16px; background: #F7FAFD; border: 1px solid #DDE5EE;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Récapitulatif</h2>
+
+        <div style="margin-top: 16px; border-radius: 16px; background: #FFFFFF; border: 1px solid #DDE5EE; font-size: 15px; line-height: 22px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #DDE5EE;">
+            <span style="font-size: 13px; line-height: 18px; font-weight: 500; color: #586677;">Vos informations</span>
+            <a href="WEB-Inscription-Compte.dc.html" style="font-size: 14px; line-height: 20px; font-weight: 600;">Modifier</a>
+          </div>
+          <div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; padding: 12px 20px; border-bottom: 1px solid #DDE5EE;"><span style="color: #3A4859;">Nom</span><span style="font-weight: 600;">Marie-Thérèse Diouf</span></div>
+          <div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; padding: 12px 20px; border-bottom: 1px solid #DDE5EE;"><span style="color: #3A4859;">E-mail</span><span style="font-weight: 600;">mt.diouf@orange.sn</span></div>
+          <div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; padding: 12px 20px; border-bottom: 1px solid #DDE5EE;"><span style="color: #3A4859;">Téléphone</span><span style="font-weight: 600; font-variant-numeric: tabular-nums;">+221 77 412 58 30</span></div>
+          <div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; padding: 12px 20px; border-bottom: 1px solid #DDE5EE;"><span style="color: #3A4859;">Date de naissance</span><span style="font-weight: 600; font-variant-numeric: tabular-nums;">12 mars 1992</span></div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #DDE5EE;">
+            <span style="font-size: 13px; line-height: 18px; font-weight: 500; color: #586677;">Votre paroisse</span>
+            <a href="WEB-Inscription-Paroisse.dc.html" style="font-size: 14px; line-height: 20px; font-weight: 600;">Modifier</a>
+          </div>
+          <div style="display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px; padding: 12px 20px;"><span style="color: #3A4859;">Paroisse suivie</span><span><span style="display: block; font-weight: 600;">Saint-Dominique</span><span style="display: block; font-size: 13px; line-height: 18px; color: #586677;">Point E, archidiocèse de Dakar</span></span></div>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; gap: 12px; padding: 16px 20px; border-radius: 12px; background: #EEF6FC; border: 1px solid #B3D8F0; font-size: 14px; line-height: 21px; color: #052F49;">
+          <svg style="flex: none; margin-top: 2px;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A6BA3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+          <span>Responsable du traitement&nbsp;: Numerisen, Dakar. Vous pouvez accéder à vos données, les rectifier, vous opposer à leur traitement ou les supprimer en écrivant à <a href="#" style="font-weight: 600;">donnees@jangubi.sn</a>. Recours possible auprès de la CDP.</span>
+        </div>
+
+        <p style="margin: 16px 0 0; font-size: 14px; line-height: 21px; color: #3A4859;">Après la création, un lien de confirmation est envoyé à mt.diouf@orange.sn. Il reste valable 24&nbsp;heures.</p>
+      </aside>
+    </div>
+  </main>
+
+  <!-- PIED DE PAGE -->
+  <footer style="flex: none; width: 100%; border-top: 1px solid #DDE5EE; background: #F7FAFD;">
+    <div style="max-width: 1200px; margin: 0 auto; height: 64px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; line-height: 18px; color: #586677;">
+      <span>© 2026 Numerisen, Dakar · Protection des données personnelles&nbsp;: loi n°&nbsp;2008-12</span>
+      <div style="display: flex; align-items: center; gap: 24px;">
+        <a href="#" class="jb-foot" style="color: #3A4859;">Confidentialité</a>
+        <a href="#" class="jb-foot" style="color: #3A4859;">Conditions d'utilisation</a>
+        <a href="#" class="jb-foot" style="color: #3A4859;">Aide</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":986}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
