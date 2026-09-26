@@ -54,6 +54,11 @@ export const Ordinals = ({ text }: { text: string }) => (
  * La signature (DS-Fondations §03) : date longue + jour de l'année, temps liturgique,
  * pastille de couleur, références vers la Parole, filet double de 3 px.
  * Variantes : desktop (40 px), mobile (36 px, abrégé), back-office (36 px).
+ *
+ * Responsive (A11Y-07, recette Chrome C1) : hauteur minimale et non fixe, éléments sur une
+ * ligne (`whitespace-nowrap`) ; sous `md`, date abrégée et temps liturgique masqué ; les
+ * références et le temps liturgique se tronquent (texte complet en infobulle et dans le nom
+ * accessible) plutôt que de passer sur deux lignes ou de chevaucher le filet.
  */
 export const LiturgicalBanner = ({
   data,
@@ -70,8 +75,8 @@ export const LiturgicalBanner = ({
   const refs = data?.references?.filter(Boolean).join(' · ');
   if (variant === 'mobile') {
     return (
-      <div className={cn('rule-double tnum flex h-9 items-center justify-between gap-3 px-4 text-meta text-ink', className)}>
-        <span className="truncate">
+      <div className={cn('rule-double tnum flex min-h-9 items-center justify-between gap-3 px-4 text-meta text-ink', className)}>
+        <span className="min-w-0 truncate">
           {dayjs(date).format('ddd D MMM')}
           {data && (
             <>
@@ -80,39 +85,41 @@ export const LiturgicalBanner = ({
             </>
           )}
         </span>
-        {data && <LiturgicalColorPill color={data.color} compact />}
+        {data && (
+          <span className="shrink-0">
+            <LiturgicalColorPill color={data.color} compact />
+          </span>
+        )}
       </div>
     );
   }
+  const label = refs || 'La Parole du jour';
   return (
     <div
       className={cn(
-        'rule-double tnum flex shrink-0 items-center justify-between gap-6 text-meta text-ink',
-        variant === 'desktop' ? 'h-10 px-16' : 'h-9 px-8',
+        'rule-double tnum flex shrink-0 items-center justify-between gap-4 whitespace-nowrap py-1 text-meta text-ink md:gap-6',
+        variant === 'desktop' ? 'min-h-10 px-16' : 'min-h-9 px-8',
         className,
       )}
     >
-      <span className="flex items-center gap-4">
-        <span>{longDate(date)}</span>
-        <span className="text-ink-3">Jour {dayNumber(date)}</span>
+      <span className="flex shrink-0 items-center gap-4">
+        <span className="md:hidden">{dayjs(date).format('ddd D MMM')}</span>
+        <span className="hidden md:inline">{longDate(date)}</span>
+        <span className="hidden text-ink-3 sm:inline">Jour {dayNumber(date)}</span>
       </span>
       {data && (
-        <span className="hidden items-center gap-3 md:flex">
-          <span>
+        <span className="hidden min-w-0 items-center gap-3 md:flex">
+          <span className="min-w-0 truncate" title={data.celebration}>
             <Ordinals text={data.celebration} />
           </span>
-          <LiturgicalColorPill color={data.color} />
+          <span className="shrink-0">
+            <LiturgicalColorPill color={data.color} />
+          </span>
         </span>
       )}
-      {refs ? (
-        <NextLink href={href} className="border-b border-tint-200 pb-px text-primary hover:border-primary-strong">
-          {refs}
-        </NextLink>
-      ) : (
-        <NextLink href={href} className="border-b border-tint-200 pb-px text-primary">
-          La Parole du jour
-        </NextLink>
-      )}
+      <NextLink href={href} title={refs ? label : undefined} className="hit group flex min-w-0 items-center text-primary">
+        <span className="truncate border-b border-tint-200 pb-px group-hover:border-primary-strong">{label}</span>
+      </NextLink>
     </div>
   );
 };
