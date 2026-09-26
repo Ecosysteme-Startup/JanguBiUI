@@ -54,7 +54,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * S'inscrire (409 si complet ; idempotent)
+         * S'inscrire ou mettre à jour son inscription (400 si clos ; 409 si complet)
          * @description À placer en premier dans les bases des vues V1.
          */
         post: operations["v1_agenda_register_create"];
@@ -3142,6 +3142,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/news/sunday-sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Feuille d'annonces d'un dimanche (à imprimer) : annonces du nœud et des nœuds parents
+         * @description ``annonces.publier`` sur au moins un nœud (ou plateforme) ; le nœud précis est
+         *     vérifié par le service, et les objets hors portée répondent 404.
+         */
+        get: operations["staff_news_sunday_sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3253,6 +3274,13 @@ export interface components {
             is_sunday_notice: boolean;
             /** Format: date */
             sunday_date?: string | null;
+            /** @description Bannière : fichier image téléversé via /files/upload/ */
+            cover_image_id?: number | null;
+            /**
+             * @description Notifier les fidèles à la publication
+             * @default true
+             */
+            notify_followers: boolean;
         };
         /** @description Vue publique : jamais le compteur de lectures (réservé au staff, EF-PAROI-05). */
         ArticleListOutput: {
@@ -3332,6 +3360,8 @@ export interface components {
              * @description Futur : publication programmée
              */
             publish_at?: string | null;
+            /** @description Notifier les fidèles (préférences et plage de silence respectées) ; absent : choix enregistré */
+            notify?: boolean;
         };
         /**
          * @description * `draft` - Brouillon
@@ -3737,6 +3767,8 @@ export interface components {
             /** @default  */
             location: string;
             max_participants?: number | null;
+            /** Format: date-time */
+            registration_closes_at?: string | null;
         };
         EventOutput: {
             readonly id: number;
@@ -3762,11 +3794,29 @@ export interface components {
             readonly node_name: string | null;
             readonly place_id: number | null;
             max_participants?: number | null;
+            /**
+             * Clôture des inscriptions
+             * Format: date-time
+             */
+            registration_closes_at?: string | null;
             /** @default 0 */
             readonly registrations_count: number;
+            /**
+             * @description Places réservées (somme des personnes)
+             * @default 0
+             */
+            readonly seats_taken: number;
+            /** @description Vide : pas de jauge */
+            readonly seats_remaining: number | null;
             readonly is_full: boolean;
+            /** @description Ni annulé, ni terminé, ni clos */
+            readonly registrations_open: boolean;
             /** @default false */
             readonly is_registered: boolean;
+            /** @description Mon inscription */
+            readonly my_seats: number | null;
+            /** @description Ma remarque */
+            readonly my_note: string | null;
             readonly is_cancelled: boolean;
         };
         /**
@@ -4364,6 +4414,11 @@ export interface components {
             is_sunday_notice?: boolean;
             /** Format: date */
             sunday_date?: string | null;
+            /** @description Lieu de culte (vide : tout le nœud) */
+            place_id?: number | null;
+            /** @description Bannière (vide : la retirer) */
+            cover_image_id?: number | null;
+            notify_followers?: boolean;
         };
         PatchedAssignmentUpdateInput: {
             action?: components["schemas"]["ActionEnum"];
@@ -4383,6 +4438,8 @@ export interface components {
             end_at?: string;
             location?: string;
             max_participants?: number | null;
+            /** Format: date-time */
+            registration_closes_at?: string | null;
         };
         PatchedHomilieNoteInput: {
             passage_start_id?: number;
@@ -4895,6 +4952,18 @@ export interface components {
          * @enum {string}
          */
         ReasonEnum: "religious_marriage" | "godparent" | "catechism" | "parish_file" | "personal" | "other";
+        RegisterInput: {
+            /**
+             * @description Nombre de personnes (1 à 10)
+             * @default 1
+             */
+            seats: number;
+            /**
+             * @description Remarque, lue par les organisateurs
+             * @default
+             */
+            note: string;
+        };
         RegisterRefInput: {
             register_volume?: string;
             register_page?: string;
@@ -4908,6 +4977,10 @@ export interface components {
             readonly full_name: string;
             /** Format: email */
             readonly email: string;
+            /** Nombre de personnes */
+            seats?: number;
+            /** Remarque */
+            note?: string;
             /** Format: date-time */
             readonly registered_at: string;
         };
@@ -5252,6 +5325,10 @@ export interface components {
             unpublished_at?: string | null;
             /** Motif de dépublication */
             unpublish_reason?: string;
+            readonly cover_image_id: number | null;
+            readonly cover_image_url: string | null;
+            /** Notifier les fidèles */
+            notify_followers?: boolean;
             /** @default 0 */
             readonly reads_count: number;
             /** Format: date-time */
@@ -5291,6 +5368,32 @@ export interface components {
          * @enum {string}
          */
         StatutVerificationEnum: "declare" | "verifie" | "rejete" | "complement";
+        /** @description Une annonce de la feuille : le texte à lire, sa portée et son état. */
+        SundaySheetItemOutput: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Titre */
+            title: string;
+            /** Résumé court */
+            excerpt?: string;
+            /** Contenu */
+            content: string;
+            /** Format du contenu */
+            content_format?: components["schemas"]["ContentFormatEnum"];
+            readonly scope: {
+                [key: string]: unknown;
+            };
+            /** Statut */
+            status?: components["schemas"]["ArticleStatusEnum"];
+        };
+        SundaySheetOutput: {
+            /** Format: uuid */
+            node_id: string;
+            node_name: string;
+            /** Format: date */
+            sunday: string;
+            items: components["schemas"]["SundaySheetItemOutput"][];
+        };
         SupplementInput: {
             /** @default  */
             additional_info: string;
@@ -5445,7 +5548,13 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RegisterInput"];
+                "multipart/form-data": components["schemas"]["RegisterInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["RegisterInput"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -5455,7 +5564,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventOutput"];
                 };
             };
-            /** @description Événement complet */
+            /** @description Événement complet ou places insuffisantes */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -9206,12 +9315,16 @@ export interface operations {
     staff_agenda_list: {
         parameters: {
             query?: {
+                /** @description Début de période (jour inclus) */
+                from?: string;
                 include_past?: boolean;
                 /** @description Nombre de résultats (défaut 10, max 50) */
                 limit?: number;
                 node?: string;
                 /** @description Décalage */
                 offset?: number;
+                /** @description Fin de période (jour inclus) */
+                to?: string;
             };
             header?: never;
             path?: never;
@@ -9846,6 +9959,10 @@ export interface operations {
                 node?: string;
                 /** @description Décalage */
                 offset?: number;
+                /** @description Lieu de culte de l'annonce */
+                place?: number;
+                /** @description Recherche dans le titre, le chapô et le texte */
+                q?: string;
                 /**
                  * @description * `draft` - Brouillon
                  *     * `scheduled` - Programmé
@@ -10019,6 +10136,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StaffArticleOutput"];
+                };
+            };
+        };
+    };
+    staff_news_sunday_sheet: {
+        parameters: {
+            query: {
+                /** @description Dimanche concerné (défaut : le dimanche à venir) */
+                date?: string;
+                /** @description Nœud (paroisse) de la feuille */
+                node: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SundaySheetOutput"];
                 };
             };
         };
