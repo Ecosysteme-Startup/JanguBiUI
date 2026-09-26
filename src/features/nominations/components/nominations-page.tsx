@@ -270,7 +270,7 @@ const MovementImport = ({ onClose }: { onClose: () => void }) => {
     <ImportWizard
       eyebrow="Assistant d’import · mouvement annuel"
       title="Mouvement des affectations"
-      columns="action, email, office, node_code (puis decree_ref)"
+      columns="action, email, office, node_code (puis decree_ref, quality : cure ou administrateur pour une cure)"
       ready={Boolean(effectiveDate)}
       extra={
         <Field

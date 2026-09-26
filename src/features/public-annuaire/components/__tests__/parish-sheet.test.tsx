@@ -58,7 +58,7 @@ describe('Fiche paroisse publique', () => {
 
     const clerge = within(screen.getByRole('region', { name: /clergé/i }));
     expect(clerge.getByText('Augustin Ndiaye')).toBeInTheDocument();
-    expect(clerge.getByText('Curé / administrateur paroissial')).toBeInTheDocument();
+    expect(clerge.getByText('Administrateur paroissial')).toBeInTheDocument(); // titre réel, jamais la double forme
     expect(clerge.getByText('Emmanuel Tine')).toBeInTheDocument();
   });
 

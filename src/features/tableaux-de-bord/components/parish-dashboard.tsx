@@ -17,8 +17,10 @@ import { Figure, Footnote, Grid, Meter, Panel } from './dashboard-parts';
 
 type Todo = { key: string; title: string; detail: string; href?: string; action?: string; urgent?: boolean };
 
-const OfficeLine = ({ office }: { office: string }) => {
-  const label = useOfficeLabel(office);
+/** Le titre réel de la nomination (« curé », « administrateur paroissial »), à défaut le libellé du catalogue. */
+const OfficeLine = ({ office, title }: { office: string; title?: string }) => {
+  const catalogueLabel = useOfficeLabel(office);
+  const label = title || catalogueLabel;
   return label ? <>{label.toLowerCase()}</> : null;
 };
 
@@ -208,7 +210,9 @@ const Indicators = ({ data }: { data: NodeDashboard }) => {
 };
 
 /** Tableau de bord d'une paroisse (PAR-Tableau-de-bord). */
-export const ParishDashboard = ({ nodeId, offices }: { nodeId: string; offices: string[] }) => {
+type ParishDashboardProps = { nodeId: string; offices: string[]; officeLabels?: Record<string, string> };
+
+export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboardProps) => {
   const dashboard = useNodeDashboard(nodeId);
   const canActes = useCan('actes.traiter', nodeId);
   const canAnnonces = useCan('annonces.publier', nodeId);
@@ -247,7 +251,7 @@ export const ParishDashboard = ({ nodeId, offices }: { nodeId: string; offices: 
               {actingOffices.map((o, i) => (
                 <span key={o}>
                   {i > 0 && ' et '}
-                  <OfficeLine office={o} />
+                  <OfficeLine office={o} title={officeLabels?.[o]} />
                 </span>
               ))}
             </p>

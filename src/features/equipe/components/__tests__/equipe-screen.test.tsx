@@ -24,6 +24,7 @@ const grantsCure: Grant[] = ['offices.nommer', 'tableau_bord.voir', 'actes.trait
   node_type: 'paroisse',
   herite: false,
   office: 'cure',
+  office_label: 'Administrateur paroissial',
 }));
 
 const renderPage = async (capacites: Grant[] = grantsCure) =>
@@ -72,6 +73,25 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
       end_date: null,
     });
     expect(await screen.findByText('Élisabeth Gomis')).toBeInTheDocument();
+  });
+
+  it('demande la qualité pour une cure : curé par défaut, ou administrateur paroissial', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    await user.click(await screen.findByRole('button', { name: /nommer une personne/i }));
+    const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
+    expect(within(panel).queryByRole('group', { name: 'Qualité' })).not.toBeInTheDocument();
+    await user.type(within(panel).getByRole('combobox', { name: /personne/i }), 'élis');
+    await user.click(await within(panel).findByRole('option', { name: /élisabeth gomis/i }));
+    await user.selectOptions(await within(panel).findByLabelText(/^office/i), 'Curé / administrateur paroissial');
+    const quality = within(panel).getByRole('group', { name: 'Qualité' });
+    expect(within(quality).getByRole('radio', { name: 'Curé' })).toBeChecked();
+    await user.click(within(quality).getByRole('radio', { name: 'Administrateur paroissial' }));
+    await user.click(within(panel).getByRole('button', { name: 'Nommer' }));
+
+    await vi.waitFor(() => expect(f8aState.lastBody).toMatchObject({ office: 'cure', quality: 'administrateur' }));
+    expect(await within(await screen.findByRole('table')).findByText('Administrateur paroissial')).toBeInTheDocument();
   });
 
   it('exige de choisir une personne dans la recherche, et l’office', async () => {

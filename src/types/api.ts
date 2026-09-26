@@ -718,7 +718,7 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Terminer ou annuler une nomination
+         * Terminer, annuler ou changer la qualité d'une nomination
          * @description À placer en premier dans les bases des vues V1.
          */
         patch: operations["v1_hierarchy_assignments_partial_update"];
@@ -3244,9 +3244,10 @@ export interface components {
         /**
          * @description * `terminer` - terminer
          *     * `annuler` - annuler
+         *     * `qualifier` - qualifier
          * @enum {string}
          */
-        ActionEnum: "terminer" | "annuler";
+        ActionEnum: "terminer" | "annuler" | "qualifier";
         /**
          * @description * `announcement` - Annonce
          *     * `article` - Article
@@ -3406,12 +3407,17 @@ export interface components {
             decree_ref: string;
             /** @default  */
             note: string;
+            /** @description Qualité parmi celles de l'office (ex. cure, administrateur) ; défaut : la première */
+            quality?: string;
         };
         AssignmentOutput: {
             readonly id: number;
             readonly person: components["schemas"]["PersonRef"];
             readonly office: string;
+            /** @description Titre du titulaire : « Curé », « Administrateur paroissial », « Vicaire paroissial »… */
             readonly office_label: string;
+            /** @description Code de la qualité (vide si l'office n'en a pas) */
+            readonly quality: string;
             readonly node: components["schemas"]["NodeRef"];
             /**
              * Début
@@ -3565,6 +3571,8 @@ export interface components {
             node_type: string;
             herite: boolean;
             office: string;
+            /** @description Titre de la nomination qui accorde la capacité (« Curé », « Administrateur paroissial »…) */
+            office_label: string;
         };
         /**
          * @description * `one` - Un seul titulaire
@@ -4253,6 +4261,10 @@ export interface components {
             /** @description Heures, ex. « 9 h-12 h · 15 h 30-18 h » ou « Fermé » */
             hours: string;
         };
+        OfficeQuality: {
+            code: string;
+            label: string;
+        };
         OfficeTypeOutput: {
             code: string;
             /** Libellé */
@@ -4271,6 +4283,8 @@ export interface components {
             readonly capabilities: string[];
             /** Hérite sur le sous-arbre */
             inherits_down?: boolean;
+            /** @description Titres possibles du titulaire ; le premier est le titre par défaut. */
+            readonly qualities: components["schemas"]["OfficeQuality"][];
         };
         PaginatedAccountOutputList: {
             limit: number;
@@ -4441,6 +4455,8 @@ export interface components {
              * @description Terminer : date de fin (défaut : aujourd'hui)
              */
             end_date?: string | null;
+            /** @description Qualifier : nouvelle qualité */
+            quality?: string;
         };
         PatchedEventUpdateInput: {
             title?: string;
@@ -4695,7 +4711,7 @@ export interface components {
         PriestOfficeOutput: {
             /** @description Code de l'office (cure, vicaire_paroissial, aumonier…) */
             code: string;
-            /** @description Libellé de l'office : Curé, Vicaire paroissial… */
+            /** @description Titre du prêtre : Curé, Administrateur paroissial, Vicaire paroissial… */
             label: string;
         };
         /** @description Vue de la paroisse : identité complète, registre, lieu de retrait. */
@@ -4777,7 +4793,7 @@ export interface components {
         };
         PublicClergy: {
             name: string;
-            /** @description Libellé de l'office (Curé, Vicaire paroissial…) */
+            /** @description Titre du clerc (Curé, Administrateur paroissial, Vicaire paroissial…) */
             office: string;
         };
         /** @description Fiche publique : ajoute le secrétariat (s'il est publié), le clergé et l'accueil des demandes d'actes. */

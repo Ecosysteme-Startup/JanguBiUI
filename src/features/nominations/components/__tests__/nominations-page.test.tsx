@@ -80,13 +80,35 @@ describe('Nominations', () => {
     const lieu = within(panel).getByLabelText(/^lieu/i);
     await within(lieu).findByRole('option', { name: /sainte-thérèse/i });
     await user.selectOptions(lieu, within(lieu).getByRole('option', { name: /sainte-thérèse/i }));
-    await user.selectOptions(within(panel).getByLabelText(/^office/i), 'Curé');
+    await user.selectOptions(within(panel).getByLabelText(/^office/i), 'Curé / administrateur paroissial');
+    const quality = within(panel).getByRole('group', { name: 'Qualité' });
+    expect(within(quality).getByRole('radio', { name: 'Curé' })).toBeChecked();
+    await user.click(within(quality).getByRole('radio', { name: 'Administrateur paroissial' }));
     await user.click(within(panel).getByRole('button', { name: 'Nommer' }));
 
     await waitFor(() => expect(screen.queryByRole('region', { name: 'Nommer une personne' })).not.toBeInTheDocument());
     expect(f8bState.requests.at(-1)).toMatchObject({
       method: 'POST',
-      body: { person_id: '5f0c0000-0000-4000-8000-0000000000e2', office: 'cure', node_id: f8bIds.sainteTherese, end_date: null },
+      body: {
+        person_id: '5f0c0000-0000-4000-8000-0000000000e2',
+        office: 'cure',
+        quality: 'administrateur',
+        node_id: f8bIds.sainteTherese,
+        end_date: null,
+      },
     });
+    expect(await screen.findByText(/administrateur paroissial · sainte-thérèse/i)).toBeInTheDocument();
+  });
+
+  it('ne demande pas de qualité pour un office qui n’en a pas', async () => {
+    const user = userEvent.setup();
+    renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: grantsChancelier });
+
+    await user.click(await screen.findByRole('button', { name: 'Nouvelle nomination' }));
+    const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
+    await within(panel).findByRole('option', { name: 'Chancelier' });
+    await user.selectOptions(within(panel).getByLabelText(/^office/i), 'Chancelier');
+
+    expect(within(panel).queryByRole('group', { name: 'Qualité' })).not.toBeInTheDocument();
   });
 });

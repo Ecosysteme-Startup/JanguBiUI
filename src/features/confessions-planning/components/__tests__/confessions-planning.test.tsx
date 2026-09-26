@@ -22,6 +22,7 @@ const grantsPretre: Grant[] = [
   node_type: 'paroisse',
   herite: false,
   office: 'vicaire',
+  office_label: 'Vicaire paroissial',
 }));
 
 beforeEach(() => {

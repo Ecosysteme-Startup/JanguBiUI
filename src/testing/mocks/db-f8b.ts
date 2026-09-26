@@ -165,7 +165,11 @@ export const officeCatalogue = [
   },
   {
     code: 'cure',
-    label: 'Curé',
+    label: 'Curé / administrateur paroissial',
+    qualities: [
+      { code: 'cure', label: 'Curé' },
+      { code: 'administrateur', label: 'Administrateur paroissial' },
+    ],
     node_types: ['paroisse', 'quasi_paroisse'],
     required_order: 'pretre',
     cardinality: 'one',
@@ -230,6 +234,7 @@ export const initialAssignments = () => [
     person: person('p-1', 'Abbé Augustin Ndiaye', 'a.ndiaye@example.sn'),
     office: 'cure',
     office_label: 'Curé',
+    quality: 'cure',
     node: ref(ids.saintDominique, 'Saint-Dominique', 'PAR-DKR-PM-014', 'paroisse'),
     start_date: '2021-10-01',
     end_date: null as string | null,

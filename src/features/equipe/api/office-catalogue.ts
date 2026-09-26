@@ -10,6 +10,7 @@ const officeSchema = z.object({
   appointed_by: z.array(z.string()).default([]),
   capabilities: z.array(z.string()).default([]),
   inherits_down: z.boolean().default(false),
+  qualities: z.array(z.object({ code: z.string(), label: z.string() })).default([]),
 });
 export type Office = z.infer<typeof officeSchema>;
 

@@ -202,6 +202,10 @@ export const personSearchHandler = http.get(apiUrl('/hierarchy/persons/'), ({ re
   );
 });
 
+/** Titre de la nomination, comme l'API : libellé de la qualité, sinon de la première, sinon de l'office. */
+const titleOf = (office: { label: string; qualities?: { code: string; label: string }[] } | undefined, quality: string | undefined, code: string) =>
+  office?.qualities?.find((q) => q.code === quality)?.label ?? office?.qualities?.[0]?.label ?? office?.label ?? code;
+
 const equipeHandlers = [
   personSearchHandler,
   http.get(apiUrl('/hierarchy/assignments/'), ({ request }) => {
@@ -220,7 +224,8 @@ const equipeHandlers = [
       id: 500,
       person: { id: body.person_id, email: 'elisabeth@example.sn', full_name: 'Élisabeth Gomis' },
       office: body.office,
-      office_label: office?.label ?? body.office,
+      office_label: titleOf(office, body.quality, body.office),
+      quality: body.quality || office?.qualities?.[0]?.code || '',
       node: { id: body.node_id, name: 'Saint-Dominique', code: 'SD', type: 'paroisse' },
       start_date: body.start_date,
       end_date: null,

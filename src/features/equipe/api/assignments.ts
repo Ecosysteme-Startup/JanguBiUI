@@ -8,7 +8,9 @@ export const assignmentSchema = z.object({
   id: z.number(),
   person: z.object({ id: z.string(), email: z.string(), full_name: z.string() }),
   office: z.string(),
+  /** Titre du titulaire : « Curé », « Administrateur paroissial », « Vicaire paroissial »… */
   office_label: z.string(),
+  quality: z.string().default(''),
   node: z.object({ id: z.string(), name: z.string(), code: z.string(), type: z.string() }),
   start_date: z.string(),
   end_date: z.string().nullable(),

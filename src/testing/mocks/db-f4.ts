@@ -130,7 +130,7 @@ export const saintDominiqueSheet = {
     ],
   },
   clergy: [
-    { name: 'Augustin Ndiaye', office: 'Curé / administrateur paroissial' },
+    { name: 'Augustin Ndiaye', office: 'Administrateur paroissial' },
     { name: 'Emmanuel Tine', office: 'Vicaire paroissial' },
   ],
   acts: { delay_days: 3, welcome_message: 'L’original se retire au secrétariat, aux heures d’accueil.' },
