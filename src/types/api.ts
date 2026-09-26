@@ -3024,6 +3024,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/documents/nodes/{node_id}/type-delays/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Délais indicatifs par type d'acte (horaires.gerer ou structure.gerer)
+         * @description Délais indicatifs par type d'acte d'un nœud (Paramètres, « Actes délivrés »). Mêmes
+         *     capacités que les autres paramètres du secrétariat : ``horaires.gerer`` ou ``structure.gerer``.
+         */
+        get: operations["v1_staff_documents_nodes_type_delays_retrieve"];
+        /**
+         * Régler les délais indicatifs par type d'acte (horaires.gerer ou structure.gerer)
+         * @description Délais indicatifs par type d'acte d'un nœud (Paramètres, « Actes délivrés »). Mêmes
+         *     capacités que les autres paramètres du secrétariat : ``horaires.gerer`` ou ``structure.gerer``.
+         */
+        put: operations["v1_staff_documents_nodes_type_delays_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/documents/stats/": {
         parameters: {
             query?: never;
@@ -3277,6 +3303,10 @@ export interface components {
             sunday_date?: string | null;
             /** @description Bannière : fichier image téléversé via /files/upload/ */
             cover_image_id?: number | null;
+            /** @description Texte alternatif de la bannière (requis si bannière non décorative) */
+            cover_image_alt?: string;
+            /** @description Bannière purement décorative : texte alternatif vide */
+            cover_image_decorative?: boolean;
             /**
              * @description Notifier les fidèles à la publication
              * @default true
@@ -3309,6 +3339,10 @@ export interface components {
              */
             sunday_date?: string | null;
             readonly cover_image_url: string | null;
+            /** Texte alternatif de la bannière */
+            cover_image_alt?: string;
+            /** Bannière décorative */
+            cover_image_decorative?: boolean;
             /**
              * Publié le
              * Format: date-time
@@ -3346,6 +3380,10 @@ export interface components {
              */
             sunday_date?: string | null;
             readonly cover_image_url: string | null;
+            /** Texte alternatif de la bannière */
+            cover_image_alt?: string;
+            /** Bannière décorative */
+            cover_image_decorative?: boolean;
             /**
              * Publié le
              * Format: date-time
@@ -4432,6 +4470,10 @@ export interface components {
             place_id?: number | null;
             /** @description Bannière (vide : la retirer) */
             cover_image_id?: number | null;
+            /** @description Texte alternatif de la bannière (requis si bannière non décorative) */
+            cover_image_alt?: string;
+            /** @description Bannière purement décorative : texte alternatif vide */
+            cover_image_decorative?: boolean;
             notify_followers?: boolean;
         };
         PatchedAssignmentUpdateInput: {
@@ -4736,7 +4778,7 @@ export interface components {
             } | null;
             readonly history: components["schemas"]["ProcessorStatusLog"][];
             readonly can_cancel: boolean;
-            /** @description Délai indicatif de la paroisse (jours) */
+            /** @description Délai indicatif (jours) : type d'acte, sinon paroisse, sinon réglage hérité, sinon défaut */
             readonly indicative_days: number;
             /**
              * Format: date
@@ -5082,7 +5124,7 @@ export interface components {
             } | null;
             readonly history: components["schemas"]["StatusLog"][];
             readonly can_cancel: boolean;
-            /** @description Délai indicatif de la paroisse (jours) */
+            /** @description Délai indicatif (jours) : type d'acte, sinon paroisse, sinon réglage hérité, sinon défaut */
             readonly indicative_days: number;
             /**
              * Format: date
@@ -5338,6 +5380,10 @@ export interface components {
             unpublish_reason?: string;
             readonly cover_image_id: number | null;
             readonly cover_image_url: string | null;
+            /** Texte alternatif de la bannière */
+            cover_image_alt?: string;
+            /** Bannière décorative */
+            cover_image_decorative?: boolean;
             /** Notifier les fidèles */
             notify_followers?: boolean;
             /** @default 0 */
@@ -5441,6 +5487,36 @@ export interface components {
             pickup_place_id?: number | null;
             /** @default  */
             pickup_hours: string;
+        };
+        TypeDelayItemInput: {
+            document_type: components["schemas"]["TypeDelayItemInputDocumentTypeEnum"];
+            /** @description Jours ouvrés ; null : retirer (délai global) */
+            days: number | null;
+        };
+        /**
+         * @description * `baptism` - Certificat de baptême
+         *     * `first_communion` - Attestation de première communion
+         *     * `confirmation` - Attestation de confirmation
+         *     * `religious_marriage` - Attestation de mariage religieux
+         *     * `godparent` - Attestation parrain / marraine
+         * @enum {string}
+         */
+        TypeDelayItemInputDocumentTypeEnum: "baptism" | "first_communion" | "confirmation" | "religious_marriage" | "godparent";
+        TypeDelayItemOutput: {
+            document_type: components["schemas"]["DocumentTypeEnum"];
+            document_type_label: string;
+            /** @description Délai du type (jours ouvrés) ; null : délai global */
+            days: number | null;
+        };
+        TypeDelaysOutput: {
+            /** Format: uuid */
+            node_id: string;
+            /** @description Délai appliqué aux types sans réglage propre (paroisse, sinon hérité, sinon défaut) */
+            default_days: number;
+            items: components["schemas"]["TypeDelayItemOutput"][];
+        };
+        TypeDelaysUpdateInput: {
+            items: components["schemas"]["TypeDelayItemInput"][];
         };
         /**
          * @description * `SIGN_OF_CROSS` - Signe de la croix
@@ -9937,6 +10013,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CountsOutput"];
+                };
+            };
+        };
+    };
+    v1_staff_documents_nodes_type_delays_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TypeDelaysOutput"];
+                };
+            };
+        };
+    };
+    v1_staff_documents_nodes_type_delays_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TypeDelaysUpdateInput"];
+                "multipart/form-data": components["schemas"]["TypeDelaysUpdateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["TypeDelaysUpdateInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TypeDelaysOutput"];
                 };
             };
         };
