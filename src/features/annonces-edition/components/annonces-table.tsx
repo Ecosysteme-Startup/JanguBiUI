@@ -136,7 +136,7 @@ export const AnnoncesTable = ({ nodeId, tab, articles, footer }: {
   footer: React.ReactNode;
 }) => (
   <div className="mt-4 overflow-hidden rounded-16 border border-line bg-paper shadow-card">
-    <Table className="min-w-[760px] table-fixed" label="Annonces, défilement horizontal">
+    <Table className="min-w-[880px] table-fixed" label="Annonces, défilement horizontal">
       <thead>
         <tr>
           <Th className="h-10 border-b-0">Annonce</Th>
