@@ -16,7 +16,8 @@ export const clockOf = (iso: string) => dayjs(iso).format('H:mm');
 const DayNumber = ({ day }: { day: dayjs.Dayjs }) =>
   day.date() === 1 ? (
     <>
-      1<sup className="leading-none">er</sup> {day.format('MMM')}
+      1<sup className="hidden leading-none sm:inline">er</sup>
+      <span className="hidden sm:inline"> {day.format('MMM')}</span>
     </>
   ) : (
     <>{day.date()}</>
@@ -60,7 +61,7 @@ export const MonthGrid = ({ month, events, selectedDay, selectedId, onSelectDay,
                 role="group"
                 aria-label={d.format('dddd D MMMM')}
                 className={cn(
-                  'flex min-h-32 min-w-0 flex-col gap-1 border-t border-line px-1.5 pb-2 pt-1.5',
+                  'flex min-h-16 min-w-0 flex-col gap-1 border-t sm:min-h-32 border-line px-1.5 pb-2 pt-1.5',
                   i > 0 && 'border-l',
                   outside ? 'bg-surface' : 'bg-paper',
                   selected && 'bg-tint-50 shadow-[inset_0_0_0_2px_var(--jb-primary-fill)]',
@@ -79,7 +80,15 @@ export const MonthGrid = ({ month, events, selectedDay, selectedId, onSelectDay,
                   <DayNumber day={d} />
                 </button>
                 {dayEvents.length > 0 && (
-                  <ul className="m-0 flex list-none flex-col gap-1 p-0">
+                  // Petite largeur : un point par événement ; le panneau du jour les détaille.
+                  <span aria-hidden="true" className="flex flex-wrap gap-1 px-0.5 sm:hidden">
+                    {dayEvents.map((event) => (
+                      <span key={event.id} className={cn('size-1.5 rounded-full', event.is_cancelled ? 'bg-ink-4' : 'bg-primary-fill')} />
+                    ))}
+                  </span>
+                )}
+                {dayEvents.length > 0 && (
+                  <ul className="m-0 hidden list-none flex-col gap-1 p-0 sm:flex">
                     {dayEvents.map((event) => (
                       <li key={event.id}>
                         <button
