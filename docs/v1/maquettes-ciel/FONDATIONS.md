@@ -92,7 +92,7 @@ rabattus sur cette échelle mais **à ne plus employer**.
 
 ## 3. Rayons, espacements, largeurs
 
-- Rayons : `rounded-3` (pastille de légende), `rounded-6` (case), `rounded-8` (petit, rangée de menu),
+- Rayons : `rounded-3` (pastille de légende), `rounded-4` (pastille 16 × 12), `rounded-5` (case de table), `rounded-6` (case), `rounded-8` (petit, rangée de menu),
   `rounded-9` (segment), `rounded-10` (nav, bouton sm, icône), `rounded-12` (champ, bouton, alerte, menu),
   `rounded-14` (tuile de jour), `rounded-16` (carte, dialogue), `rounded-full` (pilule).
   `rounded` seul = 10 px.
@@ -137,12 +137,16 @@ rabattus sur cette échelle mais **à ne plus employer**.
 | `Modal`, `ConfirmDialog` | `size` md 480 \| lg 720, `footer` ; `tone` danger | rayon 16, voile scrim, titre 18/600, actions à droite |
 | `Toaster`, `toast.ok/err/info` | — | aplat d'encre (erreur : fond paper), 5 s |
 | `Table`, `Th`, `Tr`, `Td`, `TableSelectionBar` | `framed`, `Th sort`, `Tr selected` | en-tête 44 surface 13/500, rangées 60, sélection b50 |
-| `Pagination` | `offset`, `limit`, `total`, `onChange`, `noun` (« Demandes 1 à 6 sur 17 ») | cases 36 rayon 10, courante b50/b800 |
+| `Pagination` | `offset`, `limit`, `total`, `onChange`, `noun`, `nounPosition` before (« Demandes 1 à 6 sur 17 ») \| after (« 1 à 12 sur 17 demandes »), `compact` (chevrons seuls) | cases 36 rayon 10, courante b50/b800 |
 | `PageHeader` | `title`, `description`, `eyebrow` (+ `eyebrowTone` primary), `actions`, `size` app 32 \| public 40, `compact` (phrase à 4 px) | pas de numéro |
 | `SectionHeading`, `Meta` | `size` lg 24 \| md 20, `aside` | |
 | `Menu`, `MenuTrigger`, `MenuContent`, `MenuItem`, `MenuSeparator`, `MenuLabel` (`menu.tsx`) | `MenuItem icon shortcut tone="danger" asChild` | rayon 12, rangées 36, ombre menu |
 | `Tooltip` | `content` | fond encre 13/18, 300 ms |
-| `Breadcrumbs` | `items: {label, href?}[]`, `separator` chevron \| slash | 14, courante 600 |
+| `Breadcrumbs` | `items: {label, href?}[]`, `separator` chevron \| slash, `back` (chevron de retour) | 14, courante 600 |
+| `Checkbox` (`checkbox.tsx`) | `label` (lecteur d'écran), `indeterminate` | case nue 18 px rayon 5, cible 44 (tables) |
+| `FilterPill` (`filter-pill.tsx`) | `id`, `label`, `allLabel`, `value`, `onChange`, `onClear` | sélecteur natif en pilule 36, actif b50/b200/b800 + croix |
+| `RequestStatusBadge` (`signature/status-dot.tsx`) | `status` | badge de statut d'acte (même rendu que `StatusDot status`) |
+| `SlotPicker` (`signature/`) | `slots[].priest` = sous-libellé (« Libre » si vide) | 3 colonnes, cases 56 rayon 12, « 16:20 » |
 | `Avatar` | `name`, `size` 24–48 | initiales b800 sur b100 |
 | `ConfessionNotice` (`signature/`) | `variant` card \| pinned, `audience` fidele \| pretre, `bookingHref`, `description`, `actionLabel` | voir lot D |
 | `Stepper` (`signature/`) | `steps`, `current`, `label` | pastilles 28 reliées d'un filet 2 px (faite : aplat + coche) |
@@ -172,7 +176,7 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
   start={<Breadcrumbs items={[{ label: 'Mes demandes', href: paths.app.demandes.list.getHref() }, { label: 'JB-2026-00412' }]} />}
   end={<NextLink href={…} className="text-15 font-semibold">Mes rendez-vous</NextLink>}
 />
-<ShellLayout fullBleed />            {/* messagerie : ni padding ni largeur max, hauteur 100dvh − 64 */}
+<ShellLayout fullBleed />            {/* messagerie : ni padding ni largeur max, hauteur 100dvh − 64 (− barre du bas 56 sous lg, espace fidèle) */}
 <ShellLayout fullBleed hideTopbar /> {/* FID-Conversation : sans barre supérieure (≥ lg) */}
 ```
 

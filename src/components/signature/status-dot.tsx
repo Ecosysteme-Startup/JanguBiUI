@@ -49,3 +49,8 @@ export const StatusDot = ({
     </Badge>
   );
 };
+
+/** Badge de statut d'acte (7 statuts, SRS §8.1) ; ton du badge : `REQUEST_STATUS[s].tone`. */
+export const RequestStatusBadge = ({ status, className }: { status: RequestStatus; className?: string }) => (
+  <StatusDot status={status} className={className} />
+);
