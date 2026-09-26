@@ -36,7 +36,7 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
   };
 };
 
-/** Fiche publique d'une paroisse (PUB-Fiche-Paroisse). */
+/** Fiche publique d'une paroisse (WEB-Fiche-Paroisse). */
 const FicheParoissePage = async ({ params }: Props) => {
   const code = decodeURIComponent((await params).code);
   const { parish, failed } = await resolveParish(code);
@@ -47,7 +47,7 @@ const FicheParoissePage = async ({ params }: Props) => {
         { ...parishByCodeQueryOptions(code), queryFn: async () => parish },
         nodeWeekQueryOptions(parish.id),
         nodeAncestorsQueryOptions(parish.id),
-        publicAnnouncementsQueryOptions({ nodeId: parish.id, limit: 3 }),
+        publicAnnouncementsQueryOptions({ nodeId: parish.id, limit: 4 }),
         publicEventsQueryOptions(parish.id, 4),
       )
     : undefined;
