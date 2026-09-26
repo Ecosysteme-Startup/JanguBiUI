@@ -80,15 +80,11 @@ export const AppFrame = ({ sidebar, topbarFallback, bottomNav, children }: AppFr
         <main
           id="contenu"
           className={cn(
-            'min-w-0 flex-1',
+            'min-w-0',
             fullBleed
-              ? cn(
-                  // Sous lg, la barre du bas (56 px + zone sûre) est déduite : la saisie repose juste au-dessus.
-                  bottomNav ? 'h-[calc(100dvh-64px-56px-env(safe-area-inset-bottom))] lg:h-[calc(100dvh-64px)]' : 'h-[calc(100dvh-64px)]',
-                  'overflow-hidden',
-                  hideTopbar && 'lg:h-dvh',
-                )
-              : 'w-full max-w-content px-4 pb-24 pt-6 lg:px-10 lg:pb-12 lg:pt-8 print:p-0',
+              ? // Hauteur fixe (pas de flex-1, qui l'écraserait) : les colonnes ont leur propre défilement.
+                cn('shrink-0 overflow-hidden', bottomNav ? 'jb-fullbleed-with-bottom-nav' : 'jb-fullbleed', hideTopbar && 'jb-fullbleed-no-topbar')
+              : 'w-full max-w-content flex-1 px-4 pb-24 pt-6 lg:px-10 lg:pb-12 lg:pt-8 print:p-0',
           )}
         >
           {children}

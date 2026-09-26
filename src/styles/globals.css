@@ -73,6 +73,24 @@
 }
 
 @layer utilities {
+  /* Hauteur du <main> plein cadre (ShellLayout fullBleed) : fenêtre moins la barre du haut (64 px),
+     et moins la barre du bas de l'espace fidèle (56 px + zone sûre) sous 1024 px. En CSS pur :
+     env() dans une classe arbitraire Tailwind est mal transformé (déclaration rejetée). */
+  .jb-fullbleed {
+    height: calc(100dvh - 64px);
+  }
+  .jb-fullbleed-with-bottom-nav {
+    height: calc(100dvh - 120px - env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 1024px) {
+    .jb-fullbleed-with-bottom-nav {
+      height: calc(100dvh - 64px);
+    }
+    .jb-fullbleed-no-topbar {
+      height: 100dvh;
+    }
+  }
+
   /* Zone tactile ≥ 44 px sans changer le rendu (WCAG 2.5.5, cibles denses du DS). */
   .hit {
     position: relative;
