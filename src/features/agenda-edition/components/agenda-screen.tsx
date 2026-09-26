@@ -1,29 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
+import { PageHeader } from '@/components/ui/page-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { useBackofficePlaces } from '@/hooks/use-backoffice-places';
 import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
-import { dayjs, hour } from '@/utils/dates';
-import { frenchTypo } from '@/utils/french-typo';
-import { plural } from '@/utils/plural';
+import { dayjs } from '@/utils/dates';
+import { pluralWord } from '@/utils/plural';
 
 import { type StaffEvent, useStaffEvents } from '../api/staff-events';
 import { type AgendaView, periodBounds, useAgendaPeriod } from '../hooks/use-agenda-period';
-import { inMonth, inWeek, monthTitle, monthWeeks, onDay, weekRange, weekStart, weekTitle } from '../utils/calendar';
+import { inMonth, inWeek, monthTitle, weekRange, weekStart, weekTitle } from '../utils/calendar';
 
-import { EventDetail } from './event-detail';
+import { DayPanel } from './day-panel';
 import { EventForm } from './event-form';
+import { EventList } from './event-list';
+import { MonthGrid } from './month-grid';
 import { WeekGrid } from './week-grid';
-
-const DAYS = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
 
 const VIEWS: readonly (readonly [AgendaView, string])[] = [
   ['mois', 'Mois'],
@@ -31,136 +31,67 @@ const VIEWS: readonly (readonly [AgendaView, string])[] = [
   ['liste', 'Liste'],
 ];
 
-type Editing = { event: StaffEvent | null; day: string | null } | null;
-
-const MonthGrid = ({
-  month,
-  events,
-  selectedId,
-  onSelect,
-}: {
-  month: dayjs.Dayjs;
-  events: StaffEvent[];
-  selectedId: number | null;
-  onSelect: (event: StaffEvent) => void;
-}) => {
-  const today = dayjs().format('YYYY-MM-DD');
-  return (
-    <section aria-label={`${monthTitle(month)}, vue mois`} className="mt-6">
-      <div className="grid grid-cols-7 border-b border-line-strong" aria-hidden="true">
-        {DAYS.map((d) => (
-          <span key={d} className="tnum px-2 pb-2 text-meta text-ink-3">
-            {d}
-          </span>
-        ))}
-      </div>
-      {monthWeeks(month).map((week) => (
-        <div key={week[0]} className="grid grid-cols-7">
-          {week.map((day) => {
-            const d = dayjs(day);
-            const outside = !d.isSame(month, 'month');
-            const dayEvents = events.filter((e) => onDay(e, day));
-            return (
-              <div
-                key={day}
-                aria-label={d.format('dddd D MMMM')}
-                role="group"
-                className={cn('min-h-24 border-b border-r border-line p-1.5 first:border-l', outside && 'bg-surface', day === today && 'bg-tint-50')}
-              >
-                <span className={cn('tnum block px-1 text-meta', outside ? 'text-ink-3' : 'text-ink-2', day === today && 'font-semibold text-primary')}>
-                  {d.date() === 1 ? '1er' : d.date()}
-                </span>
-                <ul className="m-0 mt-1 flex list-none flex-col gap-1 p-0">
-                  {dayEvents.map((event) => (
-                    <li key={event.id}>
-                      <button
-                        type="button"
-                        onClick={() => onSelect(event)}
-                        aria-pressed={selectedId === event.id}
-                        className={cn(
-                          'w-full truncate rounded px-1 py-0.5 text-left text-xs transition-colors',
-                          selectedId === event.id ? 'bg-ink text-paper' : 'text-ink hover:bg-surface-2',
-                          event.is_cancelled && 'text-ink-3 line-through',
-                        )}
-                      >
-                        <span className="tnum">{hour(event.start_at)}</span> {event.title}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </section>
-  );
-};
-
-const MonthList = ({
-  events,
-  selectedId,
-  onSelect,
-  week = false,
-}: {
-  events: StaffEvent[];
-  selectedId: number | null;
-  onSelect: (event: StaffEvent) => void;
-  week?: boolean;
-}) => (
-  <section aria-labelledby="ag-liste" className="mt-10">
-    <h2 id="ag-liste" className="tnum m-0 border-t border-line-strong pt-2 text-meta font-normal text-ink-2">
-      <span className="text-primary">04</span> — {week ? 'Cette semaine' : 'Ce mois-ci'}
-    </h2>
-    {events.length === 0 ? (
-      <p className="m-0 mt-3 text-sm text-ink-3">Aucun événement {week ? 'cette semaine' : 'ce mois-ci'}.</p>
-    ) : (
-      <ol className="m-0 mt-2 list-none p-0">
-        {events.map((event) => {
-          const start = dayjs(event.start_at);
-          return (
-            <li key={event.id} aria-current={selectedId === event.id ? 'true' : undefined} className={cn('border-b border-line', selectedId === event.id && 'bg-tint-50')}>
-              <button type="button" onClick={() => onSelect(event)} className="flex w-full items-baseline gap-4 py-3 text-left">
-                <span className="tnum w-8 font-serif text-h4 text-ink">{start.format('DD')}</span>
-                <span className="tnum w-10 text-meta text-ink-3">{start.format('ddd')}</span>
-                <span className="min-w-0 flex-1">
-                  <span className={cn('block text-base font-medium text-ink', event.is_cancelled && 'text-ink-3 line-through')}>{frenchTypo(event.title)}</span>
-                  <span className="block text-sm text-ink-3">
-                    {hour(event.start_at)}
-                    {event.location && <> · {event.location}</>}
-                    {event.max_participants ? <> · {event.seats_taken} / {plural(event.max_participants, 'place', 'places')}</> : null}
-                    {event.is_cancelled && <> · annulé</>}
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-    )}
-    <p className="m-0 mt-3 text-sm text-ink-3">Les événements apparaissent dans « Ma paroisse » pour les fidèles qui suivent la paroisse.</p>
-  </section>
-);
+type Editing = { event: StaffEvent | null; template?: StaffEvent; day: string | null } | null;
 
 /** Point d'ancrage d'un mois : aujourd'hui s'il en fait partie, sinon le 1er. */
 const monthAnchor = (month: dayjs.Dayjs) => (month.isSame(dayjs(), 'month') ? dayjs() : month.startOf('month')).format('YYYY-MM-DD');
 
-/** PAR-Agenda : calendrier du mois ou de la semaine, liste, détail d'un événement, création et modification. */
+const navButton = 'hit inline-flex size-9 items-center justify-center rounded-10 border border-line bg-paper text-ink hover:bg-surface-2';
+
+/** Filtre « Tous les lieux » en pilule (en attendant une primitive partagée). */
+const PlaceFilter = ({ value, onChange, places }: { value: string; onChange: (v: string) => void; places: { id: number; name: string }[] }) => {
+  const id = useId();
+  return (
+    <span className="relative inline-flex">
+      <label htmlFor={id} className="sr-only">
+        Lieu de culte
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={cn(
+          'hit h-9 max-w-56 cursor-pointer appearance-none truncate rounded-full border pl-3.5 pr-8 text-14 transition-colors [field-sizing:content]',
+          value ? 'border-tint-100 bg-tint-100 font-semibold text-tint-900' : 'border-line bg-paper font-medium text-ink hover:border-line-field hover:bg-surface',
+        )}
+      >
+        <option value="">Tous les lieux</option>
+        {places.map((p) => (
+          <option key={p.id} value={String(p.id)}>
+            {p.name}
+          </option>
+        ))}
+      </select>
+      <Icon name="chevron-bas" size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-3" />
+    </span>
+  );
+};
+
+/** PAR-Agenda : calendrier du mois ou de la semaine, liste, panneau du jour, création, modification, duplication. */
 export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
   const { period, update } = useAgendaPeriod(nodeId);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState(period.date);
   const [editing, setEditing] = useState<Editing>(null);
+  const [place, setPlace] = useState('');
   const isWeek = period.view === 'semaine';
   const month = dayjs(period.date).startOf('month');
   // Période chargée : la semaine affichée, ou les semaines complètes de la grille du mois.
   const events = useStaffEvents(nodeId, periodBounds(period));
   const places = useBackofficePlaces(nodeId);
 
-  const shownEvents = (events.data?.results ?? []).filter((e) => (isWeek ? inWeek(e, period.date) : inMonth(e, month)));
+  const shownEvents = (events.data?.results ?? [])
+    .filter((e) => (isWeek ? inWeek(e, period.date) : inMonth(e, month)))
+    .filter((e) => !place || String(e.place_id) === place);
   const selected = shownEvents.find((e) => e.id === selectedId) ?? null;
   const go = (date: string) => {
     update({ date });
+    setSelectedDay(date);
     setSelectedId(null);
+  };
+  const select = (event: StaffEvent) => {
+    setSelectedId(event.id);
+    setSelectedDay(dayjs(event.start_at).format('YYYY-MM-DD'));
   };
   const week = weekStart(period.date);
   const nav = isWeek
@@ -168,7 +99,7 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
         title: weekTitle(period.date),
         prev: { label: `Semaine précédente : ${weekRange(week.subtract(7, 'day'))}`, date: week.subtract(7, 'day').format('YYYY-MM-DD') },
         next: { label: `Semaine suivante : ${weekRange(week.add(7, 'day'))}`, date: week.add(7, 'day').format('YYYY-MM-DD') },
-        count: `cette semaine`,
+        count: 'cette semaine',
       }
     : {
         title: monthTitle(month),
@@ -179,66 +110,76 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-2" aria-live="polite">
-            <span className="text-primary">03</span> — Agenda
-            {events.data && (
-              <>
-                {' '}
-                · {shownEvents.length} événement{shownEvents.length > 1 ? 's' : ''} {nav.count}
-              </>
-            )}
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <h1 className="m-0 font-serif text-title font-normal text-ink">{nav.title}</h1>
-            <button type="button" aria-label={nav.prev.label} onClick={() => go(nav.prev.date)} className="inline-flex size-11 items-center justify-center rounded border border-line hover:bg-surface-2">
-              <Icon name="chevron-gauche" size={18} />
-            </button>
-            <button type="button" aria-label={nav.next.label} onClick={() => go(nav.next.date)} className="inline-flex size-11 items-center justify-center rounded border border-line hover:bg-surface-2">
-              <Icon name="chevron-droite" size={18} />
-            </button>
-            <Button variant="tertiary" onClick={() => go(dayjs().format('YYYY-MM-DD'))}>
-              Aujourd’hui
+      <PageHeader
+        compact
+        title="Agenda"
+        description="Les événements de la paroisse, en plus des horaires réguliers des messes."
+        actions={
+          <>
+            {(places.data ?? []).length > 1 && <PlaceFilter value={place} onChange={setPlace} places={places.data ?? []} />}
+            <Button className="min-h-11 px-5" onClick={() => setEditing({ event: null, day: null })}>
+              <Icon name="plus" size={18} /> Nouvel événement
             </Button>
-          </div>
-        </div>
+          </>
+        }
+      />
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          <SegmentedControl
-            label="Affichage"
-            value={period.view}
-            options={VIEWS}
-            onChange={(value) => {
-              update({ view: value });
-              setSelectedId(null);
-            }}
-          />
-          <Button onClick={() => setEditing({ event: null, day: null })}>
-            <Icon name="plus" size={16} /> Nouvel événement
+          <button type="button" aria-label={nav.prev.label} onClick={() => go(nav.prev.date)} className={navButton}>
+            <Icon name="chevron-gauche" size={18} />
+          </button>
+          <button type="button" aria-label={nav.next.label} onClick={() => go(nav.next.date)} className={navButton}>
+            <Icon name="chevron-droite" size={18} />
+          </button>
+          <h2 className="m-0 ml-1 text-22 font-semibold text-ink">{nav.title}</h2>
+          <Button variant="outline" size="sm" className="ml-1 min-h-9 text-14" onClick={() => go(dayjs().format('YYYY-MM-DD'))}>
+            Aujourd’hui
           </Button>
         </div>
+        <SegmentedControl
+          label="Affichage"
+          value={period.view}
+          options={VIEWS}
+          size="xs"
+          onChange={(value) => {
+            update({ view: value });
+            setSelectedId(null);
+          }}
+        />
       </div>
+      <p className="sr-only" aria-live="polite">
+        {events.data && `${shownEvents.length} ${pluralWord(shownEvents.length, 'événement', 'événements')} ${nav.count}`}
+      </p>
 
       {events.isPending ? (
-        <div className="mt-8">
+        <div className="mt-4">
           <LoadingBlock label="Chargement de l’agenda…" lines={6} />
         </div>
       ) : events.isError ? (
-        <EmptyState icon={isForbidden(events.error) ? 'cadenas' : 'alerte'} tone="err" title={isForbidden(events.error) ? 'Accès refusé' : 'Agenda indisponible'} className="mt-8">
+        <EmptyState icon={isForbidden(events.error) ? 'cadenas' : 'alerte'} tone="err" title={isForbidden(events.error) ? 'Accès refusé' : 'Agenda indisponible'} className="mt-4">
           {apiErrorMessage(events.error)}
         </EmptyState>
       ) : (
-        <div className={cn('grid items-start gap-8', selected && 'xl:grid-cols-[minmax(0,1fr)_360px]')}>
+        <div className="mt-4 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
-            {period.view === 'mois' && <MonthGrid month={month} events={shownEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />}
-            {isWeek && <WeekGrid date={period.date} events={shownEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} />}
-            <MonthList events={shownEvents} selectedId={selectedId} onSelect={(e) => setSelectedId(e.id)} week={isWeek} />
+            {period.view === 'mois' && (
+              <MonthGrid month={month} events={shownEvents} selectedDay={selectedDay} selectedId={selectedId} onSelectDay={setSelectedDay} onSelect={select} />
+            )}
+            {isWeek && <WeekGrid date={period.date} events={shownEvents} selectedId={selectedId} onSelect={select} />}
+            {period.view === 'liste' && <EventList label={`${nav.title}, vue liste`} events={shownEvents} selectedId={selectedId} onSelect={select} />}
           </div>
-          {selected && (
-            <div className="xl:sticky xl:top-6 xl:mt-6">
-              <EventDetail event={selected} onClose={() => setSelectedId(null)} onEdit={() => setEditing({ event: selected, day: null })} />
-            </div>
-          )}
+          <DayPanel
+            nodeId={nodeId}
+            day={selectedDay}
+            events={shownEvents}
+            selected={selected}
+            onSelect={select}
+            onClose={() => setSelectedId(null)}
+            onCreate={(day) => setEditing({ event: null, day })}
+            onEdit={(event) => setEditing({ event, day: null })}
+            onDuplicate={(event) => setEditing({ event: null, template: event, day: null })}
+          />
         </div>
       )}
 
@@ -246,6 +187,7 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
         <EventForm
           nodeId={nodeId}
           event={editing.event}
+          template={editing.template}
           day={editing.day}
           places={places.data ?? []}
           onClose={() => setEditing(null)}
@@ -253,7 +195,7 @@ export const AgendaScreen = ({ nodeId }: { nodeId: string }) => {
             toast.ok(editing.event ? 'Événement modifié.' : 'Événement créé.');
             setEditing(null);
             update({ date: dayjs(saved.start_at).format('YYYY-MM-DD') });
-            setSelectedId(saved.id);
+            select(saved);
           }}
         />
       )}

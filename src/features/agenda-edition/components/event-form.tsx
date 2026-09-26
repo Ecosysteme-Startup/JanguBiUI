@@ -77,6 +77,8 @@ const isoOf = (date: string, time: string) => dayjs(`${date}T${time}`).format();
 type EventFormProps = {
   nodeId: string;
   event: StaffEvent | null;
+  /** Événement à dupliquer : ses champs préremplissent une création. */
+  template?: StaffEvent | null;
   day: string | null;
   places: Place[];
   onClose: () => void;
@@ -84,9 +86,9 @@ type EventFormProps = {
 };
 
 /** Création ou modification d'un événement (modale de l'agenda). */
-export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: EventFormProps) => {
+export const EventForm = ({ nodeId, event, template = null, day, places, onClose, onSaved }: EventFormProps) => {
   const save = useSaveEvent({ onSuccess: onSaved });
-  const { register, handleSubmit, setError, formState } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: defaultsOf(event, day) });
+  const { register, handleSubmit, setError, formState } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: defaultsOf(event ?? template, day) });
 
   const onSubmit = handleSubmit(async (v) => {
     const common = {
@@ -116,12 +118,12 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
     <Modal
       open
       onOpenChange={(open) => !open && onClose()}
-      title={event ? 'Modifier l’événement' : 'Nouvel événement'}
+      title={event ? 'Modifier l’événement' : template ? 'Dupliquer l’événement' : 'Nouvel événement'}
       description="Les événements publiés apparaissent dans « Ma paroisse » pour les fidèles qui suivent la paroisse."
       size="lg"
       footer={
         <>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Annuler
           </Button>
           <Button type="submit" form="ag-form" disabled={save.isPending}>
@@ -132,10 +134,10 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
     >
       <form id="ag-form" onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
         <Field id="ag-titre-champ" label="Titre" required error={e.title?.message}>
-          <Input {...register('title')} />
+          <Input {...register('title')} controlSize="sm" />
         </Field>
         <Field id="ag-type" label="Type d’événement">
-          <Select {...register('event_type')}>
+          <Select {...register('event_type')} controlSize="sm">
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>
                 {EVENT_TYPE_LABELS[t]}
@@ -145,24 +147,24 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
         </Field>
         <div className="grid gap-3 sm:grid-cols-4">
           <Field id="ag-debut-date" label="Début, date" required error={e.start_date?.message} className="sm:col-span-2">
-            <Input type="date" {...register('start_date')} />
+            <Input type="date" {...register('start_date')} controlSize="sm" />
           </Field>
           <Field id="ag-debut-heure" label="Début, heure" required error={e.start_time?.message} className="sm:col-span-2">
-            <Input type="time" {...register('start_time')} />
+            <Input type="time" {...register('start_time')} controlSize="sm" />
           </Field>
           <Field id="ag-fin-date" label="Fin, date" required error={e.end_date?.message} className="sm:col-span-2">
-            <Input type="date" {...register('end_date')} />
+            <Input type="date" {...register('end_date')} controlSize="sm" />
           </Field>
           <Field id="ag-fin-heure" label="Fin, heure" required error={e.end_time?.message} className="sm:col-span-2">
-            <Input type="time" {...register('end_time')} />
+            <Input type="time" {...register('end_time')} controlSize="sm" />
           </Field>
         </div>
         <Field id="ag-lieu" label="Lieu" hint="Salle paroissiale, cour, adresse…" error={e.location?.message}>
-          <Input {...register('location')} />
+          <Input {...register('location')} controlSize="sm" />
         </Field>
         {!event && places.length > 0 && (
           <Field id="ag-lieu-culte" label="Lieu de culte concerné">
-            <Select {...register('place_id')}>
+            <Select {...register('place_id')} controlSize="sm">
               <option value="">Toute la paroisse</option>
               {places.map((p) => (
                 <option key={p.id} value={String(p.id)}>
@@ -173,7 +175,7 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
           </Field>
         )}
         <Field id="ag-places" label="Places disponibles" hint="Vide : sans inscription limitée." error={e.max_participants?.message}>
-          <Input type="number" min={1} inputMode="numeric" {...register('max_participants')} className="w-40" />
+          <Input type="number" min={1} inputMode="numeric" {...register('max_participants')} className="w-40" controlSize="sm" />
         </Field>
         <div className="grid gap-3 sm:grid-cols-4">
           <Field
@@ -183,17 +185,17 @@ export const EventForm = ({ nodeId, event, day, places, onClose, onSaved }: Even
             error={e.closes_date?.message}
             className="sm:col-span-2"
           >
-            <Input type="date" {...register('closes_date')} />
+            <Input type="date" {...register('closes_date')} controlSize="sm" />
           </Field>
           <Field id="ag-cloture-heure" label="Clôture, heure" error={e.closes_time?.message} className="sm:col-span-2">
-            <Input type="time" {...register('closes_time')} />
+            <Input type="time" {...register('closes_time')} controlSize="sm" />
           </Field>
         </div>
         <Field id="ag-description" label="Description">
           <Textarea rows={4} {...register('description')} />
         </Field>
         {save.isError && (
-          <p role="alert" className="m-0 text-sm text-err">
+          <p role="alert" className="m-0 text-14 text-err">
             {apiErrorMessage(save.error)}
           </p>
         )}

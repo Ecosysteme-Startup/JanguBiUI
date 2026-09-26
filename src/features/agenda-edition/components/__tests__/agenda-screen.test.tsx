@@ -21,7 +21,7 @@ const renderPage = async (capacites = grantsSecretaire) =>
 /** Ouvre octobre 2026 (les données démo), depuis le « jeudi 24 septembre » de la maquette. */
 const openOctober = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.click(await screen.findByRole('button', { name: 'Mois suivant : octobre' }));
-  await screen.findByRole('heading', { name: 'Octobre 2026', level: 1 });
+  await screen.findByRole('heading', { name: 'Octobre 2026', level: 2 });
 };
 
 beforeEach(() => {
@@ -135,6 +135,32 @@ describe('Agenda (PAR-Agenda)', () => {
     expect(f8aState.lastBody).toBeNull();
   });
 
+  it('duplique un événement dans une nouvelle création préremplie', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await openOctober(user);
+    await user.click(screen.getByRole('button', { name: /rentrée du catéchisme/i, pressed: false }));
+    const detail = await screen.findByRole('region', { name: 'Rentrée du catéchisme' });
+
+    await user.click(within(detail).getByRole('button', { name: /dupliquer/i }));
+    const dialog = await screen.findByRole('dialog', { name: 'Dupliquer l’événement' });
+    expect(within(dialog).getByLabelText(/^titre/i)).toHaveValue('Rentrée du catéchisme');
+    await user.click(within(dialog).getByRole('button', { name: 'Créer l’événement' }));
+
+    await vi.waitFor(() => expect(f8aState.lastBody).toMatchObject({ node_id: ids.saintDominique, title: 'Rentrée du catéchisme' }));
+  });
+
+  it('montre les événements du jour choisi dans le panneau', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await openOctober(user);
+
+    await user.click(screen.getByRole('button', { name: 'Voir le samedi 10 octobre' }));
+
+    const panel = screen.getByRole('complementary', { name: 'Samedi 10 octobre' });
+    expect(within(panel).getByRole('button', { name: /journée de récollection des ceb/i })).toBeInTheDocument();
+  });
+
   it('modifie puis annule un événement', async () => {
     const user = userEvent.setup();
     await renderPage();
@@ -162,12 +188,12 @@ describe('Agenda (PAR-Agenda)', () => {
     const user = userEvent.setup();
     await renderPage();
     await user.click(await screen.findByRole('radio', { name: 'Semaine' }));
-    expect(await screen.findByRole('heading', { name: 'Semaine du 21 au 27 septembre 2026', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Semaine du 21 au 27 septembre 2026', level: 2 })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Semaine suivante : du 28 septembre au 4 octobre' }));
     await user.click(screen.getByRole('button', { name: 'Semaine suivante : du 5 octobre au 11 octobre' }));
 
-    expect(await screen.findByRole('heading', { name: 'Semaine du 5 au 11 octobre 2026', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Semaine du 5 au 11 octobre 2026', level: 2 })).toBeInTheDocument();
     expect(navigation.replace).toHaveBeenLastCalledWith(`/espace/${ids.saintDominique}/agenda?vue=semaine&date=2026-10-05`, { scroll: false });
     await vi.waitFor(() => expect(f8aState.agendaQueries.some((q) => q.from === '2026-10-05' && q.to === '2026-10-11')).toBe(true));
     const saturday = await screen.findByRole('group', { name: 'samedi 10 octobre' });
@@ -186,7 +212,7 @@ describe('Agenda (PAR-Agenda)', () => {
     const user = userEvent.setup();
     await renderPage();
 
-    expect(await screen.findByRole('heading', { name: 'Semaine du 12 au 18 octobre 2026', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Semaine du 12 au 18 octobre 2026', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Semaine' })).toHaveAttribute('aria-checked', 'true');
     const monday = await screen.findByRole('group', { name: 'lundi 12 octobre' });
     const event = within(monday).getByRole('button', { name: /rentrée du catéchisme/i });
@@ -201,7 +227,7 @@ describe('Agenda (PAR-Agenda)', () => {
     navigation.search = 'vue=annee&date=2026-13-45';
     await renderPage();
 
-    expect(await screen.findByRole('heading', { name: 'Septembre 2026', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Septembre 2026', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Mois' })).toHaveAttribute('aria-checked', 'true');
   });
 

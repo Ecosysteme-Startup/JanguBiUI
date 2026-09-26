@@ -44,6 +44,26 @@ async function firstHref(page: Page, url: string, pattern: RegExp): Promise<stri
   return hrefs.find((h) => pattern.test(h)) ?? null;
 }
 
+/**
+ * Données de démonstration injectées (réseau intercepté, rien n'est écrit en base) : la paroisse de
+ * démo n'a aucun événement, or la grille de l'agenda doit être vérifiée remplie.
+ */
+const DEMO_EVENTS = (node: string) => {
+  const base = { description: '', node_id: node, node_name: 'Paroisse Saint-Dominique', place_id: null, max_participants: null, registration_closes_at: null, registrations_count: 0, seats_taken: 0, seats_remaining: null, is_full: false, is_cancelled: false };
+  const ev = (id: number, title: string, start: string, end: string, extra: Record<string, unknown> = {}) => ({ ...base, id, title, start_at: start, end_at: end, event_type: 'other', location: 'Salle paroissiale', ...extra });
+  return [
+    ev(9001, 'Chorale', '2026-10-03T16:00:00+00:00', '2026-10-03T18:00:00+00:00'),
+    ev(9002, 'Messe d’action de grâce pour la rentrée universitaire', '2026-10-04T09:30:00+00:00', '2026-10-04T10:30:00+00:00', { event_type: 'mass', location: 'Église' }),
+    ev(9003, 'Verre de l’amitié', '2026-10-04T10:45:00+00:00', '2026-10-04T12:00:00+00:00', { location: 'Cour de la paroisse' }),
+    ev(9004, 'Conseil pastoral', '2026-10-06T19:00:00+00:00', '2026-10-06T21:00:00+00:00'),
+    ev(9005, 'Récollection des CEB', '2026-10-10T09:00:00+00:00', '2026-10-10T16:00:00+00:00', { event_type: 'retreat', max_participants: 60, seats_taken: 18, registrations_count: 12, seats_remaining: 42 }),
+    ev(9006, 'Réunion des catéchistes', '2026-10-14T18:30:00+00:00', '2026-10-14T20:00:00+00:00'),
+    ev(9007, 'Pèlerinage, réunion', '2026-10-16T19:00:00+00:00', '2026-10-16T20:30:00+00:00'),
+    ev(9008, 'Rentrée du catéchisme', '2026-10-17T09:00:00+00:00', '2026-10-17T11:00:00+00:00'),
+    ev(9009, 'Mariage Diatta – Coly', '2026-10-24T15:00:00+00:00', '2026-10-24T17:00:00+00:00', { event_type: 'mass', location: 'Église' }),
+  ];
+};
+
 async function main(): Promise<void> {
   fs.mkdirSync(OUT, { recursive: true });
   const filter = process.argv.slice(2).find((a) => !a.startsWith('--')) ?? '';
@@ -68,6 +88,7 @@ async function main(): Promise<void> {
     ['PAR-Horaires', `${e}/horaires`],
     ['PAR-Horaires-Dialogue', `${e}/horaires`, 'Ajouter un horaire'],
     ['PAR-Agenda', `${e}/agenda`],
+    ['PAR-Agenda-Octobre', `${e}/agenda?vue=mois&date=2026-10-04`],
     ['PAR-Agenda-Semaine', `${e}/agenda?vue=semaine`],
     ['PAR-Equipe', `${e}/equipe`],
     ['PAR-Parametres', `${e}/parametres`],
@@ -78,6 +99,11 @@ async function main(): Promise<void> {
     for (const scheme of schemes) {
       const ctx = await browser.newContext({ baseURL: BASE, storageState: STATE, viewport: { width, height: 900 }, colorScheme: scheme, locale: 'fr-FR' });
       const page = await ctx.newPage();
+      if (process.argv.includes('--demo-agenda')) {
+        await page.route(/\/staff\/agenda\/\?/, (route) =>
+          route.fulfill({ json: { count: DEMO_EVENTS(node).length, next: null, previous: null, results: DEMO_EVENTS(node) } }),
+        );
+      }
       for (const [name, url, click] of screens) {
         if (filter && !name.includes(filter)) continue;
         if (!url) continue;
