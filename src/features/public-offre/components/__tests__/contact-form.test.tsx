@@ -22,7 +22,7 @@ beforeEach(() => {
 type User = ReturnType<typeof userEvent.setup>;
 
 const fillValidForm = async (user: User, { email = 'cecile.coly@ndanges.sn' } = {}) => {
-  await user.type(screen.getByLabelText(/prénom et nom/i), 'Cécile Coly');
+  await user.type(screen.getByLabelText(/nom et prénom/i), 'Cécile Coly');
   await user.selectOptions(screen.getByLabelText(/fonction/i), 'Secrétaire paroissiale');
   await user.type(screen.getByLabelText(/paroisse ou service/i), 'Notre-Dame des Anges de Ouakam');
   await user.selectOptions(screen.getByLabelText(/diocèse/i), await screen.findByRole('option', { name: 'Archidiocèse de Dakar' }));
@@ -64,7 +64,7 @@ describe('Formulaire de demande de présentation', () => {
     renderApp(<ContactForm />);
 
     await fillValidForm(user);
-    await user.type(screen.getByLabelText(/votre message/i), 'Présentation au conseil pastoral.');
+    await user.type(screen.getByLabelText(/^message/i), 'Présentation au conseil pastoral.');
     await user.click(screen.getByRole('checkbox', { name: /le curé de la paroisse est informé/i }));
     await user.click(screen.getByRole('button', { name: 'Envoyer la demande' }));
 
