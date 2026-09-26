@@ -7,7 +7,6 @@ import { cardClasses } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { SkeletonLine } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
-import { cn } from '@/utils/cn';
 import { dayjs, hour } from '@/utils/dates';
 
 import { type HomeBooking, useMyBookings } from '../api/get-my-bookings';
@@ -59,7 +58,7 @@ const BookingCard = ({ booking }: { booking: HomeBooking }) => {
           <Icon name="calendrier" size={18} />
           Ajouter à l’agenda
         </Button>
-        <NextLink href={paths.app.confession.getHref()} className={cn(buttonVariants({ variant: 'ghost', className: 'px-3' }))}>
+        <NextLink href={paths.app.confession.getHref()} className={buttonVariants({ variant: 'ghost', className: 'px-3' })}>
           Modifier
         </NextLink>
       </div>
@@ -91,7 +90,7 @@ export const ConfessionCard = ({ className }: { className?: string }) => {
           <p className="m-0 mt-1 text-14 text-ink-2">
             La confession ne se fait pas par message : réservez un créneau auprès d’un prêtre.
           </p>
-          <NextLink href={paths.app.confession.getHref()} className={cn(buttonVariants({ variant: 'outline', className: 'mt-4' }))}>
+          <NextLink href={paths.app.confession.getHref()} className={buttonVariants({ variant: 'outline', className: 'mt-4' })}>
             <Icon name="calendrier" size={18} />
             Prendre rendez-vous
           </NextLink>

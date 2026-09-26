@@ -33,14 +33,16 @@ describe('Squelettes de chargement à hauteur stable', () => {
     expect(within(screen.getByTestId('annonces-squelette')).getByText('Chargement des annonces…')).toBeInTheDocument();
   });
 
-  it('mes demandes : le tableau (en-tête et lignes) et la phrase d’en-tête sont réservés', async () => {
+  it('mes demandes : les cartes de suivi sont réservées à leur hauteur', async () => {
     pending('/documents/requests/');
     renderApp(<DemandesPage />);
 
     const skeleton = await screen.findByTestId('demandes-squelette');
     expect(within(skeleton).getByText('Chargement de vos demandes…')).toBeInTheDocument();
-    const table = within(skeleton).getByRole('table', { hidden: true });
-    expect(within(table).getAllByRole('row', { hidden: true })).toHaveLength(4); // en-tête + 3 lignes
+    // Deux cartes de suivi (maquette FID-Demandes), chacune à la hauteur d'une carte chargée.
+    const cards = skeleton.querySelectorAll('[aria-hidden="true"]');
+    expect(cards).toHaveLength(2);
+    cards.forEach((card) => expect(card).toHaveClass('h-[184px]'));
     expect(screen.getByRole('link', { name: /nouvelle demande/i })).toBeInTheDocument();
   });
 });

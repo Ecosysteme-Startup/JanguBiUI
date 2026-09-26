@@ -1,16 +1,18 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
 
 import { LITURGICAL_DOT, LiturgicalDot, type LiturgicalDotColor } from '@/components/ui/badge';
 import { Icon } from '@/components/ui/icon';
 import { Skeleton, SkeletonLine } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
-import { liturgyTodayQueryOptions } from '@/hooks/use-liturgy-today';
+import { useLiturgyTodayDay } from '@/hooks/use-liturgy-today';
 import { cn } from '@/utils/cn';
 import { longDate } from '@/utils/dates';
 
+import { keyVerse } from '../utils/key-verse';
+
+import { ListenButton } from './listen-button';
 import { OrdinalText } from './ordinal-text';
 
 const READING_LABEL: Record<string, string> = {
@@ -49,7 +51,8 @@ const WordOfTheDaySkeleton = () => (
 
 /** « La Parole du jour » (FID-Accueil) : aplat bleu, célébration, lectures, vers /app/parole. */
 export const WordOfTheDay = ({ className }: { className?: string }) => {
-  const { data: day, isPending, isError } = useQuery(liturgyTodayQueryOptions());
+  const { data: day, isPending, isError } = useLiturgyTodayDay();
+  const verse = day ? keyVerse(day.readings) : null;
   const color = LITURGICAL_DOT[day?.calendar.color as LiturgicalDotColor] ?? null;
 
   return (
@@ -61,17 +64,17 @@ export const WordOfTheDay = ({ className }: { className?: string }) => {
           <h2 id="acc-parole" className="m-0 text-22 font-semibold">
             La Parole du jour
           </h2>
-          <p className="m-0 mt-2 text-15 text-on-night">Les lectures du jour n’ont pas pu être chargées.</p>
+          <p className="m-0 mt-2 text-15 text-on-primary-muted">Les lectures du jour n’ont pas pu être chargées.</p>
         </div>
       ) : (
         <div className={heroClass}>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="m-0 text-14 text-on-night">
+            <p className="m-0 text-14 text-on-primary-muted">
               <span className="sr-only">La Parole du jour, </span>
               {longDate(day.date)}
             </p>
             {color && (
-              <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-lit-white px-3 text-13 font-medium text-night">
+              <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-lit-white px-3 text-13 font-medium text-on-lit-white">
                 <LiturgicalDot color={day.calendar.color} size={8} />
                 <span className="sr-only">Couleur liturgique : </span>
                 {color.label}
@@ -81,6 +84,12 @@ export const WordOfTheDay = ({ className }: { className?: string }) => {
           <h2 id="acc-parole" className="m-0 mt-2 text-22 font-semibold">
             <OrdinalText text={day.calendar.celebration} />
           </h2>
+          {verse && (
+            <blockquote className="m-0 mt-5 max-w-[580px]">
+              <p className="m-0 font-serif text-24 italic">«&nbsp;{verse.text}&nbsp;»</p>
+              <cite className="mt-2 block text-14 not-italic text-on-primary-muted">{verse.reference}</cite>
+            </blockquote>
+          )}
           {day.readings.length > 0 && (
             <ul className={cn('m-0 mt-6 grid list-none gap-4 p-0', GRID_COLS[Math.min(day.readings.length, 4)])}>
               {day.readings.map((r, i) => (
@@ -89,7 +98,7 @@ export const WordOfTheDay = ({ className }: { className?: string }) => {
                     aria-hidden="true"
                     className={cn('block h-1 rounded-full', r.type === 'evangile' ? 'bg-lit-white' : 'bg-primary-fill-hover')}
                   />
-                  <span className="mt-2.5 block text-13 text-on-night">{READING_LABEL[r.type] ?? 'Lecture'}</span>
+                  <span className="mt-2.5 block text-13 text-on-primary-muted">{READING_LABEL[r.type] ?? 'Lecture'}</span>
                   <span className="tnum block text-15 font-semibold">{r.citation}</span>
                 </li>
               ))}
@@ -98,11 +107,12 @@ export const WordOfTheDay = ({ className }: { className?: string }) => {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <NextLink
               href={paths.app.parole.getHref()}
-              className="inline-flex min-h-12 max-w-full items-center gap-2 rounded-12 bg-lit-white px-5 text-16 font-semibold text-primary-fill transition-colors hover:bg-on-night hover:text-primary-fill"
+              className="inline-flex min-h-12 max-w-full items-center gap-2 rounded-12 bg-lit-white px-5 text-16 font-semibold text-primary-fill transition-colors hover:bg-tint-50 hover:text-primary-strong"
             >
               <Icon name="parole" size={20} />
               Lire la Parole du jour
             </NextLink>
+            {day.audio_url && <ListenButton src={day.audio_url} />}
           </div>
         </div>
       )}

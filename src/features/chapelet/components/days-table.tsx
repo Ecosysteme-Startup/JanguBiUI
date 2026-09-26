@@ -1,9 +1,9 @@
 import NextLink from 'next/link';
 
+import { paths } from '@/config/paths';
 import { MYSTERIES_BY_DAY } from '@/features/chapelet/utils/rosary';
 import { cn } from '@/utils/cn';
 
-import { chapeletHref } from '../utils/links';
 
 /**
  * « Les mystères selon les jours » (FID-Chapelet) : la ligne d'aujourd'hui en évidence ; chaque groupe
@@ -29,7 +29,7 @@ export const DaysTable = ({ today, praying }: { today: number; praying: string }
                 <span className={cn(isToday ? 'font-semibold text-tint-800' : 'font-semibold text-ink')}>{row.group}</span>
               ) : (
                 <NextLink
-                  href={chapeletHref(isToday ? null : row.weekdays[0])}
+                  href={paths.app.chapelet.getHref(isToday ? undefined : row.weekdays[0])}
                   aria-label={`Prier les mystères ${row.group.toLowerCase()}`}
                   className={cn('hit', isToday ? 'font-semibold text-tint-800' : 'text-ink hover:text-primary')}
                 >

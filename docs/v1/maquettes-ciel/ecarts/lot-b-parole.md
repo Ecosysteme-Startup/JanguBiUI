@@ -7,8 +7,8 @@ Vérifié dans le code (`src/types/api.ts`, `../JanguBi/apps`) : aucun endpoint 
 
 | Écran | Bloc | Ce qu'il faudrait côté backend |
 |---|---|---|
-| FID-Accueil | Citation en exergue (« Une génération s'en va… », Ecclésiaste 1, 4) | Un verset mis en avant par jour liturgique (`key_verse` : texte + référence) dans `/liturgy/today/`. En attendant, rien n'est affiché (le schéma partagé `use-liturgy-today` ne garde pas les versets, voir demandes-fondations). |
-| FID-Accueil | Bouton « Écouter · 7 min » | `audio_url` existe dans `/liturgy/{jour}/` mais pas dans le schéma partagé du bandeau ; durée absente. Demande fondations ouverte. |
+| FID-Accueil | Citation en exergue (« Une génération s'en va… », Ecclésiaste 1, 4) | L'API ne désigne pas de verset clé : l'accueil cite le premier verset de l'Évangile (sinon de la première lecture), rien sans texte. Un `key_verse` (texte + référence) dans `/liturgy/today/` permettrait un choix éditorial. |
+| FID-Accueil | Bouton « Écouter · 7 min » | Bouton lecture / pause sur `audio_url` (affiché seulement s'il existe) ; la durée n'est pas fournie par l'API (`audio_duration` en secondes à ajouter). |
 | FID-Accueil | Dates des étapes de la demande (« Vérification 19 sept. ») | Historique daté des statuts dans `/documents/requests/` (seule la date de dépôt est affichée). |
 | FID-Accueil | Annonce « Épinglée » | Pas de champ « épinglée » : on signale l'« Annonce du dimanche » (`is_sunday_notice`). |
 | FID-Accueil | Office et objet de la conversation (« Vicaire · Préparation au mariage ») | Office du prêtre dans `/messaging/conversations/` (participant). |

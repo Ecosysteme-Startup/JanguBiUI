@@ -6,7 +6,6 @@ import { buttonVariants } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 import { displayName, useMe } from '@/hooks/use-me';
-import { cn } from '@/utils/cn';
 import { parishLabel } from '@/utils/parish-name';
 
 /** En-tête de l'accueil (FID-Accueil) : salutation, paroisse suivie, « Demander un acte ». */
@@ -32,7 +31,7 @@ export const HomeGreeting = () => {
           </p>
         )}
       </div>
-      <NextLink href={paths.app.demandes.nouvelle.getHref()} className={cn(buttonVariants({ variant: 'outline', className: 'min-h-11' }))}>
+      <NextLink href={paths.app.demandes.nouvelle.getHref()} className={buttonVariants({ variant: 'outline', className: 'min-h-11' })}>
         <Icon name="plus" size={18} />
         Demander un acte
       </NextLink>

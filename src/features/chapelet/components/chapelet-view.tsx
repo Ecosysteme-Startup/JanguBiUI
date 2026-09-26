@@ -6,10 +6,10 @@ import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingBlock } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
 import { useRosaryDay } from '@/features/chapelet/api/get-rosary-day';
 import { GuidedRosary } from '@/features/chapelet/components/guided-rosary';
 import { ParoleNav } from '@/features/chapelet/components/parole-nav';
-import { chapeletHref } from '@/features/chapelet/utils/links';
 import { MYSTERIES_BY_DAY } from '@/features/chapelet/utils/rosary';
 import { useRosaryToday } from '@/hooks/use-rosary-today';
 import { ApiError } from '@/lib/api-client';
@@ -52,7 +52,7 @@ export const ChapeletView = ({ jour = null }: { jour?: number | null }) => {
             {other !== null && (
               <>
                 {' '}
-                <NextLink href={chapeletHref(null)} className="font-medium">
+                <NextLink href={paths.app.chapelet.getHref()} className="font-medium">
                   Revenir aux mystères du jour
                 </NextLink>
               </>

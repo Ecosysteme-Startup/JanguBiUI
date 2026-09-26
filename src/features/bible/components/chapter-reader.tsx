@@ -88,7 +88,7 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
         {prev ? (
           <NextLink
             href={paths.app.bible.chapitre.getHref(prev.book.slug, prev.chapter)}
-            className={cn(buttonVariants({ variant: 'outline', className: 'min-h-11 pl-3' }))}
+            className={buttonVariants({ variant: 'outline', className: 'min-h-11 pl-3' })}
           >
             <Icon name="chevron-gauche" size={18} />
             {chapterShortName(prev.book, prev.chapter)}
@@ -100,7 +100,7 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
         {next ? (
           <NextLink
             href={paths.app.bible.chapitre.getHref(next.book.slug, next.chapter)}
-            className={cn(buttonVariants({ variant: 'outline', className: 'min-h-11 pr-3' }))}
+            className={buttonVariants({ variant: 'outline', className: 'min-h-11 pr-3' })}
           >
             {chapterShortName(next.book, next.chapter)}
             <Icon name="chevron-droite" size={18} />
