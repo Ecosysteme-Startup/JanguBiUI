@@ -20,7 +20,7 @@ describe('Événement (/app/paroisse/evenements/[id])', () => {
     expect(await screen.findByRole('heading', { level: 1, name: /journée de récollection des ceb/i })).toBeInTheDocument();
     expect(screen.getByText('Dans 16 jours')).toBeInTheDocument();
     expect(screen.getByText('Abbaye de Keur Moussa')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: '84 places réservées sur 120' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: '84 places réservées sur 120' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'M’inscrire' }));
 
@@ -43,7 +43,7 @@ describe('Événement (/app/paroisse/evenements/[id])', () => {
     renderApp(<EventView id={String(f5bIds.evenementRecollection)} />);
 
     expect(await screen.findByRole('button', { name: 'Complet' })).toBeDisabled();
-    expect(screen.getByRole('img', { name: '120 places réservées sur 120' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: '120 places réservées sur 120' })).toBeInTheDocument();
   });
 
   it('inscrit plusieurs personnes avec une remarque, puis met à jour l’inscription', async () => {
@@ -58,7 +58,7 @@ describe('Événement (/app/paroisse/evenements/[id])', () => {
 
     expect(await screen.findByText(/2 personnes\. Un rappel/)).toBeInTheDocument();
     expect(f5bState.lastRegistration).toEqual({ seats: 2, note: 'Ma tante marche avec une canne.' });
-    expect(screen.getByRole('img', { name: '86 places réservées sur 120' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: '86 places réservées sur 120' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Modifier mon inscription' }));
     const again = screen.getByLabelText(/personnes/i);
@@ -68,7 +68,7 @@ describe('Événement (/app/paroisse/evenements/[id])', () => {
     await user.click(screen.getByRole('button', { name: 'Mettre à jour' }));
 
     expect(await screen.findByText(/3 personnes\. Un rappel/)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: '87 places réservées sur 120' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: '87 places réservées sur 120' })).toBeInTheDocument();
   });
 
   it('borne le nombre de personnes aux places restantes', async () => {
