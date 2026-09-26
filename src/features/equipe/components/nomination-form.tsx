@@ -88,12 +88,12 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="tnum m-0 text-meta text-ink-3">Nouvelle nomination</p>
-          <h2 id="n-titre" className="m-0 mt-1 font-serif text-h3 font-normal text-ink">
+          <h2 id="n-titre" className="m-0 text-22 font-semibold text-ink">
             Nommer une personne
           </h2>
+          <p className="m-0 mt-1 text-14 text-ink-2">L’office donne ses capacités dès sa date de début.</p>
         </div>
-        <button type="button" aria-label="Fermer le panneau" onClick={onClose} className="hit inline-flex size-10 items-center justify-center rounded hover:bg-surface-2">
+        <button type="button" aria-label="Fermer le panneau" onClick={onClose} className="hit inline-flex size-9 shrink-0 items-center justify-center rounded-10 text-ink-2 hover:bg-surface-2">
           <Icon name="x" size={20} />
         </button>
       </div>
@@ -140,18 +140,18 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
       </Field>
 
       {office && (
-        <div>
-          <p className="m-0 flex justify-between text-sm font-semibold text-ink">
+        <div className="rounded-12 border border-line bg-surface p-4">
+          <p className="m-0 flex justify-between text-14 font-semibold text-ink">
             Capacités de l’office <span className="font-normal text-ink-3">Lecture seule</span>
           </p>
           <div className="mt-2">
             {office.capabilities.length > 0 ? (
               <CapabilityChips capabilities={office.capabilities} />
             ) : (
-              <p className="m-0 text-sm text-ink-3">Aucune capacité de gestion.</p>
+              <p className="m-0 text-14 text-ink-3">Aucune capacité de gestion.</p>
             )}
           </div>
-          <p className="m-0 mt-2 text-sm text-ink-3">
+          <p className="m-0 mt-2 text-13 text-ink-3">
             {withoutAccess(office.capabilities)} Défini par le catalogue d’offices{office.inherits_down ? ', hérité par les nœuds rattachés' : ''}.
           </p>
         </div>
@@ -165,7 +165,7 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
       </Field>
 
       {create.isError && (
-        <p role="alert" className="m-0 flex items-center gap-2 text-sm text-err">
+        <p role="alert" className="m-0 flex items-center gap-2 text-14 text-err">
           <Icon name="alerte" size={16} />
           {apiErrorCode(create.error) === 'mfa_required'
             ? 'Validez d’abord votre double authentification, puis recommencez.'
@@ -173,7 +173,7 @@ export const NominationForm = ({ targets, offices, onClose }: NominationFormProp
         </p>
       )}
       <div className="flex justify-end gap-3 border-t border-line pt-4">
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Annuler
         </Button>
         <Button type="submit" disabled={create.isPending}>

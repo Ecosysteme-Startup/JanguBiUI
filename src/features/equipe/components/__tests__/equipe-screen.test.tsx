@@ -44,7 +44,8 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     expect(within(table).getByText('Secrétaire paroissiale')).toBeInTheDocument();
     expect(await within(table).findAllByRole('list', { name: 'Capacités' })).toHaveLength(2);
     expect(within(table).getByText('+3')).toHaveAttribute('title', 'Messagerie, Confessions, Tableau de bord');
-    const past = screen.getByRole('region', { name: /nominations passées/i });
+    await userEvent.setup().click(screen.getByRole('tab', { name: /offices terminés/i }));
+    const past = await screen.findByRole('region', { name: /nominations passées/i });
     expect(within(past).getByText(/anna sarr/i)).toBeInTheDocument();
     expect(within(past).getByText('À sa demande')).toBeInTheDocument();
   });
@@ -166,10 +167,12 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     const user = userEvent.setup();
     await renderPage();
 
-    await user.click(await screen.findByRole('button', { name: 'Terminer la nomination de Mme Germaine Faye' }));
+    await user.click(await screen.findByRole('button', { name: 'Actions pour Mme Germaine Faye' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Terminer la nomination' }));
     await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Terminer la nomination' }));
 
     await vi.waitFor(() => expect(f8aState.lastBody).toMatchObject({ action: 'terminer' }));
+    await user.click(await screen.findByRole('tab', { name: /offices terminés/i }));
     const past = await screen.findByRole('region', { name: /nominations passées/i });
     expect(await within(past).findByText(/germaine faye/i)).toBeInTheDocument();
   });
@@ -179,9 +182,11 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     await renderPage();
 
     // Seuls les offices qui ont des qualités proposent l'action.
-    expect(await screen.findByRole('button', { name: 'Modifier la qualité de Abbé Augustin Ndiaye' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Modifier la qualité de Mme Germaine Faye' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Modifier la qualité de Abbé Augustin Ndiaye' }));
+    await user.click(await screen.findByRole('button', { name: 'Actions pour Mme Germaine Faye' }));
+    expect(screen.queryByRole('menuitem', { name: 'Modifier la qualité' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await user.click(await screen.findByRole('button', { name: 'Actions pour Abbé Augustin Ndiaye' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Modifier la qualité' }));
     const dialog = await screen.findByRole('dialog', { name: 'Modifier la qualité' });
     expect(within(dialog).getByRole('radio', { name: 'Curé' })).toBeChecked();
     expect(within(dialog).getByRole('button', { name: 'Enregistrer' })).toBeDisabled();
@@ -202,7 +207,8 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     const user = userEvent.setup();
     await renderPage();
 
-    await user.click(await screen.findByRole('button', { name: 'Modifier la qualité de Abbé Augustin Ndiaye' }));
+    await user.click(await screen.findByRole('button', { name: 'Actions pour Abbé Augustin Ndiaye' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Modifier la qualité' }));
     const dialog = await screen.findByRole('dialog', { name: 'Modifier la qualité' });
     await user.click(within(dialog).getByRole('radio', { name: 'Administrateur paroissial' }));
     await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
@@ -217,8 +223,7 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     expect(await screen.findByText('Consultation seule')).toBeInTheDocument();
     expect(await screen.findByRole('table')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /nommer une personne/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /terminer la nomination/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /modifier la qualité/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /actions pour/i })).not.toBeInTheDocument();
   });
 
   it('refuse l’écran sans aucune des deux capacités', async () => {
