@@ -8,6 +8,7 @@ import { grantsChancelier, grantsSecretaire, ids } from '@/testing/mocks/db';
 import { f8aState, resetF8a } from '@/testing/mocks/db-f8a';
 import { v1Error } from '@/testing/mocks/handlers/f8a';
 import { server } from '@/testing/mocks/server';
+import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
 import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
 
@@ -155,6 +156,53 @@ describe('Agenda (PAR-Agenda)', () => {
 
     expect(await screen.findByText('Événement annulé')).toBeInTheDocument();
     expect(f8aState.events.find((e) => e.id === 32)?.is_cancelled).toBe(true);
+  });
+
+  it('affiche la vue Semaine, charge la semaine et la garde dans l’URL', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await user.click(await screen.findByRole('radio', { name: 'Semaine' }));
+    expect(await screen.findByRole('heading', { name: 'Semaine du 21 au 27 septembre 2026', level: 1 })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Semaine suivante : du 28 septembre au 4 octobre' }));
+    await user.click(screen.getByRole('button', { name: 'Semaine suivante : du 5 octobre au 11 octobre' }));
+
+    expect(await screen.findByRole('heading', { name: 'Semaine du 5 au 11 octobre 2026', level: 1 })).toBeInTheDocument();
+    expect(navigation.replace).toHaveBeenLastCalledWith(`/espace/${ids.saintDominique}/agenda?vue=semaine&date=2026-10-05`, { scroll: false });
+    await vi.waitFor(() => expect(f8aState.agendaQueries.some((q) => q.from === '2026-10-05' && q.to === '2026-10-11')).toBe(true));
+    const saturday = await screen.findByRole('group', { name: 'samedi 10 octobre' });
+    const event = within(saturday).getByRole('button', { name: /8 h 30 à 16 h\s*Journée de récollection des CEB/ });
+    // 8 h 30 sur une grille qui commence à 7 h, une heure = 48 px.
+    expect(event.closest('li')).toHaveStyle({ top: `${1.5 * 48}px` });
+    expect(screen.getByText(/1 événement cette semaine/)).toBeInTheDocument();
+
+    await user.click(event);
+    expect(await screen.findByRole('region', { name: 'Journée de récollection des CEB' })).toBeInTheDocument();
+    expect(event).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('rouvre la semaine indiquée dans l’URL et sélectionne un événement au clavier', async () => {
+    navigation.search = 'vue=semaine&date=2026-10-14';
+    const user = userEvent.setup();
+    await renderPage();
+
+    expect(await screen.findByRole('heading', { name: 'Semaine du 12 au 18 octobre 2026', level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Semaine' })).toHaveAttribute('aria-checked', 'true');
+    const monday = await screen.findByRole('group', { name: 'lundi 12 octobre' });
+    const event = within(monday).getByRole('button', { name: /rentrée du catéchisme/i });
+
+    event.focus();
+    await user.keyboard('{Enter}');
+
+    expect(await screen.findByRole('region', { name: 'Rentrée du catéchisme' })).toBeInTheDocument();
+  });
+
+  it('ignore une période invalide dans l’URL', async () => {
+    navigation.search = 'vue=annee&date=2026-13-45';
+    await renderPage();
+
+    expect(await screen.findByRole('heading', { name: 'Septembre 2026', level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Mois' })).toHaveAttribute('aria-checked', 'true');
   });
 
   it('affiche un refus du serveur', async () => {

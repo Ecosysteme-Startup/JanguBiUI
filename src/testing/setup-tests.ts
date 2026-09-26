@@ -17,6 +17,7 @@ afterEach(async () => {
     cleanup();
     server.resetHandlers();
     navigation.pathname = '/';
+    navigation.search = '';
   }
 });
 afterAll(() => server.close());
@@ -27,7 +28,7 @@ vi.mock('next/navigation', async () => {
   return {
     usePathname: () => nav.pathname,
     useRouter: () => ({ replace: nav.replace, push: nav.push, back: vi.fn(), refresh: vi.fn() }),
-    useSearchParams: () => new URLSearchParams(),
+    useSearchParams: () => new URLSearchParams(nav.search),
     notFound: vi.fn(),
     redirect: vi.fn(),
   };

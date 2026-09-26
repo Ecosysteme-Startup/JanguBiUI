@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import { apiUrl } from '@/testing/mocks/api-url';
 import { ids } from '@/testing/mocks/db';
-import { f8aCategories, f8aState, nodeChildren, officeCatalogue, personsDirectory, places, registrations } from '@/testing/mocks/db-f8a';
+import { f8aCategories, f8aState, nodeChildren, officeCatalogue, personsDirectory, places, registrations, typeDelaysOf } from '@/testing/mocks/db-f8a';
 
 /** Enveloppe d'erreur V1 (SRS §7). */
 export const v1Error = (status: number, code: string, message: string, details: Record<string, unknown> = {}) =>
@@ -61,6 +61,8 @@ const articleHandlers = [
       created_at: now(),
       updated_at: now(),
       notify_followers: true,
+      cover_image_alt: '',
+      cover_image_decorative: false,
       ...body,
       cover_image_id: body.cover_image_id ?? null,
       cover_image_url: body.cover_image_id ? `https://minio.test/covers/${String(body.cover_image_id)}.jpg` : null,
@@ -276,6 +278,21 @@ export const f8aOverrides = [
     f8aState.lastBody = body;
     f8aState.settings = { ...f8aState.settings, ...body, updated_at: '2026-09-26T09:00:00Z' } as typeof f8aState.settings;
     return HttpResponse.json(f8aState.settings);
+  }),
+  http.get(apiUrl('/staff/documents/nodes/:nodeId/type-delays/'), ({ params }) =>
+    params.nodeId === ids.saintDominique
+      ? HttpResponse.json(typeDelaysOf(f8aState.typeDelays, f8aState.settings.acts_delay_days))
+      : v1Error(404, 'not_found', 'Nœud introuvable.'),
+  ),
+  http.put(apiUrl('/staff/documents/nodes/:nodeId/type-delays/'), async ({ request }) => {
+    const body = (await request.json()) as { items: { document_type: string; days: number | null }[] };
+    f8aState.lastTypeDelaysBody = body;
+    const next = { ...f8aState.typeDelays };
+    body.items.forEach((item) => {
+      next[item.document_type] = item.days;
+    });
+    f8aState.typeDelays = next;
+    return HttpResponse.json(typeDelaysOf(f8aState.typeDelays, f8aState.settings.acts_delay_days));
   }),
   http.get(apiUrl('/hierarchy/nodes/:nodeId/'), ({ params }) =>
     params.nodeId === ids.saintDominique ? HttpResponse.json(f8aState.node) : v1Error(404, 'not_found', 'Nœud introuvable.'),

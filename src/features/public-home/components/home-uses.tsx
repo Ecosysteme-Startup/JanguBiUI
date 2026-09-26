@@ -19,11 +19,15 @@ const STEPS = [
   { date: 'À venir', label: 'Retirée', state: 'todo' },
 ] as const;
 
+/** Emplacement photo de la brique « Ma paroisse » (maquette Main, Fig. 2). */
+export const HomeParvisSlot = () => <PhotoSlot slot="main-parvis-annonces" caption="Parvis, sortie de la messe de 9 h 30" ratio="3:2" />;
+
 /**
  * « II — Ce que vous y trouvez » : les quatre usages. La demande d'acte présentée est un
- * exemple ; la dernière annonce publiée est passée en emplacement.
+ * exemple ; la dernière annonce publiée est passée en emplacement, et sa bannière (`photo`)
+ * remplace alors l'emplacement photo.
  */
-export const HomeUses = ({ announcement }: { announcement?: ReactNode }) => (
+export const HomeUses = ({ announcement, photo }: { announcement?: ReactNode; photo?: ReactNode }) => (
   <section aria-labelledby="briques-titre" className="flex flex-col">
     <SectionHeading number="II" title="Ce que vous y trouvez" aside="Quatre usages" />
     <div className="mt-8 grid grid-cols-1 items-end gap-6 lg:grid-cols-12">
@@ -64,7 +68,7 @@ export const HomeUses = ({ announcement }: { announcement?: ReactNode }) => (
           </p>
         </div>
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-7">
-          <PhotoSlot slot="main-parvis-annonces" caption="Parvis, sortie de la messe de 9 h 30" ratio="3:2" className={cn(announcement ? 'md:col-span-4' : 'md:col-span-7')} />
+          <div className={cn(announcement ? 'md:col-span-4' : 'md:col-span-7')}>{photo ?? <HomeParvisSlot />}</div>
           {announcement && <div className="md:col-span-3">{announcement}</div>}
         </div>
       </article>

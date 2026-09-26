@@ -14,6 +14,7 @@ import { dayjs } from '@/utils/dates';
 
 import { useNodeChildren } from '../api/node-children';
 import { NODE_STATUS_LABELS, type NodeSettings, useNodeSettings, useParishLife } from '../api/node-settings';
+import { useTypeDelays } from '../api/type-delays';
 
 import { ParishLifeForm } from './parish-life-form';
 import { SectionTitle } from './section-title';
@@ -48,18 +49,20 @@ const Identity = ({ node, attachment }: { node: NodeSettings; attachment: string
   </section>
 );
 
-/** Paramètres du secrétariat : chargés à part (lecture réservée aux mêmes capacités). */
+/** Paramètres du secrétariat et délais par type d'acte : chargés à part (lecture réservée aux mêmes capacités). */
 const ParishLifeBlock = ({ nodeId, canEdit }: { nodeId: string; canEdit: boolean }) => {
   const settings = useParishLife(nodeId);
-  if (settings.isPending) return <LoadingBlock label="Chargement du secrétariat…" lines={4} />;
-  if (settings.isError) {
+  const typeDelays = useTypeDelays(nodeId);
+  if (settings.isPending || typeDelays.isPending) return <LoadingBlock label="Chargement du secrétariat…" lines={4} />;
+  const error = settings.error ?? typeDelays.error;
+  if (settings.isError || typeDelays.isError) {
     return (
       <p role="alert" className="m-0 text-sm text-err">
-        {isForbidden(settings.error) ? 'Vous n’avez pas accès aux paramètres du secrétariat.' : apiErrorMessage(settings.error)}
+        {isForbidden(error) ? 'Vous n’avez pas accès aux paramètres du secrétariat.' : apiErrorMessage(error)}
       </p>
     );
   }
-  return <ParishLifeForm key={settings.data.id} nodeId={nodeId} settings={settings.data} canEdit={canEdit} />;
+  return <ParishLifeForm key={settings.data.id} nodeId={nodeId} settings={settings.data} typeDelays={typeDelays.data} canEdit={canEdit} />;
 };
 
 /** PAR-Parametres : identité (lecture), secrétariat et demandes d’actes (horaires.gerer), lieux de culte et nœuds rattachés. */

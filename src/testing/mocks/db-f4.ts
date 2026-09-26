@@ -228,6 +228,8 @@ export const publicAnnouncements = [
     is_sunday_notice: true,
     sunday_date: '2026-09-27',
     cover_image_url: null,
+    cover_image_alt: '',
+    cover_image_decorative: false,
     published_at: '2026-09-22T09:00:00Z',
     reactions: { counts: {}, mine: [] },
   },

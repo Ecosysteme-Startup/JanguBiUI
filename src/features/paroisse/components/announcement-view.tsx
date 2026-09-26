@@ -110,7 +110,7 @@ export const AnnouncementView = ({ id }: { id: string }) => {
           {article.cover_image_url && (
             <figure className="m-0 mt-6">
               {/* URL signée du stockage (MinIO/S3) : pas d'optimisation next/image. */}
-              <img src={article.cover_image_url} alt="" className="aspect-[4/1] w-full border border-line object-cover" />
+              <img src={article.cover_image_url} alt={article.cover_image_decorative ? '' : article.cover_image_alt} className="aspect-[4/1] w-full border border-line object-cover" />
             </figure>
           )}
           <div className="mt-4">

@@ -13,6 +13,9 @@ const announcementSchema = z.object({
   is_sunday_notice: z.boolean().default(false),
   sunday_date: z.string().nullable().optional(),
   published_at: z.string().nullable().optional(),
+  cover_image_url: z.string().nullable().catch(null),
+  cover_image_alt: z.string().catch(''),
+  cover_image_decorative: z.boolean().catch(false),
 });
 export type PublicAnnouncement = z.infer<typeof announcementSchema>;
 

@@ -6,11 +6,12 @@ import { publicAnnouncementsQueryOptions } from '@/features/public-annuaire/api/
 import { DirectoryExcerpt } from '@/features/public-annuaire/components/directory-excerpt';
 import { DirectoryStats } from '@/features/public-annuaire/components/directory-stats';
 import { LatestAnnouncement } from '@/features/public-annuaire/components/latest-announcement';
+import { LatestAnnouncementCover } from '@/features/public-annuaire/components/latest-announcement-cover';
 import { HomeFaq } from '@/features/public-home/components/home-faq';
 import { HomeHero } from '@/features/public-home/components/home-hero';
 import { HomeOffer } from '@/features/public-home/components/home-offer';
 import { HomeTrust } from '@/features/public-home/components/home-trust';
-import { HomeUses } from '@/features/public-home/components/home-uses';
+import { HomeParvisSlot, HomeUses } from '@/features/public-home/components/home-uses';
 import { liturgyDayQueryOptions } from '@/features/public-parole/api/get-liturgy-day';
 import { LiturgyWeek } from '@/features/public-parole/components/liturgy-week';
 import { ParoleTeaser } from '@/features/public-parole/components/parole-teaser';
@@ -38,7 +39,7 @@ const HomePage = async () => {
       <div className="flex flex-col gap-24">
         <HomeHero stats={<DirectoryStats />} calendar={<LiturgyWeek />} />
         <ParoleTeaser />
-        <HomeUses announcement={<LatestAnnouncement />} />
+        <HomeUses announcement={<LatestAnnouncement />} photo={<LatestAnnouncementCover fallback={<HomeParvisSlot />} />} />
         <HomeOffer />
         <HomeTrust />
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-6">
