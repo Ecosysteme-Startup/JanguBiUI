@@ -1,5 +1,5 @@
 import { progressReducer, START } from '@/features/chapelet/utils/progress';
-import { beadsOf, decadeOf } from '@/features/chapelet/utils/rosary';
+import { beadsOf, decadeOf, MYSTERIES_BY_DAY, mysteryHeading, parseWeekday } from '@/features/chapelet/utils/rosary';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { server } from '@/testing/mocks/server';
 
@@ -41,5 +41,15 @@ describe('decadeOf', () => {
 
   it('ne fabrique rien si les prières de base manquent', () => {
     expect(decadeOf({ id: 1, order: 1, title: 'X', meditation: null, fruit: '', prayers: [] }, [])).toEqual([]);
+  });
+
+  it('titre la dizaine et lit le jour demandé dans l’URL', () => {
+    expect(mysteryHeading(3, 'Lumineux')).toBe('Troisième mystère lumineux');
+    expect(mysteryHeading(1, 'Mystères joyeux')).toBe('Premier mystère joyeux');
+    expect(parseWeekday('0')).toBe(0);
+    expect(parseWeekday('6')).toBe(6);
+    expect(parseWeekday('7')).toBeNull();
+    expect(parseWeekday('lundi')).toBeNull();
+    expect(MYSTERIES_BY_DAY.flatMap((r) => r.weekdays).sort()).toEqual([0, 1, 2, 3, 4, 5, 6]);
   });
 });

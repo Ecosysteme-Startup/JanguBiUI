@@ -1,33 +1,55 @@
+import { Icon } from '@/components/ui/icon';
 import type { Bead } from '@/features/chapelet/utils/rosary';
 import { cn } from '@/utils/cn';
 
-/** La dizaine en grains : NP, 1…10, G ; le grain en cours est marqué `aria-current="step"`. */
+/**
+ * La dizaine en grains (FID-Chapelet) : Notre Père et Gloire en carrés, Ave en ronds ; dits en aplat,
+ * le grain en cours agrandi et cerclé (`aria-current="step"`), les suivants au trait.
+ */
 export const DecadeBeads = ({ beads, step }: { beads: Bead[]; step: number }) => {
   const current = beads[step];
   const total = beads.filter((b) => b.hailMary !== null).length;
   const label = current?.hailMary
     ? `Progression de la dizaine : ${current.hailMary}e Je vous salue Marie sur ${total}`
-    : `Progression de la dizaine : grain ${step + 1} sur ${beads.length}`;
+    : `Progression de la dizaine : ${current?.prayer.type_display ?? 'grain'} (${step + 1} sur ${beads.length})`;
+  const first = beads[0];
+  const last = beads.at(-1);
+
   return (
-    <ol aria-label={label} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
-      {beads.map((bead, i) => {
-        const state = i < step ? 'dit' : i === step ? 'courant' : 'avenir';
-        return (
-          <li
-            key={i}
-            aria-current={state === 'courant' ? 'step' : undefined}
-            className={cn(
-              'tnum inline-flex items-center justify-center rounded-full border text-meta',
-              bead.hailMary === null ? 'size-9' : 'size-7',
-              state === 'dit' && 'border-primary-fill bg-primary-fill text-on-primary',
-              state === 'courant' && 'border-ink bg-ink text-paper ring-2 ring-primary ring-offset-2 ring-offset-paper',
-              state === 'avenir' && 'border-line-field text-ink-3',
-            )}
-          >
-            {bead.label}
-          </li>
-        );
-      })}
-    </ol>
+    <div className="mt-7">
+      <ol aria-label={label} className="m-0 flex list-none items-center justify-between gap-1 p-0">
+        {beads.map((bead, i) => {
+          const state = i < step ? 'dit' : i === step ? 'courant' : 'avenir';
+          const square = bead.hailMary === null;
+          return (
+            <li
+              key={i}
+              aria-current={state === 'courant' ? 'step' : undefined}
+              className={cn(
+                'inline-flex shrink-0 items-center justify-center',
+                state === 'courant'
+                  ? cn('size-8 border-3 border-primary-fill bg-tint-100 ring-4 ring-tint-50', square ? 'rounded-8' : 'rounded-full')
+                  : square
+                    ? 'size-7 rounded-8'
+                    : 'size-5 rounded-full',
+                state === 'dit' && 'bg-primary-fill text-on-primary',
+                state === 'avenir' && 'border-1.5 border-line-field',
+              )}
+            >
+              {state === 'dit' && square && <Icon name="check" size={16} strokeWidth={2.25} />}
+              <span className="sr-only">{bead.prayer.type_display}{bead.hailMary !== null && ` ${bead.hailMary}`}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <p aria-hidden="true" className="m-0 mt-2.5 flex justify-between gap-2 text-13 text-ink-3">
+        <span className="hidden sm:inline">{first?.prayer.type_display}</span>
+        <span className="tnum font-semibold text-ink">
+          {current?.prayer.type_display}
+          {current?.hailMary !== null && current && ` · ${current.hailMary} sur ${total}`}
+        </span>
+        <span className="hidden sm:inline">{last?.prayer.type_display}</span>
+      </p>
+    </div>
   );
 };
