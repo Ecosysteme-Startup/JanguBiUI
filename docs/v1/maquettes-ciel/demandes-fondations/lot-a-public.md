@@ -9,6 +9,7 @@ son propre conteneur `mx-auto max-w-public px-4 md:px-6` (ou équivalent documen
 Le bandeau liturgique n'apparaît pas dans les maquettes publiques (en-tête 72 px directement en haut).
 En attendant : mes pages utilisent leur conteneur local ; tant que le shell garde son padding, les bandes pleine largeur
 restent dans la colonne (rendu dégradé mais propre).
+Traité : 0f93800 — `<main id="contenu" className="flex-1">` sans padding ni largeur max ; conteneur `jb-container` (1200 + gouttière 16) posé par la page ; plus de bandeau liturgique.
 
 ## 2. Coquille « parcours d'inscription » pour `/bienvenue`
 Écrans : WEB-Inscription-Paroisse, WEB-Inscription-Consentement.
@@ -20,8 +21,11 @@ restent dans la colonne (rendu dégradé mais propre).
   (13/18 ink-3) à gauche ; liens Confidentialité, Conditions d'utilisation, Aide (13/18 ink-2, gap 24) à droite.
 Besoin : remplacer le panneau « nuit » de `AuthShell` par cette coquille (ou une nouvelle `SignupShell`), sans prop `aside`.
 En attendant, `/bienvenue` garde `AuthShell`.
+Traité : 0f93800 — `AuthShell` = en-tête 72 px + `jb-container pt-8 pb-12` + pied 64 px ; `headerAction={<Button asChild variant="outline"><…>Se déconnecter</…></Button>}` ; `aside` désormais facultatif (panneau surface 624 px) : ne pas le passer pour composer sa propre grille.
 
 ## 3. Tailles de texte manquantes à l'échelle
 - `text-30` (30/42, Source Serif) : citation de l'Évangile dans la bande « La Parole du jour » (WEB-Accueil).
   En attendant : `text-28 leading-[42px]`.
 - `text-19` (19/30, Source Serif) : versets de l'aperçu du psaume (WEB-Accueil). En attendant : `text-20 leading-[30px]`.
+Traité : ba23ef0 — `text-30` (30/42) et `text-19` (19/30), à combiner avec `font-serif`.
+
