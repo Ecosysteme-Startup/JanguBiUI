@@ -1,12 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { Stepper } from '@/components/signature/stepper';
+import { TopbarContent } from '@/components/layouts/shell-slots';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
@@ -27,9 +27,23 @@ import { WizardStepInfos } from './wizard-step-infos';
 import { WizardStepParish } from './wizard-step-parish';
 import { WizardStepRecap } from './wizard-step-recap';
 import { WizardStepType } from './wizard-step-type';
+import { WizardSteps } from './wizard-steps';
 
-const STEPS = ['Type d’acte', 'Paroisse du sacrement', 'Informations', 'Récapitulatif'];
-const HEADINGS = ['Quel acte demandez-vous ?', 'Où le sacrement a-t-il été célébré ?', 'Vos informations', 'Vérifier et envoyer'];
+const STEPS = ['Type d’acte', 'Paroisse du sacrement', 'Informations du registre', 'Vérification et envoi'];
+const HEADINGS = ['Quel acte demandez-vous ?', 'Où le sacrement a-t-il été célébré ?', 'Comme au registre', 'Vérifier et envoyer'];
+const INTROS = [
+  'L’acte vous sera remis en original, signé et scellé par la paroisse.',
+  'C’est la paroisse du sacrement qui tient le registre et délivre l’acte.',
+  'Recopiez les informations telles qu’au jour du sacrement : elles guident la recherche dans le registre.',
+  'Relisez votre demande avant de l’envoyer au secrétariat.',
+];
+const NEXT = ['Ensuite : la paroisse du sacrement', 'Ensuite : les informations du registre', 'Ensuite : vérification et envoi', null];
+
+const Crumbs = () => (
+  <TopbarContent
+    start={<Breadcrumbs items={[{ label: 'Mes demandes', href: paths.app.demandes.list.getHref() }, { label: 'Nouvelle demande' }]} />}
+  />
+);
 
 const EMPTY: WizardValues = {
   document_type: '',
@@ -89,12 +103,21 @@ export const RequestWizard = () => {
     previousStep.current = step;
   }, [step]);
 
-  if (options.isPending) return <LoadingBlock label="Préparation du formulaire…" lines={5} />;
+  if (options.isPending)
+    return (
+      <>
+        <Crumbs />
+        <LoadingBlock label="Préparation du formulaire…" lines={5} />
+      </>
+    );
   if (options.isError)
     return (
-      <EmptyState tone="err" icon="alerte" title="Le formulaire n’a pas pu être chargé.">
-        Vérifiez votre connexion, puis rechargez la page.
-      </EmptyState>
+      <>
+        <Crumbs />
+        <EmptyState tone="err" icon="alerte" title="Le formulaire n’a pas pu être chargé.">
+          Vérifiez votre connexion, puis rechargez la page.
+        </EmptyState>
+      </>
     );
 
   const goTo = async (next: number) => {
@@ -117,26 +140,30 @@ export const RequestWizard = () => {
   const error = upload.error ?? create.error;
   const busy = upload.isPending || create.isPending;
 
+  const values = form.watch();
+  const typeLabel =
+    values.document_type === 'other' && values.document_type_free
+      ? values.document_type_free
+      : options.data.document_types.find((t) => t.value === values.document_type)?.label;
+  const errorCount = step === 2 ? Object.keys(form.formState.errors).length : 0;
+  const summaries = [
+    typeLabel,
+    values.parish?.name,
+    errorCount > 0 ? `${errorCount} champ${errorCount > 1 ? 's' : ''} à corriger` : step > 2 ? 'Complétées' : 'Identité, motif, retrait',
+    'Relecture avant envoi',
+  ];
+
   return (
     <FormProvider {...form}>
-      <NextLink href={paths.app.demandes.list.getHref()} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
-        <Icon name="fleche-gauche" size={18} />
-        Retour · Mes demandes
-      </NextLink>
+      <Crumbs />
+      <h1 className="m-0 text-28 font-semibold text-ink sm:text-32">Demander un extrait d’acte</h1>
+      <p className="m-0 mt-2 text-16 text-ink-2">La demande part au secrétariat de la paroisse où le sacrement a été célébré, qui tient le registre.</p>
 
-      <header className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] lg:items-end">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">03</span> — Demande d’acte · étape {step + 1} sur {STEPS.length}
-          </p>
-          <h1 className="m-0 mt-3 font-serif text-h2 font-normal text-ink lg:text-[3.125rem] lg:leading-none">
-            Nouvelle <em className="italic text-primary">demande</em>
-          </h1>
-        </div>
-        <Stepper label="Étapes de la demande" steps={STEPS} current={step} />
-      </header>
+      <div className="mt-8">
+        <WizardSteps steps={STEPS.map((title, i) => ({ title, summary: summaries[i] }))} current={step} />
+      </div>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-6">
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_336px]">
         <form
           aria-label={STEPS[step]}
           noValidate
@@ -145,37 +172,51 @@ export const RequestWizard = () => {
             if (step < STEPS.length - 1) void goTo(step + 1);
             else void submit();
           }}
-          className="min-w-0 lg:col-span-8"
+          className="min-w-0 rounded-16 border border-line bg-paper shadow-card"
         >
-          <h2 ref={headingRef} tabIndex={-1} className="m-0 mb-6 scroll-mt-24 font-serif text-h3 font-normal text-ink focus:outline-none">{HEADINGS[step]}</h2>
-          {step === 0 && <WizardStepType options={options.data} />}
-          {step === 1 && <WizardStepParish />}
-          {step === 2 && (
-            <WizardStepInfos options={options.data} file={file} onFileChange={setFile} followed={me?.paroisse_suivie ?? null} onEdit={() => goTo(0)} />
-          )}
-          {step === 3 && <WizardStepRecap options={options.data} file={file} followed={me?.paroisse_suivie ?? null} onEdit={goTo} />}
+          <div className="px-5 pt-6 sm:px-8 sm:pt-8">
+            <h2 ref={headingRef} tabIndex={-1} className="m-0 scroll-mt-24 text-22 font-semibold text-ink focus:outline-none">
+              {HEADINGS[step]}
+            </h2>
+            <p className="m-0 mt-1 text-15 text-ink-2">{INTROS[step]}</p>
+            <div className="mt-6">
+              {step === 0 && <WizardStepType options={options.data} />}
+              {step === 1 && <WizardStepParish />}
+              {step === 2 && (
+                <WizardStepInfos options={options.data} file={file} onFileChange={setFile} followed={me?.paroisse_suivie ?? null} onEdit={() => goTo(0)} />
+              )}
+              {step === 3 && <WizardStepRecap options={options.data} file={file} followed={me?.paroisse_suivie ?? null} onEdit={goTo} />}
+            </div>
 
-          {error && (
-            <Notice tone="err" title="La demande n’a pas pu être envoyée." className="mt-6">
-              <span role="alert">{error.message}</span>
-            </Notice>
-          )}
+            {error && (
+              <Notice tone="err" title="La demande n’a pas pu être envoyée." className="mt-6">
+                <span role="alert">{error.message}</span>
+              </Notice>
+            )}
+          </div>
 
-          <div className={cn('mt-8 flex flex-col-reverse gap-4 border-t border-line pt-6 sm:flex-row sm:items-center', step > 0 ? 'sm:justify-between' : 'sm:justify-end')}>
+          <div
+            className={cn(
+              'mt-7 flex flex-col-reverse gap-4 border-t border-line px-5 py-5 sm:flex-row sm:items-center sm:px-8',
+              step > 0 ? 'sm:justify-between' : 'sm:justify-end',
+            )}
+          >
             {step > 0 && (
-              <Button variant="tertiary" onClick={() => goTo(step - 1)}>
-                <Icon name="fleche-gauche" size={18} />
-                Étape précédente
+              <Button variant="outline" size="lg" onClick={() => goTo(step - 1)}>
+                <Icon name="chevron-gauche" size={18} />
+                Retour
               </Button>
             )}
-            <Button type="submit" disabled={busy}>
-              {step < 2 ? 'Continuer' : step === 2 ? 'Voir le récapitulatif' : busy ? 'Envoi…' : 'Envoyer la demande'}
-              {!busy && <Icon name="fleche-droite" size={18} />}
-            </Button>
+            <span className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:gap-4">
+              {NEXT[step] && <span className="text-14 text-ink-3">{NEXT[step]}</span>}
+              <Button type="submit" size="lg" disabled={busy}>
+                {step < 2 ? 'Continuer' : step === 2 ? 'Voir le récapitulatif' : busy ? 'Envoi…' : 'Envoyer la demande'}
+              </Button>
+            </span>
           </div>
         </form>
 
-        <WizardAside options={options.data} className="hidden lg:col-span-4 lg:flex" />
+        <WizardAside options={options.data} onEdit={goTo} className="hidden lg:flex" />
       </div>
     </FormProvider>
   );
