@@ -1,5 +1,6 @@
 import { nextSunday, parseDateParam, shiftDay, weekOf } from '@/features/public-parole/utils/days';
-import { readingAnchor, readingExcerpt, readingLabel, sanitizeReadingHtml } from '@/features/public-parole/utils/readings';
+import { readingAnchor, readingExcerpt, readingLabel } from '@/features/public-parole/utils/readings';
+import { sanitizeReadingHtml } from '@/features/public-parole/utils/sanitize-reading';
 import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
 import { server } from '@/testing/mocks/server';
 

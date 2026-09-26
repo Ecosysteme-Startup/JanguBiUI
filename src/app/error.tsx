@@ -1,19 +1,20 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
 import NextLink from 'next/link';
 import { useEffect } from 'react';
+
 
 import { ErrorScreen } from '@/components/errors/error-screen';
 import { Button } from '@/components/ui/button';
 import { paths } from '@/config/paths';
+import { captureException } from '@/lib/sentry-client';
 
 type ErrorPageProps = { error: Error & { digest?: string }; reset: () => void };
 
 /** Erreur 500 dans une page : on propose de réessayer ; l'erreur part à Sentry (filtrée). */
 const ErrorPage = ({ error, reset }: ErrorPageProps) => {
   useEffect(() => {
-    Sentry.captureException(error);
+    captureException(error);
   }, [error]);
   return (
     <ErrorScreen
