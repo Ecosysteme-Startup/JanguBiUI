@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { apiUrl } from '@/testing/mocks/api-url';
-import { onboardingState, parishes } from '@/testing/mocks/db';
+import { ids, onboardingState, parishes } from '@/testing/mocks/db';
 
 const consentStatus = () => ({
   current_version: '2026-09',
@@ -13,7 +13,12 @@ const consentStatus = () => ({
 /** Onboarding : annuaire public, paroisse suivie, consentement, préférences. */
 export const onboardingHandlers = [
   http.get(apiUrl('/public/nodes/'), ({ request }) => {
-    const q = (new URL(request.url).searchParams.get('q') ?? '').toLowerCase();
+    const url = new URL(request.url);
+    if (url.searchParams.get('type') === 'diocese') {
+      const dioceses = [{ id: ids.dakar, name: 'Archidiocèse de Dakar', code: 'DAK', is_active_on_platform: false }];
+      return HttpResponse.json({ count: dioceses.length, next: null, previous: null, results: dioceses });
+    }
+    const q = (url.searchParams.get('q') ?? '').toLowerCase();
     const results = parishes.filter((p) => `${p.name} ${p.city} ${p.address}`.toLowerCase().includes(q));
     return HttpResponse.json({ count: results.length, next: null, previous: null, results });
   }),
