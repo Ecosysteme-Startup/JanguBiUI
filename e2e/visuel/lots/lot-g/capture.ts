@@ -89,9 +89,16 @@ async function main(): Promise<void> {
         const page = await ctx.newPage();
         for (const [name, url] of screens) {
           if (filter && !name.includes(filter)) continue;
-          await page.goto(BASE + url);
-          await page.waitForLoadState('networkidle').catch(() => undefined);
-          await page.waitForTimeout(800);
+          // Un autre lot peut casser la compilation un instant : on réessaie plutôt que de capturer l'erreur.
+          for (let attempt = 0; attempt < 12; attempt += 1) {
+            await page.goto(BASE + url);
+            await page.waitForLoadState('networkidle').catch(() => undefined);
+            await page.waitForTimeout(800);
+            const broken = (await page.locator('h1').count()) === 0;
+            if (!broken) break;
+            console.warn(`(compilation cassée ailleurs, nouvel essai dans 10 s : ${name})`);
+            await page.waitForTimeout(10_000);
+          }
           const suffix = `${scheme === 'light' ? 'clair' : 'sombre'}${width === 1440 ? '' : `-${width}`}`;
           const file = path.join(OUT, `${name}-${suffix}.png`);
           await page.screenshot({ path: file, fullPage: true });

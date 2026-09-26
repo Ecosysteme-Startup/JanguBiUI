@@ -9,8 +9,10 @@ import { z } from 'zod';
 import { OfficeQualityField } from '@/components/signature/office-quality-field';
 import { PersonCombobox } from '@/components/signature/person-combobox';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
+import { IconButton } from '@/components/ui/icon-button';
 import { Input } from '@/components/ui/input';
 import { Notice } from '@/components/ui/notice';
 import { Select } from '@/components/ui/select';
@@ -18,7 +20,11 @@ import { toast } from '@/components/ui/toast';
 import { useDebounce } from '@/hooks/use-debounce';
 import { officeTypesQueryOptions } from '@/hooks/use-office-types';
 import type { PersonOption } from '@/hooks/use-person-search';
-import { apiErrorCode, apiErrorMessage, apiFieldErrors } from '@/utils/api-errors';
+import {
+  apiErrorCode,
+  apiErrorMessage,
+  apiFieldErrors,
+} from '@/utils/api-errors';
 import { dayjs } from '@/utils/dates';
 
 import { useCreateAssignment } from '../api/create-assignment';
@@ -36,10 +42,20 @@ type Values = z.infer<typeof schema>;
 
 type Place = { id: string; name: string; type: string };
 
-type NominationPanelProps = { nodeId: string; nodeName: string; nodeType: string; onClose: () => void };
+type NominationPanelProps = {
+  nodeId: string;
+  nodeName: string;
+  nodeType: string;
+  onClose: () => void;
+};
 
 /** Panneau « Nouvelle nomination » (DIO-Nominations) : personne, lieu du sous-arbre, office, début, décret. */
-export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: NominationPanelProps) => {
+export const NominationPanel = ({
+  nodeId,
+  nodeName,
+  nodeType,
+  onClose,
+}: NominationPanelProps) => {
   const [person, setPerson] = React.useState<PersonOption | null>(null);
   const [placeQuery, setPlaceQuery] = React.useState('');
   const debouncedPlace = useDebounce(placeQuery.trim(), 300);
@@ -47,22 +63,45 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
   const offices = useQuery(officeTypesQueryOptions());
   const create = useCreateAssignment({
     onSuccess: (a) => {
-      toast.ok(`Nomination enregistrée : ${a.person.full_name}, ${a.office_label.toLowerCase()}. Inscrit au journal d’audit.`);
+      toast.ok(
+        `Nomination enregistrée : ${a.person.full_name}, ${a.office_label.toLowerCase()}. Inscrit au journal d’audit.`,
+      );
       onClose();
     },
   });
-  const { register, handleSubmit, setValue, setError, formState, watch } = useForm<Values>({
-    resolver: zodResolver(schema),
-    defaultValues: { person_id: '', node_id: nodeId, office: '', quality: '', start_date: dayjs().format('YYYY-MM-DD'), decree_ref: '' },
-  });
+  const { register, handleSubmit, setValue, setError, formState, watch } =
+    useForm<Values>({
+      resolver: zodResolver(schema),
+      defaultValues: {
+        person_id: '',
+        node_id: nodeId,
+        office: '',
+        quality: '',
+        start_date: dayjs().format('YYYY-MM-DD'),
+        decree_ref: '',
+      },
+    });
 
   const context: Place = { id: nodeId, name: nodeName, type: nodeType };
-  const found: Place[] = (places.data?.results ?? []).map((p) => ({ id: p.id, name: `${p.name} · ${p.type.label}`, type: p.type.code }));
+  const found: Place[] = (places.data?.results ?? []).map((p) => ({
+    id: p.id,
+    name: `${p.name} · ${p.type.label}`,
+    type: p.type.code,
+  }));
   // Le lieu choisi reste proposé même quand la recherche change.
   const [chosen, setChosen] = React.useState<Place>(context);
-  const options = [context, ...(chosen.id !== nodeId && !found.some((p) => p.id === chosen.id) ? [chosen] : []), ...found];
-  const available = (offices.data ?? []).filter((o) => o.node_types.length === 0 || o.node_types.includes(chosen.type));
-  const qualities = offices.data?.find((o) => o.code === watch('office'))?.qualities ?? [];
+  const options = [
+    context,
+    ...(chosen.id !== nodeId && !found.some((p) => p.id === chosen.id)
+      ? [chosen]
+      : []),
+    ...found,
+  ];
+  const available = (offices.data ?? []).filter(
+    (o) => o.node_types.length === 0 || o.node_types.includes(chosen.type),
+  );
+  const qualities =
+    offices.data?.find((o) => o.code === watch('office'))?.qualities ?? [];
 
   const onSubmit = handleSubmit(async (v) => {
     try {
@@ -76,83 +115,136 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
 
   const e = formState.errors;
   return (
-    <section aria-labelledby="nn-titre" className="border border-line-strong bg-surface p-6">
+    <Card
+      as="section"
+      padding="none"
+      aria-labelledby="nn-titre"
+      className="px-6 pb-6 pt-5"
+    >
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="tnum m-0 text-meta text-ink-3">Nouvelle nomination</p>
-            <h2 id="nn-titre" className="m-0 mt-1 font-serif text-h3 font-normal text-ink">
+            <h2 id="nn-titre" className="m-0 text-20 font-semibold text-ink">
               Nommer une personne
             </h2>
+            <p className="m-0 mt-1 text-15 text-ink-2">
+              Une nomination datée dans le futur reste « à venir » jusqu’à sa
+              prise d’effet.
+            </p>
           </div>
-          <button
-            type="button"
-            aria-label="Fermer le panneau"
-            onClick={onClose}
-            className="hit inline-flex size-10 items-center justify-center rounded hover:bg-surface-2"
-          >
-            <Icon name="x" size={20} />
-          </button>
+          <IconButton icon="x" label="Fermer le panneau" onClick={onClose} />
         </div>
-        <Notice tone="info" icon="bouclier" title="Double authentification exigée">
-          Votre session doit être validée par votre second facteur. La nomination est inscrite au journal d’audit.
+        <Notice
+          tone="info"
+          icon="bouclier"
+          title="Double authentification exigée"
+        >
+          Votre session doit être validée par votre second facteur. La
+          nomination est inscrite au journal d’audit.
         </Notice>
 
-        <Field id="nn-personne" label="Personne" required error={e.person_id?.message}>
-          <PersonCombobox
-            value={person}
-            onChange={(p) => {
-              setPerson(p);
-              setValue('person_id', p?.id ?? '', { shouldValidate: formState.isSubmitted });
-            }}
-          />
-        </Field>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <Field
+            id="nn-personne"
+            label="Personne"
+            required
+            error={e.person_id?.message}
+          >
+            <PersonCombobox
+              value={person}
+              onChange={(p) => {
+                setPerson(p);
+                setValue('person_id', p?.id ?? '', {
+                  shouldValidate: formState.isSubmitted,
+                });
+              }}
+            />
+          </Field>
 
-        <Field id="nn-lieu-recherche" label="Rechercher un lieu" hint="Paroisse, doyenné ou CEB du sous-arbre ; 2 caractères au moins.">
-          <Input type="search" value={placeQuery} onChange={(ev) => setPlaceQuery(ev.target.value)} autoComplete="off" />
-        </Field>
-        <Field id="nn-lieu" label="Lieu" required error={e.node_id?.message}>
-          <Select
-            {...register('node_id', {
-              onChange: (ev: React.ChangeEvent<HTMLSelectElement>) => {
-                setChosen(options.find((o) => o.id === ev.target.value) ?? context);
-                setValue('office', '');
-                setValue('quality', '');
-              },
-            })}
+          <Field
+            id="nn-lieu-recherche"
+            label="Rechercher un lieu"
+            hint="Paroisse, doyenné ou CEB du sous-arbre ; 2 caractères au moins."
           >
-            {options.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id="nn-office" label="Office" required error={e.office?.message}>
-          <Select
-            {...register('office', {
-              onChange: (ev: React.ChangeEvent<HTMLSelectElement>) =>
-                setValue('quality', offices.data?.find((o) => o.code === ev.target.value)?.qualities[0]?.code ?? ''),
-            })}
+            <Input
+              type="search"
+              value={placeQuery}
+              onChange={(ev) => setPlaceQuery(ev.target.value)}
+              autoComplete="off"
+            />
+          </Field>
+          <Field id="nn-lieu" label="Lieu" required error={e.node_id?.message}>
+            <Select
+              {...register('node_id', {
+                onChange: (ev: React.ChangeEvent<HTMLSelectElement>) => {
+                  setChosen(
+                    options.find((o) => o.id === ev.target.value) ?? context,
+                  );
+                  setValue('office', '');
+                  setValue('quality', '');
+                },
+              })}
+            >
+              {options.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field
+            id="nn-office"
+            label="Office"
+            required
+            error={e.office?.message}
           >
-            <option value="">Choisir un office</option>
-            {available.map((o) => (
-              <option key={o.code} value={o.code}>
-                {o.label}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <OfficeQualityField id="nn-qualite" qualities={qualities} error={e.quality?.message} {...register('quality')} />
-        <Field id="nn-debut" label="Début" required hint="Une date future crée une nomination proposée." error={e.start_date?.message}>
-          <Input type="date" {...register('start_date')} />
-        </Field>
-        <Field id="nn-decret" label="Référence du décret" error={e.decree_ref?.message}>
-          <Input {...register('decree_ref')} />
-        </Field>
+            <Select
+              {...register('office', {
+                onChange: (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                  setValue(
+                    'quality',
+                    offices.data?.find((o) => o.code === ev.target.value)
+                      ?.qualities[0]?.code ?? '',
+                  ),
+              })}
+            >
+              <option value="">Choisir un office</option>
+              {available.map((o) => (
+                <option key={o.code} value={o.code}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <OfficeQualityField
+            id="nn-qualite"
+            qualities={qualities}
+            error={e.quality?.message}
+            {...register('quality')}
+          />
+          <Field
+            id="nn-debut"
+            label="Début"
+            required
+            hint="Une date future crée une nomination proposée."
+            error={e.start_date?.message}
+          >
+            <Input type="date" {...register('start_date')} />
+          </Field>
+          <Field
+            id="nn-decret"
+            label="Référence du décret"
+            error={e.decree_ref?.message}
+          >
+            <Input {...register('decree_ref')} />
+          </Field>
+        </div>
 
         {create.isError && (
-          <p role="alert" className="m-0 flex items-center gap-2 text-sm text-err">
+          <p
+            role="alert"
+            className="m-0 flex items-center gap-2 text-14 text-err"
+          >
             <Icon name="alerte" size={16} />
             {apiErrorCode(create.error) === 'mfa_required'
               ? 'Validez d’abord votre double authentification, puis recommencez.'
@@ -160,7 +252,7 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
           </p>
         )}
         <div className="flex justify-end gap-3 border-t border-line pt-4">
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Annuler
           </Button>
           <Button type="submit" disabled={create.isPending}>
@@ -168,6 +260,6 @@ export const NominationPanel = ({ nodeId, nodeName, nodeType, onClose }: Nominat
           </Button>
         </div>
       </form>
-    </section>
+    </Card>
   );
 };
