@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { CAPABILITY_LABELS, CapabilityChips } from '@/components/signature/capability-chips';
+import { QualityModal } from '@/components/signature/quality-modal';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -14,13 +15,14 @@ import { Notice } from '@/components/ui/notice';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
 import { toast } from '@/components/ui/toast';
+import { useMe } from '@/hooks/use-me';
 import { useNode } from '@/hooks/use-node';
 import { useCan } from '@/lib/can';
 import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 
-import { type Assignment, useEndAssignment, useNodeAssignments } from '../api/assignments';
+import { type Assignment, useEndAssignment, useNodeAssignments, useSetAssignmentQuality } from '../api/assignments';
 import { useNodeChildren } from '../api/node-children';
 import { type Office, useOfficeCatalogue } from '../api/office-catalogue';
 
@@ -83,6 +85,28 @@ const EndAssignmentModal = ({ assignment, onClose }: { assignment: Assignment; o
   );
 };
 
+const EquipeQualityModal = ({ assignment, office, onClose }: { assignment: Assignment; office: Office; onClose: () => void }) => {
+  const { data: me } = useMe();
+  const save = useSetAssignmentQuality({
+    meId: me?.id,
+    onSuccess: (a) => {
+      toast.ok(`Qualité modifiée : ${a.person.full_name}, ${a.office_label.toLowerCase()}.`);
+      onClose();
+    },
+  });
+  return (
+    <QualityModal
+      subject={`${assignment.person.full_name} · ${assignment.node.name}`}
+      qualities={office.qualities}
+      current={assignment.quality}
+      pending={save.isPending}
+      error={save.isError ? apiErrorMessage(save.error) : undefined}
+      onSubmit={(quality) => save.mutate({ id: assignment.id, quality })}
+      onClose={onClose}
+    />
+  );
+};
+
 const PAST_REASON: Record<string, string> = { terminee: 'Fin de mandat', annulee: 'Annulée' };
 
 /** PAR-Equipe : offices actifs et passés du nœud ; nomination si `offices.nommer`, lecture avec `tableau_bord.voir`. */
@@ -90,6 +114,7 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
   const canNommer = useCan('offices.nommer', nodeId);
   const [panelOpen, setPanelOpen] = useState(false);
   const [ending, setEnding] = useState<Assignment | null>(null);
+  const [qualifying, setQualifying] = useState<Assignment | null>(null);
   const assignments = useNodeAssignments(nodeId);
   const catalogue = useOfficeCatalogue();
   const node = useNode(nodeId);
@@ -156,7 +181,7 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
                       <Th>Titulaire · depuis</Th>
                       <Th>Capacités</Th>
                       {canNommer && (
-                        <Th className="w-28">
+                        <Th className="w-56">
                           <span className="sr-only">Actions</span>
                         </Th>
                       )}
@@ -187,9 +212,21 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
                         </Td>
                         {canNommer && (
                           <Td className="text-right">
-                            <Button variant="tertiary" size="sm" onClick={() => setEnding(a)} aria-label={`Terminer la nomination de ${a.person.full_name}`}>
-                              Terminer
-                            </Button>
+                            <span className="inline-flex flex-wrap justify-end gap-1">
+                              {a.status === 'active' && (officeOf(a.office)?.qualities.length ?? 0) > 0 && (
+                                <Button
+                                  variant="tertiary"
+                                  size="sm"
+                                  onClick={() => setQualifying(a)}
+                                  aria-label={`Modifier la qualité de ${a.person.full_name}`}
+                                >
+                                  Modifier la qualité
+                                </Button>
+                              )}
+                              <Button variant="tertiary" size="sm" onClick={() => setEnding(a)} aria-label={`Terminer la nomination de ${a.person.full_name}`}>
+                                Terminer
+                              </Button>
+                            </span>
                           </Td>
                         )}
                       </Tr>
@@ -240,6 +277,9 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
       )}
 
       {ending && <EndAssignmentModal assignment={ending} onClose={() => setEnding(null)} />}
+      {qualifying && officeOf(qualifying.office) && (
+        <EquipeQualityModal assignment={qualifying} office={officeOf(qualifying.office)!} onClose={() => setQualifying(null)} />
+      )}
     </div>
   );
 };

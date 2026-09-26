@@ -151,6 +151,43 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     expect(await within(past).findByText(/germaine faye/i)).toBeInTheDocument();
   });
 
+  it('modifie la qualité du curé : il devient administrateur paroissial', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    // Seuls les offices qui ont des qualités proposent l'action.
+    expect(await screen.findByRole('button', { name: 'Modifier la qualité de Abbé Augustin Ndiaye' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Modifier la qualité de Mme Germaine Faye' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Modifier la qualité de Abbé Augustin Ndiaye' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Modifier la qualité' });
+    expect(within(dialog).getByRole('radio', { name: 'Curé' })).toBeChecked();
+    expect(within(dialog).getByRole('button', { name: 'Enregistrer' })).toBeDisabled();
+    await user.click(within(dialog).getByRole('radio', { name: 'Administrateur paroissial' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(f8aState.lastBody).toEqual({ action: 'qualifier', quality: 'administrateur' });
+    expect(await within(screen.getByRole('table')).findByText('Administrateur paroissial')).toBeInTheDocument();
+  });
+
+  it('garde la fenêtre ouverte et explique un refus du serveur', async () => {
+    server.use(
+      http.patch(apiUrl('/hierarchy/assignments/:id/'), () =>
+        v1Error(403, 'appointment_forbidden', 'Votre office ne permet pas de nommer « Curé / administrateur paroissial ».'),
+      ),
+    );
+    const user = userEvent.setup();
+    await renderPage();
+
+    await user.click(await screen.findByRole('button', { name: 'Modifier la qualité de Abbé Augustin Ndiaye' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Modifier la qualité' });
+    await user.click(within(dialog).getByRole('radio', { name: 'Administrateur paroissial' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(/votre office ne permet pas de nommer/i);
+    expect(within(screen.getByRole('table', { hidden: true })).getByText('Curé')).toBeInTheDocument(); // inchangé
+  });
+
   it('reste en lecture avec tableau_bord.voir seul : pas de bouton pour nommer', async () => {
     await renderPage(grantsSecretaire);
 
@@ -158,6 +195,7 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     expect(await screen.findByRole('table')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /nommer une personne/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /terminer la nomination/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /modifier la qualité/i })).not.toBeInTheDocument();
   });
 
   it('refuse l’écran sans aucune des deux capacités', async () => {

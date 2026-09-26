@@ -1,8 +1,10 @@
 import { screen, waitFor, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 
 import { NominationsPage } from '@/features/nominations/components/nominations-page';
-import { grantsChancelier, ids } from '@/testing/mocks/db';
+import { grantsChancelier, grantsSecretaire, ids } from '@/testing/mocks/db';
+import { apiUrl } from '@/testing/mocks/api-url';
 import { f8bIds, f8bState, resetF8b } from '@/testing/mocks/db-f8b';
 import { f8bOverrides } from '@/testing/mocks/handlers/f8b';
 import { server } from '@/testing/mocks/server';
@@ -110,5 +112,45 @@ describe('Nominations', () => {
     await user.selectOptions(within(panel).getByLabelText(/^office/i), 'Chancelier');
 
     expect(within(panel).queryByRole('group', { name: 'Qualité' })).not.toBeInTheDocument();
+  });
+
+  it('modifie la qualité d’une nomination active de curé', async () => {
+    const user = userEvent.setup();
+    renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: grantsChancelier });
+
+    await user.click(await screen.findByRole('button', { name: 'Modifier la qualité : Abbé Augustin Ndiaye, Curé' }));
+    expect(screen.queryByRole('button', { name: /modifier la qualité : abbé ignace ndour/i })).not.toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog', { name: 'Modifier la qualité' });
+    await user.click(within(dialog).getByRole('radio', { name: 'Administrateur paroissial' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(f8bState.requests.at(-1)).toMatchObject({ method: 'PATCH', body: { action: 'qualifier', quality: 'administrateur' } });
+    expect(await screen.findByText(/administrateur paroissial · saint-dominique/i)).toBeInTheDocument();
+  });
+
+  it('affiche l’erreur du serveur dans la fenêtre', async () => {
+    server.use(
+      http.patch(apiUrl('/hierarchy/assignments/:id/'), () =>
+        HttpResponse.json({ error: { code: 'assignment_closed', message: 'Cette nomination n’est plus en cours.' } }, { status: 400 }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: grantsChancelier });
+
+    await user.click(await screen.findByRole('button', { name: 'Modifier la qualité : Abbé Augustin Ndiaye, Curé' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Modifier la qualité' });
+    await user.click(within(dialog).getByRole('radio', { name: 'Administrateur paroissial' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('Cette nomination n’est plus en cours.');
+  });
+
+  it('ne propose pas de modifier la qualité sans offices.nommer', async () => {
+    const lecture = grantsSecretaire.map((g) => ({ ...g, node_id: ids.dakar, node_type: 'diocese' }));
+    renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: lecture });
+
+    expect(await screen.findByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /modifier la qualité/i })).not.toBeInTheDocument();
   });
 });

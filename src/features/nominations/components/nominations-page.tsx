@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import * as React from 'react';
 
 import { ImportWizard } from '@/components/signature/import-wizard';
+import { QualityModal } from '@/components/signature/quality-modal';
 import { StatusDot } from '@/components/signature/status-dot';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,14 +20,17 @@ import { Select } from '@/components/ui/select';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
 import { toast } from '@/components/ui/toast';
+import { useMe } from '@/hooks/use-me';
 import { useNode } from '@/hooks/use-node';
 import { officeTypesQueryOptions } from '@/hooks/use-office-types';
+import { useCan } from '@/lib/can';
+import { apiErrorMessage } from '@/utils/api-errors';
 import { dayjs } from '@/utils/dates';
 
 import { type Assignment, type AssignmentStatus, ASSIGNMENTS_PAGE, useAssignmentCounts, useAssignments } from '../api/get-assignments';
 import { useSubnodes } from '../api/get-subnodes';
 import { useImportAssignments } from '../api/import-assignments';
-import { useUpdateAssignment } from '../api/update-assignment';
+import { useSetAssignmentQuality, useUpdateAssignment } from '../api/update-assignment';
 
 import { NominationPanel } from './nomination-panel';
 
@@ -77,7 +81,12 @@ const Registre = ({ nodeId, nodeName }: { nodeId: string; nodeName: string }) =>
   const [scope, setScope] = React.useState(nodeId);
   const [offset, setOffset] = React.useState(0);
   const [pending, setPending] = React.useState<Pending>(null);
+  const [qualifying, setQualifying] = React.useState<Assignment | null>(null);
   const offices = useQuery(officeTypesQueryOptions());
+  const canNommer = useCan('offices.nommer', nodeId);
+  const { data: me } = useMe();
+  const setQuality = useSetAssignmentQuality({ meId: me?.id });
+  const qualitiesOf = (code: string) => offices.data?.find((o) => o.code === code)?.qualities ?? [];
   const subnodes = useSubnodes(nodeId);
   const list = useAssignments({ node: scope, status, office: office || undefined, offset });
   const counts = useAssignmentCounts(scope, office || undefined);
@@ -210,6 +219,16 @@ const Registre = ({ nodeId, nodeName }: { nodeId: string; nodeName: string }) =>
                       <StatusCell a={a} />
                     </Td>
                     <Td className="text-right">
+                      {a.status === 'active' && canNommer && qualitiesOf(a.office).length > 0 && (
+                        <Button
+                          variant="tertiary"
+                          size="sm"
+                          onClick={() => setQualifying(a)}
+                          aria-label={`Modifier la qualité : ${a.person.full_name}, ${a.office_label}`}
+                        >
+                          Modifier la qualité
+                        </Button>
+                      )}
                       {a.status === 'active' && (
                         <Button
                           variant="tertiary"
@@ -239,6 +258,31 @@ const Registre = ({ nodeId, nodeName }: { nodeId: string; nodeName: string }) =>
           </>
         )}
       </div>
+      {qualifying && (
+        <QualityModal
+          subject={`${qualifying.person.full_name} · ${qualifying.node.name}`}
+          qualities={qualitiesOf(qualifying.office)}
+          current={qualifying.quality}
+          pending={setQuality.isPending}
+          error={setQuality.isError ? apiErrorMessage(setQuality.error) : undefined}
+          onSubmit={(quality) =>
+            setQuality.mutate(
+              { id: qualifying.id, quality },
+              {
+                onSuccess: (a) => {
+                  toast.ok(`Qualité modifiée : ${a.person.full_name}, ${a.office_label.toLowerCase()}. Inscrit au journal d’audit.`);
+                  setQualifying(null);
+                  setQuality.reset();
+                },
+              },
+            )
+          }
+          onClose={() => {
+            setQualifying(null);
+            setQuality.reset();
+          }}
+        />
+      )}
       <ConfirmDialog
         open={pending !== null}
         onOpenChange={(open) => !open && setPending(null)}

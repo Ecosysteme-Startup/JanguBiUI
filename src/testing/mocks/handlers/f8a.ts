@@ -239,10 +239,17 @@ const equipeHandlers = [
     return HttpResponse.json(created, { status: 201 });
   }),
   http.patch(apiUrl('/hierarchy/assignments/:id/'), async ({ params, request }) => {
-    const body = (await request.json()) as { action: string };
+    const body = (await request.json()) as { action: string; quality?: string };
     f8aState.lastBody = body;
     const found = f8aState.assignments.find((a) => a.id === Number(params.id));
     if (!found) return v1Error(404, 'not_found', 'Nomination introuvable.');
+    if (body.action === 'qualifier') {
+      const office = officeCatalogue.find((o) => o.code === found.office);
+      if (!office?.qualities?.some((q) => q.code === body.quality)) return v1Error(400, 'invalid_quality', 'Qualité inconnue pour cet office.');
+      const qualified = { ...found, quality: body.quality, office_label: titleOf(office, body.quality, found.office) };
+      f8aState.assignments = f8aState.assignments.map((a) => (a.id === found.id ? qualified : a));
+      return HttpResponse.json(qualified);
+    }
     const updated = { ...found, status: body.action === 'terminer' ? 'terminee' : 'annulee', end_date: '2026-09-25' };
     f8aState.assignments = f8aState.assignments.map((a) => (a.id === found.id ? updated : a));
     return HttpResponse.json(updated);
