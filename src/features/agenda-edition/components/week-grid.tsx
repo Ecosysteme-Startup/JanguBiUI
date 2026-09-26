@@ -49,7 +49,7 @@ export const WeekGrid = ({ date, events, selectedId, onSelect }: WeekGridProps) 
     <section aria-label={`${weekTitle(date)}, vue semaine`} className="overflow-hidden rounded-16 border border-line bg-paper shadow-card">
       {/* Sous 768 px la grille (720 px) défile : zone focalisable même sans événement à tabuler (A11Y-12). */}
       <ScrollRegion label="Grille de la semaine, défilement horizontal">
-        <div className="grid min-w-[720px] grid-cols-[48px_repeat(7,minmax(0,1fr))]">
+        <div className="grid min-w-[720px] grid-cols-[60px_repeat(7,minmax(0,1fr))]">
           <div aria-hidden="true">
             <div className="h-12 border-b border-line bg-surface" />
             <div className="tnum flex items-center border-b border-line pl-2 text-12 text-ink-3" style={{ height: allDayHeight }}>
