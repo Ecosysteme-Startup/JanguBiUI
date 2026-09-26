@@ -37,19 +37,26 @@ describe('ConfessionsPlanning (PAR-Confessions)', () => {
       capacites: grantsSecretaire,
     });
 
-    const bookings = await screen.findByRole('list', {
-      name: /rendez-vous du samedi 26 septembre/i,
+    const grid = await screen.findByRole('grid', {
+      name: /créneaux du samedi 26 septembre par confesseur/i,
     });
-    expect(within(bookings).getByText('R. D.')).toBeInTheDocument();
-    expect(within(bookings).getByText('A. K.')).toBeInTheDocument();
+    expect(within(grid).getByText('R. D.')).toBeInTheDocument();
+    expect(within(grid).getByText('A. K.')).toBeInTheDocument();
     expect(screen.queryByText('Aminata Kane')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /créneaux récurrents/i }),
+      screen.getByText('2 réservés', { selector: 'strong' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /ouvrir des créneaux/i }),
     ).not.toBeInTheDocument();
+
+    await userEvent.setup().click(
+      within(grid).getByRole('button', { name: /17 h, pris par A\. K\./i }),
+    );
     expect(
       screen.queryByRole('button', { name: /annuler le rendez-vous/i }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/aucun motif demandé/i)).toBeInTheDocument();
+    expect(screen.getByText(/aucun motif n’est demandé/i)).toBeInTheDocument();
   });
 
   it('prêtre : annule un de ses rendez-vous en prévenant la personne', async () => {
@@ -60,6 +67,11 @@ describe('ConfessionsPlanning (PAR-Confessions)', () => {
 
     await user.click(
       await screen.findByRole('button', {
+        name: /17 h, pris par aminata kane/i,
+      }),
+    );
+    await user.click(
+      screen.getByRole('button', {
         name: /annuler le rendez-vous de 17 h \(aminata kane\)/i,
       }),
     );
@@ -92,7 +104,7 @@ describe('ConfessionsPlanning (PAR-Confessions)', () => {
     });
 
     await user.click(
-      await screen.findByRole('button', { name: 'Créneaux récurrents' }),
+      await screen.findByRole('button', { name: 'Ouvrir des créneaux' }),
     );
     const panel = await screen.findByRole('region', {
       name: 'Nouveaux créneaux récurrents',
@@ -123,6 +135,19 @@ describe('ConfessionsPlanning (PAR-Confessions)', () => {
     );
   });
 
+  it('résume les jours suivants et les paramètres déduits du planning', async () => {
+    renderApp(<ConfessionsPlanning nodeId={ids.saintDominique} />, {
+      capacites: grantsPretre,
+    });
+
+    const settings = await screen.findByRole('region', { name: 'Paramètres' });
+    expect(within(settings).getByText('10 min')).toBeInTheDocument();
+    expect(within(settings).getByText(/^Samedi, 16:00 – /)).toBeInTheDocument();
+    expect(
+      screen.getByRole('region', { name: 'Jours suivants' }),
+    ).toHaveTextContent('Aucun créneau ouvert dans les semaines suivantes.');
+  });
+
   it('prêtre : refuse une plage dont la fin précède le début', async () => {
     const user = userEvent.setup();
     renderApp(<ConfessionsPlanning nodeId={ids.saintDominique} />, {
@@ -130,7 +155,7 @@ describe('ConfessionsPlanning (PAR-Confessions)', () => {
     });
 
     await user.click(
-      await screen.findByRole('button', { name: 'Créneaux récurrents' }),
+      await screen.findByRole('button', { name: 'Ouvrir des créneaux' }),
     );
     const end = await screen.findByLabelText(/^à/i);
     await user.clear(end);

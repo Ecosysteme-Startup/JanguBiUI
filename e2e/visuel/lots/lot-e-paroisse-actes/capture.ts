@@ -5,7 +5,9 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+
 import { chromium, type Browser, type Page } from '@playwright/test';
+
 import { KC_DEMO_PASSWORD, loginViaKeycloak } from '../../../stack/helpers/auth';
 
 const BASE = 'http://localhost:3000';
@@ -38,6 +40,42 @@ async function probe(page: Page): Promise<{ node: string; demande: string | null
   return { node, demande };
 }
 
+/**
+ * `--fixtures` : planning de confessions de démonstration servi par interception réseau
+ * (la base de dev n'a aucun créneau ; rien n'est écrit en base).
+ */
+function demoPlanning(): unknown[] {
+  const saturday = new Date();
+  saturday.setDate(saturday.getDate() + ((6 - saturday.getDay() + 7) % 7));
+  const day = saturday.toISOString().slice(0, 10);
+  const place = { id: 1, name: 'Église, confessionnaux côté sacristie', address: '', node_id: 'x' };
+  const priests = [
+    ['p1', 'Abbé A. Ndiaye', ['Pierre', 'Élisabeth', 'Joseph', '', 'Albert', '', '', '']],
+    ['p2', 'Père E. Tine', ['Awa', 'Jean-Baptiste', 'Marie-Thérèse', '', '', '', 'Paul', '', '', '', '', '']],
+    ['p3', 'Abbé R. Sagna', ['', 'Thérèse', '', 'Michel', 'Cécile', '', '', 'Odile', '', '', '', '']],
+  ] as const;
+  let id = 1;
+  return priests.flatMap(([priestId, name, people]) =>
+    people.map((person, i) => {
+      const start = new Date(`${day}T16:00:00`);
+      start.setMinutes(start.getMinutes() + i * 10);
+      const end = new Date(start.getTime() + 10 * 60_000);
+      const iso = (d: Date) => `${day}T${d.toTimeString().slice(0, 8)}`;
+      return {
+        id: id++,
+        starts_at: iso(start),
+        ends_at: iso(end),
+        status: person ? 'reserve' : 'libre',
+        place,
+        priest_id: priestId,
+        priest_name: name,
+        is_mine: false,
+        booking: person ? { id: id, status: 'reservee', person } : null,
+      };
+    }),
+  );
+}
+
 async function main(): Promise<void> {
   fs.mkdirSync(OUT, { recursive: true });
   const filter = process.argv.slice(2).find((a) => !a.startsWith('--')) ?? '';
@@ -66,6 +104,9 @@ async function main(): Promise<void> {
         locale: 'fr-FR',
       });
       const page = await ctx.newPage();
+      if (process.argv.includes('--fixtures')) {
+        await page.route('**/staff/confessions/planning/**', (route) => route.fulfill({ json: demoPlanning() }));
+      }
       for (const [name, url] of screens) {
         if (filter && !name.includes(filter)) continue;
         if (!url) {
@@ -75,7 +116,7 @@ async function main(): Promise<void> {
         await page.goto(BASE + url);
         await page.waitForLoadState('networkidle').catch(() => undefined);
         await page.waitForTimeout(800);
-        const suffix = `${scheme === 'light' ? 'clair' : 'sombre'}${width === 1440 ? '' : `-${width}`}`;
+        const suffix = `${scheme === 'light' ? 'clair' : 'sombre'}${width === 1440 ? '' : `-${width}`}${process.argv.includes('--fixtures') ? '-fixtures' : ''}`;
         const file = path.join(OUT, `${name}-${suffix}.png`);
         await page.screenshot({ path: file, fullPage: true });
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
