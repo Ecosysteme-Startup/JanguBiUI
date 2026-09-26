@@ -18,6 +18,8 @@ type Node = {
   lng: string | null;
   is_active_on_platform: boolean;
   parent_id: string | null;
+  /** Heures des messes du prochain dimanche. */
+  sunday_masses?: string[];
   /** Ancêtres (pour le filtre de sous-arbre), absent de la réponse réelle. */
   within: string[];
 };
@@ -88,6 +90,7 @@ export const directoryNodes: Node[] = [
     }),
     id: ids.saintDominique,
     code: 'DAK-SAINT-DOMINIQUE',
+    sunday_masses: ['07:30:00', '09:30:00', '11:30:00', '18:30:00'],
   },
   parish(2, 'Cathédrale Notre-Dame-des-Victoires', 'Boulevard de la République, Plateau', DAK_PM, { lat: '14.667000', lng: '-17.435000' }),
   parish(3, 'Saint-Joseph de Médina', 'Rue 11, Médina', DAK_PM),
@@ -102,8 +105,42 @@ export const directoryNodes: Node[] = [
   parish(12, 'Cathédrale Sainte-Anne de Thiès', 'Centre-ville', [ids.thies], { city: 'Thiès' }),
 ];
 
-/** Nœud tel que le renvoie l'API (sans le champ de test `within`). */
-export const toApiNode = ({ within: _within, ...node }: Node) => node;
+const nameOf = (id: string | undefined) => directoryNodes.find((n) => n.id === id)?.name ?? null;
+const ancestorOfType = (within: string[], type: string) =>
+  nameOf([...within].reverse().find((id) => directoryNodes.find((n) => n.id === id)?.type.code === type));
+
+/** Nœud tel que le renvoie l'annuaire public (sans le champ de test `within`), juridiction calculée. */
+export const toApiNode = ({ within, sunday_masses = [], ...node }: Node) => ({
+  ...node,
+  parent_name: nameOf(within.at(-1)),
+  deanery_name: ancestorOfType(within, 'doyenne'),
+  diocese_name: ancestorOfType(within, 'diocese'),
+  sunday_masses,
+});
+
+/** Secrétariat publié et clergé de Saint-Dominique (fiche publique). */
+export const saintDominiqueSheet = {
+  secretariat: {
+    phone: '+221 33 864 21 07',
+    email: 'secretariat.stdominique@example.sn',
+    office_hours: [
+      { days: 'Lun.-ven.', hours: '9 h-12 h 30 · 15 h 30-18 h' },
+      { days: 'Samedi', hours: '9 h-12 h' },
+      { days: 'Dimanche', hours: 'Fermé' },
+    ],
+  },
+  clergy: [
+    { name: 'Augustin Ndiaye', office: 'Curé / administrateur paroissial' },
+    { name: 'Emmanuel Tine', office: 'Vicaire paroissial' },
+  ],
+  acts: { delay_days: 3, welcome_message: 'L’original se retire au secrétariat, aux heures d’accueil.' },
+};
+
+/** Fiche publique (`GET /public/nodes/by-code/{code}/`) : secrétariat seulement s'il est publié. */
+export const toApiSheet = (node: Node) =>
+  node.id === ids.saintDominique
+    ? { ...toApiNode(node), ...saintDominiqueSheet }
+    : { ...toApiNode(node), secretariat: null, clergy: [], acts: { delay_days: null, welcome_message: '' } };
 
 const WEEKDAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 

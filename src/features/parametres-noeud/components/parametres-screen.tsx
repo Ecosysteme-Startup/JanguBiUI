@@ -1,42 +1,22 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Field } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { Notice } from '@/components/ui/notice';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { PLACE_KIND_LABELS, useBackofficePlaces } from '@/hooks/use-backoffice-places';
 import { nodeAncestorsQueryOptions } from '@/hooks/use-node-ancestors';
 import { useCan } from '@/lib/can';
-import { apiErrorCode, apiErrorMessage, apiFieldErrors, isForbidden } from '@/utils/api-errors';
+import { apiErrorMessage, isForbidden } from '@/utils/api-errors';
 import { dayjs } from '@/utils/dates';
 
 import { useNodeChildren } from '../api/node-children';
-import { NODE_STATUS_LABELS, type NodeSettings, useNodeSettings, useUpdateNodeSettings } from '../api/node-settings';
+import { NODE_STATUS_LABELS, type NodeSettings, useNodeSettings, useParishLife } from '../api/node-settings';
 
-const schema = z.object({
-  address: z.string().trim().max(300, '300 caractères au plus.'),
-  city: z.string().trim().max(100, '100 caractères au plus.'),
-});
-type Values = z.infer<typeof schema>;
-
-const SectionTitle = ({ id, number, children, aside }: { id: string; number: string; children: React.ReactNode; aside?: React.ReactNode }) => (
-  <h2 id={id} className="tnum m-0 flex justify-between gap-4 border-t border-line-strong pt-2 text-meta font-normal text-ink-2">
-    <span>
-      <span className="text-primary">{number}</span> — {children}
-    </span>
-    {aside && <span className="text-ink-3">{aside}</span>}
-  </h2>
-);
+import { ParishLifeForm } from './parish-life-form';
+import { SectionTitle } from './section-title';
 
 const Identity = ({ node, attachment }: { node: NodeSettings; attachment: string | undefined }) => (
   <section aria-labelledby="p-id">
@@ -68,79 +48,25 @@ const Identity = ({ node, attachment }: { node: NodeSettings; attachment: string
   </section>
 );
 
-const SettingsForm = ({ nodeId, node, canEdit }: { nodeId: string; node: NodeSettings; canEdit: boolean }) => {
-  const [saved, setSaved] = useState(false);
-  const { register, handleSubmit, reset, setError, formState } = useForm<Values>({
-    resolver: zodResolver(schema),
-    defaultValues: { address: node.address, city: node.city },
-  });
-  const update = useUpdateNodeSettings(nodeId, {
-    onSuccess: (updated) => {
-      reset({ address: updated.address, city: updated.city });
-      setSaved(true);
-    },
-  });
-  const dirtyCount = Object.keys(formState.dirtyFields).length;
-
-  const onSubmit = handleSubmit(async (v) => {
-    setSaved(false);
-    try {
-      await update.mutateAsync({ address: v.address, city: v.city });
-    } catch (error) {
-      Object.entries(apiFieldErrors(error)).forEach(([field, message]) => {
-        if (field === 'address' || field === 'city') setError(field, { message });
-      });
-    }
-  });
-
-  return (
-    <form onSubmit={onSubmit} noValidate aria-labelledby="p-sec">
-      <SectionTitle id="p-sec" number="02" aside="Visible sur la fiche publique">
-        Secrétariat
-      </SectionTitle>
-      {!canEdit && (
-        <Notice tone="info" title="Modification réservée à la chancellerie" className="mt-3">
-          Le serveur n’accepte la modification d’un nœud qu’avec la capacité « Structure ». Transmettez les corrections au chancelier.
-        </Notice>
-      )}
-      <div className="mt-4 flex flex-col gap-4">
-        <Field id="p-adr" label="Adresse" error={formState.errors.address?.message}>
-          <Input {...register('address')} disabled={!canEdit} />
-        </Field>
-        <Field id="p-ville" label="Ville" error={formState.errors.city?.message}>
-          <Input {...register('city')} disabled={!canEdit} />
-        </Field>
-      </div>
-      <p className="m-0 mt-3 min-h-5 text-sm" aria-live="polite">
-        {saved && <span className="text-ok">Paramètres enregistrés.</span>}
+/** Paramètres du secrétariat : chargés à part (lecture réservée aux mêmes capacités). */
+const ParishLifeBlock = ({ nodeId, canEdit }: { nodeId: string; canEdit: boolean }) => {
+  const settings = useParishLife(nodeId);
+  if (settings.isPending) return <LoadingBlock label="Chargement du secrétariat…" lines={4} />;
+  if (settings.isError) {
+    return (
+      <p role="alert" className="m-0 text-sm text-err">
+        {isForbidden(settings.error) ? 'Vous n’avez pas accès aux paramètres du secrétariat.' : apiErrorMessage(settings.error)}
       </p>
-      {update.isError && (
-        <p role="alert" className="m-0 mt-2 text-sm text-err">
-          {apiErrorCode(update.error) === 'mfa_required'
-            ? 'Validez d’abord votre double authentification, puis recommencez.'
-            : isForbidden(update.error)
-              ? 'Vous n’avez pas la capacité de modifier ce nœud.'
-              : apiErrorMessage(update.error)}
-        </p>
-      )}
-      {canEdit && (
-        <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
-          <span className="tnum text-meta text-ink-3">{dirtyCount > 0 ? `${dirtyCount} modification${dirtyCount > 1 ? 's' : ''}` : 'Aucune modification'}</span>
-          <Button variant="secondary" disabled={dirtyCount === 0} onClick={() => reset()}>
-            Annuler
-          </Button>
-          <Button type="submit" disabled={dirtyCount === 0 || update.isPending}>
-            {update.isPending ? 'Enregistrement…' : 'Enregistrer'}
-          </Button>
-        </div>
-      )}
-    </form>
-  );
+    );
+  }
+  return <ParishLifeForm key={settings.data.id} nodeId={nodeId} settings={settings.data} canEdit={canEdit} />;
 };
 
-/** PAR-Parametres : identité (lecture), coordonnées du secrétariat, lieux de culte et nœuds rattachés. */
+/** PAR-Parametres : identité (lecture), secrétariat et demandes d’actes (horaires.gerer), lieux de culte et nœuds rattachés. */
 export const ParametresScreen = ({ nodeId }: { nodeId: string }) => {
-  const canEdit = useCan('structure.gerer', nodeId);
+  const canHoraires = useCan('horaires.gerer', nodeId);
+  const canStructure = useCan('structure.gerer', nodeId);
+  const canEdit = canHoraires || canStructure;
   const node = useNodeSettings(nodeId);
   const ancestors = useQuery(nodeAncestorsQueryOptions(nodeId));
   const places = useBackofficePlaces(nodeId);
@@ -168,7 +94,7 @@ export const ParametresScreen = ({ nodeId }: { nodeId: string }) => {
       <div className="mt-8 grid items-start gap-10 lg:grid-cols-2">
         <div className="flex flex-col gap-10">
           <Identity node={node.data} attachment={attachment} />
-          <SettingsForm key={node.data.id} nodeId={nodeId} node={node.data} canEdit={canEdit} />
+          <ParishLifeBlock nodeId={nodeId} canEdit={canEdit} />
         </div>
         <div className="flex flex-col gap-10">
           <section aria-labelledby="p-lieux">

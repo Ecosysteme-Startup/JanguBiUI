@@ -9,6 +9,9 @@ export const formatTime = (time: string) => {
   return m && m !== '00' ? `${hours} h ${m}` : `${hours} h`;
 };
 
+/** « 7 h 30 · 9 h 30 · 18 h 30 » : messes du dimanche de l'annuaire ; chaîne vide si aucune. */
+export const sundayMassesLabel = (times: string[]) => times.map(formatTime).join(' · ');
+
 /** Libellé d'une occurrence : « 16 h-18 h confessions », « 9 h 30 messe des étudiants ». */
 export const occurrenceLabel = (o: Occurrence) => {
   const time = o.end_time && o.kind !== 'messe' ? `${formatTime(o.start_time)}-${formatTime(o.end_time)}` : formatTime(o.start_time);

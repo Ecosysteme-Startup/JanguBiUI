@@ -10,6 +10,7 @@ import {
   publicAnnouncements,
   publicEvents,
   toApiNode,
+  toApiSheet,
 } from '@/testing/mocks/db-f4';
 
 const paginate = <T,>(items: T[], url: URL, defaultLimit = 10) => {
@@ -41,7 +42,7 @@ export const directoryHandler = http.get(apiUrl('/public/nodes/'), ({ request })
 export const f4PublicHandlers = [
   http.get(apiUrl('/public/nodes/by-code/:code/'), ({ params }) => {
     const node = directoryNodes.find((n) => n.code === String(params.code));
-    return node ? HttpResponse.json(toApiNode(node)) : HttpResponse.json({ error: { code: 'not_found', message: 'Nœud introuvable.' } }, { status: 404 });
+    return node ? HttpResponse.json(toApiSheet(node)) : HttpResponse.json({ error: { code: 'not_found', message: 'Nœud introuvable.' } }, { status: 404 });
   }),
   http.get(apiUrl('/liturgy/:day/'), ({ params }) => {
     const day = String(params.day);

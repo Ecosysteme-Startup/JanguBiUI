@@ -30,21 +30,50 @@ export const nodeSettingsQueryOptions = (nodeId: string) => queryOptions({ query
 
 export const useNodeSettings = (nodeId: string) => useQuery(nodeSettingsQueryOptions(nodeId));
 
-/** Seuls les champs du secrétariat sont modifiés ici (sous-ensemble de `PatchedNodeUpdateInput`). */
-export type NodeSettingsUpdate = Pick<RequestBody<'v1_hierarchy_nodes_partial_update'>, 'address' | 'city'>;
+/* --- Vie paroissiale : secrétariat, accueil, demandes d'actes (GET/PATCH …/settings/) --- */
 
-/** PATCH du nœud : le serveur exige `structure.gerer` sur ce nœud (et la MFA). */
-export const updateNodeSettings = async (nodeId: string, body: NodeSettingsUpdate) =>
-  nodeSettingsSchema.parse(await api.patch(`/hierarchy/nodes/${encodeURIComponent(nodeId)}/`, body));
+const parishLifeSchema = z.object({
+  id: z.string(),
+  address: z.string(),
+  city: z.string(),
+  phone: z.string(),
+  email: z.string(),
+  office_hours: z.array(z.object({ days: z.string(), hours: z.string() })),
+  secretariat_public: z.boolean(),
+  acts_delay_days: z.number().nullable(),
+  acts_welcome_message: z.string(),
+  updated_at: z.string(),
+});
+export type ParishLife = z.infer<typeof parishLifeSchema>;
 
-export const useUpdateNodeSettings = (nodeId: string, { onSuccess }: { onSuccess?: (node: NodeSettings) => void } = {}) => {
+type _LifeKeys = Expect<Matches<Exclude<keyof ParishLife, keyof ResponseBody<'v1_hierarchy_nodes_settings_retrieve'>>, never>>;
+
+export type ParishLifeUpdate = RequestBody<'v1_hierarchy_nodes_settings_partial_update'>;
+
+const parishLifeKey = (nodeId: string) => ['parametres', 'settings', nodeId] as const;
+
+const settingsUrl = (nodeId: string) => `/hierarchy/nodes/${encodeURIComponent(nodeId)}/settings/`;
+
+export const getParishLife = async (nodeId: string) => parishLifeSchema.parse(await api.get(settingsUrl(nodeId)));
+
+export const parishLifeQueryOptions = (nodeId: string) => queryOptions({ queryKey: parishLifeKey(nodeId), queryFn: () => getParishLife(nodeId) });
+
+/** Lecture réservée à `horaires.gerer` ou `structure.gerer` sur le nœud. */
+export const useParishLife = (nodeId: string) => useQuery(parishLifeQueryOptions(nodeId));
+
+/** PATCH des paramètres du secrétariat : `horaires.gerer` suffit (nom, code, statut restent à la chancellerie). */
+export const updateParishLife = async (nodeId: string, body: ParishLifeUpdate) => parishLifeSchema.parse(await api.patch(settingsUrl(nodeId), body));
+
+export const useUpdateParishLife = (nodeId: string, { onSuccess }: { onSuccess?: (settings: ParishLife) => void } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (body: NodeSettingsUpdate) => updateNodeSettings(nodeId, body),
-    onSuccess: async (node) => {
-      queryClient.setQueryData(nodeSettingsKey(nodeId), node);
+    mutationFn: (body: ParishLifeUpdate) => updateParishLife(nodeId, body),
+    onSuccess: async (settings) => {
+      queryClient.setQueryData(parishLifeKey(nodeId), settings);
+      await queryClient.invalidateQueries({ queryKey: nodeSettingsKey(nodeId) });
       await queryClient.invalidateQueries({ queryKey: ['hierarchy', 'nodes', nodeId] });
-      onSuccess?.(node);
+      await queryClient.invalidateQueries({ queryKey: ['public'] });
+      onSuccess?.(settings);
     },
   });
 };
