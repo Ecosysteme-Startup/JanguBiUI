@@ -26,6 +26,8 @@
   --jb-primary-fill: #0A6BA3;   /* b600 : aplat du bouton primaire */
   --jb-primary-fill-hover: #085887;
   --jb-on-primary: #FFFFFF;     /* texte sur aplat primaire ou encre */
+  --jb-on-primary-muted: #D9EBF7; /* texte secondaire sur aplat b600 (carte Parole de FID-Accueil) */
+  --jb-on-lit-white: #0E1A2B;   /* encre fixe sur blanc liturgique (pastille « Vert » sur aplat) */
   --jb-tint-50: #EEF6FC;        /* b50 : fond teinté, nav active, alerte info */
   --jb-tint-100: #D9EBF7;       /* b100 : sélection douce, avatar, compteur */
   --jb-tint-200: #B3D8F0;       /* b200 : aplat (barre claire, créneau) */
@@ -94,6 +96,8 @@
   --jb-primary-fill: #0A6BA3;
   --jb-primary-fill-hover: #085E90;
   --jb-on-primary: #F5F9FC;
+  --jb-on-primary-muted: #D9EBF7;
+  --jb-on-lit-white: #0E1A2B;
   --jb-tint-50: #0F2233;
   --jb-tint-100: #13304A;
   --jb-tint-200: #1B4466;

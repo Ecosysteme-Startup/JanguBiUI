@@ -62,6 +62,8 @@ test.each([
   ['warn', 'warn-bg'],
   ['err', 'err-bg'],
   ['primary', 'paper'],
+  ['on-primary-muted', 'primary-fill'], // carte Parole de l'accueil fidèle
+  ['on-lit-white', 'lit-white'],
 ])('%s sur %s passe 4,5:1 dans tous les thèmes', (fg, bg) => {
   expect(failures(fg, bg)).toEqual([]);
 });

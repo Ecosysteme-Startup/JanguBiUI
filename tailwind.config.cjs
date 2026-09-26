@@ -29,6 +29,8 @@ module.exports = {
       'primary-fill': token('primary-fill'),
       'primary-fill-hover': token('primary-fill-hover'),
       'on-primary': token('on-primary'),
+      'on-primary-muted': token('on-primary-muted'),
+      'on-lit-white': token('on-lit-white'),
       inverse: token('inverse'),
       'on-inverse': token('on-inverse'),
       'on-inverse-muted': token('on-inverse-muted'),

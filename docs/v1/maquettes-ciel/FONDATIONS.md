@@ -35,6 +35,8 @@ selon l'usage**, pas selon le hex clair.
 | `primary-fill` | #0A6BA3 | #0A6BA3 | **aplat** : bouton primaire, compteur non lu, jour choisi, piste de progression |
 | `primary-fill-hover` | #085887 | #085E90 | survol de l'aplat |
 | `on-primary` | #FFFFFF | #F5F9FC | texte sur `primary-fill` |
+| `on-primary-muted` | #D9EBF7 | #D9EBF7 | texte secondaire sur `primary-fill` (carte Parole, FID-Accueil) |
+| `on-lit-white` | #0E1A2B | #0E1A2B | encre fixe sur `lit-white` (pastille sur aplat bleu) |
 | `tint-50` (b50) | #EEF6FC | #0F2233 | nav active, badge info, alerte info, sélection de rangée |
 | `tint-100` (b100) | #D9EBF7 | #13304A | avatar, compteur neutre, pilule cumulable active |
 | `tint-200` (b200, aplat) | #B3D8F0 | #1B4466 | barre claire de graphique, créneau pris |

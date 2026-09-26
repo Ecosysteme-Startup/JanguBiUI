@@ -4,7 +4,10 @@ import { z } from 'zod';
 import type { LiturgicalBannerData } from '@/components/signature/liturgical-banner';
 import { api } from '@/lib/api-client';
 
-const readingSchema = z.object({ type: z.string(), citation: z.string() });
+const verseSchema = z.object({ book: z.string(), chapter: z.number(), number: z.number(), text: z.string() });
+
+// Versets et audio facultatifs : l'accueil affiche le verset en exergue et « Écouter » sans second appel.
+const readingSchema = z.object({ type: z.string(), citation: z.string(), verses: z.array(verseSchema).optional().default([]) });
 
 const liturgyDaySchema = z.object({
   date: z.string(),
@@ -15,6 +18,7 @@ const liturgyDaySchema = z.object({
     week: z.number().nullable(),
   }),
   readings: z.array(readingSchema),
+  audio_url: z.string().nullable().optional().default(null),
 });
 export type LiturgyDay = z.infer<typeof liturgyDaySchema>;
 
@@ -32,3 +36,6 @@ export const toBannerData = (day: LiturgyDay): LiturgicalBannerData => ({
 });
 
 export const useLiturgyToday = () => useQuery({ ...liturgyTodayQueryOptions(), select: toBannerData });
+
+/** Jour liturgique complet (lectures avec versets, audio), même requête et même cache que le bandeau. */
+export const useLiturgyTodayDay = () => useQuery(liturgyTodayQueryOptions());

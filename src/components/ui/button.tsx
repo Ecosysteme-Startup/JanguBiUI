@@ -15,7 +15,7 @@ import { Icon } from './icon';
  * Texte agrandi (A11Y-14) : hauteur minimale et non fixe, largeur plafonnée à celle du
  * conteneur. Cible tactile : `hit` agrandit la zone cliquable à 44 px sans changer le rendu.
  */
-export const buttonVariants = cva(
+const buttonCva = cva(
   'inline-flex max-w-full shrink-0 items-center justify-center gap-2 rounded-12 border border-transparent text-center font-semibold transition-colors duration-150 disabled:cursor-not-allowed aria-disabled:cursor-not-allowed',
   {
     variants: {
@@ -45,8 +45,11 @@ export const buttonVariants = cva(
   },
 );
 
+/** Classes du bouton, fusionnées par `cn()` (sur un lien, `border-line` du contour l'emporte bien). */
+export const buttonVariants = (props?: Parameters<typeof buttonCva>[0]) => cn(buttonCva(props));
+
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
-  VariantProps<typeof buttonVariants> & {
+  VariantProps<typeof buttonCva> & {
     asChild?: boolean;
     /** Chargement : roue + libellé explicite (« Envoi en cours »), bouton inactif et `aria-busy`. */
     loading?: boolean;
