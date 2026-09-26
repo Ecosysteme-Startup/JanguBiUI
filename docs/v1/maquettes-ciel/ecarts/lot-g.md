@@ -48,3 +48,17 @@ Fonctions existantes gardées hors maquette : filtre par type de nœud (sous la 
 | Assistant d'import : pas « Déposer / Vérifier / Publier », carte du fichier déposé, lignes éditables, « Remplacer », « Télécharger le modèle » | L'assistant existant (`ImportWizard`, composant partagé) est conservé : simulation puis application, date d'effet obligatoire | Modèle de fichier téléchargeable ; correction de ligne en place |
 
 Fonctions existantes gardées hors maquette : onglet « Annulées », « Qualité » (curé / administrateur), « Terminer », « Annuler » par ligne, panneau « Nommer une personne ».
+
+## DIO-Clerge (`/espace/[nodeId]/clerge`)
+
+La maquette montre un **annuaire du clergé** (offices en cours, parcours, compte Jàngu Bi, contact de chancellerie). Aucune API n'expose cet annuaire : l'écran reste la **file des déclarations d'état de vie à vérifier** (`GET /hierarchy/verifications/`), mise en page comme la maquette (liste + fiche latérale).
+
+| Bloc de la maquette | Décision | Ce qu'il faudrait côté backend |
+|---|---|---|
+| Liste de tous les prêtres et diacres, colonne « Office principal », « Jàngu Bi : Actif / Invité / Sans compte » | Liste des déclarations : nom, état de vie · degré, incardination · institut, statut (« À vérifier » / « Complément demandé ») | Un annuaire du clergé par sous-arbre (personne, office principal, état du compte) |
+| Filtres « Doyenné », « Office » | Remplacés par un filtre « Statut » (données réelles) | Filtres de l'annuaire |
+| « Ajouter une fiche », « Nommer à un office », « Modifier » | Non affichés (les nominations se font dans l'écran Nominations) | Création de fiche clerc sans compte |
+| Fiche : « Ordonné le … », offices en cours, parcours, « Sur Jàngu Bi », contact de chancellerie | Fiche de la déclaration : état de vie, degré, incardination, institut, justificatifs, décision (valider, complément, refuser) | Date d'ordination, historique des offices, coordonnées |
+| « Ses conversations sont chiffrées : ni le diocèse ni Numerisen ne peuvent les lire » | Non repris (pas de bloc messagerie) | — |
+
+Vérification visuelle : la base de démo n'a aucune déclaration en attente ; l'état vide est capturé, l'état rempli est couvert par les tests Vitest.
