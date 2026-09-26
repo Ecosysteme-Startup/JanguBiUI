@@ -20,8 +20,8 @@ import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 
 import { useCompleteOnboarding } from '../api/complete-onboarding';
-import type { DirectoryParish } from '../api/get-directory';
 import { useConsent } from '../api/get-consent';
+import type { DirectoryParish } from '../api/get-directory';
 
 import { ParishPicker } from './parish-picker';
 import { ParishPreview } from './parish-preview';
