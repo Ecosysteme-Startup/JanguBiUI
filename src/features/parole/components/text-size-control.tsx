@@ -2,8 +2,8 @@ import { cn } from '@/utils/cn';
 
 export const TEXT_SIZES = {
   normal: { label: 'Texte normal', button: 'text-body', reading: 'text-body leading-[1.7]' },
-  grand: { label: 'Texte grand', button: 'text-[21px]', reading: 'text-lead leading-[1.7]' },
-  'tres-grand': { label: 'Texte très grand', button: 'text-[26px]', reading: 'text-[21px] leading-[1.7]' },
+  grand: { label: 'Texte grand', button: 'text-[1.3125rem]', reading: 'text-lead leading-[1.7]' },
+  'tres-grand': { label: 'Texte très grand', button: 'text-[1.625rem]', reading: 'text-[1.3125rem] leading-[1.7]' },
 } as const;
 export type TextSize = keyof typeof TEXT_SIZES;
 

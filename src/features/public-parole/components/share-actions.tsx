@@ -29,7 +29,7 @@ export const ShareActions = ({ title, path }: { title: string; path: string }) =
   const body = encodeURIComponent(`${title} ${url()}`);
   const square = 'hit inline-flex size-11 items-center justify-center rounded border border-line text-ink hover:border-ink';
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Button variant="secondary" onClick={share}>
         Partager
       </Button>

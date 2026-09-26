@@ -119,7 +119,7 @@ export const RequestWizard = () => {
 
   return (
     <FormProvider {...form}>
-      <NextLink href={paths.app.demandes.list.getHref()} className="inline-flex h-8 items-center gap-2 text-sm font-medium">
+      <NextLink href={paths.app.demandes.list.getHref()} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
         <Icon name="fleche-gauche" size={18} />
         Retour · Mes demandes
       </NextLink>
@@ -129,7 +129,7 @@ export const RequestWizard = () => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">03</span> — Demande d’acte · étape {step + 1} sur {STEPS.length}
           </p>
-          <h1 className="m-0 mt-3 font-serif text-h2 font-normal text-ink lg:text-[50px] lg:leading-none">
+          <h1 className="m-0 mt-3 font-serif text-h2 font-normal text-ink lg:text-[3.125rem] lg:leading-none">
             Nouvelle <em className="italic text-primary">demande</em>
           </h1>
         </div>

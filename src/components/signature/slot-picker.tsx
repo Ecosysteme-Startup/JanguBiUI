@@ -33,7 +33,7 @@ export const SlotPicker = ({
           )}
         >
           <span className={cn('font-serif text-h3 leading-none', !slot.available && 'line-through')}>{hour(slot.startsAt)}</span>
-          <span className={cn('text-xs', selected ? 'text-tint-100' : !slot.available ? '' : 'text-ink-2')}>
+          <span className={cn('text-xs', selected ? 'text-on-primary' : !slot.available ? '' : 'text-ink-2')}>
             {!slot.available ? 'Complet' : selected ? 'Choisi' : slot.priest}
           </span>
         </button>

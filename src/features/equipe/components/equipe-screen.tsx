@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { CAPABILITY_LABELS, CapabilityChips } from '@/components/signature/capability-chips';
 import { QualityModal } from '@/components/signature/quality-modal';
@@ -113,6 +113,26 @@ const PAST_REASON: Record<string, string> = { terminee: 'Fin de mandat', annulee
 export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
   const canNommer = useCan('offices.nommer', nodeId);
   const [panelOpen, setPanelOpen] = useState(false);
+  // Panneau non modal (A11Y-16) : le focus y entre à l'ouverture, Échap le ferme, le focus revient au bouton.
+  const openerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const closePanel = useCallback(() => {
+    setPanelOpen(false);
+    openerRef.current?.focus();
+  }, []);
+  useEffect(() => {
+    if (!panelOpen) return;
+    panelRef.current?.focus();
+    // Écoute au niveau du document : les gestionnaires React (combobox) ont déjà traité l'événement.
+    // La liste de la combobox consomme le premier Échap (preventDefault) ; le suivant ferme le panneau.
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || !panelRef.current?.contains(event.target as Node)) return;
+      event.preventDefault();
+      closePanel();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [panelOpen, closePanel]);
   const [ending, setEnding] = useState<Assignment | null>(null);
   const [qualifying, setQualifying] = useState<Assignment | null>(null);
   const assignments = useNodeAssignments(nodeId);
@@ -141,7 +161,7 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
             <h1 className="m-0 mt-2 font-serif text-title font-normal text-ink">Équipe et nominations</h1>
           </div>
           {canNommer && (
-            <Button aria-expanded={panelOpen} aria-controls="panneau-nomination" onClick={() => setPanelOpen(true)}>
+            <Button ref={openerRef} aria-expanded={panelOpen} aria-controls="panneau-nomination" onClick={() => setPanelOpen(true)}>
               <Icon name="plus" size={16} /> Nommer une personne
             </Button>
           )}
@@ -174,7 +194,7 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
               {current.length === 0 ? (
                 <p className="m-0 mt-3 text-sm text-ink-3">Aucun office actif visible.</p>
               ) : (
-                <Table>
+                <Table label="Offices actifs, défilement horizontal">
                   <thead>
                     <tr>
                       <Th>Office · lieu</Th>
@@ -267,11 +287,17 @@ export const EquipeScreen = ({ nodeId }: { nodeId: string }) => {
       </div>
 
       {panelOpen && canNommer && (
-        <section id="panneau-nomination" aria-labelledby="n-titre" className="rounded border border-line-strong bg-surface p-6 xl:sticky xl:top-6">
+        <section
+          ref={panelRef}
+          id="panneau-nomination"
+          aria-labelledby="n-titre"
+          tabIndex={-1}
+          className="rounded border border-line-strong bg-surface p-6 focus:outline-none xl:sticky xl:top-6"
+        >
           {catalogue.isPending || node.isPending ? (
             <LoadingBlock label="Chargement du catalogue d’offices…" />
           ) : (
-            <NominationForm targets={targets} offices={offices} onClose={() => setPanelOpen(false)} />
+            <NominationForm targets={targets} offices={offices} onClose={closePanel} />
           )}
         </section>
       )}

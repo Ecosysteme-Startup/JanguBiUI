@@ -30,7 +30,7 @@ const PretresPage = () => {
           <p className="tnum m-0 text-meta text-ink-2">
             <span className="text-primary">04</span> — Parler à un prêtre
           </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[50px] lg:leading-none">
+          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
             Parler à un <em className="italic text-primary">prêtre</em>
           </h1>
         </div>

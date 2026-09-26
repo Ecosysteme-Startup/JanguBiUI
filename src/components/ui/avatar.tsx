@@ -14,7 +14,7 @@ export const Avatar = ({ name, size = 32, className }: { name: string; size?: nu
     aria-hidden="true"
     style={{ width: size, height: size }}
     className={cn(
-      'tnum inline-flex shrink-0 items-center justify-center rounded-full border border-night-2 bg-tint-100 text-meta text-night-2',
+      'tnum inline-flex shrink-0 items-center justify-center rounded-full border border-primary-strong bg-tint-100 text-meta text-primary-strong',
       className,
     )}
   >

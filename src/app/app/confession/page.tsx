@@ -27,7 +27,7 @@ const ConfessionPage = () => {
             <span className="text-primary">04</span> — Parler à un prêtre ·
             Sacrement de réconciliation
           </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[50px] lg:leading-none">
+          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
             Rendez-vous de <em className="italic text-primary">confession</em>
           </h1>
         </div>

@@ -59,7 +59,7 @@ export const DayGrid = ({
                     slot.status !== 'bloque' &&
                       !booked &&
                       'border-line bg-surface text-ink-3 hover:border-primary',
-                    booked && 'border-night-2 bg-tint-100 text-night-2',
+                    booked && 'border-primary-strong bg-tint-100 text-primary-strong',
                     selected &&
                       'border-primary-fill bg-primary-fill text-on-primary',
                   )}

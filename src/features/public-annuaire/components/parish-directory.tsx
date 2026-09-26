@@ -162,7 +162,7 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
               type="button"
               aria-label={`Retirer le filtre ${filter.label}`}
               onClick={() => navigate(filter.clear)}
-              className="inline-flex h-8 items-center gap-2 rounded border border-ink bg-ink pl-3 pr-2.5 text-sm text-paper hover:bg-ink-2"
+              className="hit inline-flex h-8 items-center gap-2 rounded border border-ink bg-ink pl-3 pr-2.5 text-sm text-paper hover:bg-ink-2"
             >
               {filter.label}
               <Icon name="x" size={14} />

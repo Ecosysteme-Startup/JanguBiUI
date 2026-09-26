@@ -97,7 +97,7 @@ const DeploymentSection = ({ deployment, failed, nodeId }: { deployment: Deploym
         ) : deployment.rows.length === 0 ? (
           <p className="m-0 text-sm text-ink-2">Aucun doyenné sous ce nœud : les paroisses y sont rattachées directement.</p>
         ) : (
-          <Table>
+          <Table label="Déploiement par doyenné, défilement horizontal">
             <thead>
               <tr>
                 <Th>Doyenné</Th>

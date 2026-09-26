@@ -24,9 +24,8 @@ import { CAPACITES } from '@/lib/capacites';
 import { type CapabilityOverride, useCreateOverride, useDeleteOverride, useOverrides } from '../api/capability-overrides';
 import { useDioceses } from '../api/get-dioceses';
 import { type OfficeType, REQUIRED_ORDER, useOfficeCatalogue } from '../api/get-office-catalogue';
+import type { ReferentielTab } from '../utils/tabs';
 
-export const REFERENTIEL_TABS = ['offices', 'types', 'capacites', 'retraits'] as const;
-export type ReferentielTab = (typeof REFERENTIEL_TABS)[number];
 
 const tabHref = (tab: ReferentielTab) => `${paths.plateforme.referentiels.getHref()}?onglet=${tab}`;
 

@@ -7,7 +7,7 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { cn } from '@/utils/cn';
 
 const BigNumber = ({ children }: { children: string }) => (
-  <span aria-hidden="true" className="font-serif text-[58px] leading-none tracking-[-0.02em] text-primary">
+  <span aria-hidden="true" className="font-serif text-[3.625rem] leading-none tracking-[-0.02em] text-primary">
     {children}
   </span>
 );
@@ -43,7 +43,7 @@ export const HomeUses = ({ announcement, photo }: { announcement?: ReactNode; ph
     <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-6">
       <article className="flex flex-col border-t border-ink pt-6 lg:col-span-4">
         <BigNumber>01</BigNumber>
-        <h3 className="m-0 mt-6 font-serif text-h3 font-normal text-ink lg:text-[29px]">La Parole du jour</h3>
+        <h3 className="m-0 mt-6 font-serif text-h3 font-normal text-ink lg:text-[1.8125rem]">La Parole du jour</h3>
         <p className="m-0 mt-3 text-body text-ink-2">
           Les lectures de la messe chaque matin, la Bible à portée de main et le chapelet guidé, mystère après mystère.
         </p>
@@ -61,7 +61,7 @@ export const HomeUses = ({ announcement, photo }: { announcement?: ReactNode; ph
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-6">
           <div>
             <BigNumber>02</BigNumber>
-            <h3 className="m-0 mt-6 font-serif text-h3 font-normal text-ink lg:text-[29px]">Ma paroisse</h3>
+            <h3 className="m-0 mt-6 font-serif text-h3 font-normal text-ink lg:text-[1.8125rem]">Ma paroisse</h3>
           </div>
           <p className="m-0 max-w-[36ch] text-body text-ink-2 md:mt-20">
             Les annonces du dimanche, les horaires de chaque lieu de culte et l&apos;agenda, publiés par le secrétariat, au même endroit.
@@ -77,7 +77,7 @@ export const HomeUses = ({ announcement, photo }: { announcement?: ReactNode; ph
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[120px_minmax(0,1fr)]">
           <BigNumber>03</BigNumber>
           <div>
-            <h3 className="m-0 font-serif text-h3 font-normal text-ink lg:text-[29px]">Mes demandes d&apos;actes</h3>
+            <h3 className="m-0 font-serif text-h3 font-normal text-ink lg:text-[1.8125rem]">Mes demandes d&apos;actes</h3>
             <p className="m-0 mt-3 max-w-[58ch] text-body text-ink-2">
               Extrait de baptême, attestation de confirmation ou de mariage religieux : la demande part vers la paroisse du sacrement,
               et vous suivez chaque étape. L&apos;acte vous est remis en original papier, signé et scellé.
@@ -119,7 +119,7 @@ export const HomeUses = ({ announcement, photo }: { announcement?: ReactNode; ph
 
       <article className="flex flex-col border-t border-ink pt-6 lg:col-span-4 lg:col-start-9">
         <BigNumber>04</BigNumber>
-        <h3 className="m-0 mt-6 font-serif text-h3 font-normal text-ink lg:text-[29px]">Parler à un prêtre</h3>
+        <h3 className="m-0 mt-6 font-serif text-h3 font-normal text-ink lg:text-[1.8125rem]">Parler à un prêtre</h3>
         <p className="m-0 mt-3 text-body text-ink-2">
           Une messagerie confidentielle avec les prêtres joignables de votre paroisse, et la prise de rendez-vous de confession.
         </p>

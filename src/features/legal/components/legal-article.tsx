@@ -28,7 +28,12 @@ export const LegalArticle = ({
       <h1 className="m-0 mt-4 font-serif text-title font-normal text-ink md:text-h1">{title}</h1>
       <div className="m-0 mt-6 max-w-reading text-lead text-ink-2">{intro}</div>
     </header>
-    <nav aria-label="Sommaire" className="border-t border-ink pt-3 lg:sticky lg:top-6 lg:col-span-3 lg:self-start">
+    {/* Sommaire dans sa propre colonne (1 à 3), à gauche du texte (5 à 12) : collant, il ne passe
+        plus sur le corps en défilant (A11Y-09). Fond opaque par sécurité. */}
+    <nav
+      aria-label="Sommaire"
+      className="border-t border-ink bg-paper pt-3 lg:sticky lg:top-6 lg:col-span-3 lg:col-start-1 lg:row-start-2 lg:self-start"
+    >
       <p className="tnum m-0 text-meta text-ink-3">Sommaire</p>
       <ol className="m-0 mt-3 list-none p-0">
         {sections.map((section, index) => (
@@ -41,7 +46,7 @@ export const LegalArticle = ({
         ))}
       </ol>
     </nav>
-    <div className="flex max-w-reading flex-col gap-12 lg:col-span-8 lg:col-start-5">
+    <div className="flex max-w-reading flex-col gap-12 lg:col-span-8 lg:col-start-5 lg:row-start-2">
       {sections.map((section, index) => (
         <section key={section.id} id={section.id} aria-labelledby={`${section.id}-titre`} className="scroll-mt-6">
           <SectionHeading number={String(index + 1).padStart(2, '0')} title={section.title} as="h2" id={`${section.id}-titre`} />

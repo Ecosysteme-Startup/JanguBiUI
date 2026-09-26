@@ -28,7 +28,7 @@ const NeighbourDay = ({ date, kind }: { date: string; kind: 'veille' | 'lendemai
   return (
     <NextLink
       href={paths.parole.getHref(date)}
-      className={`group flex flex-1 flex-col gap-1 border-t border-line pt-3 hover:border-ink ${isNext ? 'items-end text-right' : ''}`}
+      className={`group flex min-w-0 flex-1 basis-36 flex-col gap-1 break-words border-t border-line pt-3 hover:border-ink ${isNext ? 'items-end text-right' : ''}`}
     >
       <span className="tnum text-meta text-ink-3">
         {isNext ? 'Lendemain' : 'Veille'} · {dayjs(date).format('ddd DD.MM')}
@@ -161,7 +161,7 @@ export const ParoleDuJour = ({ date }: { date?: string }) => {
               Le calendrier liturgique est à jour ; les textes seront publiés dès leur réception. Revenez un peu plus tard.
             </EmptyState>
           )}
-          <nav aria-label="Jours voisins" className="flex gap-6">
+          <nav aria-label="Jours voisins" className="flex flex-wrap gap-6">
             <NeighbourDay date={previous} kind="veille" />
             <NeighbourDay date={next} kind="lendemain" />
           </nav>

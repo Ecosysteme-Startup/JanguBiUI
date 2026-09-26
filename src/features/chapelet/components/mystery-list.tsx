@@ -35,7 +35,7 @@ export const MysteryList = ({
               <span
                 className={cn(
                   'tnum inline-flex size-7 shrink-0 items-center justify-center rounded-full border text-meta',
-                  prayed ? 'border-primary bg-primary text-on-primary' : active ? 'border-ink text-ink' : 'border-line-field text-ink-3',
+                  prayed ? 'border-primary-fill bg-primary-fill text-on-primary' : active ? 'border-ink text-ink' : 'border-line-field text-ink-3',
                 )}
               >
                 {i + 1}

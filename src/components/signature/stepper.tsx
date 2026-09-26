@@ -20,7 +20,7 @@ export const Stepper = ({ steps, current, label }: { steps: string[]; current: n
           <span className={cn('tnum block text-meta', state === 'done' ? 'text-primary' : state === 'current' ? 'text-ink' : 'text-ink-3')}>
             {n} · {state === 'done' ? 'Fait' : state === 'current' ? 'En cours' : 'À venir'}
           </span>
-          <span className={cn('mt-1 block text-base', state === 'current' ? 'font-semibold' : state === 'done' ? 'font-medium' : 'text-ink-3')}>
+          <span className={cn('mt-1 block hyphens-auto break-words text-base', state === 'current' ? 'font-semibold' : state === 'done' ? 'font-medium' : 'text-ink-3')}>
             {step}
           </span>
         </li>

@@ -29,7 +29,7 @@ export const PublicHeader = () => (
           </NavLink>
         ))}
       </nav>
-      <div className="flex items-center gap-6">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <NextLink href={paths.auth.connexion.getHref()} className="hit text-base font-medium text-ink hover:text-primary">
           Se connecter
         </NextLink>

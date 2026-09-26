@@ -2,11 +2,22 @@ import * as React from 'react';
 
 import { cn } from '@/utils/cn';
 
-/** Tableau de données (DS-Composants §06) : en-tête 40 px, lignes 56 px, sélection bleu-50. */
-export const Table = ({ className, ...props }: React.TableHTMLAttributes<HTMLTableElement>) => (
-  <div className="w-full overflow-x-auto">
+import { ScrollRegion } from './scroll-region';
+
+type TableProps = React.TableHTMLAttributes<HTMLTableElement> & {
+  /** Nom de la zone de défilement quand le tableau est plus large que l'écran (A11Y-12). */
+  label?: string;
+};
+
+/**
+ * Tableau de données (DS-Composants §06) : en-tête 40 px, lignes 56 px, sélection bleu-50.
+ * En petite largeur, il défile dans sa propre zone (jamais la page) ; cette zone devient
+ * focalisable et nommée dès qu'elle déborde.
+ */
+export const Table = ({ className, label = 'Tableau, défilement horizontal', ...props }: TableProps) => (
+  <ScrollRegion label={label}>
     <table className={cn('w-full border-collapse text-sm text-ink', className)} {...props} />
-  </div>
+  </ScrollRegion>
 );
 
 export const Th = ({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) => (

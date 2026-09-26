@@ -7,12 +7,12 @@ import { cn } from '@/utils/cn';
 export const Figure = ({ value, children, size = 'lg' }: { value: React.ReactNode; children?: React.ReactNode; size?: 'xl' | 'lg' }) => (
   <p className="m-0 mb-4 flex items-baseline gap-3">
     <span
-      className={cn('tnum font-serif font-normal text-ink', size === 'xl' ? 'text-display' : 'text-[50px] leading-none tracking-tight')}
+      className={cn('tnum font-serif font-normal text-ink', size === 'xl' ? 'text-display' : 'text-[3.125rem] leading-none tracking-tight')}
     >
       {value}
     </span>
     {children && (
-      <span className={cn('leading-snug text-ink-2', size === 'xl' ? 'font-serif text-[27px] text-ink' : 'text-sm')}>{children}</span>
+      <span className={cn('leading-snug text-ink-2', size === 'xl' ? 'font-serif text-[1.6875rem] text-ink' : 'text-sm')}>{children}</span>
     )}
   </p>
 );

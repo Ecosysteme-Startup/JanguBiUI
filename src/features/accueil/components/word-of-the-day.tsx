@@ -39,7 +39,7 @@ export const WordOfTheDay = ({ className }: { className?: string }) => {
       ) : (
         <>
           {gospel && <p className="tnum m-0 mt-5 text-meta text-ink-3">Évangile · {gospel.citation}</p>}
-          <p className="m-0 mt-3 max-w-[560px] font-serif text-h3 italic text-ink lg:text-[27px] lg:leading-tight">
+          <p className="m-0 mt-3 max-w-[560px] font-serif text-h3 italic text-ink lg:text-[1.6875rem] lg:leading-tight">
             {frenchTypo(day.calendar.celebration)}
           </p>
           {day.readings.length > 0 && (

@@ -42,7 +42,7 @@ export const PublicFooter = () => (
       <div className="grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-6">
         <div className="md:col-span-5">
           <p className="m-0 font-serif text-h2 text-on-primary">Jàngu Bi</p>
-          <p className="mb-0 mt-4 max-w-[40ch] text-base leading-relaxed text-tint-200">
+          <p className="mb-0 mt-4 max-w-[40ch] text-base leading-relaxed text-on-night-muted">
             « La Leçon », en wolof. La Parole du jour, votre paroisse, vos demandes d&apos;actes et vos prêtres, pour les
             catholiques du Sénégal. Une application éditée par Numerisen.
           </p>
@@ -53,7 +53,7 @@ export const PublicFooter = () => (
             <ul className="m-0 flex list-none flex-col gap-3 p-0 text-base">
               {column.links.map((link) => (
                 <li key={link.label}>
-                  <NextLink href={link.href} className="text-on-night hover:text-on-primary">
+                  <NextLink href={link.href} className="hit text-on-night hover:text-on-primary">
                     {link.label}
                   </NextLink>
                 </li>

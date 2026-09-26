@@ -9,6 +9,7 @@ import { Choice } from '@/components/ui/choice';
 import { EmptyState } from '@/components/ui/empty-state';
 import { IconButton } from '@/components/ui/icon-button';
 import { Notice } from '@/components/ui/notice';
+import { ScrollRegion } from '@/components/ui/scroll-region';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
@@ -84,7 +85,7 @@ const DayButton = ({
       <span
         className={cn(
           'tnum text-meta',
-          selected && !disabled ? 'text-tint-100' : '',
+          selected && !disabled ? 'text-on-primary' : '',
         )}
       >
         {hint}
@@ -283,24 +284,24 @@ export const ConfessionBooking = ({
             </EmptyState>
           ) : (
             <>
-              <div
-                role="group"
-                aria-label={`Jours de la ${weekLabel(weekStart)}`}
-                className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-7 lg:px-0"
-              >
-                {days.map((d) => (
-                  <DayButton
-                    key={d}
-                    day={d}
-                    slots={slotsOfDay(filtered, d)}
-                    selected={d === activeDay}
-                    onSelect={() => {
-                      setDay(d);
-                      setSlotId(null);
-                    }}
-                  />
-                ))}
-              </div>
+              {/* Défilement des jours sous lg dans une zone focalisable, même si aucun jour n'est
+                  sélectionnable (axe scrollable-region-focusable) ; grille sans défilement en lg. */}
+              <ScrollRegion label="Jours de la semaine, défilement horizontal" className="-mx-4 w-auto px-4 pb-1 lg:mx-0 lg:overflow-visible lg:px-0">
+                <div role="group" aria-label={`Jours de la ${weekLabel(weekStart)}`} className="flex gap-2 lg:grid lg:grid-cols-7">
+                  {days.map((d) => (
+                    <DayButton
+                      key={d}
+                      day={d}
+                      slots={slotsOfDay(filtered, d)}
+                      selected={d === activeDay}
+                      onSelect={() => {
+                        setDay(d);
+                        setSlotId(null);
+                      }}
+                    />
+                  ))}
+                </div>
+              </ScrollRegion>
               {filtered.length === 0 && (
                 <p className="m-0 mt-3 text-sm text-ink-2">
                   Aucun créneau libre cette semaine

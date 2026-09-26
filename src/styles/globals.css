@@ -20,12 +20,27 @@
   textarea {
     font-family: inherit;
   }
+  /* Titres en grand corps : un mot trop long pour la ligne (texte agrandi à 200 %, 320 px)
+     se coupe au lieu d'élargir la page (A11Y-14, WCAG 1.4.10). */
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: break-word;
+  }
   a {
     color: var(--jb-primary);
     text-decoration: none;
   }
   a:hover {
     color: var(--jb-primary-strong);
+  }
+  /* Lien dans un paragraphe : souligné, la couleur seule ne suffit pas (WCAG 1.4.1). En sombre,
+     --jb-primary et --jb-ink-2 sont trop proches (1,1:1). Les utilitaires (no-underline…) priment. */
+  p a,
+  li > p a {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
   }
   :focus-visible {
     outline: 2px solid var(--jb-primary);
