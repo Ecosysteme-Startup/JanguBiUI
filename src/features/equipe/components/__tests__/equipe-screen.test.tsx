@@ -49,6 +49,29 @@ describe('Équipe et nominations (PAR-Equipe)', () => {
     expect(within(past).getByText('À sa demande')).toBeInTheDocument();
   });
 
+  it('déplace le focus dans le panneau, le ferme à Échap et rend le focus au bouton (A11Y-16)', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    const opener = await screen.findByRole('button', { name: /nommer une personne/i });
+    await user.click(opener);
+    const panel = await screen.findByRole('region', { name: 'Nommer une personne' });
+    await vi.waitFor(() => expect(panel).toHaveFocus());
+
+    // Premier Échap dans la combobox ouverte : ferme la liste seulement.
+    const combobox = within(panel).getByRole('combobox', { name: /personne/i });
+    await user.type(combobox, 'élis');
+    await within(panel).findByRole('option', { name: /élisabeth gomis/i });
+    await user.keyboard('{Escape}');
+    expect(combobox).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('region', { name: 'Nommer une personne' })).toBeInTheDocument();
+
+    // Second Échap : ferme le panneau, le focus revient au déclencheur.
+    await user.keyboard('{Escape}');
+    await vi.waitFor(() => expect(screen.queryByRole('region', { name: 'Nommer une personne' })).not.toBeInTheDocument());
+    expect(opener).toHaveFocus();
+  });
+
   it('nomme une personne, avec l’aperçu des capacités de l’office', async () => {
     const user = userEvent.setup();
     await renderPage();
