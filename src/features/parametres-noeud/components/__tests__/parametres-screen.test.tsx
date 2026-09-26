@@ -67,6 +67,70 @@ describe('Paramètres (PAR-Parametres)', () => {
       acts_delay_days: 5,
       secretariat_public: false,
     });
+    expect(f8aState.lastBody).not.toHaveProperty('type_delays');
+    expect(f8aState.lastTypeDelaysBody).toBeNull();
+  });
+
+  it('règle un délai propre à chaque type d’acte', async () => {
+    const user = userEvent.setup();
+    await renderPage(grantsSecretaire);
+
+    const baptism = await screen.findByLabelText('Délai, Certificat de baptême, en jours ouvrés');
+    const marriage = screen.getByLabelText('Délai, Attestation de mariage religieux, en jours ouvrés');
+    const confirmation = screen.getByLabelText('Délai, Attestation de confirmation, en jours ouvrés');
+    expect(baptism).toHaveValue('2');
+    expect(marriage).toHaveValue('7');
+    expect(confirmation).toHaveValue('');
+    expect(confirmation).toHaveAttribute('placeholder', '3');
+    expect(screen.getByText(/un type laissé vide reprend le délai de la paroisse \(3 j\)/i)).toBeInTheDocument();
+
+    await user.clear(baptism);
+    await user.type(baptism, '4');
+    await user.clear(marriage);
+    expect(screen.getByText('2 modifications')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await screen.findByText('Paramètres enregistrés.')).toBeInTheDocument();
+    expect(f8aState.lastTypeDelaysBody).toEqual({
+      items: [
+        { document_type: 'baptism', days: 4 },
+        { document_type: 'first_communion', days: null },
+        { document_type: 'confirmation', days: null },
+        { document_type: 'religious_marriage', days: null },
+        { document_type: 'godparent', days: null },
+      ],
+    });
+    // Seuls les délais ont changé : les paramètres du nœud ne sont pas renvoyés.
+    expect(f8aState.lastBody).toBeNull();
+    expect(screen.getByText('Aucune modification')).toBeInTheDocument();
+  });
+
+  it('valide le délai d’un type d’acte avant l’envoi', async () => {
+    const user = userEvent.setup();
+    await renderPage(grantsSecretaire);
+
+    const godparent = await screen.findByLabelText('Délai, Attestation parrain / marraine, en jours ouvrés');
+    await user.type(godparent, '120');
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await screen.findByText('Entre 1 et 90 jours.')).toBeInTheDocument();
+    expect(godparent).toHaveAttribute('aria-invalid', 'true');
+    expect(f8aState.lastTypeDelaysBody).toBeNull();
+  });
+
+  it('affiche un refus du serveur sur les délais par type', async () => {
+    server.use(
+      http.put(apiUrl('/staff/documents/nodes/:nodeId/type-delays/'), () =>
+        v1Error(403, 'type_delays_forbidden', 'Vous ne pouvez pas régler les délais de ce nœud.'),
+      ),
+    );
+    const user = userEvent.setup();
+    await renderPage(grantsSecretaire);
+
+    await user.type(await screen.findByLabelText('Délai, Attestation de confirmation, en jours ouvrés'), '5');
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await screen.findByText('Vous n’avez pas la capacité de modifier ces paramètres.')).toBeInTheDocument();
   });
 
   it('valide les champs avant l’envoi', async () => {
