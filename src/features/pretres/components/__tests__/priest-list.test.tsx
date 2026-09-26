@@ -24,36 +24,41 @@ beforeEach(() => {
 });
 
 describe('PriestList (FID-Pretres)', () => {
-  it('liste les prêtres joignables avec leur disponibilité, paroisse puis aumônerie', async () => {
-    renderApp(<PriestList parishName="Saint-Dominique" />);
+  it('liste les prêtres joignables en cartes, avec leur disponibilité, paroisse puis aumônerie', async () => {
+    renderApp(<PriestList />);
 
     const parish = await screen.findByRole('list', {
       name: 'Prêtres joignables · Saint-Dominique',
     });
+    expect(within(parish).getByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
+    expect(within(parish).getByText('Curé')).toBeInTheDocument();
+    expect(within(parish).getByText('Joignable')).toBeInTheDocument();
+    expect(within(parish).getByText('Répond mar. 15 h-18 h')).toBeInTheDocument();
+    expect(within(parish).getByText('Absent jusqu’au 28 septembre')).toBeInTheDocument();
+    // Absent : on peut lui écrire (lu à son retour), pas de rendez-vous de confession.
+    expect(within(parish).getByRole('button', { name: 'Écrire à Abbé Robert Sagna' })).toBeEnabled();
     expect(
-      within(parish).getByText('Abbé Augustin Ndiaye'),
-    ).toBeInTheDocument();
-    expect(within(parish).getByText('· curé')).toBeInTheDocument();
+      within(parish).queryByRole('link', { name: 'Rendez-vous de confession avec Abbé Robert Sagna' }),
+    ).not.toBeInTheDocument();
+    expect(within(parish).getByText(/pas de confession avec lui avant le 28 septembre/i)).toBeInTheDocument();
     expect(
-      within(parish).getByText(/répond mar\. 15 h-18 h/),
-    ).toBeInTheDocument();
+      within(parish).getByRole('link', { name: 'Rendez-vous de confession avec Abbé Augustin Ndiaye' }),
+    ).toHaveAttribute('href', '/app/confession');
+    expect(screen.getByRole('list', { name: /aumônerie de la cité universitaire/i })).toHaveTextContent('Abbé Pascal Manga');
+  });
+
+  it('propose de reprendre un échange déjà ouvert', async () => {
+    renderApp(<PriestList conversationHrefOf={(id) => (id === f7Ids.tine ? '/app/pretres/conversations/c1' : undefined)} />);
+
     expect(
-      within(parish).getByText('Absent jusqu’au 28.09'),
-    ).toBeInTheDocument();
-    expect(
-      within(parish).getByRole('button', {
-        name: /rendez-vous indisponible : abbé robert sagna est absent/i,
-      }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('list', { name: /aumônerie de la cité universitaire/i }),
-    ).toHaveTextContent('Abbé Pascal Manga');
-    expect(screen.getByText('4 prêtres')).toBeInTheDocument();
+      await screen.findByRole('link', { name: 'Reprendre la conversation avec Père Emmanuel Tine' }),
+    ).toHaveAttribute('href', '/app/pretres/conversations/c1');
+    expect(screen.queryByRole('button', { name: 'Écrire à Père Emmanuel Tine' })).not.toBeInTheDocument();
   });
 
   it('ouvre la conversation avec le prêtre choisi', async () => {
     const user = userEvent.setup();
-    renderApp(<PriestList parishName="Saint-Dominique" />);
+    renderApp(<PriestList />);
 
     await user.click(
       await screen.findByRole('button', {
@@ -79,7 +84,7 @@ describe('PriestList (FID-Pretres)', () => {
       ),
     );
     const user = userEvent.setup();
-    renderApp(<PriestList parishName="Saint-Dominique" />);
+    renderApp(<PriestList />);
 
     await user.click(
       await screen.findByRole('button', {
@@ -112,7 +117,7 @@ describe('PriestList (FID-Pretres)', () => {
       ),
     );
     const user = userEvent.setup();
-    renderApp(<PriestList parishName="Saint-Dominique" />);
+    renderApp(<PriestList />);
 
     await user.click(
       await screen.findByRole('button', {
@@ -129,7 +134,7 @@ describe('PriestList (FID-Pretres)', () => {
     server.use(
       http.get(apiUrl('/messaging/priests/'), () => HttpResponse.json([])),
     );
-    renderApp(<PriestList parishName="Saint-Dominique" />);
+    renderApp(<PriestList />);
     expect(
       await screen.findByText('Aucun prêtre joignable pour l’instant'),
     ).toBeInTheDocument();

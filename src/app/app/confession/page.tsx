@@ -1,50 +1,48 @@
 'use client';
 
-import NextLink from 'next/link';
-
-import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
-import { paths } from '@/config/paths';
-import { ConfessionBooking } from '@/features/confession/components/confession-booking';
+import { useSlots } from '@/features/confession/api/get-slots';
+import { ConfessionBooking, type UnavailablePriest } from '@/features/confession/components/confession-booking';
+import { nextConfessionDay } from '@/features/confession/utils/next-confession';
+import { usePriests } from '@/features/pretres/api/get-priests';
 import { useMe } from '@/hooks/use-me';
+import { isAbsent } from '@/utils/availability-label';
+import { dayjs, hour } from '@/utils/dates';
+import { parishLabel } from '@/utils/parish-name';
+
+/** « Paroisse Saint-Dominique · le samedi de 16 h à 18 h, par créneaux de 10 minutes. » (données réelles) */
+const useSubtitle = (parish: { id: string; name: string } | null) => {
+  const slots = useSlots(parish?.id ?? null, dayjs().format('YYYY-MM-DD'));
+  if (!parish) return 'La confession se vit en présentiel, à l’église. Aucun motif n’est demandé.';
+  const next = slots.data ? nextConfessionDay(slots.data) : null;
+  const when = next
+    ? ` · le ${dayjs(next.day).format('dddd')} de ${hour(next.from)} à ${hour(next.to)}, par créneaux de ${next.minutes} minutes.`
+    : ' · réservez un créneau, aucun motif n’est demandé.';
+  return `${parishLabel(parish.name)}${when}`;
+};
 
 // Rendez-vous de confession (FID-Confession-RDV, MOB-Confession).
 const ConfessionPage = () => {
   const me = useMe();
   const parish = me.data?.paroisse_suivie ?? null;
+  const priests = usePriests();
+  const subtitle = useSubtitle(parish);
+  const unavailable: UnavailablePriest[] = (priests.data ?? [])
+    .filter((p) => isAbsent(p.availability))
+    .map((p) => ({ id: p.user_id, name: p.full_name, until: p.availability!.absent_until! }));
+
   return (
-    <>
-      <NextLink
-        href={paths.app.pretres.list.getHref()}
-        className="mb-6 inline-flex h-11 items-center gap-2 text-sm font-medium text-primary"
-      >
-        <Icon name="fleche-gauche" size={16} />
-        Retour · Parler à un prêtre
-      </NextLink>
-      <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-end lg:gap-6">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">04</span> — Parler à un prêtre ·
-            Sacrement de réconciliation
-          </p>
-          <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink lg:text-[3.125rem] lg:leading-none">
-            Rendez-vous de <em className="italic text-primary">confession</em>
-          </h1>
-        </div>
-        <p className="m-0 max-w-[440px] text-body text-ink-2">
-          La confession se vit en présentiel, à l’église. Réservez un créneau :
-          rien ne vous est demandé sur son contenu.
-        </p>
+    <div className="mx-auto w-full max-w-content">
+      <h1 className="m-0 text-28 font-semibold text-ink sm:text-32">Rendez-vous de confession</h1>
+      <p className="m-0 mt-2 text-16 text-ink-2">{subtitle}</p>
+      <div className="mt-8">
+        {me.isPending ? (
+          <LoadingBlock label="Chargement…" />
+        ) : (
+          <ConfessionBooking nodeId={parish?.id ?? null} parishName={parish?.name ?? null} unavailablePriests={unavailable} />
+        )}
       </div>
-      {me.isPending ? (
-        <LoadingBlock label="Chargement…" />
-      ) : (
-        <ConfessionBooking
-          nodeId={parish?.id ?? null}
-          parishName={parish?.name ?? null}
-        />
-      )}
-    </>
+    </div>
   );
 };
 

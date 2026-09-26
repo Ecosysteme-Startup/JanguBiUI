@@ -5,42 +5,67 @@ import { useState } from 'react';
 
 import { ConfessionNotice } from '@/components/signature/confession-notice';
 import { Button } from '@/components/ui/button';
-import { Chip, ChipGroup } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useMe } from '@/hooks/use-me';
+import { displayName, useMe } from '@/hooks/use-me';
+import { availabilityStatus } from '@/utils/availability-label';
+import { cn } from '@/utils/cn';
 
 import { useArchiveConversation } from '../api/archive-conversation';
+import { useAvailability } from '../api/availability';
 import { useConversations } from '../api/get-conversations';
-import type { Conversation } from '../api/schemas';
+import { type Filter, filterConversations, isLate, isUnanswered } from '../utils/inbox';
 
 import { AvailabilityPanel } from './availability-panel';
+import type { QuickReply } from './composer';
 import { ConversationList } from './conversation-list';
 import { ConversationThread } from './conversation-thread';
 
-type Filter = 'toutes' | 'non_lues' | 'archivees';
-
-const FILTERS: {
-  value: Filter;
-  label: string;
-  keep: (c: Conversation) => boolean;
-}[] = [
-  { value: 'toutes', label: 'Toutes', keep: (c) => !c.is_archived },
+const QUICK_REPLIES: QuickReply[] = [
   {
-    value: 'non_lues',
-    label: 'Non lues',
-    keep: (c) => !c.is_archived && c.unread_count > 0,
-  },
-  {
-    value: 'archivees',
-    label: 'Archivées',
-    keep: (c) => Boolean(c.is_archived),
+    label: 'Proposer un rendez-vous de confession',
+    icon: 'calendrier',
+    text: 'Pour la confession, venez en personne : réservez un créneau dans l’application, rubrique « Rendez-vous de confession ». Aucun motif n’est demandé.',
   },
 ];
+
+/** Disponibilité vue par les fidèles, et son réglage dans une fenêtre. */
+const AvailabilityStatus = () => {
+  const [open, setOpen] = useState(false);
+  const availability = useAvailability();
+  const status = availability.data ? availabilityStatus(availability.data) : null;
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="hit mt-3 inline-flex items-center gap-2 rounded-10 text-13 text-ink-2 hover:text-ink"
+      >
+        {status && <span aria-hidden="true" className={cn('size-2 rounded-full', status.tone === 'ok' ? 'bg-ok-dot' : 'bg-warn-dot')} />}
+        <span>
+          {status ? `Les fidèles voient : ${status.label}` : 'Ma disponibilité'}
+          <span className="font-semibold text-primary"> · Modifier</span>
+        </span>
+      </button>
+      <Modal
+        open={open}
+        onOpenChange={setOpen}
+        title="Ma disponibilité"
+        description="Ce que voient les fidèles avant de vous écrire. Rien ne vous oblige à répondre en dehors de vos plages."
+        size="lg"
+      >
+        <AvailabilityPanel />
+      </Modal>
+    </>
+  );
+};
 
 /**
  * Messagerie du prêtre (PAR-Messagerie) : SES conversations uniquement ; aucun autre
@@ -51,25 +76,24 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
   const pathname = usePathname();
   const params = useSearchParams();
   const [selected, setSelected] = useState<string | null>(params.get('c'));
-  const [filter, setFilter] = useState<Filter>('toutes');
+  const [filter, setFilter] = useState<Filter>('sans_reponse');
   const [search, setSearch] = useState('');
   const debounced = useDebounce(search, 300);
   const me = useMe();
+  const meId = me.data?.id;
   const conversations = useConversations(debounced.trim());
-  const archive = useArchiveConversation({
-    onSuccess: () => toast.ok('Conversation archivée.'),
-  });
+  const archive = useArchiveConversation({ onSuccess: () => toast.ok('Conversation archivée.') });
 
   const all = conversations.data ?? [];
-  const counts = Object.fromEntries(
-    FILTERS.map((f) => [f.value, all.filter(f.keep).length]),
-  ) as Record<Filter, number>;
-  const visible = all.filter(FILTERS.find((f) => f.value === filter)!.keep);
+  const groups = filterConversations(all, filter, meId);
+  const unansweredCount = all.filter((c) => !c.is_archived && isUnanswered(c, meId)).length;
+  const activeCount = all.filter((c) => !c.is_archived).length;
+  const archivedCount = all.filter((c) => c.is_archived).length;
 
   const notice = {
     bookingHref: paths.espace.confessions.getHref(nodeId),
     description:
-      'Si un fidèle demande le sacrement de réconciliation, proposez-lui un rendez-vous en présentiel.',
+      'Si quelqu’un l’évoque, proposez-lui un rendez-vous de confession en présentiel. N’écrivez rien qui relève du for interne.',
     actionLabel: 'Voir les créneaux',
   };
 
@@ -77,116 +101,122 @@ export const MessagerieInbox = ({ nodeId }: { nodeId: string }) => {
     setSelected(id);
     router.replace(`${pathname}?c=${encodeURIComponent(id)}`);
   };
+  const back = () => {
+    setSelected(null);
+    router.replace(pathname);
+  };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">06</span> — Parler à un prêtre
-            {conversations.data
-              ? ` · ${counts.toutes} conversation${counts.toutes > 1 ? 's' : ''}`
-              : ''}
-          </p>
-          <h1 className="m-0 mt-2 font-serif text-title font-normal text-ink">
+    <div className="grid h-[calc(100dvh-4rem)] min-h-[560px] grid-cols-1 lg:grid-cols-[372px_minmax(0,1fr)]">
+      <section aria-labelledby="messagerie-titre" className={cn('min-h-0 flex-col border-line lg:flex lg:border-r', selected ? 'hidden' : 'flex')}>
+        <div className="px-4 pt-6 lg:px-5">
+          <h1 id="messagerie-titre" className="m-0 text-28 font-semibold text-ink">
             Messagerie
           </h1>
-        </div>
-        <AvailabilityPanel />
-      </div>
-
-      <div className="grid overflow-hidden rounded border border-line border-t-line-strong lg:grid-cols-[320px_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col border-line lg:border-r">
-          <div className="flex flex-col gap-3 border-b border-line p-4">
-            <label htmlFor="conv-filtre" className="sr-only">
-              Rechercher une conversation
-            </label>
-            <Input
-              id="conv-filtre"
-              type="search"
-              placeholder="Nom du fidèle"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <ChipGroup label="Filtrer les conversations">
-              {FILTERS.map((f) => (
-                <Chip
-                  key={f.value}
-                  pressed={filter === f.value}
-                  onClick={() => setFilter(f.value)}
-                >
-                  {f.label}
-                  {f.value !== 'archivees' && (
-                    <span className="tnum text-meta">{counts[f.value]}</span>
-                  )}
-                </Chip>
-              ))}
-            </ChipGroup>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            {conversations.isPending ? (
-              <div className="p-4">
-                <LoadingBlock label="Chargement des conversations…" />
-              </div>
-            ) : conversations.isError ? (
-              <p role="alert" className="m-0 p-4 text-sm text-err">
-                Les conversations n’ont pas pu être chargées.
-              </p>
-            ) : visible.length === 0 ? (
-              <p className="m-0 p-4 text-sm text-ink-2">
-                {filter === 'non_lues'
-                  ? 'Aucun message non lu.'
-                  : filter === 'archivees'
-                    ? 'Aucune conversation archivée.'
-                    : 'Aucune conversation.'}
-              </p>
-            ) : (
-              <ConversationList
-                conversations={visible}
-                meId={me.data?.id}
-                onSelect={select}
-                activeId={selected}
-                label="Conversations"
-              />
-            )}
-          </div>
-          <p className="m-0 border-t border-line p-4 text-meta text-ink-3">
-            Ni le secrétariat, ni le curé, ni les administrateurs de Jàngu Bi
-            n’ont accès au contenu des conversations.
+          <p className="m-0 mt-0.5 flex items-center gap-1.5 text-13 text-ink-3">
+            <Icon name="cadenas" size={14} className="shrink-0" />
+            {me.data ? `${displayName(me.data).full} · messages chiffrés` : 'Messages chiffrés'}
           </p>
+          <AvailabilityStatus />
+          <SegmentedControl
+            label="Filtrer les conversations"
+            value={filter}
+            onChange={(value) => setFilter(value)}
+            options={[
+              ['sans_reponse', `Sans réponse ${unansweredCount}`],
+              ['toutes', `Toutes ${activeCount}`],
+              ['archivees', `Archivées${archivedCount ? ` ${archivedCount}` : ''}`],
+            ]}
+            className="mt-4 grid w-full grid-cols-3"
+          />
+          <label htmlFor="conv-filtre" className="sr-only">
+            Rechercher une conversation
+          </label>
+          <Input
+            id="conv-filtre"
+            type="search"
+            placeholder="Nom du fidèle"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="mt-3"
+          />
         </div>
-        <div className="min-w-0">
-          {selected ? (
-            <ConversationThread
-              key={selected}
-              conversationId={selected}
-              headingLevel="h2"
-              notice={notice}
-              actions={
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={archive.isPending}
-                  onClick={() => archive.mutate(selected)}
-                >
-                  Archiver
-                </Button>
-              }
-            />
-          ) : (
-            <div className="flex flex-col gap-4 p-4">
-              <ConfessionNotice {...notice} />
-              <EmptyState
-                icon="message"
-                title="Choisissez une conversation"
-                className="border-0 px-0"
-              >
-                Les messages des fidèles de la paroisse s’affichent ici.
-                Personne d’autre que vous ne les lit.
-              </EmptyState>
+        <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+          {conversations.isPending ? (
+            <div className="p-4">
+              <LoadingBlock label="Chargement des conversations…" />
             </div>
+          ) : conversations.isError ? (
+            <p role="alert" className="m-0 p-4 text-14 text-err">
+              Les conversations n’ont pas pu être chargées.
+            </p>
+          ) : groups.length === 0 ? (
+            <p className="m-0 p-4 text-14 text-ink-2">
+              {filter === 'sans_reponse'
+                ? 'Aucun message sans réponse.'
+                : filter === 'archivees'
+                  ? 'Aucune conversation archivée.'
+                  : 'Aucune conversation.'}
+            </p>
+          ) : (
+            groups.map((group) => (
+              <div key={group.key}>
+                <p className="m-0 mb-1 mt-4 flex justify-between px-3 text-13 text-ink-3">
+                  <span>{group.title}</span>
+                  {group.hint && <span>{group.hint}</span>}
+                </p>
+                <ConversationList
+                  conversations={group.conversations}
+                  meId={meId}
+                  onSelect={select}
+                  activeId={selected}
+                  isLate={(c) => isLate(c, meId)}
+                  label={group.title}
+                />
+              </div>
+            ))
           )}
         </div>
+        <p className="m-4 flex items-start gap-2 rounded-12 border border-line bg-surface px-3.5 py-3 text-13 text-ink-3">
+          <Icon name="bouclier" size={16} className="mt-px shrink-0" />
+          <span>
+            Ni le secrétariat, ni le curé, ni les administrateurs de Jàngu Bi n’ont accès au contenu des conversations. Le secrétariat voit
+            seulement le nombre de messages sans réponse.
+          </span>
+        </p>
+      </section>
+      <div className={cn('min-h-0 min-w-0 flex-col lg:flex', selected ? 'flex' : 'hidden')}>
+        {selected ? (
+          <ConversationThread
+            key={selected}
+            conversationId={selected}
+            notice={notice}
+            quickReplies={QUICK_REPLIES}
+            leading={
+              <button
+                type="button"
+                onClick={back}
+                aria-label="Retour aux conversations"
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-10 text-ink hover:bg-surface-2 lg:hidden"
+              >
+                <Icon name="fleche-gauche" size={20} />
+              </button>
+            }
+            actions={
+              <Button variant="outline" disabled={archive.isPending} onClick={() => archive.mutate(selected)}>
+                <Icon name="archive" size={18} />
+                Archiver
+              </Button>
+            }
+          />
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col">
+            <ConfessionNotice {...notice} className="shrink-0 rounded-none border-x-0 border-t-0" />
+            <EmptyState icon="message" title="Choisissez une conversation" className="m-auto">
+              Les messages des fidèles s’affichent ici. Personne d’autre que vous ne les lit.
+            </EmptyState>
+          </div>
+        )}
       </div>
     </div>
   );

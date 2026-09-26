@@ -119,7 +119,7 @@ const WindowsEditor = ({
         ))}
       </ul>
       {invalid && (
-        <p role="alert" className="m-0 mt-3 text-sm text-err">
+        <p role="alert" className="m-0 mt-3 text-14 text-err">
           Chaque plage doit finir après son début.
         </p>
       )}
@@ -149,13 +149,13 @@ export const AvailabilityPanel = () => {
 
   if (availability.isPending)
     return (
-      <p className="tnum m-0 text-meta text-ink-3">
+      <p className="m-0 text-13 text-ink-3">
         Chargement de votre disponibilité…
       </p>
     );
   if (availability.isError)
     return (
-      <p role="alert" className="m-0 text-sm text-err">
+      <p role="alert" className="m-0 text-14 text-err">
         Votre disponibilité n’a pas pu être chargée.
       </p>
     );
@@ -184,31 +184,30 @@ export const AvailabilityPanel = () => {
   const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD');
 
   return (
-    <div className="flex flex-col items-start gap-2 lg:items-end">
+    <div className="flex flex-col items-start gap-4">
       <div
         role="radiogroup"
         aria-labelledby="dispo-titre"
-        className="flex flex-wrap items-center gap-3"
+        className="flex flex-col gap-2"
       >
-        <span id="dispo-titre" className="tnum text-meta text-ink-3">
+        <span id="dispo-titre" className="text-14 font-medium text-ink">
           Ma disponibilité
         </span>
-        <div className="flex flex-wrap rounded border border-line-strong">
-          {MODES.map((m, i) => (
+        <div className="flex flex-wrap gap-0.5 rounded-12 bg-surface-2 p-1">
+          {MODES.map((m) => (
             <label
               key={m.value}
               className={cn(
-                'inline-flex h-11 cursor-pointer items-center gap-2 px-3.5 text-sm',
-                i > 0 && 'border-l border-line-strong',
+                'inline-flex h-11 cursor-pointer items-center gap-2 rounded-10 px-3.5 text-14 transition-colors',
                 mode === m.value
-                  ? 'bg-ink font-medium text-paper'
-                  : 'text-ink hover:bg-surface-2',
+                  ? 'bg-paper font-semibold text-ink shadow-card'
+                  : 'font-medium text-ink-2 hover:text-ink',
               )}
             >
               <input
                 type="radio"
                 name="disponibilite"
-                className="size-4"
+                className="size-4 accent-primary-fill"
                 checked={mode === m.value}
                 disabled={update.isPending}
                 onChange={() => choose(m.value)}
@@ -244,7 +243,7 @@ export const AvailabilityPanel = () => {
           </Button>
         </form>
       )}
-      <p className="m-0 flex flex-wrap items-center gap-3 text-sm text-ink-2">
+      <p className="m-0 flex flex-wrap items-center gap-3 text-14 text-ink-2">
         {data.reply_windows.length > 0 && (
           <span>Plages : {windowsLabel(data.reply_windows)}</span>
         )}

@@ -3,9 +3,9 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
 import { ConfessionNotice } from '@/components/signature/confession-notice';
-import { EncryptionBadge } from '@/components/signature/encryption-badge';
 import { Avatar } from '@/components/ui/avatar';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { useMe } from '@/hooks/use-me';
 
@@ -18,7 +18,7 @@ import { useConversationSocket } from '../hooks/use-conversation-socket';
 import { otherParticipant } from '../utils/participants';
 
 import { CguGate } from './cgu-gate';
-import { Composer } from './composer';
+import { Composer, type QuickReply } from './composer';
 import { ConnectionStatus } from './connection-status';
 import { MessageLog } from './message-log';
 import { MessagingRefusal } from './messaging-refusal';
@@ -34,17 +34,31 @@ type ConversationThreadProps = {
   /** Bandeau « pas de confession par message » : toujours rendu, quel que soit l'état du fil. */
   notice: ConfessionNoticeProps;
   actions?: ReactNode;
+  /** Avant l'avatar (retour à la liste sur mobile). */
+  leading?: ReactNode;
+  /** Réponses toutes prêtes insérées dans la saisie (côté prêtre). */
+  quickReplies?: QuickReply[];
   headingLevel?: 'h1' | 'h2';
 };
+
+/** « Messages chiffrés · aucun administrateur n'y a accès » (jamais « de bout en bout », ADR-014). */
+const EncryptionLine = () => (
+  <span className="flex items-center gap-1.5 text-13 text-ink-2">
+    <Icon name="cadenas" size={14} className="shrink-0" />
+    <span className="truncate">Messages chiffrés · aucun administrateur n’y a accès</span>
+  </span>
+);
 
 const ThreadBody = ({
   conversationId,
   meId,
   peerName,
+  quickReplies,
 }: {
   conversationId: string;
   meId?: string;
   peerName: string;
+  quickReplies?: QuickReply[];
 }) => {
   const cgu = useMessagingCgu();
   const accepted = cgu.data?.accepted === true;
@@ -103,11 +117,11 @@ const ThreadBody = ({
     <>
       <ConnectionStatus status={socket.status} onRetry={socket.retry} />
       {messages.isPending ? (
-        <div className="flex-1 p-6">
+        <div className="min-h-0 flex-1 p-6">
           <LoadingBlock label="Chargement des messages…" />
         </div>
       ) : messages.isError ? (
-        <div className="flex-1 p-4">
+        <div className="min-h-0 flex-1 p-4">
           <EmptyState
             tone="err"
             icon="alerte"
@@ -125,7 +139,7 @@ const ThreadBody = ({
         />
       )}
       {send.isError && (
-        <div className="px-4 pb-2 lg:px-6" aria-live="assertive">
+        <div className="shrink-0 px-4 pb-2 lg:px-8" aria-live="assertive">
           <MessagingRefusal error={send.error} />
         </div>
       )}
@@ -134,54 +148,47 @@ const ThreadBody = ({
         pending={send.isPending}
         onSend={(content) => send.mutateAsync(content)}
         onTyping={onTyping}
+        quickReplies={quickReplies}
       />
     </>
   );
 };
 
 /**
- * Fil d'une conversation (FID-Conversation, MOB-Conversation, PAR-Messagerie). Pas de
- * chiffrement de bout en bout côté client (ADR-014 reporté) : le badge dit ce qui est vrai.
+ * Fil d'une conversation (FID-Conversation, PAR-Messagerie) : en-tête de 72 px, bandeau
+ * confession épinglé, messages, saisie. Pas de chiffrement de bout en bout côté client
+ * (ADR-014 reporté) : la mention dit ce qui est vrai.
  */
 export const ConversationThread = ({
   conversationId,
   notice,
   actions,
-  headingLevel = 'h1',
+  leading,
+  quickReplies,
+  headingLevel = 'h2',
 }: ConversationThreadProps) => {
   const me = useMe();
   const conversation = useConversation(conversationId);
   const Heading = headingLevel;
-  const peer = conversation.data
-    ? otherParticipant(conversation.data, me.data?.id)
-    : null;
+  const peer = conversation.data ? otherParticipant(conversation.data, me.data?.id) : null;
   const peerName = peer?.full_name ?? 'votre correspondant';
 
   return (
-    <section
-      aria-labelledby="conversation-titre"
-      className="flex min-h-[70dvh] min-w-0 flex-col overflow-hidden rounded border border-line bg-paper lg:h-[736px] lg:min-h-0"
-    >
-      <header className="flex items-center justify-between gap-4 border-b border-line bg-surface px-4 py-3 lg:px-6">
-        <div className="flex min-w-0 items-center gap-4">
-          {peer && <Avatar name={peer.full_name} size={48} />}
-          <div className="min-w-0">
-            <Heading
-              id="conversation-titre"
-              className="m-0 truncate font-serif text-h3 font-normal text-ink"
-            >
+    <section aria-labelledby="conversation-titre" className="flex h-full min-h-0 min-w-0 flex-col bg-paper">
+      <header className="flex min-h-[72px] shrink-0 items-center justify-between gap-4 border-b border-line py-3 pl-4 pr-4 lg:pl-8 lg:pr-6">
+        <div className="flex min-w-0 items-center gap-3">
+          {leading}
+          {peer && <Avatar name={peer.full_name} size={40} className="text-14" />}
+          <div className="flex min-w-0 flex-col">
+            <Heading id="conversation-titre" className="m-0 truncate text-16 font-semibold text-ink">
               {peer ? peer.full_name : 'Conversation'}
             </Heading>
-            <div className="mt-1 [&>p]:justify-start [&>p]:text-left">
-              <EncryptionBadge correspondent={peer?.full_name} />
-            </div>
+            <EncryptionLine />
           </div>
         </div>
-        {actions}
+        {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
       </header>
-      <div className="px-4 pt-4 lg:px-6">
-        <ConfessionNotice {...notice} />
-      </div>
+      <ConfessionNotice {...notice} className="shrink-0 rounded-none border-x-0 border-t-0" />
       {conversation.isError ? (
         <div className="p-4">
           <EmptyState tone="err" icon="alerte" title="Conversation introuvable">
@@ -193,11 +200,7 @@ export const ConversationThread = ({
           <LoadingBlock label="Chargement de la conversation…" />
         </div>
       ) : (
-        <ThreadBody
-          conversationId={conversationId}
-          meId={me.data?.id}
-          peerName={peerName}
-        />
+        <ThreadBody conversationId={conversationId} meId={me.data?.id} peerName={peerName} quickReplies={quickReplies} />
       )}
     </section>
   );

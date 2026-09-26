@@ -4,13 +4,11 @@ import NextLink from 'next/link';
 import { useState } from 'react';
 
 import { SlotPicker } from '@/components/signature/slot-picker';
-import { Button } from '@/components/ui/button';
-import { Choice } from '@/components/ui/choice';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Icon } from '@/components/ui/icon';
 import { IconButton } from '@/components/ui/icon-button';
 import { Notice } from '@/components/ui/notice';
-import { ScrollRegion } from '@/components/ui/scroll-region';
-import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
@@ -22,148 +20,240 @@ import { atParish } from '@/utils/parish-name';
 import { useBookSlot } from '../api/book-slot';
 import { useSlots } from '../api/get-slots';
 import type { Slot } from '../api/schemas';
-import {
-  DAY_FORMAT,
-  dayTitle,
-  shortName,
-  slotsOfDay,
-  weekDays,
-  weekLabel,
-  weekStartOf,
-} from '../utils/week';
+import { monthGrid, monthLabel, monthStartOf, pillName } from '../utils/month';
+import { DAY_FORMAT, dayTitle, shortName, slotsOfDay } from '../utils/week';
 
+import { DateTile } from './date-tile';
 import { MyBookings } from './my-bookings';
 
 const ANY = 'tous';
 
-const priestsOf = (slots: Slot[]) =>
-  [...new Map(slots.map((s) => [s.priest_id, s.priest_name])).entries()].map(
-    ([id, name]) => ({ id, name }),
+/** Prêtre momentanément indisponible (absent), montré grisé à côté des autres. */
+export type UnavailablePriest = { id: string; name: string; until: string };
+
+const priestsOf = (slots: Slot[]) => [...new Map(slots.map((s) => [s.priest_id, s.priest_name])).entries()].map(([id, name]) => ({ id, name }));
+
+const pillClass = (checked: boolean) =>
+  cn(
+    'inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full border px-4 text-15 transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary',
+    checked ? 'border-primary bg-tint-50 font-semibold text-tint-800' : 'border-line bg-paper text-ink hover:border-line-field hover:bg-surface',
   );
 
-const DayButton = ({
-  day,
-  slots,
-  selected,
-  onSelect,
+const PriestPills = ({
+  priests,
+  unavailable,
+  value,
+  onChange,
 }: {
-  day: string;
+  priests: { id: string; name: string }[];
+  unavailable: UnavailablePriest[];
+  value: string;
+  onChange: (id: string) => void;
+}) => (
+  <fieldset className="m-0 min-w-0 border-0 p-0">
+    <legend className="p-0 text-15 font-semibold text-ink">Prêtre</legend>
+    <div className="mt-3 flex flex-wrap gap-2">
+      {[{ id: ANY, name: 'Tous' }, ...priests].map((p) => {
+        const checked = value === p.id;
+        return (
+          <label key={p.id} className={pillClass(checked)}>
+            <input type="radio" name="confession-pretre" className="sr-only" checked={checked} onChange={() => onChange(p.id)} />
+            {checked && p.id !== ANY && <Icon name="check" size={16} strokeWidth={2.25} />}
+            {p.id === ANY ? p.name : pillName(p.name)}
+          </label>
+        );
+      })}
+      {unavailable.map((p) => (
+        <span
+          key={p.id}
+          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-dashed border-line bg-surface px-4 text-15 text-ink-3"
+        >
+          {pillName(p.name)}
+          <span className="text-13">· dès le {dayjs(p.until).format('D MMM')}</span>
+        </span>
+      ))}
+    </div>
+  </fieldset>
+);
+
+const MonthCalendar = ({
+  month,
+  slots,
+  activeDay,
+  canGoBack,
+  onMonth,
+  onDay,
+}: {
+  month: string;
   slots: Slot[];
-  selected: boolean;
-  onSelect: () => void;
+  activeDay: string | null;
+  canGoBack: boolean;
+  onMonth: (delta: number) => void;
+  onDay: (day: string) => void;
 }) => {
-  const d = dayjs(day);
   const today = dayjs().format(DAY_FORMAT);
-  const past = day < today;
-  const disabled = past || slots.length === 0;
-  const hint = past
-    ? 'Passé'
-    : slots.length === 0
-      ? day === today
-        ? 'Aujourd’hui'
-        : 'Aucun'
-      : `${hour(slots[0].starts_at)}-${hour(slots.at(-1)!.ends_at)}`;
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      aria-pressed={disabled ? undefined : selected}
-      aria-label={`${dayTitle(day)}${disabled ? ` : ${hint.toLowerCase()}` : `, ${slots.length} créneau${slots.length > 1 ? 'x' : ''} libre${slots.length > 1 ? 's' : ''}`}`}
-      onClick={onSelect}
-      className={cn(
-        'flex min-h-[76px] min-w-[88px] flex-col items-start gap-1 rounded border px-3 py-2.5 text-left',
-        disabled && 'cursor-not-allowed border-dashed border-line text-ink-3',
-        !disabled &&
-          selected &&
-          'border-primary-fill bg-primary-fill text-on-primary',
-        !disabled &&
-          !selected &&
-          'border-line bg-surface text-ink hover:border-primary',
-      )}
-    >
-      <span className="text-sm capitalize">{d.format('ddd')}</span>
-      <span className="font-serif text-h3 leading-none">{d.format('D')}</span>
-      <span
-        className={cn(
-          'tnum text-meta',
-          selected && !disabled ? 'text-on-primary' : '',
-        )}
-      >
-        {hint}
-      </span>
-    </button>
+    <section aria-labelledby="cal-titre" className="rounded-16 border border-line bg-paper p-5 shadow-card">
+      <div className="flex items-center justify-between">
+        <h2 id="cal-titre" className="m-0 text-16 font-semibold text-ink">
+          {monthLabel(month)}
+        </h2>
+        <span className="flex gap-1">
+          <IconButton icon="chevron-gauche" label="Mois précédent" size="sm" disabled={!canGoBack} onClick={() => onMonth(-1)} />
+          <IconButton icon="chevron-droite" label="Mois suivant" size="sm" className="text-primary" onClick={() => onMonth(1)} />
+        </span>
+      </div>
+      <div role="group" aria-label={`Jours de ${monthLabel(month).toLowerCase()} avec des créneaux libres`} className="tnum mt-3 grid grid-cols-7 gap-y-1 text-center">
+        {['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'].map((d) => (
+          <span key={d} aria-hidden="true" className="text-12 leading-6 text-ink-3">
+            {d}
+          </span>
+        ))}
+        {monthGrid(month).map(({ day, inMonth }) => {
+          const free = slotsOfDay(slots, day).length;
+          const number = dayjs(day).format('D');
+          if (!inMonth) {
+            return (
+              <span key={day} aria-hidden="true" className="flex h-[38px] items-center justify-center text-14 text-tint-200">
+                {number}
+              </span>
+            );
+          }
+          if (free === 0 || day < today) {
+            return (
+              <span
+                key={day}
+                aria-hidden="true"
+                className={cn(
+                  'mx-auto flex size-[38px] items-center justify-center rounded-full text-14',
+                  day === today ? 'border-1.5 border-primary font-semibold text-primary' : day < today ? 'text-ink-4' : 'text-ink-2',
+                )}
+              >
+                {number}
+              </span>
+            );
+          }
+          const selected = day === activeDay;
+          return (
+            <span key={day} className="flex justify-center">
+              <button
+                type="button"
+                aria-pressed={selected}
+                aria-label={`${dayTitle(day)}, ${free} créneau${free > 1 ? 'x' : ''} libre${free > 1 ? 's' : ''}`}
+                onClick={() => onDay(day)}
+                className={cn(
+                  'hit relative size-[38px] rounded-10 text-14 font-semibold transition-colors',
+                  selected ? 'bg-primary-fill text-on-primary' : 'text-ink hover:bg-surface-2',
+                  day === today && !selected && 'rounded-full border-1.5 border-primary text-primary',
+                )}
+              >
+                {number}
+                <span
+                  aria-hidden="true"
+                  className={cn('absolute bottom-[5px] left-1/2 size-1 -translate-x-1/2 rounded-full', selected ? 'bg-on-primary' : 'bg-tint-500')}
+                />
+              </button>
+            </span>
+          );
+        })}
+      </div>
+      <p className="m-0 mt-3 flex items-center gap-2 border-t border-line pt-3 text-13 text-ink-3">
+        <span aria-hidden="true" className="size-1.5 rounded-full bg-tint-500" />
+        Jours avec des créneaux libres
+      </p>
+    </section>
   );
 };
 
-const Recap = ({
-  slot,
-  onBooked,
-}: {
-  slot: Slot | null;
-  onBooked: () => void;
-}) => {
+const Recap = ({ slot, onBooked }: { slot: Slot | null; onBooked: () => void }) => {
   const book = useBookSlot();
   const taken = apiErrorCode(book.error) === 'slot_taken';
 
-  if (!slot) {
-    return (
-      <p className="m-0 text-base text-ink-2">
-        Choisissez un jour puis un créneau : le récapitulatif s’affiche ici
-        avant confirmation.
-      </p>
-    );
-  }
   const confirm = () =>
+    slot &&
     book.mutate(slot.id, {
       onSuccess: () => {
         toast.ok('Votre rendez-vous est réservé.');
         onBooked();
       },
     });
-  const deadline = dayjs(slot.starts_at).subtract(1, 'hour');
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="tnum m-0 text-meta text-ink-2">Votre rendez-vous</p>
-      <h2 className="m-0 font-serif text-h2 font-normal text-ink">
-        {dayTitle(slot.starts_at)},{' '}
-        <em className="italic text-primary">{hour(slot.starts_at)}</em>
+    <section aria-labelledby="recap-titre" aria-live="polite" className="rounded-16 border border-line bg-surface p-6">
+      <h2 id="recap-titre" className="m-0 text-18 font-semibold text-ink">
+        Votre rendez-vous
       </h2>
-      <dl className="m-0 grid grid-cols-[72px_minmax(0,1fr)] gap-x-4 gap-y-2 text-base">
-        <dt className="text-ink-3">Prêtre</dt>
-        <dd className="m-0 text-ink">{slot.priest_name}</dd>
-        <dt className="text-ink-3">Lieu</dt>
-        <dd className="m-0 text-ink">
-          {slot.place.name}
-          {slot.place.address ? `, ${slot.place.address}` : ''}
-        </dd>
-      </dl>
-      <Notice tone="info" title="Aucun contenu n’est demandé.">
-        Ni motif, ni message : le prêtre voit seulement votre nom et l’heure.
-      </Notice>
-      {book.isError && (
-        <Notice
-          tone={taken ? 'warn' : 'err'}
-          title={
-            taken
-              ? 'Ce créneau vient d’être pris'
-              : 'La réservation n’a pas abouti'
-          }
-        >
-          {taken
-            ? 'Choisissez-en un autre : la liste vient d’être mise à jour.'
-            : apiErrorMessage(book.error)}
-        </Notice>
+      {!slot ? (
+        <p className="m-0 mt-3 text-15 text-ink-2">Choisissez un jour puis un créneau : le récapitulatif s’affiche ici avant la réservation.</p>
+      ) : (
+        <>
+          <div className="mt-4 flex items-center gap-4">
+            <DateTile date={slot.starts_at} className="h-16 w-14" />
+            <span className="flex flex-col">
+              <span className="tnum text-20 font-semibold text-ink">
+                {dayjs(slot.starts_at).format('HH:mm')} – {dayjs(slot.ends_at).format('HH:mm')}
+              </span>
+              <span className="text-14 text-ink-2">{dayTitle(slot.starts_at)} {dayjs(slot.starts_at).format('YYYY')}</span>
+            </span>
+          </div>
+          <dl className="m-0 mt-4 flex flex-col">
+            {[
+              ['Prêtre', slot.priest_name],
+              ['Lieu', slot.place.name],
+              ['Durée', `${dayjs(slot.ends_at).diff(dayjs(slot.starts_at), 'minute')} minutes`],
+            ].map(([label, value], index) => (
+              <div key={label} className={cn('flex justify-between gap-3 border-t border-line', index === 2 ? 'pt-3' : 'py-3')}>
+                <dt className="text-14 text-ink-3">{label}</dt>
+                <dd className="m-0 text-right text-14 font-semibold text-ink">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          {book.isError && (
+            <Notice
+              role="alert"
+              className="mt-4"
+              tone={taken ? 'warn' : 'err'}
+              title={taken ? 'Ce créneau vient d’être pris' : 'La réservation n’a pas abouti'}
+            >
+              {taken ? 'Choisissez-en un autre : la liste vient d’être mise à jour.' : apiErrorMessage(book.error)}
+            </Notice>
+          )}
+          <Button block size="xl" className="mt-5" onClick={confirm} disabled={book.isPending}>
+            Réserver {hour(slot.starts_at)}
+          </Button>
+          <p className="m-0 mt-3 text-center text-13 text-ink-3">
+            Rappel la veille. Annulable jusqu’au {dayjs(slot.starts_at).subtract(1, 'hour').format('dddd D')},{' '}
+            {hour(dayjs(slot.starts_at).subtract(1, 'hour'))}.
+          </p>
+        </>
       )}
-      <Button block size="lg" onClick={confirm} disabled={book.isPending}>
-        Confirmer le rendez-vous
-      </Button>
-      <p className="tnum m-0 text-meta text-ink-3">
-        Annulable jusqu’au {deadline.format('dddd D')}, {hour(deadline)}.
-      </p>
-    </div>
+    </section>
   );
 };
+
+const PlaceCard = ({ slot }: { slot: Slot }) => (
+  <section aria-labelledby="lieu-titre" className="flex flex-wrap items-center gap-4 rounded-16 border border-line bg-paper px-6 py-5">
+    <Icon name="pin" size={22} className="shrink-0 text-ink-2" />
+    <span className="flex min-w-0 flex-1 flex-col">
+      <span id="lieu-titre" className="text-15 font-semibold text-ink">
+        {slot.place.name}
+      </span>
+      {slot.place.address && <span className="text-14 text-ink-2">{slot.place.address}</span>}
+    </span>
+    {slot.place.address && (
+      <a
+        href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(`${slot.place.name}, ${slot.place.address}`)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={buttonVariants({ variant: 'outline' })}
+      >
+        <Icon name="itineraire" size={18} />
+        Itinéraire
+        <span className="sr-only"> (nouvel onglet)</span>
+      </a>
+    )}
+  </section>
+);
 
 /**
  * Rendez-vous de confession (FID-Confession-RDV, MOB-Confession). La réservation ne porte
@@ -172,34 +262,30 @@ const Recap = ({
 export const ConfessionBooking = ({
   nodeId,
   parishName,
+  unavailablePriests = [],
 }: {
   nodeId: string | null;
   parishName?: string | null;
+  unavailablePriests?: UnavailablePriest[];
 }) => {
-  const thisWeek = weekStartOf(dayjs());
-  const [weekStart, setWeekStart] = useState(thisWeek);
+  const today = dayjs().format(DAY_FORMAT);
+  const thisMonth = monthStartOf(today);
+  const [month, setMonth] = useState(thisMonth);
   const [priest, setPriest] = useState<string>(ANY);
   const [day, setDay] = useState<string | null>(null);
   const [slotId, setSlotId] = useState<number | null>(null);
-  const today = dayjs().format(DAY_FORMAT);
-  const slots = useSlots(nodeId, weekStart < today ? today : weekStart);
+  const slots = useSlots(nodeId, month < today ? today : month);
 
-  const days = weekDays(weekStart);
-  const inWeek = (slots.data ?? []).filter((s) =>
-    days.includes(dayjs(s.starts_at).format(DAY_FORMAT)),
-  );
-  const priests = priestsOf(inWeek);
-  const filtered =
-    priest === ANY ? inWeek : inWeek.filter((s) => s.priest_id === priest);
-  const activeDay =
-    day && slotsOfDay(filtered, day).length
-      ? day
-      : (days.find((d) => slotsOfDay(filtered, d).length) ?? null);
+  const inMonth = (slots.data ?? []).filter((s) => monthStartOf(s.starts_at) === month);
+  const priests = priestsOf(inMonth);
+  const filtered = priest === ANY ? inMonth : inMonth.filter((s) => s.priest_id === priest);
+  const days = [...new Set(filtered.map((s) => dayjs(s.starts_at).format(DAY_FORMAT)))].sort();
+  const activeDay = day && days.includes(day) ? day : (days[0] ?? null);
   const daySlots = activeDay ? slotsOfDay(filtered, activeDay) : [];
   const selected = daySlots.find((s) => s.id === slotId) ?? null;
 
-  const moveWeek = (delta: number) => {
-    setWeekStart(dayjs(weekStart).add(delta, 'week').format(DAY_FORMAT));
+  const moveMonth = (delta: number) => {
+    setMonth(dayjs(month).add(delta, 'month').format(DAY_FORMAT));
     setDay(null);
     setSlotId(null);
   };
@@ -208,154 +294,89 @@ export const ConfessionBooking = ({
     return (
       <EmptyState icon="paroisse" title="Choisissez d’abord votre paroisse">
         Les créneaux de confession sont ceux de la paroisse que vous suivez.{' '}
-        <NextLink href={paths.app.profil.getHref()}>
-          Choisir ma paroisse
-        </NextLink>
+        <NextLink href={paths.app.profil.getHref()}>Choisir ma paroisse</NextLink>
       </EmptyState>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
-      <div className="flex min-w-0 flex-col gap-8 lg:col-span-7">
-        <fieldset className="m-0 border-0 p-0">
-          <legend className="tnum mb-3 w-full border-t border-line-strong pt-2 text-meta text-ink-2">
-            <span className="text-primary">01</span> — Prêtre
-          </legend>
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
-            <Choice
-              type="radio"
-              name="confession-pretre"
-              label="Sans préférence"
-              description="1er disponible"
-              checked={priest === ANY}
-              onChange={() => {
-                setPriest(ANY);
+    <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_336px]">
+      <div className="flex min-w-0 flex-col gap-6">
+        <PriestPills
+          priests={priests}
+          unavailable={unavailablePriests.filter((u) => !priests.some((p) => p.id === u.id))}
+          value={priest}
+          onChange={(id) => {
+            setPriest(id);
+            setSlotId(null);
+          }}
+        />
+        {slots.isPending ? (
+          <LoadingBlock label="Chargement des créneaux…" lines={3} />
+        ) : slots.isError ? (
+          <EmptyState tone="err" icon="alerte" title="Les créneaux n’ont pas pu être chargés">
+            Vérifiez votre connexion puis réessayez.
+          </EmptyState>
+        ) : (
+          <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-[312px_minmax(0,1fr)]">
+            <MonthCalendar
+              month={month}
+              slots={filtered}
+              activeDay={activeDay}
+              canGoBack={month > thisMonth}
+              onMonth={moveMonth}
+              onDay={(d) => {
+                setDay(d);
                 setSlotId(null);
               }}
             />
-            {priests.map((p) => (
-              <Choice
-                key={p.id}
-                type="radio"
-                name="confession-pretre"
-                label={p.name}
-                checked={priest === p.id}
-                onChange={() => {
-                  setPriest(p.id);
-                  setSlotId(null);
-                }}
-              />
-            ))}
-          </div>
-        </fieldset>
-
-        <section aria-labelledby="confession-jour">
-          <SectionHeading
-            id="confession-jour"
-            number="02"
-            title={`Jour · ${weekLabel(weekStart)}`}
-            aside={
-              <span className="flex items-center gap-1">
-                <IconButton
-                  icon="chevron-gauche"
-                  label="Semaine précédente"
-                  size="sm"
-                  disabled={weekStart <= thisWeek}
-                  onClick={() => moveWeek(-1)}
-                />
-                <IconButton
-                  icon="chevron-droite"
-                  label="Semaine suivante"
-                  size="sm"
-                  onClick={() => moveWeek(1)}
-                />
-              </span>
-            }
-          />
-          {slots.isPending ? (
-            <LoadingBlock label="Chargement des créneaux…" lines={2} />
-          ) : slots.isError ? (
-            <EmptyState
-              tone="err"
-              icon="alerte"
-              title="Les créneaux n’ont pas pu être chargés"
-            >
-              Vérifiez votre connexion puis réessayez.
-            </EmptyState>
-          ) : (
-            <>
-              {/* Défilement des jours sous lg dans une zone focalisable, même si aucun jour n'est
-                  sélectionnable (axe scrollable-region-focusable) ; grille sans défilement en lg. */}
-              <ScrollRegion label="Jours de la semaine, défilement horizontal" className="-mx-4 w-auto px-4 pb-1 lg:mx-0 lg:overflow-visible lg:px-0">
-                <div role="group" aria-label={`Jours de la ${weekLabel(weekStart)}`} className="flex gap-2 lg:grid lg:grid-cols-7">
-                  {days.map((d) => (
-                    <DayButton
-                      key={d}
-                      day={d}
-                      slots={slotsOfDay(filtered, d)}
-                      selected={d === activeDay}
-                      onSelect={() => {
-                        setDay(d);
-                        setSlotId(null);
-                      }}
+            <section aria-labelledby="slots-titre" className="min-w-0">
+              {activeDay ? (
+                <>
+                  <div className="flex items-baseline justify-between gap-2">
+                    <h2 id="slots-titre" className="m-0 text-18 font-semibold text-ink">
+                      {dayTitle(activeDay)}
+                    </h2>
+                    <span className="whitespace-nowrap text-13 text-ink-3">
+                      {daySlots.length} libre{daySlots.length > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <SlotPicker
+                      label={`Créneaux du ${dayTitle(activeDay).toLowerCase()}`}
+                      slots={daySlots.map((s) => ({
+                        id: s.id,
+                        startsAt: s.starts_at,
+                        priest: priest === ANY ? shortName(s.priest_name) : 'Libre',
+                        available: true,
+                      }))}
+                      selectedId={selected?.id ?? null}
+                      onSelect={setSlotId}
                     />
-                  ))}
-                </div>
-              </ScrollRegion>
-              {filtered.length === 0 && (
-                <p className="m-0 mt-3 text-sm text-ink-2">
-                  Aucun créneau libre cette semaine
-                  {parishName ? ` ${atParish(parishName)}` : ''}. Essayez la semaine
-                  suivante, ou{' '}
-                  <NextLink href={paths.app.pretres.list.getHref()}>
-                    écrivez à un prêtre
-                  </NextLink>{' '}
-                  pour convenir d’un autre moment.
+                  </div>
+                </>
+              ) : (
+                <p id="slots-titre" className="m-0 text-15 text-ink-2">
+                  Aucun créneau libre en {monthLabel(month).toLowerCase()}
+                  {parishName ? ` ${atParish(parishName)}` : ''}. Essayez le mois suivant, ou{' '}
+                  <NextLink href={paths.app.pretres.list.getHref()}>écrivez à un prêtre</NextLink> pour convenir d’un autre moment.
                 </p>
               )}
-            </>
-          )}
-        </section>
-
-        {activeDay && daySlots.length > 0 && (
-          <section aria-labelledby="confession-creneaux">
-            <SectionHeading
-              id="confession-creneaux"
-              number="03"
-              title={`Créneau · ${dayTitle(activeDay).toLowerCase()}`}
-              aside={`${daySlots.length} libre${daySlots.length > 1 ? 's' : ''}`}
-            />
-            <SlotPicker
-              label={`Créneaux du ${dayTitle(activeDay).toLowerCase()}`}
-              slots={daySlots.map((s) => ({
-                id: s.id,
-                startsAt: s.starts_at,
-                priest: shortName(s.priest_name),
-                available: true,
-              }))}
-              selectedId={selected?.id ?? null}
-              onSelect={setSlotId}
-            />
-            {daySlots[0] && (
-              <p className="m-0 mt-3 text-sm text-ink-2">
-                {daySlots[0].place.name}
-              </p>
-            )}
-          </section>
+            </section>
+          </div>
         )}
+        {daySlots[0] && <PlaceCard slot={selected ?? daySlots[0]} />}
       </div>
 
-      <aside
-        aria-label="Confirmation et rendez-vous à venir"
-        className="flex min-w-0 flex-col gap-10 lg:col-span-5"
-      >
-        <section
-          aria-live="polite"
-          className="border border-line-strong bg-surface p-6"
-        >
-          <Recap slot={selected} onBooked={() => setSlotId(null)} />
-        </section>
+      <aside aria-label="Réservation et rendez-vous à venir" className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-6">
+        <Recap slot={selected} onBooked={() => setSlotId(null)} />
+        <div className="flex gap-3 rounded-16 bg-tint-50 px-6 py-5 text-tint-900">
+          <Icon name="bouclier" size={20} className="mt-0.5 shrink-0 text-primary" />
+          <span className="flex flex-col">
+            <span className="text-15 font-semibold">Aucun motif n’est demandé</span>
+            <span className="mt-1 text-14">Le prêtre voit seulement votre nom et l’heure du rendez-vous. Ni motif, ni message.</span>
+          </span>
+        </div>
         <MyBookings />
       </aside>
     </div>
