@@ -94,7 +94,7 @@ export const NotificationsCenter = () => {
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_336px]">
         <section aria-label="Liste des notifications" className="min-w-0">
           <ChipGroup label="Filtrer les notifications">
-            {FILTERS.map((f) => (
+            {FILTERS.filter((f) => f.key === 'toutes' || f.key === filter || items.some((n) => matches(n, f.key))).map((f) => (
               <Chip
                 key={f.key}
                 pressed={filter === f.key}
