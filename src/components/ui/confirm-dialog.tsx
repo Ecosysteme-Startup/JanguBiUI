@@ -36,10 +36,10 @@ export const ConfirmDialog = ({
     description={description}
     footer={
       <>
-        <Button variant="secondary" onClick={() => onOpenChange(false)}>
+        <Button variant="outline" onClick={() => onOpenChange(false)}>
           Annuler
         </Button>
-        <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={onConfirm} disabled={pending}>
+        <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={onConfirm} loading={pending}>
           {pending ? 'Un instant…' : confirmLabel}
         </Button>
       </>

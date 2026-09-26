@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 /**
- * Contrastes des paires de tokens (WCAG 1.4.3, 4,5:1) dans les 4 palettes × clair/sombre.
+ * Contrastes des paires de jetons (WCAG 1.4.3, 4,5:1) de la charte « Ciel produit », en clair et en sombre.
  * jsdom ne calcule pas les couleurs rendues : on lit donc `tokens.css` et on vérifie
  * (1) les paires posées sur des surfaces héritées (pied de page nuit, créneau choisi…),
  * (2) toute classe qui combine `bg-<token>` et `text-<token>` dans le code (recette A11Y-02 à 04).
@@ -34,8 +34,10 @@ const failures = (fg: string, bg: string) =>
     return r < 4.5 ? [`${fg} sur ${bg} dans ${name} : ${r.toFixed(2)}:1`] : [];
   });
 
-test('tokens.css définit les 8 thèmes (4 palettes × clair/sombre)', () => {
-  expect(themes.size).toBe(8);
+test('tokens.css définit les 2 thèmes de la palette Ciel (clair, sombre) avec les mêmes jetons', () => {
+  expect(themes.size).toBe(2);
+  const [light, dark] = [...themes.values()];
+  expect(Object.keys(dark).sort()).toEqual(Object.keys(light).sort());
 });
 
 test.each([
@@ -47,6 +49,19 @@ test.each([
   ['primary-strong', 'tint-100'], // initiales d'avatar (A11Y-02)
   ['tint-200', 'ink'], // icône des notifications (fond ink, bascule avec le thème)
   ['paper', 'ink'],
+  ['on-inverse', 'inverse'], // pilule de filtre active, toast, infobulle
+  ['on-inverse-muted', 'inverse'], // compteur de la pilule active, icône du toast
+  ['tint-800', 'tint-50'], // navigation active, badge « En vérification »
+  ['tint-800', 'tint-100'], // avatar, compteur
+  ['tint-900', 'tint-50'], // alerte info
+  ['tint-900', 'tint-100'], // pilule de filtre cumulable active
+  ['ink-2', 'surface'], // barre latérale
+  ['ink-3', 'surface'],
+  ['ink-3', 'paper'],
+  ['ok', 'ok-bg'],
+  ['warn', 'warn-bg'],
+  ['err', 'err-bg'],
+  ['primary', 'paper'],
 ])('%s sur %s passe 4,5:1 dans tous les thèmes', (fg, bg) => {
   expect(failures(fg, bg)).toEqual([]);
 });

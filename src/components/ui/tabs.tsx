@@ -6,21 +6,35 @@ import * as React from 'react';
 
 import { cn } from '@/utils/cn';
 
-/** Onglets soulignés (DS-Composants §05) : 44 px, filet 2 px sous l'onglet actif. */
-const tabClass = (active: boolean) =>
+/**
+ * Onglets soulignés (WEB-Design-System « Onglets », WEB-FID-Parole) : 44 px, soulignement b600
+ * de 2 px sous l'onglet actif (libellé 600 en encre), inactifs en 500, compteur 13 tabulaire.
+ * `md` : 15 px, écart 24 (listes du back-office). `lg` : 16 px, écart 32 (lecture de la Parole).
+ */
+type TabSize = 'md' | 'lg';
+
+const listClass = (size: TabSize) => cn('flex overflow-x-auto border-b border-line', size === 'lg' ? 'gap-8' : 'gap-6 px-1');
+
+const triggerBase = (size: TabSize) =>
   cn(
-    '-mb-px inline-flex h-11 items-center gap-2 border-b-2 text-base transition-colors',
-    active ? 'border-primary font-semibold text-ink' : 'border-transparent text-ink-2 hover:text-primary',
+    '-mb-px inline-flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent font-medium transition-colors hover:text-ink',
+    size === 'lg' ? 'text-16 text-ink-3' : 'text-15 text-ink-2',
   );
 
+const activeClass = 'border-primary font-semibold text-ink';
+
 const Count = ({ value, active }: { value: number; active: boolean }) => (
-  <span className={cn('tnum text-meta', active ? 'text-primary' : 'text-ink-3')}>{value}</span>
+  <span className={cn('tnum text-13 font-normal', active ? 'text-primary-strong' : 'text-ink-3')}>{value}</span>
 );
+
+const TabsSizeContext = React.createContext<TabSize>('md');
 
 export const Tabs = TabsPrimitive.Root;
 
-export const TabsList = ({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) => (
-  <TabsPrimitive.List className={cn('flex gap-8 overflow-x-auto border-b border-line', className)} {...props} />
+export const TabsList = ({ className, size = 'md', ...props }: React.ComponentProps<typeof TabsPrimitive.List> & { size?: TabSize }) => (
+  <TabsSizeContext.Provider value={size}>
+    <TabsPrimitive.List className={cn(listClass(size), className)} {...props} />
+  </TabsSizeContext.Provider>
 );
 
 export const TabsTrigger = ({
@@ -28,18 +42,24 @@ export const TabsTrigger = ({
   count,
   children,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger> & { count?: number }) => (
-  <TabsPrimitive.Trigger
-    className={cn(
-      '-mb-px inline-flex h-11 items-center gap-2 border-b-2 border-transparent text-base text-ink-2 transition-colors hover:text-primary data-[state=active]:border-primary data-[state=active]:font-semibold data-[state=active]:text-ink',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    {count !== undefined && <span className="tnum text-meta text-ink-3">{count}</span>}
-  </TabsPrimitive.Trigger>
-);
+}: React.ComponentProps<typeof TabsPrimitive.Trigger> & { count?: number }) => {
+  const size = React.useContext(TabsSizeContext);
+  return (
+    <TabsPrimitive.Trigger
+      className={cn(
+        triggerBase(size),
+        'group data-[state=active]:border-primary data-[state=active]:font-semibold data-[state=active]:text-ink',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      {count !== undefined && (
+        <span className="tnum text-13 font-normal text-ink-3 group-data-[state=active]:text-primary-strong">{count}</span>
+      )}
+    </TabsPrimitive.Trigger>
+  );
+};
 
 export const TabsContent = TabsPrimitive.Content;
 
@@ -47,19 +67,21 @@ export const TabsContent = TabsPrimitive.Content;
 export const TabLinks = ({
   items,
   label,
+  size = 'md',
   className,
 }: {
   items: { href: string; label: string; active: boolean; count?: number }[];
   label: string;
+  size?: TabSize;
   className?: string;
 }) => (
-  <nav aria-label={label} className={cn('flex gap-8 overflow-x-auto border-b border-line', className)}>
+  <nav aria-label={label} className={cn(listClass(size), className)}>
     {items.map((item) => (
       <NextLink
         key={item.href}
         href={item.href}
         aria-current={item.active ? 'page' : undefined}
-        className={cn(tabClass(item.active), 'hover:no-underline', item.active ? 'text-ink hover:text-ink' : '')}
+        className={cn(triggerBase(size), 'hover:no-underline', item.active && cn(activeClass, 'hover:text-ink'))}
       >
         {item.label}
         {item.count !== undefined && <Count value={item.count} active={item.active} />}

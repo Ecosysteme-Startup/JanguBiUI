@@ -1,32 +1,33 @@
-import { cn } from '@/utils/cn';
+import { Badge, type BadgeTone } from '@/components/ui/badge';
+import type { IconName } from '@/components/ui/icon';
 
-/** Statuts d'acte (SRS §8.1) et leur rendu « point + texte » (DS-Composants §02). */
+/**
+ * Statuts d'acte (SRS §8.1) et leur badge (WEB-Design-System, « Six statuts de demande ») :
+ * pilule 24 px, point de 6 px, libellé toujours visible. Retirée : coche, sans point.
+ */
 export const REQUEST_STATUS = {
-  submitted: { label: 'Soumise', text: 'text-ink-2', dot: 'border-[1.5px] border-ink-2', hint: 'Reçue, non ouverte' },
-  under_verification: {
-    label: 'En vérification',
-    text: 'font-medium text-ink',
-    dot: 'border-[1.5px] border-primary bg-[linear-gradient(90deg,var(--jb-primary)_50%,transparent_50%)]',
-    hint: 'Registre ouvert',
-  },
-  info_requested: { label: 'Complément demandé', text: 'font-semibold text-warn', dot: 'bg-warn-dot', hint: 'Au fidèle' },
-  ready_for_pickup: { label: 'Prête à retirer', text: 'font-semibold text-primary', dot: 'bg-primary', hint: 'Au secrétariat' },
-  collected: { label: 'Retirée', text: 'text-ink-3', dot: 'bg-ink-3', hint: 'Original remis' },
-  rejected: { label: 'Rejetée', text: 'font-medium text-err', dot: 'bg-err', hint: 'Motif transmis' },
-  cancelled: { label: 'Annulée', text: 'text-ink-3', dot: 'border-[1.5px] border-ink-3', hint: 'Par le demandeur' },
-} as const;
+  submitted: { label: 'Soumise', tone: 'neutral', hint: 'Reçue par la paroisse du sacrement' },
+  under_verification: { label: 'En vérification', tone: 'info', hint: 'Le secrétariat recherche l’acte au registre' },
+  info_requested: { label: 'Complément demandé', tone: 'warn', hint: 'Action attendue du fidèle' },
+  ready_for_pickup: { label: 'Prête à retirer', tone: 'ok', hint: 'Original papier signé et scellé, à retirer' },
+  collected: { label: 'Retirée', tone: 'muted', hint: 'Terminée' },
+  rejected: { label: 'Rejetée', tone: 'err', hint: 'Motif toujours expliqué au fidèle' },
+  cancelled: { label: 'Annulée', tone: 'muted', hint: 'Par le demandeur' },
+} as const satisfies Record<string, { label: string; tone: BadgeTone; hint: string }>;
 export type RequestStatus = keyof typeof REQUEST_STATUS;
 
-/** Autres familles : réservations, nominations, vérifications. */
-const GENERIC = {
-  ok: { text: 'font-semibold text-ok', dot: 'bg-ok' },
-  primary: { text: 'font-semibold text-primary', dot: 'bg-primary' },
-  warn: { text: 'font-semibold text-warn', dot: 'bg-warn-dot' },
-  err: { text: 'font-medium text-err', dot: 'bg-err' },
-  muted: { text: 'text-ink-3', dot: 'bg-ink-3' },
-  outline: { text: 'text-ink-2', dot: 'border-[1.5px] border-ink-2' },
-} as const;
-export type StatusTone = keyof typeof GENERIC;
+const STATUS_ICON: Partial<Record<RequestStatus, IconName>> = { collected: 'check', cancelled: 'x' };
+
+/** Autres familles (réservations, nominations, vérifications) → ton de badge. */
+const GENERIC: Record<StatusTone, BadgeTone> = {
+  ok: 'ok',
+  primary: 'info',
+  warn: 'warn',
+  err: 'err',
+  muted: 'muted',
+  outline: 'neutral',
+};
+export type StatusTone = 'ok' | 'primary' | 'warn' | 'err' | 'muted' | 'outline';
 
 export const StatusDot = ({
   status,
@@ -39,12 +40,12 @@ export const StatusDot = ({
   label?: string;
   className?: string;
 }) => {
-  const style = status ? REQUEST_STATUS[status] : GENERIC[tone ?? 'muted'];
+  const badgeTone: BadgeTone = status ? REQUEST_STATUS[status].tone : GENERIC[tone ?? 'muted'];
   const text = label ?? (status ? REQUEST_STATUS[status].label : '');
+  const icon = status ? STATUS_ICON[status] : undefined;
   return (
-    <span className={cn('inline-flex items-center gap-2 text-sm', style.text, className)}>
-      <span className={cn('inline-block size-2 shrink-0 rounded-full', style.dot)} aria-hidden="true" />
+    <Badge tone={badgeTone} dot={!icon && badgeTone !== 'muted'} icon={icon} className={className}>
       {text}
-    </span>
+    </Badge>
   );
 };

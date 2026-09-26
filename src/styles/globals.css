@@ -12,7 +12,7 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-paper font-sans text-body text-ink;
+    @apply bg-paper font-sans text-16 text-ink;
   }
   button,
   input,
@@ -54,6 +54,11 @@
     background: var(--jb-tint-100);
     color: var(--jb-ink);
   }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--jb-ink-3);
+    opacity: 1;
+  }
 }
 
 @layer utilities {
@@ -71,11 +76,17 @@
     transform: translate(-50%, -50%);
   }
 
+  /* Pastille liturgique « Blanc » : cercle blanc cerclé d'or (WEB-Design-System, Liturgie). */
+  .lit-dot-white {
+    background: var(--jb-lit-white);
+    box-shadow: inset 0 0 0 1.5px var(--jb-lit-gold);
+  }
+
   /* Chiffres tabulaires pour les données (DS-Fondations §02). */
   .tnum {
     font-variant-numeric: tabular-nums;
   }
-  /* Filet double de 3 px qui referme le bandeau liturgique (« la une d'un journal »). */
+  /* Ancienne charte (filet double) : ne plus employer, la maquette Ciel l'interdit. */
   .rule-double {
     border-bottom: 3px double var(--jb-line-strong);
   }

@@ -7,32 +7,37 @@ type PaginationProps = {
   limit: number;
   total: number;
   onChange: (offset: number) => void;
+  /** Nom des éléments paginés pour la plage (« Demandes 1 à 6 sur 17 ») ; sinon « 1–10 sur 17 ». */
+  noun?: string;
   className?: string;
 };
 
-/** Pagination limit/offset (contrat de l'API) : « 1–10 sur 17 » et pages. */
-export const Pagination = ({ offset, limit, total, onChange, className }: PaginationProps) => {
+const pageClass = 'hit inline-flex h-9 min-w-9 items-center justify-center rounded-10 px-1.5 tnum text-14';
+
+/**
+ * Pagination limit/offset (WEB-Design-System) : cases 36 px rayon 10, page courante b50/b800 avec
+ * filet b200, « Précédent » discret et « Suivant » en contour.
+ */
+export const Pagination = ({ offset, limit, total, onChange, noun, className }: PaginationProps) => {
   if (total <= limit) return null;
   const pages = Math.ceil(total / limit);
   const current = Math.floor(offset / limit);
   const first = offset + 1;
   const last = Math.min(offset + limit, total);
   const visiblePages = Array.from({ length: pages }, (_, i) => i).filter((i) => Math.abs(i - current) <= 2 || i === 0 || i === pages - 1);
-  const square = 'hit inline-flex size-9 items-center justify-center rounded tnum text-xs';
   return (
-    <nav aria-label="Pagination" className={cn('flex items-center justify-between border-t border-line pt-3', className)}>
-      <span className="tnum text-meta text-ink-3">
-        {first}–{last} sur {total}
-      </span>
+    <nav aria-label="Pagination" className={cn('flex flex-wrap items-center justify-between gap-3', className)}>
+      <span className="tnum text-14 text-ink-2">{noun ? `${noun} ${first} à ${last} sur ${total}` : `${first}–${last} sur ${total}`}</span>
       <div className="flex items-center gap-1">
         <button
           type="button"
           aria-label="Page précédente"
           disabled={current === 0}
           onClick={() => onChange((current - 1) * limit)}
-          className={cn(square, 'border border-line text-ink hover:bg-surface-2 disabled:text-ink-3')}
+          className="hit inline-flex h-9 items-center gap-1 rounded-10 pl-2 pr-3 text-14 font-medium text-ink-2 hover:bg-surface-2 disabled:cursor-not-allowed disabled:text-ink-4 disabled:hover:bg-transparent"
         >
-          <Icon name="chevron-gauche" size={18} />
+          <Icon name="chevron-gauche" size={16} />
+          Précédent
         </button>
         {visiblePages.map((page, index) => (
           <span key={page} className="flex items-center gap-1">
@@ -42,7 +47,10 @@ export const Pagination = ({ offset, limit, total, onChange, className }: Pagina
               aria-current={page === current ? 'page' : undefined}
               aria-label={`Page ${page + 1}`}
               onClick={() => onChange(page * limit)}
-              className={cn(square, page === current ? 'bg-ink text-paper' : 'text-ink hover:bg-surface-2')}
+              className={cn(
+                pageClass,
+                page === current ? 'border border-line-active bg-tint-50 font-semibold text-tint-800' : 'font-medium text-ink-2 hover:bg-surface-2',
+              )}
             >
               {page + 1}
             </button>
@@ -53,9 +61,10 @@ export const Pagination = ({ offset, limit, total, onChange, className }: Pagina
           aria-label="Page suivante"
           disabled={current >= pages - 1}
           onClick={() => onChange((current + 1) * limit)}
-          className={cn(square, 'border border-line text-ink hover:bg-surface-2 disabled:text-ink-3')}
+          className="hit inline-flex h-9 items-center gap-1 rounded-10 border border-line pl-3 pr-2 text-14 font-semibold text-ink hover:bg-surface disabled:cursor-not-allowed disabled:text-ink-4"
         >
-          <Icon name="chevron-droite" size={18} />
+          Suivant
+          <Icon name="chevron-droite" size={16} />
         </button>
       </div>
     </nav>

@@ -1,5 +1,6 @@
 import NextLink from 'next/link';
 
+import { LiturgicalPill } from '@/components/ui/badge';
 import { cn } from '@/utils/cn';
 import { dayNumber, dayjs, longDate } from '@/utils/dates';
 
@@ -20,18 +21,14 @@ export type LiturgicalBannerData = {
   references: string[];
 };
 
-export const LiturgicalColorPill = ({ color, compact }: { color: string; compact?: boolean }) => {
-  const c = LITURGICAL_COLORS[color as LiturgicalColor] ?? LITURGICAL_COLORS.vert;
-  return (
-    <span
-      title={`Couleur liturgique du jour : ${c.label.toLowerCase()}`}
-      className={cn('inline-flex h-[22px] items-center gap-1.5 rounded-full border pl-2 pr-2.5', c.cls, compact && 'h-5')}
-    >
-      <span className={cn('inline-block size-2 rounded-full', c.dot)} />
-      {c.label}
-    </span>
-  );
-};
+/** Pastille de couleur liturgique (WEB-Design-System) : délègue à <LiturgicalPill>. */
+export const LiturgicalColorPill = ({ color, compact }: { color: string; compact?: boolean }) => (
+  <LiturgicalPill
+    color={color}
+    title={`Couleur liturgique du jour : ${(LITURGICAL_COLORS[color as LiturgicalColor] ?? LITURGICAL_COLORS.vert).label.toLowerCase()}`}
+    className={compact ? 'h-[22px]' : undefined}
+  />
+);
 
 /** Ex. « Jeudi de la 25e semaine… » : met le « e » des ordinaux en exposant. */
 export const Ordinals = ({ text }: { text: string }) => (

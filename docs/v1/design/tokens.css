@@ -1,331 +1,138 @@
-/* Jàngu Bi — tokens de couleur V1 (généré depuis les maquettes validées).
- * 4 palettes × clair/sombre. Sélection : <html data-palette="lumiere|ciel|atlantique|cathedrale" class="dark?">.
- * Ne pas éditer à la main : régénérer si une palette change. */
+/* Jàngu Bi — jetons de la charte « Ciel produit » (V1).
+ * Source : docs/v1/maquettes-ciel/WEB-Design-System.dc.html (clair) et Sombre-WEB-Design-System.dc.html.
+ * Le thème sombre est le remappage exact des maquettes « Sombre-WEB-* » (propriété par propriété).
+ * Une seule palette ; le thème sombre s'active par la classe `dark` sur <html> (next-themes).
+ * Copie conforme : docs/v1/design/tokens.css. Table des usages : docs/v1/maquettes-ciel/FONDATIONS.md. */
 
-:root, :root[data-palette="lumiere"] {
-  --jb-paper: #F6F1E7;
-  --jb-surface: #FBF8F2;
-  --jb-surface-2: #EFE8DA;
-  --jb-ink: #1D1B17;
-  --jb-ink-2: #4B463E;
-  --jb-ink-3: #645D51;
-  --jb-line: #D8CEBB;
-  --jb-line-field: #8C8271;
-  --jb-line-strong: #1D1B17;
-  --jb-primary: #1B4B8F;
-  --jb-primary-strong: #163D75;
-  --jb-primary-fill: #1B4B8F;
-  --jb-primary-fill-hover: #163D75;
-  --jb-on-primary: #FBF8F2;
-  --jb-night: #0C2244;
-  --jb-night-2: #11305D;
-  --jb-on-night: #DCE5F2;
-  --jb-on-night-muted: #8FA8CF;
-  --jb-tint-50: #EEF2F8;
-  --jb-tint-100: #DCE5F2;
-  --jb-tint-200: #B9C9E2;
-  --jb-tint-300: #8FA8CF;
-  --jb-tint-400: #5A7FB8;
-  --jb-tint-500: #2F5FA3;
-  --jb-ok: #1F6B5C;
-  --jb-ok-bg: #E3EFEA;
-  --jb-warn: #8A5A0B;
-  --jb-warn-dot: #B7801F;
-  --jb-warn-bg: #F6EAD3;
-  --jb-err: #A12A22;
-  --jb-err-bg: #F7E3DF;
-  --jb-lit-green: #2E6B3F;
-  --jb-lit-violet: #5B3A7E;
-  --jb-lit-gold: #9A7A2C;
-  --jb-lit-gold-text: #7A5E1C;
-  --jb-lit-red: #A3262A;
-  --jb-lit-rose: #C77A93;
-  --jb-lit-rose-text: #8E3F58;
-}
+:root {
+  color-scheme: light;
 
-:root[data-palette="lumiere"].dark {
-  --jb-paper: #13120F;
-  --jb-surface: #1B1916;
-  --jb-surface-2: #25221D;
-  --jb-ink: #EEE8DC;
-  --jb-ink-2: #C9C1B2;
-  --jb-ink-3: #A39A8C;
-  --jb-line: #37332C;
-  --jb-line-field: #6F675A;
-  --jb-line-strong: #CFC7B8;
-  --jb-primary: #9CB8EA;
-  --jb-primary-strong: #BCD0F2;
-  --jb-primary-fill: #2F5FA3;
-  --jb-primary-fill-hover: #285393;
-  --jb-on-primary: #F6F1E7;
-  --jb-night: #0A1322;
-  --jb-night-2: #0F1C33;
-  --jb-on-night: #DCE5F2;
-  --jb-on-night-muted: #8FA8CF;
-  --jb-tint-50: #182131;
-  --jb-tint-100: #1D2A41;
-  --jb-tint-200: #2A3D5E;
-  --jb-tint-300: #3E5A87;
-  --jb-tint-400: #5A7FB8;
-  --jb-tint-500: #6F92C6;
-  --jb-ok: #7CCBB6;
-  --jb-ok-bg: #13302A;
-  --jb-warn: #E6B865;
-  --jb-warn-dot: #D49B36;
-  --jb-warn-bg: #342710;
-  --jb-err: #F2958B;
-  --jb-err-bg: #3B1815;
-  --jb-lit-green: #86C596;
-  --jb-lit-violet: #BCA0DC;
-  --jb-lit-gold: #C9A55A;
-  --jb-lit-gold-text: #DCC079;
-  --jb-lit-red: #EE8A83;
-  --jb-lit-rose: #D99BB0;
-  --jb-lit-rose-text: #E6A7BB;
-}
+  /* Neutres */
+  --jb-paper: #FFFFFF;          /* fond de page, cartes */
+  --jb-surface: #F7FAFD;        /* barre latérale, zones, survol de rangée */
+  --jb-surface-2: #EDF3F9;      /* pressé, pistes, bouton secondaire, contrôle segmenté */
+  --jb-line: #DDE5EE;           /* séparateurs, bordures de carte */
+  --jb-line-field: #8391A4;     /* bordure de champ, case, radio */
+  --jb-line-strong: #0E1A2B;    /* filet d'encre (rare) */
+  --jb-line-active: #B3D8F0;    /* survol de carte, filet actif, étape franchie */
+  --jb-ink: #0E1A2B;            /* texte, icônes */
+  --jb-ink-2: #3A4859;          /* texte secondaire */
+  --jb-ink-3: #586677;          /* méta, aides, placeholders */
+  --jb-ink-4: #8391A4;          /* texte désactivé */
 
-:root[data-palette="ciel"] {
-  --jb-paper: #FFFFFF;
-  --jb-surface: #F7FAFD;
-  --jb-surface-2: #EDF3F9;
-  --jb-ink: #0E1A2B;
-  --jb-ink-2: #3A4859;
-  --jb-ink-3: #586677;
-  --jb-line: #DDE5EE;
-  --jb-line-field: #8391A4;
-  --jb-line-strong: #0E1A2B;
-  --jb-primary: #0A6BA3;
-  --jb-primary-strong: #085887;
-  --jb-primary-fill: #0A6BA3;
+  /* Bleu Ciel (b50 → b900) */
+  --jb-primary: #0A6BA3;        /* b600 : liens, texte et filets primaires */
+  --jb-primary-strong: #085887; /* b700 : survol de lien */
+  --jb-primary-fill: #0A6BA3;   /* b600 : aplat du bouton primaire */
   --jb-primary-fill-hover: #085887;
-  --jb-on-primary: #F7FAFD;
+  --jb-on-primary: #FFFFFF;     /* texte sur aplat primaire ou encre */
+  --jb-tint-50: #EEF6FC;        /* b50 : fond teinté, nav active, alerte info */
+  --jb-tint-100: #D9EBF7;       /* b100 : sélection douce, avatar, compteur */
+  --jb-tint-200: #B3D8F0;       /* b200 : aplat (barre claire, créneau) */
+  --jb-tint-300: #7FC0E8;       /* b300 : illustration */
+  --jb-tint-400: #3FA3DD;       /* b400 : points */
+  --jb-tint-500: #1A8FCC;       /* b500 : accent */
+  --jb-tint-800: #06466C;       /* b800 : texte sur b50 (nav active, badge) */
+  --jb-tint-900: #052F49;       /* b900 : texte sur b100 */
+
+  /* Aplat d'encre (pilule de filtre active, infobulle, toast) */
+  --jb-inverse: #0E1A2B;
+  --jb-on-inverse: #FFFFFF;
+  --jb-on-inverse-muted: #B3D8F0; /* compteur sur pilule active */
+
+  /* Anciennes surfaces « nuit » (conservées pour les écrans non migrés) */
   --jb-night: #052F49;
   --jb-night-2: #06466C;
   --jb-on-night: #D9EBF7;
   --jb-on-night-muted: #7FC0E8;
-  --jb-tint-50: #EEF6FC;
-  --jb-tint-100: #D9EBF7;
-  --jb-tint-200: #B3D8F0;
-  --jb-tint-300: #7FC0E8;
-  --jb-tint-400: #3FA3DD;
-  --jb-tint-500: #1A8FCC;
+
+  /* Statuts : texte sur fond, jamais la couleur seule */
   --jb-ok: #1F6B5C;
   --jb-ok-bg: #E4F2EE;
+  --jb-ok-dot: #1F6B5C;
   --jb-warn: #8A5A0B;
-  --jb-warn-dot: #B7801F;
   --jb-warn-bg: #FBF1DF;
+  --jb-warn-dot: #B7801F;
   --jb-err: #A12A22;
   --jb-err-bg: #FBE8E5;
+  --jb-err-line: #A12A22;       /* bordure de champ en erreur */
+  --jb-err-fill: #A12A22;       /* aplat destructif plein (rare) */
+
+  /* Couleurs liturgiques : pastilles uniquement, jamais en aplat */
   --jb-lit-green: #2E6B3F;
-  --jb-lit-violet: #5B3A7E;
-  --jb-lit-gold: #9A7A2C;
-  --jb-lit-gold-text: #7A5E1C;
   --jb-lit-red: #A3262A;
+  --jb-lit-violet: #5B3A7E;
+  --jb-lit-gold: #9A7A2C;       /* « Blanc » : cercle blanc cerclé d'or */
+  --jb-lit-gold-text: #7A5E1C;
+  --jb-lit-white: #FEFEFE;
   --jb-lit-rose: #C77A93;
   --jb-lit-rose-text: #8E3F58;
+
+  /* Ombres et voile */
+  --jb-shadow-card: 0 1px 2px rgba(14, 26, 43, 0.06);
+  --jb-shadow-menu: 0 8px 24px rgba(14, 26, 43, 0.10);
+  --jb-scrim: rgba(14, 26, 43, 0.40);
 }
 
-:root[data-palette="ciel"].dark {
+:root.dark {
+  color-scheme: dark;
+
   --jb-paper: #0B1118;
   --jb-surface: #111A24;
   --jb-surface-2: #18232F;
-  --jb-ink: #E8EEF5;
-  --jb-ink-2: #BAC6D3;
-  --jb-ink-3: #92A2B4;
   --jb-line: #243142;
   --jb-line-field: #5F7085;
   --jb-line-strong: #C7D2DE;
+  --jb-line-active: #26618F;
+  --jb-ink: #E8EEF5;
+  --jb-ink-2: #BAC6D3;
+  --jb-ink-3: #92A2B4;
+  --jb-ink-4: #92A2B4;
+
   --jb-primary: #7CC3EE;
   --jb-primary-strong: #A8D8F5;
   --jb-primary-fill: #0A6BA3;
   --jb-primary-fill-hover: #085E90;
   --jb-on-primary: #F5F9FC;
-  --jb-night: #061826;
-  --jb-night-2: #082438;
-  --jb-on-night: #D9EBF7;
-  --jb-on-night-muted: #7FC0E8;
   --jb-tint-50: #0F2233;
   --jb-tint-100: #13304A;
   --jb-tint-200: #1B4466;
   --jb-tint-300: #26618F;
   --jb-tint-400: #3FA3DD;
   --jb-tint-500: #5AB3E4;
+  --jb-tint-800: #7CC3EE;
+  --jb-tint-900: #A8D8F5;
+
+  --jb-inverse: #3A4757;
+  --jb-on-inverse: #F5F9FC;
+  --jb-on-inverse-muted: #B3D8F0;
+
+  --jb-night: #061826;
+  --jb-night-2: #082438;
+  --jb-on-night: #D9EBF7;
+  --jb-on-night-muted: #7FC0E8;
+
   --jb-ok: #7CCBB6;
   --jb-ok-bg: #13302A;
+  --jb-ok-dot: #3E9E88;
   --jb-warn: #E6B865;
-  --jb-warn-dot: #D49B36;
   --jb-warn-bg: #342710;
+  --jb-warn-dot: #D49B36;
   --jb-err: #F2958B;
   --jb-err-bg: #3B1815;
-  --jb-lit-green: #86C596;
-  --jb-lit-violet: #BCA0DC;
+  --jb-err-line: #E0776C;
+  --jb-err-fill: #B8392F;
+
+  --jb-lit-green: #4F9B63;
+  --jb-lit-red: #C4463F;
+  --jb-lit-violet: #8B66B6;
   --jb-lit-gold: #C9A55A;
   --jb-lit-gold-text: #DCC079;
-  --jb-lit-red: #EE8A83;
+  --jb-lit-white: #FEFEFE;
   --jb-lit-rose: #D99BB0;
   --jb-lit-rose-text: #E6A7BB;
-}
 
-:root[data-palette="atlantique"] {
-  --jb-paper: #F1F4F4;
-  --jb-surface: #FAFCFC;
-  --jb-surface-2: #E4EBEC;
-  --jb-ink: #12212A;
-  --jb-ink-2: #3A4952;
-  --jb-ink-3: #54636C;
-  --jb-line: #D1DADD;
-  --jb-line-field: #7D8C94;
-  --jb-line-strong: #12212A;
-  --jb-primary: #0B5870;
-  --jb-primary-strong: #08495D;
-  --jb-primary-fill: #0B5870;
-  --jb-primary-fill-hover: #08495D;
-  --jb-on-primary: #FAFCFC;
-  --jb-night: #042533;
-  --jb-night-2: #063A4A;
-  --jb-on-night: #CFE3E8;
-  --jb-on-night-muted: #73ACBC;
-  --jb-tint-50: #E7F1F3;
-  --jb-tint-100: #CFE3E8;
-  --jb-tint-200: #A5CAD4;
-  --jb-tint-300: #73ACBC;
-  --jb-tint-400: #3F8BA1;
-  --jb-tint-500: #1F6F87;
-  --jb-ok: #1F6B5C;
-  --jb-ok-bg: #E3EFEA;
-  --jb-warn: #8A5A0B;
-  --jb-warn-dot: #B7801F;
-  --jb-warn-bg: #F6EAD3;
-  --jb-err: #A12A22;
-  --jb-err-bg: #F7E3DF;
-  --jb-lit-green: #2E6B3F;
-  --jb-lit-violet: #5B3A7E;
-  --jb-lit-gold: #9A7A2C;
-  --jb-lit-gold-text: #7A5E1C;
-  --jb-lit-red: #A3262A;
-  --jb-lit-rose: #C77A93;
-  --jb-lit-rose-text: #8E3F58;
-}
-
-:root[data-palette="atlantique"].dark {
-  --jb-paper: #0B1214;
-  --jb-surface: #111B1E;
-  --jb-surface-2: #182528;
-  --jb-ink: #E6EEEF;
-  --jb-ink-2: #B6C5C8;
-  --jb-ink-3: #8EA1A6;
-  --jb-line: #243236;
-  --jb-line-field: #5E7176;
-  --jb-line-strong: #C4D1D4;
-  --jb-primary: #7EC4D6;
-  --jb-primary-strong: #A9DAE6;
-  --jb-primary-fill: #0B5870;
-  --jb-primary-fill-hover: #116782;
-  --jb-on-primary: #F2F7F7;
-  --jb-night: #042029;
-  --jb-night-2: #06303F;
-  --jb-on-night: #CFE3E8;
-  --jb-on-night-muted: #73ACBC;
-  --jb-tint-50: #0F2429;
-  --jb-tint-100: #133139;
-  --jb-tint-200: #1B4550;
-  --jb-tint-300: #28667A;
-  --jb-tint-400: #3F8BA1;
-  --jb-tint-500: #5AA5B9;
-  --jb-ok: #7CCBB6;
-  --jb-ok-bg: #13302A;
-  --jb-warn: #E6B865;
-  --jb-warn-dot: #D49B36;
-  --jb-warn-bg: #342710;
-  --jb-err: #F2958B;
-  --jb-err-bg: #3B1815;
-  --jb-lit-green: #86C596;
-  --jb-lit-violet: #BCA0DC;
-  --jb-lit-gold: #C9A55A;
-  --jb-lit-gold-text: #DCC079;
-  --jb-lit-red: #EE8A83;
-  --jb-lit-rose: #D99BB0;
-  --jb-lit-rose-text: #E6A7BB;
-}
-
-:root[data-palette="cathedrale"] {
-  --jb-paper: #FBFAF6;
-  --jb-surface: #FFFFFF;
-  --jb-surface-2: #F0EDE4;
-  --jb-ink: #16161F;
-  --jb-ink-2: #42414E;
-  --jb-ink-3: #5C5A68;
-  --jb-line: #DDD8CC;
-  --jb-line-field: #888373;
-  --jb-line-strong: #16161F;
-  --jb-primary: #2B2F80;
-  --jb-primary-strong: #22266A;
-  --jb-primary-fill: #2B2F80;
-  --jb-primary-fill-hover: #22266A;
-  --jb-on-primary: #FFFFFF;
-  --jb-night: #11133A;
-  --jb-night-2: #1B1E55;
-  --jb-on-night: #DCDEF1;
-  --jb-on-night-muted: #8F93CC;
-  --jb-tint-50: #EEEFF8;
-  --jb-tint-100: #DCDEF1;
-  --jb-tint-200: #B9BCE2;
-  --jb-tint-300: #8F93CC;
-  --jb-tint-400: #B08D3E;
-  --jb-tint-500: #8F7130;
-  --jb-ok: #1F6B5C;
-  --jb-ok-bg: #E3EFEA;
-  --jb-warn: #8A5A0B;
-  --jb-warn-dot: #B7801F;
-  --jb-warn-bg: #F6EAD3;
-  --jb-err: #A12A22;
-  --jb-err-bg: #F7E3DF;
-  --jb-lit-green: #2E6B3F;
-  --jb-lit-violet: #5B3A7E;
-  --jb-lit-gold: #9A7A2C;
-  --jb-lit-gold-text: #7A5E1C;
-  --jb-lit-red: #A3262A;
-  --jb-lit-rose: #C77A93;
-  --jb-lit-rose-text: #8E3F58;
-}
-
-:root[data-palette="cathedrale"].dark {
-  --jb-paper: #0F0F16;
-  --jb-surface: #16161F;
-  --jb-surface-2: #1F1F2B;
-  --jb-ink: #ECEBF3;
-  --jb-ink-2: #C1C0CE;
-  --jb-ink-3: #9897A9;
-  --jb-line: #2E2D3B;
-  --jb-line-field: #6C6A7D;
-  --jb-line-strong: #CDCBDA;
-  --jb-primary: #AAAEEC;
-  --jb-primary-strong: #C7CAF4;
-  --jb-primary-fill: #3B40A0;
-  --jb-primary-fill-hover: #4A50B3;
-  --jb-on-primary: #F7F6FB;
-  --jb-night: #0D0E2B;
-  --jb-night-2: #171A4B;
-  --jb-on-night: #DCDEF1;
-  --jb-on-night-muted: #8F93CC;
-  --jb-tint-50: #181A33;
-  --jb-tint-100: #1F2244;
-  --jb-tint-200: #2E3263;
-  --jb-tint-300: #454A8C;
-  --jb-tint-400: #C9A55A;
-  --jb-tint-500: #B08D3E;
-  --jb-ok: #7CCBB6;
-  --jb-ok-bg: #13302A;
-  --jb-warn: #E6B865;
-  --jb-warn-dot: #D49B36;
-  --jb-warn-bg: #342710;
-  --jb-err: #F2958B;
-  --jb-err-bg: #3B1815;
-  --jb-lit-green: #86C596;
-  --jb-lit-violet: #BCA0DC;
-  --jb-lit-gold: #C9A55A;
-  --jb-lit-gold-text: #DCC079;
-  --jb-lit-red: #EE8A83;
-  --jb-lit-rose: #D99BB0;
-  --jb-lit-rose-text: #E6A7BB;
+  --jb-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --jb-shadow-menu: 0 8px 24px rgba(0, 0, 0, 0.30);
+  --jb-scrim: rgba(0, 0, 0, 0.62);
 }

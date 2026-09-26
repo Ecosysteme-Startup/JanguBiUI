@@ -24,7 +24,7 @@ export const useToasts = create<ToastStore>((set) => ({
   push: (tone, message) => {
     const id = ++seq;
     set((s) => ({ toasts: [...s.toasts, { id, tone, message }] }));
-    setTimeout(() => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), 6000);
+    setTimeout(() => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), 5000);
   },
   dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }));
@@ -35,10 +35,11 @@ export const toast = {
   info: (message: string) => useToasts.getState().push('info', message),
 };
 
+/** Toasts (WEB-Design-System) : aplat d'encre, icône b200 ; l'erreur passe sur fond paper, icône errT. */
 const TONE = {
-  ok: { icon: 'check', cls: 'text-tint-200' },
-  err: { icon: 'alerte', cls: 'text-err-bg' },
-  info: { icon: 'info', cls: 'text-tint-200' },
+  ok: { icon: 'succes', box: 'bg-inverse text-on-inverse', cls: 'text-on-inverse-muted', close: 'text-on-inverse hover:bg-ink-2' },
+  info: { icon: 'info', box: 'bg-inverse text-on-inverse', cls: 'text-on-inverse-muted', close: 'text-on-inverse hover:bg-ink-2' },
+  err: { icon: 'erreur', box: 'border border-line bg-paper text-ink', cls: 'text-err', close: 'text-ink-2 hover:bg-surface-2' },
 } as const;
 
 export const Toaster = () => {
@@ -49,17 +50,11 @@ export const Toaster = () => {
         <div
           key={t.id}
           role={t.tone === 'err' ? 'alert' : 'status'}
-          className="flex items-center gap-3 rounded bg-ink px-4 py-3 text-base text-paper shadow-modal"
+          className={cn('flex items-center gap-2.5 rounded-12 py-2 pl-4 pr-2 text-14 shadow-menu', TONE[t.tone].box)}
         >
-          <Icon name={TONE[t.tone].icon} size={20} className={cn('shrink-0', TONE[t.tone].cls)} />
-          <p className="m-0 flex-1">{t.message}</p>
-          <IconButton
-            icon="x"
-            label="Fermer la notification"
-            size="sm"
-            className="text-paper hover:bg-ink-2"
-            onClick={() => dismiss(t.id)}
-          />
+          <Icon name={TONE[t.tone].icon} size={18} className={cn('shrink-0', TONE[t.tone].cls)} />
+          <p className="m-0 flex-1 py-1">{t.message}</p>
+          <IconButton icon="x" label="Fermer la notification" size="sm" className={TONE[t.tone].close} onClick={() => dismiss(t.id)} />
         </div>
       ))}
     </div>
