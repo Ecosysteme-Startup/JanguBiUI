@@ -1,4 +1,4 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
@@ -35,11 +35,19 @@ const weekSchema = z.object({
 });
 export type NodeWeek = z.infer<typeof weekSchema>;
 
-/** Semaine des horaires d'un nœud, exceptions comprises (`GET /public/nodes/{id}/week/`). */
-export const getNodeWeek = async (nodeId: string): Promise<NodeWeek> =>
-  weekSchema.parse(await api.get(`/public/nodes/${encodeURIComponent(nodeId)}/week/`));
+/**
+ * Sept jours d'horaires d'un nœud à partir de `start` (aujourd'hui par défaut), exceptions
+ * comprises (`GET /public/nodes/{id}/week/?start=AAAA-MM-JJ`).
+ */
+export const getNodeWeek = async (nodeId: string, start?: string): Promise<NodeWeek> =>
+  weekSchema.parse(await api.get(`/public/nodes/${encodeURIComponent(nodeId)}/week/`, { params: start ? { start } : undefined }));
 
-export const nodeWeekQueryOptions = (nodeId: string) =>
-  queryOptions({ queryKey: ['public', 'nodes', nodeId, 'week'], queryFn: () => getNodeWeek(nodeId), staleTime: 5 * 60 * 1000 });
+export const nodeWeekQueryOptions = (nodeId: string, start?: string) =>
+  queryOptions({
+    queryKey: ['public', 'nodes', nodeId, 'week', start ?? 'today'],
+    queryFn: () => getNodeWeek(nodeId, start),
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(nodeId),
+  });
 
-export const useNodeWeek = (nodeId: string) => useQuery(nodeWeekQueryOptions(nodeId));
+export const useNodeWeek = (nodeId: string, start?: string) => useQuery({ ...nodeWeekQueryOptions(nodeId, start), placeholderData: keepPreviousData });

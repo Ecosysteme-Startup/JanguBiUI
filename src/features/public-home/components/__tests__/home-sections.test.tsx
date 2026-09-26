@@ -1,47 +1,44 @@
 import { render, screen } from '@testing-library/react';
 
-import { HomeFaq } from '@/features/public-home/components/home-faq';
 import { HomeHero } from '@/features/public-home/components/home-hero';
-import { HomeTrust } from '@/features/public-home/components/home-trust';
-import { HomeUses } from '@/features/public-home/components/home-uses';
-import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
-import { server } from '@/testing/mocks/server';
-
-// Handlers du lot en tête : d’autres lots servent la même route avec d’autres données.
-beforeEach(() => server.use(...f4PublicHandlers));
+import { HomeOffer } from '@/features/public-home/components/home-offer';
+import { HomeServices } from '@/features/public-home/components/home-services';
 
 describe('Accueil public', () => {
-  it('propose l’inscription et l’annuaire', () => {
-    render(<HomeHero stats={<span>2 diocèses · 12 paroisses</span>} />);
+  it('propose la création de compte et la Parole du jour sans compte', () => {
+    render(<HomeHero parole={(className) => <div className={className}>Parole</div>} masses={(className) => <div className={className}>Messes</div>} />);
 
-    expect(screen.getByRole('heading', { level: 1, name: /chaque jour la parole/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /s.inscrire/i })).toHaveAttribute('href', '/inscription');
-    expect(screen.getByRole('link', { name: /trouver ma paroisse/i })).toHaveAttribute('href', '/paroisses');
-    expect(screen.getByText('2 diocèses · 12 paroisses')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /la parole et votre paroisse, au même endroit/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /créer un compte gratuit/i })).toHaveAttribute('href', '/inscription');
+    expect(screen.getByRole('link', { name: /lire la parole du jour/i })).toHaveAttribute('href', '/parole');
+    expect(screen.getByText('Parole')).toBeInTheDocument();
+    expect(screen.getByText('Messes')).toBeInTheDocument();
   });
 
-  it('rappelle les règles de l’Église : pas de confession par message, pas d’acte en PDF', () => {
-    render(
-      <>
-        <HomeUses />
-        <HomeTrust />
-      </>,
-    );
+  it('présente les quatre services et rappelle les règles de l’Église', () => {
+    render(<HomeServices paroleVisual={null} parishVisual={null} />);
 
-    expect(screen.getAllByText(/la confession ne se fait/i).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText(/aucun acte n.est délivré en pdf/i)).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(4);
+    expect(screen.getAllByText(/la confession ne se fait pas par message/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/original papier/i).length).toBeGreaterThan(0);
   });
 
   it('ne promet jamais un chiffrement de bout en bout (ADR-014)', () => {
     const { container } = render(
       <>
-        <HomeUses />
-        <HomeTrust />
-        <HomeFaq />
+        <HomeServices paroleVisual={null} parishVisual={null} />
+        <HomeOffer />
       </>,
     );
 
     expect(container.textContent).not.toMatch(/bout en bout/i);
     expect(screen.getAllByText(/aucun administrateur/i).length).toBeGreaterThan(0);
+  });
+
+  it('mène les paroisses vers l’offre et le formulaire de contact', () => {
+    render(<HomeOffer />);
+
+    expect(screen.getByRole('link', { name: /présenter jàngu bi à ma paroisse/i })).toHaveAttribute('href', '/pour-les-paroisses');
+    expect(screen.getByRole('link', { name: /nous écrire/i })).toHaveAttribute('href', '/pour-les-paroisses#contact');
   });
 });

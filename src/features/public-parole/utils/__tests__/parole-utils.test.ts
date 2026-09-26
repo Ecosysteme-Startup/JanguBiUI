@@ -1,5 +1,5 @@
 import { nextSunday, parseDateParam, shiftDay, weekOf } from '@/features/public-parole/utils/days';
-import { readingAnchor, readingExcerpt, readingLabel } from '@/features/public-parole/utils/readings';
+import { findReading, readingAnchor, readingExcerpt, readingHeading, readingLabel, readingTitle, readingTabs, shortCitation } from '@/features/public-parole/utils/readings';
 import { sanitizeReadingHtml } from '@/features/public-parole/utils/sanitize-reading';
 import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
 import { server } from '@/testing/mocks/server';
@@ -53,5 +53,54 @@ describe('lectures', () => {
       'Hérode entendit parler ;',
     );
     expect(readingExcerpt({ type: 'psaume', citation: '', text: null, verses: [] })).toBeNull();
+  });
+
+  const verse = (book: string) => [{ book, chapter: 1, number: 2, text: 'x' }];
+
+  it('titre une lecture par son livre et ses versets', () => {
+    expect(readingTitle({ type: 'lecture_1', citation: 'Qo 11, 9 – 12, 8', verses: verse('Ecclésiaste') })).toBe('Ecclésiaste 11, 9 – 12, 8');
+    expect(readingTitle({ type: 'psaume', citation: 'Ps 89 (90), 3-4, 12-13', verses: verse('Psaumes') })).toBe('Psaume 89 (90), 3-4, 12-13');
+    expect(readingTitle({ type: 'evangile', citation: 'Lc 9, 43b-45', verses: verse('Luc') })).toBe('Évangile selon saint Luc 9, 43b-45');
+    // Sans verset (texte AELF seul), la référence reste telle quelle.
+    expect(readingTitle({ type: 'evangile', citation: 'Lc 9, 7-9', verses: [] })).toBe('Lc 9, 7-9');
+  });
+
+  it('abrège une référence de psaume pour une grille', () => {
+    expect(shortCitation('Ps 89 (90), 3-4, 5-6, 12-13')).toBe('Ps 89 (90)');
+    expect(shortCitation('Lc 9, 7-9')).toBe('Lc 9, 7-9');
+  });
+
+  it('retrouve la première lecture, le psaume et l’évangile', () => {
+    const readings = [
+      { type: 'lecture_1', citation: 'A', verses: [] },
+      { type: 'psaume', citation: 'B', verses: [] },
+      { type: 'lecture_2', citation: 'C', verses: [] },
+      { type: 'evangile', citation: 'D', verses: [] },
+    ];
+    expect(findReading(readings, 'lecture')?.citation).toBe('A');
+    expect(findReading(readings, 'psaume')?.citation).toBe('B');
+    expect(findReading(readings, 'evangile')?.citation).toBe('D');
+  });
+
+  it('range les lectures en trois onglets (lectures, psaume, évangile)', () => {
+    const readings = [
+      { type: 'lecture_1', citation: 'A', verses: [] },
+      { type: 'psaume', citation: 'B', verses: [] },
+      { type: 'lecture_2', citation: 'C', verses: [] },
+      { type: 'acclamation', citation: 'E', verses: [] },
+      { type: 'evangile', citation: 'D', verses: [] },
+    ];
+    expect(readingTabs(readings).map((tab) => [tab.key, tab.readings.map((r) => r.citation)])).toEqual([
+      ['lectures', ['A', 'C']],
+      ['psaume', ['B']],
+      ['evangile', ['E', 'D']],
+    ]);
+  });
+
+  it('donne l’intitulé d’une lecture : livre, psaume ou évangéliste', () => {
+    expect(readingHeading({ type: 'lecture_1', citation: 'Qo 11, 9', verses: verse('Ecclésiaste') })).toBe('Ecclésiaste');
+    expect(readingHeading({ type: 'psaume', citation: 'Ps 89', verses: verse('Psaumes') })).toBe('Psaume');
+    expect(readingHeading({ type: 'evangile', citation: 'Lc 9', verses: verse('Luc') })).toBe('Évangile selon saint Luc');
+    expect(readingHeading({ type: 'lecture_2', citation: 'Rm 8', verses: [] })).toBe('Deuxième lecture');
   });
 });
