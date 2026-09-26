@@ -90,10 +90,11 @@ export const readingTabLabel = (readings: Pick<Reading, 'type'>[], index: number
   return lecture[1] === '1' ? '1re lecture' : `${lecture[1]}e lecture`;
 };
 
-/** « Psaumes 90 », « Luc 9 » ; à défaut de versets (texte AELF), la référence. */
+/** « Psaume 90 », « Luc 9 » ; à défaut de versets (texte AELF), la référence. */
 export const readingShortTitle = (reading: Reading): string => {
   const first = reading.verses[0];
-  return first ? `${first.book} ${first.chapter}` : reading.citation;
+  if (!first) return reading.citation;
+  return /^psaumes?$/i.test(first.book) ? `Psaume ${first.chapter}` : `${first.book} ${first.chapter}`;
 };
 
 /** Texte brut d'une lecture (copie) : référence, puis versets numérotés. */

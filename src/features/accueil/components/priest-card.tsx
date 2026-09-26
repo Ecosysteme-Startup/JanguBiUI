@@ -102,7 +102,7 @@ const PriestSuggestion = () => {
           )}
         </span>
       </span>
-      <NextLink href={paths.app.pretres.list.getHref()} className={buttonVariants({ variant: 'outline', className: 'mt-4' })}>
+      <NextLink href={paths.app.pretres.list.getHref()} className={cn(buttonVariants({ variant: 'outline', className: 'mt-4' }))}>
         Écrire
       </NextLink>
       <Privacy />

@@ -48,13 +48,13 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
   const count = verses.data?.length ?? 0;
   return (
     <article aria-labelledby="bible-titre" aria-describedby="bible-versets">
-      <div className="flex items-start justify-between gap-6">
-        <div className="min-w-0">
+      <div className="flex flex-wrap-reverse items-start justify-between gap-x-6 gap-y-2">
+        <div className="min-w-0 flex-1 basis-60">
           {testament && <p className="m-0 text-14 text-ink-3">{testament.name}</p>}
           <h2 id="bible-titre" className="m-0 mt-1 text-24 font-semibold text-ink">
             {chapterTitle(book, chapter)}
           </h2>
-          <p id="bible-versets" className="tnum m-0 mt-1 text-14 text-ink-3">
+          <p id="bible-versets" className="sr-only">
             {book.name} {chapter}
             {count > 0 && ` · versets 1-${verses.data?.[count - 1]?.number ?? count}`}
           </p>
@@ -88,7 +88,7 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
         {prev ? (
           <NextLink
             href={paths.app.bible.chapitre.getHref(prev.book.slug, prev.chapter)}
-            className={buttonVariants({ variant: 'outline', className: 'min-h-11 pl-3' })}
+            className={cn(buttonVariants({ variant: 'outline', className: 'min-h-11 pl-3' }))}
           >
             <Icon name="chevron-gauche" size={18} />
             {chapterShortName(prev.book, prev.chapter)}
@@ -100,7 +100,7 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
         {next ? (
           <NextLink
             href={paths.app.bible.chapitre.getHref(next.book.slug, next.chapter)}
-            className={buttonVariants({ variant: 'outline', className: 'min-h-11 pr-3' })}
+            className={cn(buttonVariants({ variant: 'outline', className: 'min-h-11 pr-3' }))}
           >
             {chapterShortName(next.book, next.chapter)}
             <Icon name="chevron-droite" size={18} />

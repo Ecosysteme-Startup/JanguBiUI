@@ -23,8 +23,8 @@ export const RosaryCard = ({ className }: { className?: string }) => {
           <h2 id="acc-chapelet" className="m-0 mt-1 text-16 font-semibold text-ink">
             {data ? groupTitle(data.day.group.name) : 'Chapelet du jour'}
           </h2>
+          <span className="mt-0.5 block text-14 font-semibold text-primary">Commencer la prière</span>
         </span>
-        <span className="shrink-0 text-15 font-semibold text-primary">Commencer</span>
         <Icon name="chevron-droite" size={18} className="shrink-0 text-ink-3" />
       </NextLink>
     </section>

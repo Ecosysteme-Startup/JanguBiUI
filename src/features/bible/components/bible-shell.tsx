@@ -11,7 +11,7 @@ export const BibleShell = ({ panel, children }: { panel: ReactNode; children: Re
     <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
         <h1 className="m-0 text-32 font-semibold text-ink">Bible</h1>
-        <p className="m-0 mt-2 text-16 text-ink-2">Traduction {BIBLE_EDITION}, domaine public.</p>
+        <p className="m-0 mt-2 text-16 text-ink-2">{BIBLE_EDITION}, domaine public.</p>
       </div>
       <ParoleNav current="bible" />
     </header>

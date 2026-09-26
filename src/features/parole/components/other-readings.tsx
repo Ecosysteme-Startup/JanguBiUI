@@ -32,7 +32,7 @@ export const OtherReadings = ({ readings, active, onSelect }: { readings: Readin
                   <span className="tnum block text-13 text-ink-3">
                     {readingLabel(reading.type)} · {reading.citation}
                   </span>
-                  {quote && <span className="mt-1.5 line-clamp-2 block font-serif text-18 text-ink">{frenchTypo(quote)}</span>}
+                  {quote && <span className="mt-1.5 line-clamp-2 font-serif text-18 text-ink">{frenchTypo(quote)}</span>}
                 </span>
                 <Icon name="chevron-droite" size={18} className="shrink-0 text-ink-3" />
               </button>

@@ -73,6 +73,7 @@ describe('utilitaires de la Parole', () => {
       ],
     };
     expect(readingShortTitle(reading)).toBe('Luc 9');
+    expect(readingShortTitle({ ...reading, verses: [{ ...reading.verses[0], book: 'Psaumes', chapter: 89 }] })).toBe('Psaume 89');
     expect(readingTitle(reading)).toBe('Évangile de Jésus Christ selon saint Luc');
     expect(readingTitle({ ...reading, type: 'psaume', verses: [{ ...reading.verses[0], book: 'Psaumes', chapter: 90 }] })).toBe('Psaume 90');
     expect(readingTitle({ ...reading, type: 'lecture_1', verses: [{ ...reading.verses[0], book: 'Ecclésiaste' }] })).toBe('Ecclésiaste');

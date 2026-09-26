@@ -17,7 +17,7 @@ export const DecadeBeads = ({ beads, step }: { beads: Bead[]; step: number }) =>
 
   return (
     <div className="mt-7">
-      <ol aria-label={label} className="m-0 flex list-none items-center justify-between gap-1 p-0">
+      <ol aria-label={label} className="m-0 flex list-none items-center justify-between gap-0.5 p-0 sm:gap-1">
         {beads.map((bead, i) => {
           const state = i < step ? 'dit' : i === step ? 'courant' : 'avenir';
           const square = bead.hailMary === null;
@@ -28,10 +28,10 @@ export const DecadeBeads = ({ beads, step }: { beads: Bead[]; step: number }) =>
               className={cn(
                 'inline-flex shrink-0 items-center justify-center',
                 state === 'courant'
-                  ? cn('size-8 border-3 border-primary-fill bg-tint-100 ring-4 ring-tint-50', square ? 'rounded-8' : 'rounded-full')
+                  ? cn('size-6 border-3 sm:size-8 border-primary-fill bg-tint-100 ring-4 ring-tint-50', square ? 'rounded-8' : 'rounded-full')
                   : square
-                    ? 'size-7 rounded-8'
-                    : 'size-5 rounded-full',
+                    ? 'size-6 rounded-8 sm:size-7'
+                    : 'size-4 rounded-full sm:size-5',
                 state === 'dit' && 'bg-primary-fill text-on-primary',
                 state === 'avenir' && 'border-1.5 border-line-field',
               )}

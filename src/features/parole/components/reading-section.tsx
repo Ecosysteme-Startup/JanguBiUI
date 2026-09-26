@@ -61,8 +61,8 @@ export const ReadingSection = ({ reading, date, notice, size, onSize }: Props) =
 
   return (
     <article aria-labelledby={titleId} className="mt-8">
-      <div className="flex items-start justify-between gap-6">
-        <div className="min-w-0">
+      <div className="flex flex-wrap-reverse items-start justify-between gap-x-6 gap-y-2">
+        <div className="min-w-0 flex-1 basis-60">
           <p className="m-0 text-14 text-ink-3">{readingLabel(reading.type)}</p>
           <h2 id={titleId} className="m-0 mt-1 text-24 font-semibold text-ink">
             {readingTitle(reading)}

@@ -20,11 +20,11 @@ export const HomeSection = ({
   className?: string;
 }) => (
   <section aria-labelledby={id} className={cn('min-w-0', className)}>
-    <div className="flex items-baseline justify-between gap-4">
-      <h2 id={id} className="m-0 text-20 font-semibold text-ink">
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <h2 id={id} className="m-0 min-w-0 text-20 font-semibold text-ink">
         {title}
       </h2>
-      {action && <span className="shrink-0 text-15 font-medium">{action}</span>}
+      {action && <span className="text-15 font-medium">{action}</span>}
     </div>
     <div className="mt-4">{children}</div>
   </section>
