@@ -28,7 +28,9 @@ declare module 'next-auth/jwt' {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   session: { strategy: 'jwt' },
-  pages: { signIn: '/connexion' },
+  // Toute erreur du retour Keycloak (`InvalidCheck: state` après 15 min, accès refusé…) aboutit
+  // sur une page à la charte qui relance la connexion, plutôt que sur le « Server error » anglais.
+  pages: { signIn: '/connexion', error: '/connexion/erreur' },
   providers: [
     Keycloak({
       clientId: keycloakClientId(),

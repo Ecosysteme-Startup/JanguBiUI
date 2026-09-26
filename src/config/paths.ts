@@ -26,6 +26,15 @@ export const paths = {
         return `/connexion${query ? `?${query}` : ''}`;
       },
     },
+    erreur: {
+      getHref: (error?: string | null, redirectTo?: string | null) => {
+        const params = new URLSearchParams();
+        if (error) params.set('error', error);
+        if (redirectTo) params.set('redirectTo', redirectTo);
+        const query = params.toString();
+        return `/connexion/erreur${query ? `?${query}` : ''}`;
+      },
+    },
     inscription: { getHref: () => '/inscription' },
     bienvenue: { getHref: () => '/bienvenue' },
   },
