@@ -51,7 +51,8 @@ const throttledMessage = (body: unknown): string => {
 };
 
 export const errorMessageOf = (body: unknown, status: number): string => {
-  if (status === 429) return throttledMessage(body);
+  // Seul le message anglais par défaut de DRF est reformulé ; un message métier en français est gardé.
+  if (status === 429 && (!body || /request was throttled/i.test(JSON.stringify(body)))) return throttledMessage(body);
   if (body && typeof body === 'object') {
     const outer = body as Record<string, unknown>;
     const record = outer.error && typeof outer.error === 'object' ? (outer.error as Record<string, unknown>) : outer;

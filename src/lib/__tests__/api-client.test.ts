@@ -107,6 +107,12 @@ describe('errorMessageOf : limitation de débit (429)', () => {
     );
   });
 
+  it('garde un message 429 déjà rédigé par l’API', () => {
+    expect(errorMessageOf({ error: { code: 'throttled', message: 'Trop de demandes. Réessayez plus tard.' } }, 429)).toBe(
+      'Trop de demandes. Réessayez plus tard.',
+    );
+  });
+
   it('dit « 1 minute » pour un délai court', () => {
     expect(errorMessageOf({ detail: 'Request was throttled. Expected available in 20 seconds.' }, 429)).toBe(
       'Trop de tentatives. Réessayez dans 1 minute.',
