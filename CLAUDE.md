@@ -10,8 +10,9 @@ Frontend de **Jàngu Bi** : Next.js 16 (App Router), TanStack Query, Zod, react-
 ## 1. Périmètre V1
 
 - **Espaces** : public · fidèle (desktop et mobile) · back-office par nœud (paroisse, diocèse) · plateforme.
-- **Briques** : Parole · Ma paroisse · Demandes d'actes · Parler à un prêtre (+ rendez-vous de confession) · tableaux de bord.
-- **Features gelées** (ADR-F07) : `dons`, `intentions`, `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `clergy-accounts`, `analytics`, chapelet communautaire, Offices des Heures. Ne pas les modifier ni les réactiver. La déclaration d'état de vie (`clergy-declaration`) est dégelée le 26/09/2026 : section « Mon état de vie » de la feature `profil` (ADR-F07 amendée).
+- **Briques** : Parole · Ma paroisse · Demandes d'actes · Parler à un prêtre (+ rendez-vous de confession) · Dons et quêtes · tableaux de bord.
+- **Dons et quêtes** (ADR-F12, 27/09/2026) : feature `dons` dégelée et reconstruite sur le contrat V1 (collecte par paroisse autorisée, paiement chez l'agrégateur, confirmation serveur, jamais d'appel au don dans actes, messagerie ou confession).
+- **Features gelées** (ADR-F07) : `intentions`, `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `clergy-accounts`, `analytics`, chapelet communautaire, Offices des Heures. Ne pas les modifier ni les réactiver. La déclaration d'état de vie (`clergy-declaration`) est dégelée le 26/09/2026 : section « Mon état de vie » de la feature `profil` (ADR-F07 amendée).
 
 ## 2. Maquettes = spécification (« Ciel produit »)
 

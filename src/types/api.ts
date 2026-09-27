@@ -608,6 +608,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dons/checkout/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Préparer un don et obtenir l'URL de paiement de l'agrégateur
+         * @description Compte facultatif : un jeton valide rattache le don au fidèle ; sans jeton, don sans compte.
+         */
+        post: operations["dons_checkout_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dons/checkout/{donation_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Statut d'un don après le retour de la page de paiement (affichage seulement)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["dons_checkout_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dons/webhooks/{provider}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Notification signée de l'agrégateur
+         * @description Notification de l'agrégateur (IPN). Réponse immédiate ; traitement en tâche.
+         */
+        post: operations["dons_webhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/files/upload/direct/finish/": {
         parameters: {
             query?: never;
@@ -1544,6 +1604,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/dons/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mes dons (filtres par fonds et par année)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["me_dons_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/dons/{donation_id}/recu/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reçu simple d'un don confirmé (PDF, pas un reçu fiscal)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["me_dons_receipt"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/dons/resume/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Total de mes dons sur l'année (visible de moi seul)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["me_dons_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/export/": {
         parameters: {
             query?: never;
@@ -2282,6 +2402,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/dons/activations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Paroisses et état de leur collecte
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["platform_dons_activations_list"];
+        /**
+         * Ouvrir ou fermer la collecte d'une paroisse (autorisation écrite requise)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        put: operations["platform_dons_activations_set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/dons/sante/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Santé de l'intégration de paiement (webhooks, attentes, rapprochement, incidents)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["platform_dons_health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/contact/": {
         parameters: {
             query?: never;
@@ -2296,6 +2460,46 @@ export interface paths {
          * @description Formulaire « Pour les paroisses ». Public : aucune authentification n'est lue.
          */
         post: operations["public_contact_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/dons/fonds/{fund_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Détail d'un fonds ou d'une campagne (montant réuni, nouvelles)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["public_dons_fund"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/dons/paroisses/{node_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Page de don d'une paroisse : activation, mention d'autorisation, montants, fonds ouverts
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["public_dons_parish"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3070,6 +3274,342 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/dons/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export comptable (CSV ou Excel)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/fonds/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fonds d'une paroisse (avec montants réunis)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_funds_list"];
+        put?: never;
+        /**
+         * Créer un fonds ou une campagne (brouillon)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_funds_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/fonds/{fund_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Détail d'un fonds
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_funds_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Modifier un fonds (titre, usage, dates, objectif, visuel)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        patch: operations["staff_dons_funds_update"];
+        trace?: never;
+    };
+    "/api/v1/staff/dons/fonds/{fund_id}/clore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Clore (ouvert → clos)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_funds_close"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/fonds/{fund_id}/nouvelles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publier une nouvelle de campagne
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_funds_news"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/fonds/{fund_id}/publier/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publier (brouillon → ouvert)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_funds_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/operations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Opérations (noms masqués sans dons.voir_donateurs ; un don anonyme reste anonyme)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_operations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/operations/{donation_id}/rembourser/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Constater le remboursement d'un don (fait chez l'agrégateur)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_refund"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/quetes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Saisies de quêtes en espèces d'une paroisse
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_cash_list"];
+        put?: never;
+        /**
+         * Saisir la quête en espèces d'une messe (deux compteurs)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_cash_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/quetes-imperees/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Quêtes impérées d'un diocèse (agrégats)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_imperees_list"];
+        put?: never;
+        /**
+         * Définir une quête impérée (déclinée par paroisse, reversée à la curie)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_imperees_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/quetes-imperees/{fund_id}/suivi/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Suivi d'une quête impérée par paroisse (sommes, aucun nom)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_imperees_follow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/quetes/{collection_id}/rejeter/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rejeter une saisie (motif)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_cash_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/quetes/{collection_id}/valider/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Valider une saisie (par une autre personne)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        post: operations["staff_dons_cash_validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/rapprochement/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rapprochement de la paroisse sur une période (écarts signalés)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_reconciliation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/reversements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Reversements de l'agrégateur reçus par le diocèse (H1)
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_payouts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/dons/synthese/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Synthèse du mois : par fonds, par moyen, en ligne ou espèces, série quotidienne
+         * @description À placer en premier dans les bases des vues V1.
+         */
+        get: operations["staff_dons_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff/news/": {
         parameters: {
             query?: never;
@@ -3274,6 +3814,47 @@ export interface components {
          * @enum {string}
          */
         ActionEnum: "terminer" | "annuler" | "qualifier";
+        Activation: {
+            node: components["schemas"]["NodeBrief"];
+            /** Collecte active */
+            enabled?: boolean;
+            /** Référence de l'autorisation */
+            authorization_ref?: string;
+            /**
+             * Date de l'autorisation
+             * Format: date
+             */
+            authorization_date?: string | null;
+            /**
+             * Mention affichée
+             * @description Ex. « Collecte autorisée par l'Archevêché de Dakar (réf. …) ». Vide : texte par défaut.
+             */
+            authorization_text?: string;
+            /** Clé d'affectation */
+            allocation_key?: string;
+            /** Préfixe des reçus */
+            receipt_prefix?: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        ActivationInput: {
+            /** Format: uuid */
+            node: string;
+            enabled: boolean;
+            /** @default  */
+            authorization_ref: string;
+            /** Format: date */
+            authorization_date?: string | null;
+            /** @default  */
+            authorization_text: string;
+            /** @default  */
+            allocation_key: string;
+            /**
+             * @description Ex. « SD » → SD-2026-00147
+             * @default
+             */
+            receipt_prefix: string;
+        };
         /**
          * @description * `announcement` - Annonce
          *     * `article` - Article
@@ -3518,6 +4099,12 @@ export interface components {
             /** @description Adresse du client, tronquée (IPv4 /24, IPv6 /48) ; null hors requête */
             readonly ip: string | null;
         };
+        Authorization: {
+            reference: string;
+            /** Format: date */
+            date: string | null;
+            text: string;
+        };
         Availability: {
             /** Accepte de nouveaux échanges */
             accepts_new_conversations?: boolean;
@@ -3618,6 +4205,59 @@ export interface components {
          * @enum {string}
          */
         CardinalityEnum: "one" | "many";
+        CashCollection: {
+            readonly id: number;
+            fund: components["schemas"]["FundBrief"];
+            place?: string | null;
+            /**
+             * Date de la messe
+             * Format: date
+             */
+            mass_date: string;
+            /** Messe */
+            mass_label: string;
+            /** Montant compté (FCFA) */
+            amount: number;
+            /** Premier compteur */
+            counter_one: string;
+            /** Second compteur */
+            counter_two: string;
+            observation?: string;
+            status?: components["schemas"]["CashCollectionStatusEnum"];
+            readonly entered_by: string;
+            readonly validated_by: string | null;
+            /** Format: date-time */
+            validated_at?: string | null;
+            rejection_reason?: string;
+            /** Format: date-time */
+            created_at?: string;
+        };
+        CashCollectionInput: {
+            /** Format: uuid */
+            node: string;
+            /** Format: uuid */
+            fund_id: string;
+            place_id?: number | null;
+            /** Format: date */
+            mass_date: string;
+            /** @description Ex. « Messe de 10 h » */
+            mass_label: string;
+            amount: number;
+            counter_one: string;
+            counter_two: string;
+            /** @default  */
+            observation: string;
+        };
+        /**
+         * @description * `saisie` - Saisie, à valider
+         *     * `validee` - Validée
+         *     * `rejetee` - Rejetée
+         * @enum {string}
+         */
+        CashCollectionStatusEnum: "saisie" | "validee" | "rejetee";
+        CashRejectInput: {
+            reason: string;
+        };
         CategoryOutput: {
             readonly id: number;
             /** Nom */
@@ -3634,6 +4274,37 @@ export interface components {
             number: number;
             name?: string;
             verse_count?: number;
+        };
+        CheckoutInput: {
+            /** Format: uuid */
+            fund_id: string;
+            /** @description Montant du don en FCFA (entier) */
+            amount: number;
+            /**
+             * @description Le donateur couvre les frais (décoché par défaut)
+             * @default false
+             */
+            fees_covered: boolean;
+            /** @default false */
+            anonymous: boolean;
+            /**
+             * Format: email
+             * @description Sans compte seulement : envoi du reçu, effacé après 90 jours
+             * @default
+             */
+            email: string;
+        };
+        CheckoutOutput: {
+            /** Format: uuid */
+            donation_id: string;
+            reference: string;
+            status: string;
+            /** @description Page de paiement de l'agrégateur */
+            checkout_url: string;
+            amount: number;
+            fee_amount: number;
+            charged_amount: number;
+            net_amount: number;
         };
         CommunityRosaryInput: {
             mystery_group_id?: number | null;
@@ -3793,6 +4464,54 @@ export interface components {
          */
         DocumentTypeEnum: "baptism" | "first_communion" | "confirmation" | "religious_marriage" | "godparent" | "other";
         /**
+         * @description * `en_ligne` - En ligne
+         *     * `especes` - Espèces
+         * @enum {string}
+         */
+        DonationChannelEnum: "en_ligne" | "especes";
+        /** @description Statut d'un don après le retour du navigateur : aucune donnée sur le donateur. */
+        DonationStatus: {
+            /** Format: uuid */
+            readonly id: string;
+            reference: string;
+            receipt_number?: string | null;
+            status?: components["schemas"]["DonationStatusEnum"];
+            fund: components["schemas"]["FundBrief"];
+            parish: string;
+            /** Don (FCFA) */
+            amount: number;
+            /** Frais couverts par le donateur */
+            fees_covered?: boolean;
+            /** Montant payé (FCFA) */
+            charged_amount: number;
+            /** Format: date-time */
+            confirmed_at?: string | null;
+        };
+        /**
+         * @description * `initie` - Initié
+         *     * `en_attente` - En attente de confirmation
+         *     * `confirme` - Confirmé
+         *     * `echoue` - Échoué
+         *     * `expire` - Expiré
+         *     * `rembourse` - Remboursé
+         * @enum {string}
+         */
+        DonationStatusEnum: "initie" | "en_attente" | "confirme" | "echoue" | "expire" | "rembourse";
+        DonorFundTotal: {
+            /** Format: uuid */
+            fund_id: string;
+            title: string;
+            parish: string;
+            total: number;
+            count: number;
+        };
+        DonorSummary: {
+            year: number;
+            total: number;
+            count: number;
+            by_fund: components["schemas"]["DonorFundTotal"][];
+        };
+        /**
          * @description * `laic` - Laïc
          *     * `clerc` - Clerc
          *     * `consacre` - Consacré
@@ -3895,6 +4614,60 @@ export interface components {
              */
             file: string;
         };
+        FundBrief: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+            kind: string;
+        };
+        FundCreateInput: {
+            /** Format: uuid */
+            node: string;
+            kind: components["schemas"]["ParishFundKindEnum"];
+            title: string;
+            /** @default  */
+            description: string;
+            /** Format: date */
+            starts_on?: string | null;
+            /** Format: date */
+            ends_on?: string | null;
+            goal_amount?: number | null;
+            /** @default  */
+            authorization_ref: string;
+            image_id?: number | null;
+        };
+        /**
+         * @description * `paroisse` - Paroisse
+         *     * `curie` - Curie diocésaine
+         * @enum {string}
+         */
+        FundDestinationEnum: "paroisse" | "curie";
+        /**
+         * @description * `quete_dominicale` - Quête dominicale
+         *     * `quete_imperee` - Quête impérée
+         *     * `campagne` - Campagne pour un projet
+         *     * `contribution_annuelle` - Contribution annuelle
+         * @enum {string}
+         */
+        FundKindEnum: "quete_dominicale" | "quete_imperee" | "campagne" | "contribution_annuelle";
+        FundNews: {
+            readonly id: number;
+            /** Texte */
+            body: string;
+            /** Format: date-time */
+            created_at?: string;
+            readonly author_name: string;
+        };
+        FundNewsInput: {
+            body: string;
+        };
+        /**
+         * @description * `brouillon` - Brouillon
+         *     * `ouvert` - Ouvert
+         *     * `clos` - Clos
+         * @enum {string}
+         */
+        FundStatusEnum: "brouillon" | "ouvert" | "clos";
         Group: {
             readonly id: number;
             name: string;
@@ -3902,6 +4675,22 @@ export interface components {
             /** Format: uri */
             readonly audio_file: string;
             readonly mysteries: string;
+        };
+        Health: {
+            provider: string;
+            webhooks_24h: number;
+            webhooks_failed_24h: number;
+            webhooks_7d_by_status: {
+                [key: string]: number;
+            };
+            /** Format: date-time */
+            last_webhook_at: string | null;
+            pending_payments: number;
+            /** Format: date-time */
+            oldest_pending_at: string | null;
+            payouts_with_discrepancy: number;
+            payouts_to_reconcile: number;
+            incidents: components["schemas"]["Incident"][];
         };
         HomilieNoteInput: {
             passage_start_id: number;
@@ -3917,6 +4706,66 @@ export interface components {
             created_at: string;
             /** Format: date-time */
             updated_at: string;
+        };
+        Imperee: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Titre */
+            title: string;
+            /** Usage des fonds */
+            description?: string;
+            /**
+             * Début
+             * Format: date
+             */
+            starts_on?: string | null;
+            /**
+             * Fin
+             * Format: date
+             */
+            ends_on?: string | null;
+            status?: components["schemas"]["FundStatusEnum"];
+            /** Référence de l'autorisation */
+            authorization_ref?: string;
+            /** Office qui décide */
+            decided_by_office?: string;
+            readonly raised: number;
+            readonly parishes_count: number;
+            /** Format: date-time */
+            created_at?: string;
+        };
+        ImpereeCreateInput: {
+            /**
+             * Format: uuid
+             * @description Diocèse
+             */
+            node: string;
+            title: string;
+            /** @default  */
+            description: string;
+            /**
+             * Format: date
+             * @description Date de la quête
+             */
+            starts_on: string;
+            /** Format: date */
+            ends_on?: string | null;
+            /** @description Paroisses concernées (défaut : toutes les paroisses du diocèse où la collecte est active) */
+            parish_ids?: string[] | null;
+            /** @default  */
+            authorization_ref: string;
+        };
+        ImpereeFollowRow: {
+            /** Format: uuid */
+            fund_id: string;
+            /** Format: uuid */
+            parish_id: string;
+            parish: string;
+            status: string;
+            online: number;
+            cash: number;
+            count: number;
+            total: number;
         };
         ImportInput: {
             /**
@@ -3945,6 +4794,13 @@ export interface components {
             warnings: number;
             errors: number;
             lines: components["schemas"]["ImportLine"][];
+        };
+        Incident: {
+            /** Format: date-time */
+            at: string;
+            provider: string;
+            status: string;
+            error: string;
         };
         Input: {
             file_id: string;
@@ -4072,6 +4928,32 @@ export interface components {
             /** Format: date-time */
             accepted_at: string | null;
         };
+        MyDonation: {
+            /** Format: uuid */
+            readonly id: string;
+            reference: string;
+            receipt_number?: string | null;
+            fund: components["schemas"]["FundBrief"];
+            parish: string;
+            /** Don (FCFA) */
+            amount: number;
+            /** Frais (FCFA) */
+            fee_amount?: number;
+            /** Frais couverts par le donateur */
+            fees_covered?: boolean;
+            /** Montant payé (FCFA) */
+            charged_amount: number;
+            status?: components["schemas"]["DonationStatusEnum"];
+            channel?: components["schemas"]["DonationChannelEnum"];
+            payment_method?: components["schemas"]["PaymentMethodEnum"];
+            /** Don anonyme */
+            anonymous?: boolean;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            confirmed_at?: string | null;
+            readonly receipt_available: boolean;
+        };
         Mystery: {
             readonly id: number;
             order: number;
@@ -4085,6 +4967,12 @@ export interface components {
             /** @description Duration in seconds */
             audio_duration?: number | null;
             readonly prayers: string;
+        };
+        NodeBrief: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            city: string;
         };
         NodeCreateInput: {
             /** @description Code du type de nœud */
@@ -4324,6 +5212,30 @@ export interface components {
             /** @description Titres possibles du titulaire ; le premier est le titre par défaut. */
             readonly qualities: components["schemas"]["OfficeQuality"][];
         };
+        /** @description Opération vue par la paroisse. Nom seulement avec ``dons.voir_donateurs`` et hors anonymat. */
+        Operation: {
+            /** Format: uuid */
+            readonly id: string;
+            reference: string;
+            receipt_number?: string | null;
+            fund: components["schemas"]["FundBrief"];
+            /** Don (FCFA) */
+            amount: number;
+            /** Frais (FCFA) */
+            fee_amount?: number;
+            /** Montant payé (FCFA) */
+            charged_amount: number;
+            /** Montant affecté au fonds (FCFA) */
+            net_amount: number;
+            channel?: components["schemas"]["DonationChannelEnum"];
+            payment_method?: components["schemas"]["PaymentMethodEnum"];
+            status?: components["schemas"]["DonationStatusEnum"];
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            confirmed_at?: string | null;
+            readonly donor: string;
+        };
         PaginatedAccountOutputList: {
             limit: number;
             offset: number;
@@ -4364,6 +5276,14 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["BookingOutput"][];
         };
+        PaginatedCashCollectionList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["CashCollection"][];
+        };
         PaginatedEventOutputList: {
             limit: number;
             offset: number;
@@ -4380,6 +5300,14 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["IntentionOutput"][];
         };
+        PaginatedMyDonationList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["MyDonation"][];
+        };
         PaginatedNodeOutputList: {
             limit: number;
             offset: number;
@@ -4387,6 +5315,22 @@ export interface components {
             next: string | null;
             previous: string | null;
             results: components["schemas"]["NodeOutput"][];
+        };
+        PaginatedOperationList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["Operation"][];
+        };
+        PaginatedPayoutList: {
+            limit: number;
+            offset: number;
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["Payout"][];
         };
         PaginatedPersonSearchOutputList: {
             limit: number;
@@ -4460,6 +5404,28 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["VerseOutput"][];
         };
+        /**
+         * @description * `quete_dominicale` - Quête dominicale
+         *     * `campagne` - Campagne pour un projet
+         *     * `contribution_annuelle` - Contribution annuelle
+         * @enum {string}
+         */
+        ParishFundKindEnum: "quete_dominicale" | "campagne" | "contribution_annuelle";
+        ParishSummary: {
+            /** Format: date */
+            month: string;
+            /** @description Affecté ce mois (dons confirmés) */
+            total: number;
+            online: number;
+            cash: number;
+            fees: number;
+            count: number;
+            pending_count: number;
+            cash_to_validate: number;
+            by_fund: components["schemas"]["SummaryFund"][];
+            by_method: components["schemas"]["SummaryMethod"][];
+            daily: components["schemas"]["SummaryDay"][];
+        };
         ParoisseSuivieInput: {
             /**
              * Format: uuid
@@ -4512,6 +5478,17 @@ export interface components {
             max_participants?: number | null;
             /** Format: date-time */
             registration_closes_at?: string | null;
+        };
+        PatchedFundUpdateInput: {
+            title?: string;
+            description?: string;
+            /** Format: date */
+            starts_on?: string | null;
+            /** Format: date */
+            ends_on?: string | null;
+            goal_amount?: number | null;
+            authorization_ref?: string;
+            image_id?: number | null;
         };
         PatchedHomilieNoteInput: {
             passage_start_id?: number;
@@ -4568,6 +5545,39 @@ export interface components {
             lng?: string | null;
             is_active?: boolean;
         };
+        /**
+         * @description * `wave` - Wave
+         *     * `orange_money` - Orange Money
+         *     * `free_money` - Free Money
+         *     * `carte` - Carte bancaire
+         *     * `especes` - Espèces
+         *     * `autre` - Autre
+         *     * `inconnu` - Inconnu
+         * @enum {string}
+         */
+        PaymentMethodEnum: "wave" | "orange_money" | "free_money" | "carte" | "especes" | "autre" | "inconnu";
+        Payout: {
+            readonly id: number;
+            provider: string;
+            external_ref: string;
+            /** Format: date-time */
+            paid_at: string;
+            gross_amount: number;
+            fee_amount?: number;
+            net_amount: number;
+            status?: components["schemas"]["PayoutStatusEnum"];
+            discrepancy_amount?: number;
+            unmatched_count?: number;
+            /** Format: date-time */
+            reconciled_at?: string | null;
+        };
+        /**
+         * @description * `recu` - Reçu, à rapprocher
+         *     * `rapproche` - Rapproché
+         *     * `ecart` - Écart constaté
+         * @enum {string}
+         */
+        PayoutStatusEnum: "recu" | "rapproche" | "ecart";
         PersonRef: {
             /** Format: uuid */
             id: string;
@@ -4838,6 +5848,62 @@ export interface components {
             /** @description Titre du clerc (Curé, Administrateur paroissial, Vicaire paroissial…) */
             office: string;
         };
+        PublicFund: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Type */
+            kind: components["schemas"]["FundKindEnum"];
+            destination?: components["schemas"]["FundDestinationEnum"];
+            /** Titre */
+            title: string;
+            /** Usage des fonds */
+            description?: string;
+            /**
+             * Début
+             * Format: date
+             */
+            starts_on?: string | null;
+            /**
+             * Fin
+             * Format: date
+             */
+            ends_on?: string | null;
+            /** Objectif (FCFA) */
+            goal_amount?: number | null;
+            /** @description Montant affecté (dons confirmés), FCFA */
+            readonly raised: number;
+            status?: components["schemas"]["FundStatusEnum"];
+            readonly image_url: string | null;
+        };
+        PublicFundDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Type */
+            kind: components["schemas"]["FundKindEnum"];
+            destination?: components["schemas"]["FundDestinationEnum"];
+            /** Titre */
+            title: string;
+            /** Usage des fonds */
+            description?: string;
+            /**
+             * Début
+             * Format: date
+             */
+            starts_on?: string | null;
+            /**
+             * Fin
+             * Format: date
+             */
+            ends_on?: string | null;
+            /** Objectif (FCFA) */
+            goal_amount?: number | null;
+            /** @description Montant affecté (dons confirmés), FCFA */
+            readonly raised: number;
+            status?: components["schemas"]["FundStatusEnum"];
+            readonly image_url: string | null;
+            parish: components["schemas"]["NodeBrief"];
+            readonly updates: components["schemas"]["FundNews"][];
+        };
         /** @description Fiche publique : ajoute le secrétariat (s'il est publié), le clergé et l'accueil des demandes d'actes. */
         PublicNodeDetailOutput: {
             /** Format: uuid */
@@ -4938,6 +6004,17 @@ export interface components {
             /** @description Heures des messes du prochain dimanche (aujourd'hui si c'est dimanche), exceptions comprises */
             readonly sunday_masses: string[];
         };
+        PublicParish: {
+            parish: components["schemas"]["NodeBrief"];
+            enabled: boolean;
+            authorization: components["schemas"]["Authorization"] | null;
+            suggested_amounts: number[];
+            min_amount: number;
+            max_amount: number;
+            /** @description Frais estimés en points de base (200 = 2 %) */
+            fee_rate_bp: number;
+            funds: components["schemas"]["PublicFund"][];
+        };
         PublicSecretariat: {
             phone: string;
             email: string;
@@ -5032,6 +6109,37 @@ export interface components {
          * @enum {string}
          */
         ReasonEnum: "religious_marriage" | "godparent" | "catechism" | "parish_file" | "personal" | "other";
+        Reconciliation: {
+            /** Format: date */
+            date_from: string;
+            /** Format: date */
+            date_to: string;
+            online_charged: number;
+            online_fees: number;
+            online_net: number;
+            cash: number;
+            /** @description Dons en ligne inclus dans un reversement (au diocèse, H1) */
+            paid_out: number;
+            awaiting_payout: number;
+            issues: components["schemas"]["ReconciliationIssue"][];
+        };
+        ReconciliationIssue: {
+            kind: components["schemas"]["ReconciliationIssueKindEnum"];
+            reference: string;
+            /** Format: date */
+            date: string;
+        };
+        /**
+         * @description * `paiement_en_attente` - Paiement en attente depuis plus de 24 h
+         *     * `quete_non_validee` - Quête en espèces non validée depuis 7 jours
+         *     * `reversement_ecart` - Reversement avec écart
+         * @enum {string}
+         */
+        ReconciliationIssueKindEnum: "paiement_en_attente" | "quete_non_validee" | "reversement_ecart";
+        RefundInput: {
+            /** @default  */
+            note: string;
+        };
         RegisterInput: {
             /**
              * @description Nombre de personnes (1 à 10)
@@ -5409,6 +6517,48 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        StaffFund: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Type */
+            kind: components["schemas"]["FundKindEnum"];
+            destination?: components["schemas"]["FundDestinationEnum"];
+            /** Titre */
+            title: string;
+            /** Usage des fonds */
+            description?: string;
+            /**
+             * Début
+             * Format: date
+             */
+            starts_on?: string | null;
+            /**
+             * Fin
+             * Format: date
+             */
+            ends_on?: string | null;
+            /** Objectif (FCFA) */
+            goal_amount?: number | null;
+            /** @description Montant affecté (dons confirmés), FCFA */
+            readonly raised: number;
+            status?: components["schemas"]["FundStatusEnum"];
+            readonly image_url: string | null;
+            /** Format: uuid */
+            node_id: string;
+            /** Format: uuid */
+            parent_id: string | null;
+            readonly donations_count: number;
+            /** Office qui décide */
+            decided_by_office?: string;
+            /** Référence de l'autorisation */
+            authorization_ref?: string;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** Format: date-time */
+            closed_at?: string | null;
+            /** Format: date-time */
+            created_at?: string;
+        };
         StatsOutput: {
             counts: {
                 [key: string]: number;
@@ -5441,6 +6591,24 @@ export interface components {
          * @enum {string}
          */
         StatutVerificationEnum: "declare" | "verifie" | "rejete" | "complement";
+        SummaryDay: {
+            /** Format: date */
+            date: string;
+            total: number;
+        };
+        SummaryFund: {
+            /** Format: uuid */
+            fund_id: string;
+            title: string;
+            kind: string;
+            total: number;
+            count: number;
+        };
+        SummaryMethod: {
+            method: string;
+            total: number;
+            count: number;
+        };
         /** @description Une annonce de la feuille : le texte à lire, sa portée et son état. */
         SundaySheetItemOutput: {
             /** Format: uuid */
@@ -6581,6 +7749,110 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["DocumentRequestOptions"];
                 };
+            };
+        };
+    };
+    dons_checkout_create: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Même clé = même don (double clic, reprise réseau) */
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutInput"];
+                "multipart/form-data": components["schemas"]["CheckoutInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["CheckoutInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutOutput"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutOutput"];
+                };
+            };
+            /** @description Trop de demandes depuis cette adresse */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Agrégateur indisponible */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    dons_checkout_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                donation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DonationStatus"];
+                };
+            };
+        };
+    };
+    dons_webhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": string;
+                "multipart/form-data": string;
+                "application/x-www-form-urlencoded": string;
+            };
+        };
+        responses: {
+            /** @description Reçue */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Signature invalide */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -7920,6 +9192,74 @@ export interface operations {
             };
         };
     };
+    me_dons_list: {
+        parameters: {
+            query?: {
+                fund?: string;
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /** @description Décalage */
+                offset?: number;
+                year?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedMyDonationList"];
+                };
+            };
+        };
+    };
+    me_dons_receipt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                donation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    me_dons_summary: {
+        parameters: {
+            query?: {
+                year?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DonorSummary"];
+                };
+            };
+        };
+    };
     v1_me_export_retrieve: {
         parameters: {
             query?: never;
@@ -9020,6 +10360,69 @@ export interface operations {
             };
         };
     };
+    platform_dons_activations_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Activation"][];
+                };
+            };
+        };
+    };
+    platform_dons_activations_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivationInput"];
+                "multipart/form-data": components["schemas"]["ActivationInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["ActivationInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Activation"];
+                };
+            };
+        };
+    };
+    platform_dons_health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
     public_contact_create: {
         parameters: {
             query?: never;
@@ -9056,6 +10459,48 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    public_dons_fund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicFundDetail"];
+                };
+            };
+        };
+    };
+    public_dons_parish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                node_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicParish"];
+                };
             };
         };
     };
@@ -10098,6 +11543,531 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatsOutput"];
+                };
+            };
+        };
+    };
+    staff_dons_export: {
+        parameters: {
+            query: {
+                date_from: string;
+                date_to: string;
+                /**
+                 * @description * `csv` - CSV
+                 *     * `xlsx` - Excel
+                 */
+                fichier?: "csv" | "xlsx";
+                fund?: string;
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+        };
+    };
+    staff_dons_funds_list: {
+        parameters: {
+            query: {
+                /**
+                 * @description * `quete_dominicale` - Quête dominicale
+                 *     * `quete_imperee` - Quête impérée
+                 *     * `campagne` - Campagne pour un projet
+                 *     * `contribution_annuelle` - Contribution annuelle
+                 */
+                kind?: "quete_dominicale" | "quete_imperee" | "campagne" | "contribution_annuelle";
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+                /**
+                 * @description * `brouillon` - Brouillon
+                 *     * `ouvert` - Ouvert
+                 *     * `clos` - Clos
+                 */
+                status?: "brouillon" | "ouvert" | "clos";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffFund"][];
+                };
+            };
+        };
+    };
+    staff_dons_funds_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundCreateInput"];
+                "multipart/form-data": components["schemas"]["FundCreateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["FundCreateInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffFund"];
+                };
+            };
+        };
+    };
+    staff_dons_funds_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffFund"];
+                };
+            };
+        };
+    };
+    staff_dons_funds_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFundUpdateInput"];
+                "multipart/form-data": components["schemas"]["PatchedFundUpdateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFundUpdateInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffFund"];
+                };
+            };
+        };
+    };
+    staff_dons_funds_close: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffFund"];
+                };
+            };
+        };
+    };
+    staff_dons_funds_news: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundNewsInput"];
+                "multipart/form-data": components["schemas"]["FundNewsInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["FundNewsInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundNews"];
+                };
+            };
+        };
+    };
+    staff_dons_funds_publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffFund"];
+                };
+            };
+        };
+    };
+    staff_dons_operations: {
+        parameters: {
+            query: {
+                /**
+                 * @description * `en_ligne` - En ligne
+                 *     * `especes` - Espèces
+                 */
+                channel?: "en_ligne" | "especes";
+                date_from?: string;
+                date_to?: string;
+                fund?: string;
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+                /** @description Décalage */
+                offset?: number;
+                /**
+                 * @description * `initie` - Initié
+                 *     * `en_attente` - En attente de confirmation
+                 *     * `confirme` - Confirmé
+                 *     * `echoue` - Échoué
+                 *     * `expire` - Expiré
+                 *     * `rembourse` - Remboursé
+                 */
+                status?: "initie" | "en_attente" | "confirme" | "echoue" | "expire" | "rembourse";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedOperationList"];
+                };
+            };
+        };
+    };
+    staff_dons_refund: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                donation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RefundInput"];
+                "multipart/form-data": components["schemas"]["RefundInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["RefundInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Operation"];
+                };
+            };
+        };
+    };
+    staff_dons_cash_list: {
+        parameters: {
+            query: {
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+                /** @description Décalage */
+                offset?: number;
+                /**
+                 * @description * `saisie` - Saisie, à valider
+                 *     * `validee` - Validée
+                 *     * `rejetee` - Rejetée
+                 */
+                status?: "saisie" | "validee" | "rejetee";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCashCollectionList"];
+                };
+            };
+        };
+    };
+    staff_dons_cash_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CashCollectionInput"];
+                "multipart/form-data": components["schemas"]["CashCollectionInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["CashCollectionInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashCollection"];
+                };
+            };
+        };
+    };
+    staff_dons_imperees_list: {
+        parameters: {
+            query: {
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Imperee"][];
+                };
+            };
+        };
+    };
+    staff_dons_imperees_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImpereeCreateInput"];
+                "multipart/form-data": components["schemas"]["ImpereeCreateInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["ImpereeCreateInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Imperee"];
+                };
+            };
+        };
+    };
+    staff_dons_imperees_follow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImpereeFollowRow"][];
+                };
+            };
+        };
+    };
+    staff_dons_cash_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CashRejectInput"];
+                "multipart/form-data": components["schemas"]["CashRejectInput"];
+                "application/x-www-form-urlencoded": components["schemas"]["CashRejectInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashCollection"];
+                };
+            };
+        };
+    };
+    staff_dons_cash_validate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                collection_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashCollection"];
+                };
+            };
+        };
+    };
+    staff_dons_reconciliation: {
+        parameters: {
+            query: {
+                date_from: string;
+                date_to: string;
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reconciliation"];
+                };
+            };
+        };
+    };
+    staff_dons_payouts: {
+        parameters: {
+            query: {
+                /** @description Nombre de résultats (défaut 10, max 50) */
+                limit?: number;
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+                /** @description Décalage */
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPayoutList"];
+                };
+            };
+        };
+    };
+    staff_dons_summary: {
+        parameters: {
+            query: {
+                /** @description AAAA-MM (défaut : mois courant) */
+                month?: string;
+                /** @description Paroisse (ou diocèse pour les quêtes impérées) */
+                node: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParishSummary"];
                 };
             };
         };

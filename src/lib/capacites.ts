@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-/** Catalogue fermé des capacités (backend, migration 0004 — RG-14). */
+/** Catalogue fermé des capacités (backend, migrations 0004 et 0009 — RG-14, ADR-017). */
 export const CAPACITES = [
   'structure.gerer',
   'horaires.gerer',
@@ -18,6 +18,12 @@ export const CAPACITES = [
   'confessions.voir_planning',
   'tableau_bord.voir',
   'audit.voir',
+  'dons.voir_fonds',
+  'dons.gerer_fonds',
+  'dons.saisir_quete',
+  'dons.voir_donateurs',
+  'dons.exporter',
+  'dons.definir_quete_imperee',
   'plateforme.admin',
 ] as const;
 export type Capacite = (typeof CAPACITES)[number];
