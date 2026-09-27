@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -174,7 +174,14 @@ const ParishHeader = ({ parish }: { parish: ParishSheetData }) => {
  * Fiche publique d'une paroisse (PUB-Fiche-Paroisse) : en-tête, horaires de la semaine,
  * annonces récentes, secrétariat (s'il est publié), clergé et prochains événements. Le code d'URL est résolu via l'annuaire.
  */
-export const ParishSheet = ({ code }: { code: string }) => {
+export const ParishSheet = ({
+  code,
+  support,
+}: {
+  code: string;
+  /** Bloc placé après les démarches par la page (ex. « Soutenir la paroisse », feature dons). */
+  support?: ReactNode;
+}) => {
   const { data: parish, isPending, isError, refetch } = useParishByCode(code);
 
   if (isPending) {
@@ -248,6 +255,7 @@ export const ParishSheet = ({ code }: { code: string }) => {
               delayDays={parish.acts.delay_days}
             />
           )}
+          {support}
           <ParishEvents nodeId={parish.id} />
         </aside>
       </div>

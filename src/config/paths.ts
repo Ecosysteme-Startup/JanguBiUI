@@ -21,6 +21,8 @@ export const paths = {
   /** Dons sans compte (WEB-Don-Paroisse) et retour de l'agrégateur (DONATIONS_RETURN_URL du backend). */
   dons: {
     paroisse: { getHref: (code: string, fundId?: string) => `/paroisses/${enc(code)}/don${fundId ? `?fonds=${enc(fundId)}` : ''}` },
+    /** Redirection vers l'agrégateur, parcours sans compte (même écran que WEB-FID-Don-Redirection). */
+    redirection: { getHref: (donationId: string) => `/dons/redirection?don=${enc(donationId)}` },
     retour: { getHref: (donationId: string) => `/dons/retour?don=${enc(donationId)}` },
   },
 
@@ -110,13 +112,17 @@ export const paths = {
     clerge: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/clerge` },
     audit: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/audit` },
     dons: {
-      root: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons` },
+      /** WEB-PAR-Dons ; `mois` (AAAA-MM) : mois affiché, sinon le mois courant. */
+      root: { getHref: (nodeId: string, mois?: string) => `/espace/${enc(nodeId)}/dons${mois ? `?mois=${enc(mois)}` : ''}` },
       nouvelleCampagne: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/campagnes/nouvelle` },
       campagne: { getHref: (nodeId: string, fundId: string) => `/espace/${enc(nodeId)}/dons/campagnes/${enc(fundId)}` },
       quetes: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/quetes` },
-      export: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/export` },
+      /** `section` : ancre de la page (« reversements »). */
+      export: { getHref: (nodeId: string, section?: 'reversements') => `/espace/${enc(nodeId)}/dons/export${section ? `#${section}` : ''}` },
     },
-    quetesImperees: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/quetes-imperees` },
+    quetesImperees: {
+      getHref: (nodeId: string, queteId?: string) => `/espace/${enc(nodeId)}/quetes-imperees${queteId ? `?quete=${enc(queteId)}` : ''}`,
+    },
   },
 
   plateforme: {

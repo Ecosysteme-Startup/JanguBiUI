@@ -16,12 +16,12 @@ describe('FideleShell', () => {
     expect(tabs.getByRole('link', { name: 'Accueil' })).not.toHaveAttribute('aria-current');
   });
 
-  it('présente les cinq rubriques de la barre latérale, Bible et Chapelet rattachées à « La Parole »', () => {
+  it('présente les rubriques de la barre latérale (« Dons » en dernier), Bible et Chapelet rattachées à « La Parole »', () => {
     navigation.pathname = '/app/chapelet';
     renderApp(<FideleShell>contenu</FideleShell>);
 
     const nav = within(screen.getByRole('navigation', { name: 'Espace fidèle' }));
-    expect(nav.getAllByRole('link').map((l) => l.textContent)).toEqual(['Accueil', 'La Parole', 'Ma paroisse', 'Mes demandes', 'Parler à un prêtre']);
+    expect(nav.getAllByRole('link').map((l) => l.textContent)).toEqual(['Accueil', 'La Parole', 'Ma paroisse', 'Mes demandes', 'Parler à un prêtre', 'Dons']);
     expect(nav.getByRole('link', { name: 'La Parole' })).toHaveAttribute('aria-current', 'page');
   });
 
