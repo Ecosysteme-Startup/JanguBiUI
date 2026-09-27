@@ -34,6 +34,13 @@ class FakeWebSocket {
   }
 }
 
+// Midi : les notifications « il y a 5 minutes » restent aujourd'hui, même si la suite tourne après minuit.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-24T12:00:00'));
+});
+afterEach(() => vi.useRealTimers());
+
 beforeEach(() => {
   resetF5bState();
   FakeWebSocket.instances = [];
