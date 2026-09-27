@@ -1,3 +1,5 @@
+import { Tilt3D } from '@/lib/motion/tilt-3d';
+
 export function PhoneShowcase() {
   return (
     <div className="relative mt-16 flex items-end justify-center gap-6 md:mt-20">
@@ -38,70 +40,74 @@ export function PhoneShowcase() {
         </div>
       </div>
 
-      {/* Center phone — Accueil */}
-      <div className="relative z-10 w-[220px] animate-float-c overflow-hidden rounded-[38px] border-[6px] border-primary/14 bg-background shadow-[0_24px_80px_rgba(20,40,80,.18),0_0_48px_rgba(112,203,255,.18)] dark:shadow-[0_24px_80px_rgba(0,0,0,.6),0_0_48px_rgba(112,203,255,.25)]">
-        <div className="mx-auto h-4 w-16 rounded-b-xl bg-background" />
-        <div className="flex min-h-[380px] flex-col gap-2 bg-background-surface p-3.5">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-[0.45rem] text-foreground/30">
-                Mercredi 29 avril
+      {/* Center phone — Accueil. Inclinaison 3D au pointeur (≤ 6°, ressort
+          doux, souris uniquement) sur l'enveloppe ; le flottement CSS reste sur
+          le téléphone lui-même — deux transforms sur deux éléments distincts. */}
+      <Tilt3D track="window" className="relative z-10">
+        <div className="relative w-[220px] animate-float-c overflow-hidden rounded-[38px] border-[6px] border-primary/14 bg-background shadow-[0_24px_80px_rgba(20,40,80,.18),0_0_48px_rgba(112,203,255,.18)] dark:shadow-[0_24px_80px_rgba(0,0,0,.6),0_0_48px_rgba(112,203,255,.25)]">
+          <div className="mx-auto h-4 w-16 rounded-b-xl bg-background" />
+          <div className="flex min-h-[380px] flex-col gap-2 bg-background-surface p-3.5">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-[0.45rem] text-foreground/30">
+                  Mercredi 29 avril
+                </p>
+                <p className="font-serif text-[0.75rem] font-semibold text-primary">
+                  Jàngu Bi
+                </p>
+              </div>
+              <span>🔔</span>
+            </div>
+            <div className="rounded-[13px] border border-primary/25 bg-gradient-to-br from-primary/18 to-primary/6 p-3">
+              <p className="mb-1 text-[0.44rem] font-bold uppercase tracking-widest text-primary">
+                Liturgie du jour
               </p>
-              <p className="font-serif text-[0.75rem] font-semibold text-primary">
-                Jàngu Bi
+              <p className="mb-1 font-serif text-[0.72rem] font-semibold leading-tight text-foreground">
+                3e semaine de Pâques
+              </p>
+              <p className="text-[0.5rem] italic leading-relaxed text-foreground/50">
+                « Je suis le pain de vie. Qui vient à moi n&apos;aura plus
+                jamais faim. »
               </p>
             </div>
-            <span>🔔</span>
-          </div>
-          <div className="rounded-[13px] border border-primary/25 bg-gradient-to-br from-primary/18 to-primary/6 p-3">
-            <p className="mb-1 text-[0.44rem] font-bold uppercase tracking-widest text-primary">
-              Liturgie du jour
+            <div className="grid grid-cols-3 gap-1">
+              {[
+                ['📖', 'Bible'],
+                ['📰', 'Actus'],
+                ['💬', 'Prêtre'],
+                ['📄', 'Dem. messe'],
+                ['💝', 'Dons'],
+                ['🪣', 'Quête'],
+              ].map(([icon, label]) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center gap-0.5 rounded-[9px] border border-foreground/7 bg-foreground/5 py-1.5 text-center"
+                >
+                  <span className="text-[0.875rem]">{icon}</span>
+                  <span className="text-[0.4rem] leading-tight text-foreground/60">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[0.42rem] font-bold uppercase tracking-widest text-foreground/25">
+              Actualités
             </p>
-            <p className="mb-1 font-serif text-[0.72rem] font-semibold leading-tight text-foreground">
-              3e semaine de Pâques
-            </p>
-            <p className="text-[0.5rem] italic leading-relaxed text-foreground/50">
-              « Je suis le pain de vie. Qui vient à moi n&apos;aura plus jamais
-              faim. »
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-1">
-            {[
-              ['📖', 'Bible'],
-              ['📰', 'Actus'],
-              ['💬', 'Prêtre'],
-              ['📄', 'Dem. messe'],
-              ['💝', 'Dons'],
-              ['🪣', 'Quête'],
-            ].map(([icon, label]) => (
-              <div
-                key={label}
-                className="flex flex-col items-center gap-0.5 rounded-[9px] border border-foreground/7 bg-foreground/5 py-1.5 text-center"
-              >
-                <span className="text-[0.875rem]">{icon}</span>
-                <span className="text-[0.4rem] leading-tight text-foreground/60">
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="text-[0.42rem] font-bold uppercase tracking-widest text-foreground/25">
-            Actualités
-          </p>
-          <div className="flex items-start gap-1.5 rounded-[7px] bg-foreground/4 p-1.5">
-            <div className="mt-0.5 size-[5px] shrink-0 rounded-full bg-primary" />
-            <p className="text-[0.44rem] leading-snug text-foreground/55">
-              Retraite spirituelle — Saint-Joseph, 3 mai 9h
-            </p>
-          </div>
-          <div className="flex items-start gap-1.5 rounded-[7px] bg-foreground/4 p-1.5">
-            <div className="mt-0.5 size-[5px] shrink-0 rounded-full bg-accent" />
-            <p className="text-[0.44rem] leading-snug text-foreground/55">
-              Message du diocèse de Dakar
-            </p>
+            <div className="flex items-start gap-1.5 rounded-[7px] bg-foreground/4 p-1.5">
+              <div className="mt-0.5 size-[5px] shrink-0 rounded-full bg-primary" />
+              <p className="text-[0.44rem] leading-snug text-foreground/55">
+                Retraite spirituelle — Saint-Joseph, 3 mai 9h
+              </p>
+            </div>
+            <div className="flex items-start gap-1.5 rounded-[7px] bg-foreground/4 p-1.5">
+              <div className="mt-0.5 size-[5px] shrink-0 rounded-full bg-accent" />
+              <p className="text-[0.44rem] leading-snug text-foreground/55">
+                Message du diocèse de Dakar
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </Tilt3D>
 
       {/* Right phone — Chat */}
       <div className="relative z-10 hidden w-[185px] animate-float-r overflow-hidden rounded-[32px] border border-primary/14 bg-background opacity-70 shadow-[0_24px_80px_rgba(20,40,80,.16)] dark:shadow-[0_24px_80px_rgba(0,0,0,.6)] lg:block">

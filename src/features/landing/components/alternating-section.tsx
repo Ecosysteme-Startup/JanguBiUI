@@ -1,5 +1,7 @@
 import { Check } from 'lucide-react';
 
+import { Reveal } from '@/lib/motion/reveal';
+
 function CheckItem({ children }: { children: React.ReactNode }) {
   return (
     <li className="flex items-start gap-3 text-[0.9375rem] text-foreground/60">
@@ -200,8 +202,10 @@ export function AlternatingSection() {
       <div className="mx-auto max-w-[1180px] px-5 sm:px-10">
         {/* Actualités */}
         <div className="mb-24 grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <NewsMockup />
-          <div>
+          <Reveal>
+            <NewsMockup />
+          </Reveal>
+          <Reveal delay={0.08}>
             <p className="mb-3 text-[0.6875rem] font-bold uppercase tracking-[.12em] text-primary">
               Actualités paroissiales
             </p>
@@ -219,12 +223,12 @@ export function AlternatingSection() {
               <CheckItem>Portées global / diocèse / paroisse</CheckItem>
               <CheckItem>Partage en un tap</CheckItem>
             </ul>
-          </div>
+          </Reveal>
         </div>
 
         {/* Chat prêtres */}
         <div className="mb-24 grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div className="order-2 lg:order-1">
+          <Reveal delay={0.08} className="order-2 lg:order-1">
             <p className="mb-3 text-[0.6875rem] font-bold uppercase tracking-[.12em] text-primary">
               Discussion confidentielle
             </p>
@@ -242,16 +246,18 @@ export function AlternatingSection() {
               <CheckItem>Purge automatique (180 jours)</CheckItem>
               <CheckItem>Réactions &amp; export</CheckItem>
             </ul>
-          </div>
-          <div className="order-1 lg:order-2">
+          </Reveal>
+          <Reveal className="order-1 lg:order-2">
             <ChatMockup />
-          </div>
+          </Reveal>
         </div>
 
         {/* Dons & Documents */}
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <DocsMockup />
-          <div>
+          <Reveal>
+            <DocsMockup />
+          </Reveal>
+          <Reveal delay={0.08}>
             <p className="mb-3 text-[0.6875rem] font-bold uppercase tracking-[.12em] text-primary">
               Dons, Quête &amp; Documents
             </p>
@@ -269,7 +275,7 @@ export function AlternatingSection() {
               <CheckItem>Suivi en temps réel de vos demandes</CheckItem>
               <CheckItem>Notifications à chaque étape</CheckItem>
             </ul>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

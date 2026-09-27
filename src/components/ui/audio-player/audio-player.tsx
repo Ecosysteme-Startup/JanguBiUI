@@ -4,6 +4,7 @@ import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button/button';
+import { Equalizer } from '@/lib/motion/equalizer';
 import { cn } from '@/utils/cn';
 
 interface AudioPlayerProps {
@@ -33,15 +34,23 @@ export function AudioPlayer({ src, title, className }: AudioPlayerProps) {
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleDurationChange = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
+    // Garde l'état (et l'égaliseur) aligné sur la lecture réelle — p. ex. si
+    // play() est refusé par le navigateur ou si la lecture est suspendue.
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('durationchange', handleDurationChange);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('durationchange', handleDurationChange);
       audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
     };
   }, []);
 
@@ -132,6 +141,9 @@ export function AudioPlayer({ src, title, className }: AudioPlayerProps) {
             <Volume2 className="size-4" />
           )}
         </Button>
+
+        {/* Égaliseur décoratif : danse pendant la lecture, retombe en pause. */}
+        <Equalizer playing={isPlaying} className="ml-auto mr-2" />
       </div>
     </div>
   );

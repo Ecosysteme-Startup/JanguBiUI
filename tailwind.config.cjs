@@ -103,7 +103,7 @@ module.exports = {
   			},
   			'float-c': {
   				'0%,100%': { transform: 'translateY(0)' },
-  				'50%': { transform: 'translateY(-16px)' }
+  				'50%': { transform: 'translateY(-12px)' }
   			},
   			'float-l': {
   				'0%,100%': { transform: 'translateY(-8px)' },
@@ -121,13 +121,21 @@ module.exports = {
   				from: { opacity: '0', transform: 'translateY(8px)' },
   				to: { opacity: '1', transform: 'translateY(0)' }
   			},
+  			// Squelette du mobile : opacité 1 ↔ 0,55, 700 ms par demi-cycle.
+  			skeleton: {
+  				from: { opacity: '1' },
+  				to: { opacity: '0.55' }
+  			},
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-  			'float-c': 'float-c 6s ease-in-out infinite',
-  			'float-l': 'float-l 7s ease-in-out infinite',
-  			'float-r': 'float-r 5.5s ease-in-out infinite',
+  			// Flottement des téléphones : inOut sine (même courbe que le Ken Burns mobile).
+  			'float-c': 'float-c 6s cubic-bezier(0.37, 0, 0.63, 1) infinite',
+  			'float-l': 'float-l 7s cubic-bezier(0.37, 0, 0.63, 1) infinite',
+  			'float-r': 'float-r 5.5s cubic-bezier(0.37, 0, 0.63, 1) infinite',
+  			// Remplace le pulse Tailwind (2 s, 0,5) par le rythme du squelette mobile.
+  			pulse: 'skeleton 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate',
   			'fade-in': 'fade-in var(--duration-normal) var(--ease-out-soft)',
   			'fade-in-up': 'fade-in-up var(--duration-normal) var(--ease-out-soft)',
   		}

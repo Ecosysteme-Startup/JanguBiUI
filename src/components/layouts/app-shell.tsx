@@ -1,11 +1,13 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
+import { motion } from 'motion/react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Link } from '@/components/ui/link/link';
 import { buildNavItems, isNavActive } from '@/config/nav-config';
 import { useLogout, useUser } from '@/lib/auth';
+import { springs } from '@/lib/motion/tokens';
 import { cn } from '@/lib/utils';
 import { useMessagingStore } from '@/stores/messaging-store';
 
@@ -82,7 +84,12 @@ function DesktopSidebar({ messageBadge }: { messageBadge?: number }) {
               aria-current={isActive ? 'page' : undefined}
             >
               {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-primary" />
+                <motion.span
+                  aria-hidden
+                  layoutId="sidebar-indicator"
+                  transition={springs.indicator}
+                  className="absolute left-0 top-[calc(50%-10px)] h-5 w-0.5 rounded-r-full bg-primary"
+                />
               )}
               <span className="relative shrink-0">
                 <Icon className="size-5" />
