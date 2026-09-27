@@ -12,7 +12,7 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-paper font-sans text-body text-ink;
+    @apply bg-paper font-sans text-16 text-ink;
   }
   button,
   input,
@@ -54,9 +54,43 @@
     background: var(--jb-tint-100);
     color: var(--jb-ink);
   }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--jb-ink-3);
+    opacity: 1;
+  }
+}
+
+@layer components {
+  /* Conteneur des pages publiques et du parcours d'inscription : 1200 px de contenu centré,
+     gouttière de 16 px sous 1232 px (maquettes WEB-Accueil, WEB-Erreur-404, WEB-Inscription-*). */
+  .jb-container {
+    width: 100%;
+    max-width: calc(1200px + 2rem);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
 }
 
 @layer utilities {
+  /* Hauteur du <main> plein cadre (ShellLayout fullBleed) : fenêtre moins la barre du haut (64 px),
+     et moins la barre du bas de l'espace fidèle (56 px + zone sûre) sous 1024 px. En CSS pur :
+     env() dans une classe arbitraire Tailwind est mal transformé (déclaration rejetée). */
+  .jb-fullbleed {
+    height: calc(100dvh - 64px);
+  }
+  .jb-fullbleed-with-bottom-nav {
+    height: calc(100dvh - 120px - env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 1024px) {
+    .jb-fullbleed-with-bottom-nav {
+      height: calc(100dvh - 64px);
+    }
+    .jb-fullbleed-no-topbar {
+      height: 100dvh;
+    }
+  }
+
   /* Zone tactile ≥ 44 px sans changer le rendu (WCAG 2.5.5, cibles denses du DS). */
   .hit {
     position: relative;
@@ -71,11 +105,17 @@
     transform: translate(-50%, -50%);
   }
 
+  /* Pastille liturgique « Blanc » : cercle blanc cerclé d'or (WEB-Design-System, Liturgie). */
+  .lit-dot-white {
+    background: var(--jb-lit-white);
+    box-shadow: inset 0 0 0 1.5px var(--jb-lit-gold);
+  }
+
   /* Chiffres tabulaires pour les données (DS-Fondations §02). */
   .tnum {
     font-variant-numeric: tabular-nums;
   }
-  /* Filet double de 3 px qui referme le bandeau liturgique (« la une d'un journal »). */
+  /* Ancienne charte (filet double) : ne plus employer, la maquette Ciel l'interdit. */
   .rule-double {
     border-bottom: 3px double var(--jb-line-strong);
   }

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Sombre · Suivi de demande</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p:hover{background:#085E90 !important}
+.jb-btn-o:hover{background:#111A24 !important;border-color:#5F7085 !important}
+.jb-side:hover{background:#18232F !important;color:#E8EEF5 !important}
+.jb-card:hover{border-color:#26618F !important}
+.jb-row:hover{background:#111A24}
+.jb-icon:hover{background:#18232F !important}
+.jb-btn-x:hover{background:#3B1815 !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1224px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 264px minmax(0, 1fr); background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px;">
+
+  <aside style="display: flex; flex-direction: column; background: #111A24; border-right: 1px solid #243142; padding: 20px 16px; box-sizing: border-box;">
+    <a href="Sombre-WEB-FID-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 8px; height: 40px; color: #E8EEF5;">
+      <span style="width: 30px; height: 30px; border-radius: 8px; background: #0A6BA3; display: inline-flex; align-items: center; justify-content: center; color: #F5F9FC;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></span>
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-weight: 600;">Jàngu Bi</span>
+    </a>
+    <label style="margin-top: 16px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #0B1118; border: 1px solid #243142; color: #92A2B4; font-size: 14px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input type="search" placeholder="Rechercher" aria-label="Rechercher" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 14px; color: #E8EEF5; outline: none;">
+      <span style="font-size: 12px; color: #92A2B4; border: 1px solid #243142; border-radius: 6px; padding: 0 6px; line-height: 20px;">Ctrl K</span>
+    </label>
+
+    <nav aria-label="Navigation principale" style="margin-top: 20px; display: flex; flex-direction: column; gap: 2px;">
+      <a href="Sombre-WEB-FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Accueil
+      </a>
+      <a href="Sombre-WEB-FID-Parole.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></span>La Parole
+      </a>
+      <a href="Sombre-WEB-FID-Ma-Paroisse.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 9h4"></path><path d="M12 7v5"></path><path d="M14 22v-4a2 2 0 0 0-4 0v4"></path><path d="M18 22V5.618a1 1 0 0 0-.553-.894l-4.553-2.277a2 2 0 0 0-1.788 0L6.553 4.724A1 1 0 0 0 6 5.618V22"></path><path d="m18 7 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-10.382a1 1 0 0 1 .553-.894L6 7"></path></svg></span>Ma paroisse
+      </a>
+      <a href="Sombre-WEB-FID-Demandes.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; background: #0F2233; color: #7CC3EE; font-size: 15px; font-weight: 600;">
+        <span style="display: inline-flex; color: #7CC3EE;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg></span><span style="flex: 1;">Mes demandes</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #13304A; color: #7CC3EE; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">1</span>
+      </a>
+      <a href="Sombre-WEB-FID-Conversation.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg></span><span style="flex: 1;">Parler à un prêtre</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #0A6BA3; color: #F5F9FC; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">1</span>
+      </a>
+    </nav>
+
+    <div style="flex: 1;"></div>
+
+    <a href="Sombre-WEB-FID-Ma-Paroisse.dc.html" class="jb-card" style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; background: #0B1118; border: 1px solid #243142; color: #E8EEF5;">
+      <span style="font-size: 12px; color: #92A2B4;">Paroisse suivie</span>
+      <span style="font-size: 15px; font-weight: 600;">Saint-Dominique</span>
+      <span style="font-size: 13px; color: #BAC6D3;">Messe ce soir à 18&nbsp;h&nbsp;30</span>
+    </a>
+    <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px; padding: 0 4px;">
+      <span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">MD</span>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Marie-Thérèse Diouf</span><span style="font-size: 12px; color: #92A2B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">mt.diouf@orange.sn</span></span>
+      <a href="Sombre-WEB-FID-Profil.dc.html" class="jb-icon" aria-label="Réglages du compte" style="width: 32px; height: 32px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #BAC6D3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></a>
+    </div>
+  </aside>
+
+  <div style="display: flex; flex-direction: column; min-width: 0;">
+    <div style="height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #243142;">
+      <nav aria-label="Fil d'Ariane" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #92A2B4;">
+        <a href="Sombre-WEB-FID-Demandes.dc.html" style="color: #BAC6D3;">Mes demandes</a>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        <span aria-current="page" style="color: #E8EEF5; font-weight: 500; font-variant-numeric: tabular-nums;">JB-2026-00412</span>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="Sombre-WEB-FID-Notifications.dc.html" class="jb-icon" aria-label="Notifications, 3 non lues" style="position: relative; width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #E8EEF5;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+          <span style="position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3; border: 2px solid #0B1118;"></span>
+        </a>
+      </div>
+    </div>
+
+    <main data-measure="main" style="padding: 32px 40px 48px; max-width: 1120px; box-sizing: border-box; width: 100%;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #92A2B4; font-variant-numeric: tabular-nums;">
+        JB-2026-00412
+        <button type="button" class="jb-icon" aria-label="Copier la référence" style="width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #92A2B4; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></button>
+      </div>
+      <h1 style="margin: 4px 0 0; font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em;">Extrait d'acte de baptême</h1>
+      <p style="margin: 8px 0 0; font-size: 16px; color: #BAC6D3;">Pour mariage · Sainte-Thérèse de Grand-Dakar</p>
+
+      <div style="margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 32px; align-items: start;">
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 32px;">
+
+          <!-- Statut -->
+          <section aria-label="Statut de la demande" style="border-radius: 16px; background: #0F2233; border: 1px solid #26618F; padding: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+              <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #0B1118; color: #7CC3EE; font-size: 12px; font-weight: 600; white-space: nowrap;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #0A6BA3;"></span>En vérification</span>
+              <span style="font-size: 14px; color: #7CC3EE;">depuis le 19&nbsp;sept.</span>
+            </div>
+            <p style="margin: 12px 0 0; font-size: 17px; line-height: 26px; color: #A8D8F5;">Votre acte a été retrouvé au registre de 1992. Prochaine étape&nbsp;: <strong style="font-weight: 600; white-space: nowrap;">prête à retirer</strong>, dès la signature de Monsieur le curé.</p>
+            <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;">
+              <span style="height: 6px; border-radius: 3px; background: #0A6BA3;"></span>
+              <span style="height: 6px; border-radius: 3px; background: #0A6BA3;"></span>
+              <span style="height: 6px; border-radius: 3px; background: #0B1118;"></span>
+              <span style="height: 6px; border-radius: 3px; background: #0B1118;"></span>
+            </div>
+          </section>
+
+          <!-- Historique -->
+          <section aria-labelledby="hist-titre">
+            <h2 id="hist-titre" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Historique</h2>
+            <ol style="margin: 16px 0 0; padding: 24px; list-style: none; border: 1px solid #243142; border-radius: 16px; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18);">
+              <li style="display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 16px;">
+                <span style="text-align: right; display: flex; flex-direction: column; font-variant-numeric: tabular-nums;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">16&nbsp;sept.</span><span style="font-size: 13px; line-height: 18px; color: #92A2B4;">10:12</span></span>
+                <span style="display: flex; flex-direction: column; align-items: center;"><span style="margin-top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #0A6BA3;"></span><span style="flex: 1; width: 2px; background: #0A6BA3; margin-top: 4px;"></span></span>
+                <span style="padding-bottom: 20px; display: flex; flex-direction: column;"><span style="font-size: 15px; line-height: 20px; font-weight: 600;">Soumise</span><span style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Demande envoyée à Sainte-Thérèse de Grand-Dakar.</span></span>
+              </li>
+              <li style="display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 16px;">
+                <span style="text-align: right; display: flex; flex-direction: column; font-variant-numeric: tabular-nums;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">19&nbsp;sept.</span><span style="font-size: 13px; line-height: 18px; color: #92A2B4;">9:05</span></span>
+                <span style="display: flex; flex-direction: column; align-items: center;"><span style="margin-top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #0A6BA3;"></span><span style="flex: 1; width: 2px; background: #0A6BA3; margin-top: 4px;"></span></span>
+                <span style="padding-bottom: 20px; display: flex; flex-direction: column;"><span style="font-size: 15px; line-height: 20px; font-weight: 600;">En vérification</span><span style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Prise en charge par le secrétariat paroissial.</span></span>
+              </li>
+              <li style="display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 16px;">
+                <span style="text-align: right; display: flex; flex-direction: column; font-variant-numeric: tabular-nums;"><span style="font-size: 14px; line-height: 20px; font-weight: 600; color: #7CC3EE;">22&nbsp;sept.</span><span style="font-size: 13px; line-height: 18px; color: #92A2B4;">11:02</span></span>
+                <span style="display: flex; flex-direction: column; align-items: center;"><span style="margin-top: 2px; width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; border: 4px solid #7CC3EE; background: #0B1118;"></span><span style="flex: 1; width: 0; border-left: 2px dashed #3FA3DD; margin-top: 4px;"></span></span>
+                <span style="padding-bottom: 20px; display: flex; flex-direction: column;"><span style="font-size: 15px; line-height: 20px; font-weight: 600; color: #7CC3EE;">Acte retrouvé au registre <span style="font-weight: 400; color: #92A2B4;">· étape actuelle</span></span><span style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Registre des baptêmes de 1992. En attente de la signature du curé.</span></span>
+              </li>
+              <li style="display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 16px;">
+                <span style="text-align: right; font-size: 13px; line-height: 20px; color: #92A2B4;">à venir</span>
+                <span style="display: flex; flex-direction: column; align-items: center;"><span style="margin-top: 5px; width: 10px; height: 10px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid #5F7085; background: #0B1118;"></span><span style="flex: 1; width: 0; border-left: 2px dashed #3FA3DD; margin-top: 4px;"></span></span>
+                <span style="padding-bottom: 20px; display: flex; flex-direction: column;"><span style="font-size: 15px; line-height: 20px; font-weight: 500; color: #BAC6D3;">Prête à retirer</span><span style="font-size: 14px; line-height: 20px; color: #92A2B4;">Vous serez prévenue par notification.</span></span>
+              </li>
+              <li style="display: grid; grid-template-columns: 72px 20px minmax(0, 1fr); gap: 16px;">
+                <span></span>
+                <span style="display: flex; flex-direction: column; align-items: center;"><span style="margin-top: 5px; width: 10px; height: 10px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid #5F7085; background: #0B1118;"></span></span>
+                <span style="display: flex; flex-direction: column;"><span style="font-size: 15px; line-height: 20px; font-weight: 500; color: #BAC6D3;">Retirée</span><span style="font-size: 14px; line-height: 20px; color: #92A2B4;">Remise de l'original contre signature du registre de retrait.</span></span>
+              </li>
+            </ol>
+          </section>
+
+          <!-- Retrait -->
+          <section aria-labelledby="retrait-titre">
+            <h2 id="retrait-titre" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Où retirer l'original</h2>
+            <p style="margin: 4px 0 0; font-size: 15px; line-height: 22px; color: #BAC6D3;">L'extrait est un original papier, signé et scellé par la paroisse. Aucun PDF n'est délivré.</p>
+            <div style="margin-top: 16px; border: 1px solid #243142; border-radius: 16px; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18);">
+              <div style="padding: 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                  <div style="display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#BAC6D3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top: 2px;"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span style="display: flex; flex-direction: column;"><span style="font-size: 15px; font-weight: 600;">Secrétariat paroissial</span><span style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Sainte-Thérèse de Grand-Dakar, à côté de l'église</span></span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 12px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#BAC6D3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-top: 2px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <dl style="margin: 0; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 2px 8px; font-size: 14px; line-height: 22px; font-variant-numeric: tabular-nums;">
+                      <dt style="color: #92A2B4;">lun.–ven.</dt><dd style="margin: 0;">9&nbsp;h–12&nbsp;h&nbsp;30 · 15&nbsp;h&nbsp;30–18&nbsp;h</dd>
+                      <dt style="color: #92A2B4;">samedi</dt><dd style="margin: 0;">9&nbsp;h–12&nbsp;h</dd>
+                      <dt style="color: #92A2B4;">dimanche</dt><dd style="margin: 0; color: #92A2B4;">fermé</dd>
+                    </dl>
+                  </div>
+                </div>
+                <div style="padding: 16px 20px; border-radius: 12px; background: #111A24;">
+                  <div style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#BAC6D3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10h2"></path><path d="M16 14h2"></path><path d="M6.17 15a3 3 0 0 1 5.66 0"></path><circle cx="9" cy="11" r="2"></circle><rect x="2" y="5" width="20" height="14" rx="2"></rect></svg>À présenter</div>
+                  <ul style="margin: 8px 0 0; padding: 0 0 0 18px; font-size: 14px; line-height: 20px; color: #BAC6D3; display: flex; flex-direction: column; gap: 4px;">
+                    <li>Votre carte d'identité ou votre passeport</li>
+                    <li>Pour un tiers&nbsp;: votre procuration signée et sa pièce d'identité</li>
+                  </ul>
+                </div>
+              </div>
+              <div style="padding: 16px 24px; border-top: 1px solid #243142; display: flex; align-items: center; gap: 8px;">
+                <a href="#" class="jb-btn-o" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid #243142; color: #E8EEF5; font-size: 15px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>Itinéraire</a>
+                <a href="#" class="jb-btn-o" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid #243142; color: #E8EEF5; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>33&nbsp;825&nbsp;41&nbsp;16</a>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Récapitulatif -->
+        <aside aria-labelledby="recap-titre" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Message de la paroisse -->
+          <section aria-labelledby="msg-titre">
+            <h2 id="msg-titre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Message de la paroisse</h2>
+            <div style="margin-top: 12px; padding: 20px; border-radius: 16px; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18); border: 1px solid #243142;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">ST</span>
+                <span style="display: flex; flex-direction: column;"><span style="font-size: 15px; font-weight: 600;">Secrétariat paroissial</span><span style="font-size: 13px; line-height: 18px; color: #92A2B4;">Sainte-Thérèse · mar. 22&nbsp;sept., 11:02</span></span>
+              </div>
+              <p style="margin: 12px 0 0; font-size: 15px; line-height: 22px;">Bonjour Madame Diouf, nous avons retrouvé votre acte dans le registre de 1992. L'extrait sera signé par Monsieur le curé à son retour, en principe en fin de semaine. Nous vous préviendrons ici.</p>
+              <div style="margin-top: 16px;">
+                <a href="#" class="jb-btn-o" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid #243142; background: #0B1118; color: #E8EEF5; font-size: 15px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>Répondre</a>
+              </div>
+            </div>
+          </section>
+
+          <div style="border: 1px solid #243142; border-radius: 16px; background: #111A24; padding: 24px;">
+            <h2 id="recap-titre" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Votre demande</h2>
+            <dl style="margin: 16px 0 0; display: flex; flex-direction: column;">
+              <div style="padding: 12px 0; border-top: 1px solid #243142;">
+                <dt style="font-size: 13px; line-height: 18px; color: #92A2B4;">Acte demandé</dt><dd style="margin: 2px 0 0; font-size: 15px; font-weight: 600;">Extrait d'acte de baptême</dd><dd style="margin: 0; font-size: 14px; line-height: 20px; color: #BAC6D3;">Pour mariage</dd>
+              </div>
+              <div style="padding: 12px 0; border-top: 1px solid #243142;">
+                <dt style="font-size: 13px; line-height: 18px; color: #92A2B4;">Paroisse du sacrement</dt><dd style="margin: 2px 0 0; font-size: 15px; font-weight: 600;">Sainte-Thérèse de Grand-Dakar</dd><dd style="margin: 0; font-size: 14px; line-height: 20px; color: #BAC6D3;">Archidiocèse de Dakar</dd>
+              </div>
+              <div style="padding: 12px 0; border-top: 1px solid #243142;">
+                <dt style="font-size: 13px; line-height: 18px; color: #92A2B4;">Personne baptisée</dt><dd style="margin: 2px 0 0; font-size: 15px; font-weight: 600;">Marie-Thérèse Ndèye Diouf</dd><dd style="margin: 0; font-size: 14px; line-height: 20px; color: #BAC6D3;">Née le 8&nbsp;février 1992<br>Baptisée vers mars&nbsp;1992</dd>
+              </div>
+              <div style="padding: 12px 0; border-top: 1px solid #243142;">
+                <dt style="font-size: 13px; line-height: 18px; color: #92A2B4;">Retrait</dt><dd style="margin: 2px 0 0; font-size: 15px; font-weight: 600;">Sur place, par vous</dd>
+              </div>
+              <div style="padding: 12px 0 0; border-top: 1px solid #243142;">
+                <dt style="font-size: 13px; line-height: 18px; color: #92A2B4;">Déposée</dt><dd style="margin: 2px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">Mercredi 16&nbsp;sept. à 10:12</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div style="padding: 0 8px;">
+            <button type="button" class="jb-btn-x" style="height: 40px; padding: 0 12px; margin-left: -12px; border: 0; border-radius: 12px; background: transparent; color: #F2958B; font-size: 15px; font-weight: 600; cursor: pointer;">Annuler la demande</button>
+            <p style="margin: 0; font-size: 13px; line-height: 18px; color: #92A2B4;">Possible tant que l'extrait n'est pas signé.</p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1224}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

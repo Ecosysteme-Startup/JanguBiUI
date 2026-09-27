@@ -143,15 +143,10 @@ export const ContactForm = () => {
   }
 
   return (
-    <form aria-label="Demande de présentation" onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
-      <p className="m-0 text-sm text-ink-3">
-        <span className="text-err" aria-hidden="true">
-          *
-        </span>{' '}
-        champ obligatoire
-      </p>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field id="c-nom" label="Prénom et nom" required error={errors.full_name?.message}>
+    <form aria-label="Demande de présentation" onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+      <p className="m-0 text-14 text-ink-3">Tous les champs sont requis, sauf mention contraire.</p>
+      <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
+        <Field id="c-nom" label="Nom et prénom" required error={errors.full_name?.message}>
           <Input autoComplete="name" {...register('full_name')} />
         </Field>
         <Field id="c-fonction" label="Fonction" required error={errors.fonction?.message}>
@@ -189,15 +184,16 @@ export const ContactForm = () => {
           </Select>
         </Field>
         <Field id="c-tel" label="Téléphone" required error={errors.telephone?.message} hint="Indicatif +221 ajouté pour un numéro sénégalais.">
-          <Input type="tel" inputMode="tel" autoComplete="tel-national" {...register('telephone')} />
+          <Input type="tel" inputMode="tel" autoComplete="tel-national" className="tnum" {...register('telephone')} />
         </Field>
-        <Field id="c-mail" label="E-mail" required error={errors.email?.message}>
+        <Field id="c-mail" label="Adresse e-mail" required error={errors.email?.message}>
           <Input type="email" autoComplete="email" {...register('email')} />
         </Field>
       </div>
       <Field
         id="c-message"
-        label="Votre message"
+        label="Message"
+        optional
         error={errors.message?.message}
         hint="Nombre de fidèles, lieux de culte, date souhaitée…"
         counter={{ value: messageLength, max: MESSAGE_MAX }}
@@ -205,43 +201,42 @@ export const ContactForm = () => {
         <Textarea rows={4} {...register('message')} />
       </Field>
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-        <legend className="mb-3 text-sm font-semibold text-ink">Consentement</legend>
+        <legend className="sr-only">Consentement</legend>
         <Choice
           {...register('consentement')}
           aria-invalid={errors.consentement ? true : undefined}
           aria-describedby={errors.consentement ? 'c-consentement-message' : undefined}
           label={
             <>
-              J&apos;accepte que Numerisen utilise ces informations pour me recontacter au sujet du pilote. Elles ne sont ni revendues ni
-              partagées.{' '}
-              <NextLink href={paths.confidentialite.getHref()} className="text-primary underline">
-                Politique de confidentialité
-              </NextLink>{' '}
-              <span className="text-err" aria-hidden="true">
-                *
-              </span>
+              J&apos;accepte que Numerisen utilise ces informations pour me recontacter au sujet de Jàngu Bi. Elles ne sont ni partagées ni
+              utilisées pour autre chose.{' '}
+              <NextLink href={paths.confidentialite.getHref()} className="font-semibold">
+                Confidentialité
+              </NextLink>
             </>
           }
         />
         {errors.consentement && (
-          <p id="c-consentement-message" role="alert" className="m-0 text-sm text-err">
+          <p id="c-consentement-message" role="alert" className="m-0 flex gap-1.5 text-13 text-err">
             {errors.consentement.message}
           </p>
         )}
-        <Choice {...register('cure_informe')} label="Le curé de la paroisse est informé de cette démarche." />
+        <Choice {...register('cure_informe')} label="Le curé de la paroisse est informé de cette démarche (facultatif)." />
       </fieldset>
       {errors.root?.message && (
-        <Notice tone="err" title="Envoi impossible">
+        <Notice tone="err" role="alert" title="Envoi impossible">
           {errors.root.message}
         </Notice>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-        <p aria-live="polite" className="m-0 text-sm text-err">
-          {isSubmitted && errorCount > 0 && `${errorCount} champ${errorCount > 1 ? 's' : ''} à corriger avant l’envoi.`}
-        </p>
-        <Button type="submit" size="lg" disabled={send.isPending}>
-          {send.isPending ? 'Envoi en cours…' : 'Envoyer la demande'}
+      <div className="mt-3 flex flex-wrap items-center gap-4">
+        <Button type="submit" size="xl" className="px-7" loading={send.isPending}>
+          {send.isPending ? 'Envoi en cours' : 'Envoyer la demande'}
         </Button>
+        <span aria-live="polite" className="text-14 text-ink-3">
+          {isSubmitted && errorCount > 0
+            ? `${errorCount} champ${errorCount > 1 ? 's' : ''} à corriger avant l’envoi.`
+            : 'Nous vous répondons sous 5 jours ouvrés.'}
+        </span>
       </div>
     </form>
   );

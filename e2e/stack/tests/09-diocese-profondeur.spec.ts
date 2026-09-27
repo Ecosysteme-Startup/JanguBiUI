@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { KC_DEMO_PASSWORD, loginViaKeycloak, logout } from '../helpers/auth';
 
 const CHANCELIER = 'chancelier@demo.jangubi.sn';

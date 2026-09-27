@@ -28,8 +28,8 @@ const renderExisting = async (id: string) =>
   renderApp(await AnnoncePage({ params: Promise.resolve({ nodeId, id }) }), { capacites: grantsSecretaire });
 
 const fillRequired = async (user: ReturnType<typeof userEvent.setup>) => {
-  await user.type(await screen.findByLabelText(/01 — titre/i), 'Quête pour le séminaire');
-  await user.selectOptions(await screen.findByLabelText(/catégorie/i), 'Vie paroissiale');
+  await user.type(await screen.findByLabelText(/^titre/i), 'Quête pour le séminaire');
+  await user.click(await screen.findByRole('radio', { name: 'Vie paroissiale' }));
   const body = await screen.findByRole('textbox', { name: 'Corps de l’annonce' });
   await user.click(body);
   await user.type(body, 'Chers frères et sœurs');
@@ -92,7 +92,7 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
     await renderNew();
     await fillRequired(user);
 
-    const notify = screen.getByRole('switch', { name: 'Notifier les fidèles rattachés' });
+    const notify = screen.getByRole('switch', { name: 'Notifier les fidèles' });
     expect(notify).toHaveAttribute('aria-checked', 'true');
     await user.click(notify);
     await user.click(screen.getByRole('button', { name: 'Publier maintenant' }));
@@ -177,8 +177,7 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
     const user = userEvent.setup();
     await renderExisting('a0000000-0000-4000-8000-000000000001');
 
-    await screen.findByRole('option', { name: 'Chapelle de la Cité universitaire' });
-    await user.selectOptions(screen.getByLabelText('Portée'), 'Chapelle de la Cité universitaire');
+    await user.click(await screen.findByRole('radio', { name: /chapelle de la cité universitaire/i }));
     await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
 
     await vi.waitFor(() => expect(f8aState.lastBody).toMatchObject({ place_id: 12 }));
@@ -203,7 +202,7 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
 
     await user.click(screen.getByRole('radio', { name: 'Programmer' }));
     await user.type(screen.getByLabelText('Date'), '2099-09-26');
-    await user.click(await screen.findByRole('button', { name: /^programmer · sam\. 26\.09/i }));
+    await user.click(await screen.findByRole('button', { name: 'Programmer la publication' }));
 
     await vi.waitFor(() => expect(navigation.push).toHaveBeenCalledWith(listHref));
     expect(f8aState.articles[0]).toMatchObject({ status: 'scheduled' });
@@ -237,14 +236,14 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
     const user = userEvent.setup();
     await renderExisting('a0000000-0000-4000-8000-000000000001');
 
-    const title = await screen.findByLabelText(/01 — titre/i);
+    const title = await screen.findByLabelText(/^titre/i);
     expect(title).toHaveValue('Quête impérée pour le Grand Séminaire de Brin');
-    expect(screen.getByLabelText('Portée')).not.toBeDisabled();
+    expect(await screen.findByRole('radio', { name: /chapelle de la cité universitaire/i })).not.toBeDisabled();
     await user.clear(title);
     await user.type(title, 'Quête impérée du 27 septembre');
     await user.click(screen.getByRole('button', { name: 'Enregistrer le brouillon' }));
 
-    expect(await screen.findByText(/enregistré à/)).toBeInTheDocument();
+    expect(await screen.findByText(/enregistré à/i)).toBeInTheDocument();
     expect(f8aState.lastBody).toMatchObject({ title: 'Quête impérée du 27 septembre', is_sunday_notice: true, sunday_date: '2026-09-27' });
     expect(f8aState.lastBody).not.toHaveProperty('node_id');
 

@@ -33,6 +33,10 @@ const ACTIONS: Record<string, string> = {
   'personne.verification': 'État de vie vérifié',
   'conformite.consentement': 'Consentement enregistré',
   'conformite.suppression_compte': 'Compte supprimé à la demande',
+  'compte.verrouillage': 'Compte verrouillé',
+  'compte.deverrouillage': 'Compte déverrouillé',
+  'compte.fermeture_sessions': 'Sessions du compte fermées',
+  'compte.mfa_exigee': 'Double authentification exigée',
 };
 
 export const actionLabel = (code: string) => ACTIONS[code] ?? code;
@@ -47,6 +51,7 @@ export const ACTION_FAMILIES = [
   { prefix: 'personne.', label: 'Vérifications de clergé' },
   { prefix: 'capacite.', label: 'Référentiels' },
   { prefix: 'conformite.', label: 'Conformité' },
+  { prefix: 'compte.', label: 'Comptes' },
 ];
 
 const TARGETS: Record<string, string> = {

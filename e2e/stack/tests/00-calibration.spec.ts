@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+
 import { KC_DEMO_PASSWORD, loginViaKeycloak } from '../helpers/auth';
 
 test('@calibration referentiels console errors', async ({ page }) => {

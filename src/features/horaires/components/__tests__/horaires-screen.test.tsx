@@ -20,17 +20,20 @@ const renderPage = async (capacites = grantsSecretaire) =>
 beforeEach(() => resetF8a());
 
 describe('Horaires et lieux de culte (PAR-Horaires)', () => {
-  it('présente chaque lieu avec sa semaine type et les exceptions à venir', async () => {
+  it('présente les lieux, la semaine type et les exceptions à venir', async () => {
     await renderPage();
 
     expect(await screen.findByRole('heading', { name: 'Église Saint-Dominique' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Chapelle de la Cité universitaire' })).toBeInTheDocument();
-    const eglise = await screen.findByRole('group', { name: 'Horaires hebdomadaires, Église Saint-Dominique' });
-    expect(within(eglise).getByText('7 h 00')).toBeInTheDocument();
-    expect(within(eglise).getByText('16 h-18 h')).toBeInTheDocument();
-    expect(within(eglise).getByText('Étudiants')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Modifier Église Saint-Dominique' })).toHaveAttribute('href', `/espace/${ids.saintDominique}/parametres`);
+    const semaine = await screen.findByRole('group', { name: 'Semaine type, tous les lieux' });
+    const lundi = within(semaine).getByRole('region', { name: 'Lundi' });
+    expect(within(lundi).getByText('7:00')).toBeInTheDocument();
+    expect(within(semaine).getByText('16:00')).toBeInTheDocument();
+    expect(within(semaine).getByText(/jusqu’à 18:00/)).toBeInTheDocument();
+    expect(within(semaine).getByText('Étudiants')).toBeInTheDocument();
     expect(screen.getByText(/2 lieux de culte · 2 messes par semaine/)).toBeInTheDocument();
-    expect(await screen.findByText('Pas de messe de 7 h 00')).toBeInTheDocument();
+    expect(await screen.findByText('7:00 · Messe supprimée')).toBeInTheDocument();
   });
 
   it('ajoute un horaire sur plusieurs jours en conservant la semaine existante', async () => {
@@ -38,14 +41,14 @@ describe('Horaires et lieux de culte (PAR-Horaires)', () => {
     await renderPage();
 
     await user.click(await screen.findByRole('button', { name: /ajouter un horaire/i }));
-    const panel = screen.getByRole('complementary', { name: 'Nouvel horaire' });
+    const panel = await screen.findByRole('dialog', { name: 'Ajouter un horaire' });
     await user.click(within(panel).getByRole('button', { name: 'Mardi' }));
     await user.click(within(panel).getByRole('button', { name: 'Jeudi' }));
     expect(within(panel).getByText('Chaque mardi, jeudi, hors exceptions.')).toBeInTheDocument();
     await user.type(within(panel).getByLabelText(/début/i), '18:30');
     await user.click(within(panel).getByRole('button', { name: 'Ajouter l’horaire' }));
 
-    await vi.waitFor(() => expect(screen.queryByRole('complementary', { name: 'Nouvel horaire' })).not.toBeInTheDocument());
+    await vi.waitFor(() => expect(screen.queryByRole('dialog', { name: 'Ajouter un horaire' })).not.toBeInTheDocument());
     const body = f8aState.lastBody as { items: { weekday: number; start_time: string; kind: string }[] };
     expect(body.items).toHaveLength(5);
     expect(body.items).toEqual(
@@ -62,7 +65,7 @@ describe('Horaires et lieux de culte (PAR-Horaires)', () => {
     const user = userEvent.setup();
     await renderPage();
     await user.click(await screen.findByRole('button', { name: /ajouter un horaire/i }));
-    const panel = screen.getByRole('complementary', { name: 'Nouvel horaire' });
+    const panel = await screen.findByRole('dialog', { name: 'Ajouter un horaire' });
 
     await user.click(within(panel).getByRole('button', { name: 'Ajouter l’horaire' }));
     expect(await within(panel).findByText('Choisissez au moins un jour.')).toBeInTheDocument();
@@ -96,9 +99,9 @@ describe('Horaires et lieux de culte (PAR-Horaires)', () => {
     await renderPage();
 
     await user.click(await screen.findByRole('button', { name: /ajouter une exception/i }));
-    const panel = screen.getByRole('complementary', { name: 'Nouvelle exception' });
+    const panel = await screen.findByRole('dialog', { name: 'Ajouter une exception' });
     await user.type(within(panel).getByLabelText(/^date/i), '2099-10-04');
-    await user.click(within(panel).getByRole('radio', { name: 'Horaire supplémentaire' }));
+    await user.click(within(panel).getByRole('radio', { name: /^horaire supplémentaire/i }));
     await user.click(within(panel).getByRole('button', { name: 'Ajouter l’exception' }));
     expect(await within(panel).findByText('Un horaire supplémentaire doit avoir une heure de début.')).toBeInTheDocument();
 

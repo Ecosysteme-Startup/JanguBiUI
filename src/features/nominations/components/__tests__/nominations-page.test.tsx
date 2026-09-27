@@ -19,18 +19,23 @@ beforeEach(() => {
   server.use(...f8bOverrides);
 });
 
+/** Rangée du registre contenant à la fois l'office et le nœud. */
+const rowWith = (office: string, node: RegExp) =>
+  screen.getAllByRole('row').find((r) => within(r).queryByText(office) && node.test(r.textContent ?? ''));
+
 describe('Nominations', () => {
   it('filtre le registre par statut, avec les compteurs', async () => {
     const user = userEvent.setup();
     renderApp(<NominationsPage nodeId={ids.dakar} />, { capacites: grantsChancelier });
 
     expect(await screen.findByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
-    const statuses = screen.getByRole('group', { name: /filtrer par statut/i });
-    await user.click(await within(statuses).findByRole('button', { name: /proposées · 1/i }));
+    const statuses = screen.getByRole('tablist', { name: /filtrer par statut/i });
+    await user.click(await within(statuses).findByRole('tab', { name: /à venir\s*1/i }));
 
     await waitFor(() => expect(screen.queryByText('Abbé Augustin Ndiaye')).not.toBeInTheDocument());
-    expect(screen.getByText('Abbé Ignace Ndour')).toBeInTheDocument();
-    expect(screen.getByText(/effet 01\.10\.2026/)).toBeInTheDocument();
+    const row = screen.getByText('Abbé Ignace Ndour').closest('tr')!;
+    expect(within(row).getByText('À venir')).toBeInTheDocument();
+    expect(row).toHaveTextContent(/1er\s+oct\. 2026/);
   });
 
   it('termine une nomination après confirmation', async () => {
@@ -45,7 +50,7 @@ describe('Nominations', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(f8bState.requests.at(-1)).toMatchObject({ method: 'PATCH', body: { action: 'terminer' } });
     const row = (await screen.findByText('Abbé Augustin Ndiaye')).closest('tr')!;
-    expect(await within(row).findByText('Terminée')).toBeInTheDocument();
+    expect(await within(row).findByText('Échue')).toBeInTheDocument();
   });
 
   it('exige une date d’effet, simule puis applique le mouvement', async () => {
@@ -99,7 +104,7 @@ describe('Nominations', () => {
         end_date: null,
       },
     });
-    expect(await screen.findByText(/administrateur paroissial · sainte-thérèse/i)).toBeInTheDocument();
+    await waitFor(() => expect(rowWith('Administrateur paroissial', /sainte-thérèse/i)).toBeDefined());
   });
 
   it('ne demande pas de qualité pour un office qui n’en a pas', async () => {
@@ -126,7 +131,7 @@ describe('Nominations', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(f8bState.requests.at(-1)).toMatchObject({ method: 'PATCH', body: { action: 'qualifier', quality: 'administrateur' } });
-    expect(await screen.findByText(/administrateur paroissial · saint-dominique/i)).toBeInTheDocument();
+    await waitFor(() => expect(rowWith('Administrateur paroissial', /saint-dominique/i)).toBeDefined());
   });
 
   it('affiche l’erreur du serveur dans la fenêtre', async () => {

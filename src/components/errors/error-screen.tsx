@@ -1,13 +1,18 @@
 import type { ReactNode } from 'react';
 
+import { CenteredShell } from '@/components/layouts/auth-shell';
+
 type ErrorScreenProps = { code: string; title: string; children: ReactNode; actions: ReactNode };
 
-/** Pages d'erreur 403, 404, 500 aux couleurs de la charte (sobres, sans shell). */
+/**
+ * Écrans d'erreur hors coquille (500, connexion interrompue) : carte centrée de WEB-Connexion.
+ * La 404 a sa propre page dans la coquille publique (src/app/not-found.tsx, WEB-Erreur-404).
+ */
 export const ErrorScreen = ({ code, title, children, actions }: ErrorScreenProps) => (
-  <main id="contenu" className="mx-auto flex min-h-dvh max-w-reading flex-col justify-center px-4 py-16">
-    <p className="tnum m-0 text-meta text-ink-3">{code}</p>
-    <h1 className="m-0 mt-3 font-serif text-title font-normal text-ink">{title}</h1>
-    <div className="mt-4 text-body text-ink-2">{children}</div>
-    <div className="mt-6 flex flex-wrap items-center gap-6">{actions}</div>
-  </main>
+  <CenteredShell>
+    <p className="m-0 text-15 font-semibold text-primary">{code}</p>
+    <h1 className="m-0 mt-2 text-24 font-semibold text-ink">{title}</h1>
+    <div className="mt-2 text-15 text-ink-2">{children}</div>
+    <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-15 font-semibold">{actions}</div>
+  </CenteredShell>
 );

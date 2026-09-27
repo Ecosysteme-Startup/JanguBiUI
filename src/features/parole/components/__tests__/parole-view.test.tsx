@@ -16,47 +16,54 @@ const serveToday = (body: JsonBodyType = paroleDay, status = 200) =>
   server.use(http.get(apiUrl('/liturgy/today/'), () => HttpResponse.json(body, { status })));
 
 describe('ParoleView — lectures du jour', () => {
-  it('affiche les lectures du jour avec leurs versets, l’acclamation et la notice de droits', async () => {
+  it('ouvre l’Évangile par défaut, avec ses versets, l’acclamation, la notice de droits et la fiche du jour', async () => {
     serveToday();
     renderApp(<ParoleView />);
 
-    const article = await screen.findByRole('article', { name: /lectures de la messe du jeudi 24 septembre 2026/i });
-    expect(within(article).getByRole('heading', { name: 'Ecclésiaste' })).toBeInTheDocument();
-    expect(within(article).getByRole('heading', { name: 'Psaumes' })).toBeInTheDocument();
-    expect(within(article).getByRole('heading', { name: 'Luc' })).toBeInTheDocument();
-    expect(within(article).getByText(/une génération s’en va/i)).toBeInTheDocument();
-    expect(within(article).getByText('— Parole du Seigneur.')).toBeInTheDocument();
-    expect(within(article).getByText('— Acclamons la Parole de Dieu.')).toBeInTheDocument();
-    expect(screen.getByText(/texte de la Bible Crampon \(1923\), domaine public/i)).toBeInTheDocument();
-    expect(screen.getByText(/férie · jeudi de la 25e semaine du temps ordinaire · année paire/i)).toBeInTheDocument();
+    const panel = await screen.findByRole('tabpanel');
+    expect(within(panel).getByRole('heading', { name: 'Évangile de Jésus Christ selon saint Luc' })).toBeInTheDocument();
+    expect(within(panel).getByText(/hérode le tétrarque/i)).toBeInTheDocument();
+    expect(within(panel).getByText('Acclamons la Parole de Dieu.')).toBeInTheDocument();
+    expect(within(panel).getByText(/texte de la Bible Crampon \(1923\), domaine public/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'La Parole du jour' })).toBeInTheDocument();
+    expect(screen.getByText((_, el) => el?.tagName === 'P' && /^jeudi 24 septembre 2026, jeudi de la 25e semaine/i.test(el.textContent ?? ''))).toBeInTheDocument();
+
+    const fiche = screen.getByRole('region', { name: /jeudi de la 25/i });
+    expect(within(fiche).getByText('Année paire, cycle A')).toBeInTheDocument();
+    expect(within(fiche).getByText('Lc 9, 7-9')).toBeInTheDocument();
   });
 
-  it('propose l’audio, la méditation publiée et les prolongements vers la Bible et le chapelet', async () => {
+  it('propose l’audio, la méditation publiée, le chapitre entier et les autres lectures', async () => {
     serveToday();
+    const user = userEvent.setup();
     const { container } = renderApp(<ParoleView />);
 
-    await screen.findByRole('article');
+    await screen.findByRole('tabpanel');
     expect(container.querySelector('audio')).toHaveAttribute('src', paroleDay.audio_url);
-    const meditation = screen.getByRole('region', { name: 'Méditation du jour' });
+    const meditation = screen.getByRole('region', { name: 'Pour méditer' });
     expect(within(meditation).getByText('Compter nos jours, chercher le Christ.')).toBeInTheDocument();
-    expect(await within(meditation).findByText('Augustin Ndiaye')).toBeInTheDocument();
+    expect(within(meditation).getByText('Augustin Ndiaye')).toBeInTheDocument();
     expect(within(meditation).getByText(/chercher le Christ pour le suivre/i)).toBeInTheDocument();
 
-    expect(screen.getByRole('link', { name: /ouvrir ecclésiaste, chapitre 1/i })).toHaveAttribute(
-      'href',
-      '/app/bible/Eccl%C3%A9siaste/1',
-    );
-    expect(screen.getByRole('link', { name: /chapelet du jeudi.*mystères lumineux/i })).toHaveAttribute('href', '/app/chapelet');
+    expect(screen.getByRole('link', { name: /lire tout le chapitre de luc 9/i })).toHaveAttribute('href', '/app/bible/Luc/9');
+    expect(screen.getByRole('link', { name: 'Chapelet' })).toHaveAttribute('href', '/app/chapelet');
+
+    const autres = screen.getByRole('region', { name: /les autres lectures du jour/i });
+    await user.click(within(autres).getByRole('button', { name: /première lecture · ec 1, 2-11/i }));
+    const panel = screen.getByRole('tabpanel');
+    expect(within(panel).getByRole('heading', { name: 'Ecclésiaste' })).toBeInTheDocument();
+    expect(within(panel).getByText('Parole du Seigneur.')).toBeInTheDocument();
   });
 
-  it('change de jour par l’URL : la date demandée est chargée et la navigation pointe vers les jours voisins', async () => {
+  it('change de jour par l’URL : la semaine de la date est affichée et les flèches changent de semaine', async () => {
     renderApp(<ParoleView date="2026-09-23" />);
 
-    expect(await screen.findByText(/la parole · mercredi 23 septembre 2026/i)).toBeInTheDocument();
+    expect(await screen.findByText((_, el) => el?.tagName === 'P' && /^mercredi 23 septembre 2026/i.test(el.textContent ?? ''))).toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: 'Changer de jour' });
     expect(within(nav).getByRole('link', { current: 'date' })).toHaveAttribute('href', '/app/parole?date=2026-09-23');
-    expect(within(nav).getByRole('link', { name: 'Jour précédent' })).toHaveAttribute('href', '/app/parole?date=2026-09-22');
-    expect(within(nav).getByRole('link', { name: 'Jour suivant' })).toHaveAttribute('href', '/app/parole?date=2026-09-24');
+    expect(within(nav).getAllByRole('listitem')).toHaveLength(7);
+    expect(within(nav).getByRole('link', { name: 'Semaine précédente' })).toHaveAttribute('href', '/app/parole?date=2026-09-16');
+    expect(within(nav).getByRole('link', { name: 'Semaine suivante' })).toHaveAttribute('href', '/app/parole?date=2026-09-30');
     expect(screen.getByRole('link', { name: /revenir aux lectures d’aujourd’hui/i })).toHaveAttribute('href', '/app/parole');
   });
 
@@ -64,8 +71,8 @@ describe('ParoleView — lectures du jour', () => {
     renderApp(<ParoleView date="2026-09-23" />);
 
     expect(await screen.findByText('Les lectures de ce jour ne sont pas encore en ligne.')).toBeInTheDocument();
-    expect(screen.queryByRole('article')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Bible' })).toHaveAttribute('href', '/app/bible');
+    expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument();
+    for (const link of screen.getAllByRole('link', { name: 'Bible' })) expect(link).toHaveAttribute('href', '/app/bible');
   });
 
   it('affiche une erreur explicite et permet de réessayer', async () => {
@@ -78,25 +85,25 @@ describe('ParoleView — lectures du jour', () => {
 
     serveToday();
     await user.click(screen.getByRole('button', { name: 'Réessayer' }));
-    expect(await screen.findByRole('article')).toBeInTheDocument();
+    expect(await screen.findByRole('tabpanel')).toBeInTheDocument();
   });
 
-  it('règle la taille du texte et, sur mobile, montre une lecture à la fois (Évangile par défaut)', async () => {
+  it('règle la taille du texte et passe d’une lecture à l’autre au clavier', async () => {
     serveToday();
     const user = userEvent.setup();
     renderApp(<ParoleView />);
 
-    await screen.findByRole('article');
-    expect(screen.getByRole('button', { name: 'Texte grand' })).toHaveAttribute('aria-pressed', 'true');
-    await user.click(screen.getByRole('button', { name: 'Texte très grand' }));
-    expect(screen.getByRole('button', { name: 'Texte très grand' })).toHaveAttribute('aria-pressed', 'true');
+    await screen.findByRole('tabpanel');
+    await user.click(screen.getByRole('button', { name: 'Taille du texte : normal' }));
+    expect(screen.getByRole('button', { name: 'Taille du texte : grand' })).toBeInTheDocument();
 
     const tabs = screen.getByRole('tablist', { name: 'Lectures du jour' });
-    expect(within(tabs).getByRole('tab', { name: /évangile/i })).toHaveAttribute('aria-selected', 'true');
-    await user.click(within(tabs).getByRole('tab', { name: /première lecture/i }));
-    expect(within(tabs).getByRole('tab', { name: /première lecture/i })).toHaveAttribute('aria-selected', 'true');
-    expect(document.getElementById('lecture-1')).not.toHaveClass('hidden');
-    expect(document.getElementById('lecture-3')).toHaveClass('hidden');
+    const gospel = within(tabs).getByRole('tab', { name: 'Évangile' });
+    expect(gospel).toHaveAttribute('aria-selected', 'true');
+    gospel.focus();
+    await user.keyboard('{Home}');
+    expect(within(tabs).getByRole('tab', { name: 'Lecture' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(screen.getByRole('tabpanel')).getByRole('heading', { name: 'Ecclésiaste' })).toBeInTheDocument();
   });
 
   it('assainit le texte AELF avant de l’afficher', async () => {

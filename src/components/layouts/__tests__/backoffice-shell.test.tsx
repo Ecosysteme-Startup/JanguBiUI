@@ -24,15 +24,14 @@ describe('BackofficeShell', () => {
     expect(nav.queryByRole('link', { name: /messagerie/i })).not.toBeInTheDocument();
   });
 
-  it('affiche le contexte, son parent, l’office et le fil d’Ariane', async () => {
+  it('affiche le contexte, son rattachement dans la barre supérieure et l’office', async () => {
     navigation.pathname = `/espace/${ids.saintDominique}/demandes`;
     renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>, { capacites: grantsSecretaire });
 
     expect(await screen.findByRole('button', { name: /changer de contexte : saint-dominique/i })).toBeInTheDocument();
-    expect(await screen.findByText('Archidiocèse de Dakar')).toBeInTheDocument();
+    expect(await screen.findByText(/Saint-Dominique · Archidiocèse de Dakar/)).toBeInTheDocument();
     expect(await screen.findByText('Secrétaire paroissiale')).toBeInTheDocument();
-    const crumbs = within(screen.getByRole('navigation', { name: /fil d.ariane/i }));
-    expect(crumbs.getByText(/demandes d.actes/i)).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: /revenir à mon espace fidèle/i })).toHaveAttribute('href', '/app');
   });
 
   it('montre dans le pied le titre réel de la nomination, jamais la double forme du catalogue', async () => {
@@ -63,7 +62,7 @@ describe('BackofficeShell', () => {
 
     const nav = await navOf(/^espace diocèse$/i);
     expect(nav.getByRole('link', { name: /structure/i })).toBeInTheDocument();
-    expect(nav.getByRole('link', { name: /annuaire du clergé/i })).toBeInTheDocument();
+    expect(nav.getByRole('link', { name: /^clergé$/i })).toBeInTheDocument();
     expect(nav.queryByRole('link', { name: /annonces/i })).not.toBeInTheDocument();
   });
 

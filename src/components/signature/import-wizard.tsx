@@ -101,11 +101,11 @@ export const ImportWizard = ({ eyebrow, title, columns, extra, ready = true, sim
   };
 
   return (
-    <section aria-labelledby={`${id}-titre`} className="flex flex-col gap-6 border border-line bg-surface p-6">
+    <section aria-labelledby={`${id}-titre`} className="flex flex-col gap-6 rounded-16 border border-line bg-paper p-6 shadow-card">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="tnum m-0 text-meta text-ink-2">{eyebrow}</p>
-          <h2 id={`${id}-titre`} className="m-0 mt-2 font-serif text-h3 font-normal text-ink">
+          <p className="m-0 text-14 text-ink-3">{eyebrow}</p>
+          <h2 id={`${id}-titre`} className="m-0 mt-1 text-20 font-semibold text-ink">
             {title}
           </h2>
         </div>
@@ -125,12 +125,13 @@ export const ImportWizard = ({ eyebrow, title, columns, extra, ready = true, sim
           >
             <input
               type="file"
+              // Zone de dépôt en pointillés rayon 12, bouton « Choisir un fichier » en contour (WEB-DIO-Nominations).
               accept=".csv,text/csv"
               onChange={(e) => {
                 setFile(e.target.files?.[0] ?? null);
                 setFileError(undefined);
               }}
-              className="text-base text-ink file:mr-4 file:h-11 file:rounded file:border file:border-line-strong file:bg-transparent file:px-4 file:text-base file:text-ink"
+              className="w-full cursor-pointer rounded-12 border border-dashed border-line-field bg-surface p-4 text-14 text-ink-2 file:mr-4 file:h-10 file:cursor-pointer file:rounded-12 file:border file:border-solid file:border-line file:bg-paper file:px-4 file:text-15 file:font-semibold file:text-ink hover:file:bg-surface"
             />
           </Field>
           {extra}
@@ -148,21 +149,21 @@ export const ImportWizard = ({ eyebrow, title, columns, extra, ready = true, sim
             <p className="tnum m-0 text-sm text-ink-2">
               Fichier déposé <span className="font-medium text-ink">{file.name}</span> · {plural(report.lines.length, 'ligne', 'lignes')} · {sizeOf(file.size)}{' '}
               ·{' '}
-              <Button variant="tertiary" size="sm" className="h-auto min-h-0" onClick={restart}>
+              <Button variant="ghost" size="sm" onClick={restart}>
                 Remplacer
               </Button>
             </p>
           )}
-          <dl className="m-0 grid grid-cols-3 gap-6 border-t border-line-strong">
+          <dl className="m-0 grid grid-cols-3 gap-6 border-t border-line">
             {[
               { label: 'Lignes valides', value: report.valid, hint: 'Applicables', tone: 'text-ink' },
               { label: 'Avertissements', value: report.warnings, hint: 'Applicables, à relire', tone: 'text-warn' },
               { label: 'Erreurs', value: report.errors, hint: 'Bloquantes : rien n’est appliqué', tone: 'text-err' },
             ].map((item) => (
               <div key={item.label} className="pt-3">
-                <dt className="tnum text-meta text-ink-3">{item.label}</dt>
-                <dd className={cn('m-0 mt-1 font-serif text-h2', item.tone)}>{item.value}</dd>
-                <dd className="m-0 text-sm text-ink-2">{item.hint}</dd>
+                <dt className="text-13 text-ink-3">{item.label}</dt>
+                <dd className={cn('tnum m-0 mt-1 text-24 font-semibold', item.tone)}>{item.value}</dd>
+                <dd className="m-0 text-14 text-ink-2">{item.hint}</dd>
               </div>
             ))}
           </dl>
@@ -175,12 +176,12 @@ export const ImportWizard = ({ eyebrow, title, columns, extra, ready = true, sim
                 aria-pressed={tab === t.status}
                 onClick={() => setTab(t.status)}
                 className={cn(
-                  '-mb-px inline-flex h-11 items-center gap-2 border-b-2 text-base',
-                  tab === t.status ? 'border-primary font-semibold text-ink' : 'border-transparent text-ink-2 hover:text-primary',
+                  '-mb-px inline-flex h-11 items-center gap-1.5 border-b-2 text-15',
+                  tab === t.status ? 'border-primary font-semibold text-ink' : 'border-transparent font-medium text-ink-2 hover:text-ink',
                 )}
               >
                 {t.label}
-                <span className="tnum text-meta text-ink-3">{counts[t.status]}</span>
+                <span className="tnum text-13 font-normal text-ink-3">{counts[t.status]}</span>
               </button>
             ))}
           </div>

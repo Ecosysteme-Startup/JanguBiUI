@@ -3,35 +3,46 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { lazy, Suspense, useState } from 'react';
-import { Controller, type UseFormReturn, useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { type UseFormReturn, useForm } from 'react-hook-form';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
+import { Badge, type BadgeTone } from '@/components/ui/badge';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
-import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { Skeleton, LoadingBlock } from '@/components/ui/skeleton';
+import { LoadingBlock } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
 import { useBackofficePlaces } from '@/hooks/use-backoffice-places';
+import { displayName, useMe } from '@/hooks/use-me';
+import { useNode } from '@/hooks/use-node';
 import { apiErrorCode, apiErrorMessage, apiFieldErrors, isForbidden } from '@/utils/api-errors';
 import { dayjs, hour } from '@/utils/dates';
+import { parishLabel } from '@/utils/parish-name';
 
 import { useStaffArticle } from '../api/get-staff-article';
 import { type SaveArticleInput, useDeleteArticle, useSaveArticle, useUnpublishArticle } from '../api/save-article';
-import type { StaffArticle } from '../api/staff-article';
+import type { ArticleStatus, StaffArticle } from '../api/staff-article';
 import { sanitizeArticleHtml, textToHtml } from '../utils/sanitize-html';
 
+import { AppPreview } from './app-preview';
 import { stamp, statusLabel } from './article-status';
-import { CoverAltFields } from './cover-alt-fields';
-import { CoverPicker } from './cover-picker';
-import { type EditorValues, editorSchema, TITLE_MAX, EXCERPT_MAX } from './editor-schema';
+import { ContentFields } from './content-fields';
+import { type EditorValues, editorSchema } from './editor-schema';
 import { PublicationPanel } from './publication-panel';
 
-const RichTextEditor = lazy(() => import('./rich-text-editor'));
+const STATUS_TONE: Record<ArticleStatus, BadgeTone> = { draft: 'neutral', scheduled: 'info', published: 'ok', unpublished: 'muted' };
+
+/** « la paroisse Saint-Dominique » dans une phrase (« Rédigée par … pour la paroisse … »). */
+const lowerParish = (name: string) => {
+  const label = parishLabel(name);
+  return /^paroisse /i.test(label) ? `la ${label.charAt(0).toLowerCase()}${label.slice(1)}` : label;
+};
 
 type Action = 'draft' | 'publish' | 'schedule' | 'save';
 
@@ -136,7 +147,7 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
   const router = useRouter();
   const places = useBackofficePlaces(nodeId);
   const form = useForm<EditorValues>({ resolver: zodResolver(editorSchema), defaultValues: defaultsOf(article) });
-  const { register, control, handleSubmit, formState, watch, setError, setValue } = form;
+  const { handleSubmit, watch, setError } = form;
   const [pending, setPending] = useState<Action | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
@@ -158,13 +169,16 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
     },
   });
 
-  const title = watch('title');
-  const excerpt = watch('excerpt');
   const when = watch('when');
   const isSunday = watch('is_sunday_notice');
   const contentType = watch('content_type');
   const status = article?.status ?? 'draft';
   const isLive = status === 'published';
+  const canDelete = article !== null && (status === 'draft' || status === 'unpublished');
+  const me = useMe();
+  const node = useNode(nodeId);
+  const nodeName = node.data?.name;
+  const author = article?.author_name ?? (displayName(me.data).full || undefined);
 
   const run = (action: Action) =>
     handleSubmit(async (values) => {
@@ -203,141 +217,76 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
       }
     })();
 
-  const scheduleLabel = (() => {
-    const at = scheduledAt({ publish_date: watch('publish_date'), publish_time: watch('publish_time') });
-    return 'iso' in at ? `Programmer · ${stamp(at.iso)}` : 'Programmer';
-  })();
+  const pageTitle = heading(article, { is_sunday_notice: isSunday, content_type: contentType });
 
   return (
     <form noValidate onSubmit={(e) => e.preventDefault()}>
-      <NextLink href={listHref} className="inline-flex h-11 items-center gap-2 text-sm font-medium">
-        <Icon name="fleche-gauche" size={16} /> Retour · Annonces
-      </NextLink>
-      <div className="mt-2 flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-2" aria-live="polite">
-            <span className="text-primary">{statusLabel(status)}</span>
-            {article && <> — {article.author_name}</>}
-            {savedAt ? <> · enregistré à {savedAt}</> : article && <> · modifié le {dayjs(article.updated_at).format('DD.MM')}</>}
+      <TopbarContent start={<Breadcrumbs separator="slash" items={[{ label: 'Annonces', href: listHref }, { label: pageTitle }]} />} />
+      <header className="flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0">
+          <p className="m-0 flex flex-wrap items-center gap-2" aria-live="polite">
+            <Badge tone={STATUS_TONE[status]} dot>
+              {statusLabel(status)}
+            </Badge>
+            <span className="tnum text-14 text-ink-3">
+              {savedAt ? `Enregistré à ${savedAt}` : article ? `Modifié le ${dayjs(article.updated_at).format('D MMMM à H:mm')}` : 'Pas encore enregistré'}
+            </span>
           </p>
-          <h1 className="m-0 mt-2 font-serif text-title font-normal text-ink">{heading(article, { is_sunday_notice: isSunday, content_type: contentType })}</h1>
+          <h1 className="m-0 mt-2 text-32 font-semibold text-ink">{pageTitle}</h1>
+          {(author || nodeName) && (
+            <p className="m-0 mt-1 text-16 text-ink-2">
+              {author ? `Rédigée par ${author}` : 'Rédigée'}
+              {nodeName ? ` pour ${lowerParish(nodeName)}` : ''}.
+            </p>
+          )}
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 lg:pt-8">
           {isLive ? (
             <>
-              <Button variant="danger" onClick={() => setConfirm('unpublish')}>
+              <Button variant="outline" className="min-h-11 text-14" onClick={() => setConfirm('unpublish')}>
                 Retirer
               </Button>
-              <Button onClick={() => run('save')} disabled={pending !== null}>
+              <Button className="min-h-11 px-5" onClick={() => run('save')} disabled={pending !== null}>
                 {pending === 'save' ? 'Enregistrement…' : 'Enregistrer les modifications'}
               </Button>
             </>
           ) : (
             <>
-              <Button variant="tertiary" onClick={() => run('draft')} disabled={pending !== null}>
+              {canDelete && (
+                <Button variant="outline" className="min-h-11 text-14" aria-label="Supprimer le brouillon" onClick={() => setConfirm('delete')}>
+                  <Icon name="corbeille" size={18} className="text-ink-2" /> Supprimer
+                </Button>
+              )}
+              <Button variant="outline" className="min-h-11 text-14" onClick={() => run('draft')} disabled={pending !== null}>
                 {pending === 'draft' ? 'Enregistrement…' : status === 'scheduled' ? 'Enregistrer' : 'Enregistrer le brouillon'}
               </Button>
-              <Button variant={when === 'schedule' ? 'secondary' : 'primary'} onClick={() => run('publish')} disabled={pending !== null}>
-                {pending === 'publish' ? 'Publication…' : 'Publier maintenant'}
-              </Button>
-              {when === 'schedule' && (
-                <Button onClick={() => run('schedule')} disabled={pending !== null}>
-                  {pending === 'schedule' ? 'Programmation…' : scheduleLabel}
+              {when === 'schedule' ? (
+                <Button className="min-h-11 px-5" onClick={() => run('schedule')} disabled={pending !== null}>
+                  <Icon name="horloge" size={18} />
+                  {pending === 'schedule' ? 'Programmation…' : 'Programmer la publication'}
+                </Button>
+              ) : (
+                <Button className="min-h-11 px-5" onClick={() => run('publish')} disabled={pending !== null}>
+                  {pending === 'publish' ? 'Publication…' : 'Publier maintenant'}
                 </Button>
               )}
             </>
           )}
         </div>
-      </div>
+      </header>
 
       {failure && (
-        <p role="alert" className="m-0 mt-4 flex items-center gap-2 text-sm text-err">
+        <p role="alert" className="m-0 mt-4 flex items-center gap-2 text-14 text-err">
           <Icon name="alerte" size={16} /> {failure}
         </p>
       )}
 
-      <div className="mt-6 grid items-start gap-6 lg:grid-cols-12">
-        <section aria-label="Contenu de l’annonce" className="flex flex-col gap-6 lg:col-span-8">
-          <Field
-            id="ed-titre"
-            required
-            label={
-              <>
-                <span className="tnum text-primary">01</span> — Titre
-              </>
-            }
-            error={formState.errors.title?.message}
-            counter={{ value: title.length, max: TITLE_MAX }}
-          >
-            <Input {...register('title')} className="font-serif text-h4" />
-          </Field>
-          <Field
-            id="ed-chapo"
-            label={
-              <>
-                <span className="tnum text-primary">02</span> — Chapô
-              </>
-            }
-            hint="Repris dans la liste des annonces et dans la notification envoyée aux fidèles."
-            error={formState.errors.excerpt?.message}
-            counter={{ value: excerpt.length, max: EXCERPT_MAX }}
-          >
-            <Textarea {...register('excerpt')} rows={2} />
-          </Field>
-          <div className="flex flex-col gap-2">
-            <p id="ed-banniere-titre" className="m-0 text-sm font-semibold text-ink">
-              <span className="tnum text-primary">03</span> — Bannière
-            </p>
-            <Controller
-              control={control}
-              name="cover_image_id"
-              render={({ field, fieldState }) => (
-                <CoverPicker
-                  id="ed-banniere"
-                  value={{ id: field.value, url: watch('cover_image_url') }}
-                  alt={watch('cover_image_decorative') ? '' : watch('cover_image_alt')}
-                  error={fieldState.error?.message}
-                  onChange={(cover) => {
-                    field.onChange(cover.id);
-                    setValue('cover_image_url', cover.url, { shouldDirty: true });
-                  }}
-                />
-              )}
-            />
-            {watch('cover_image_id') !== null && <CoverAltFields form={form} />}
-          </div>
-          <div className="flex flex-col gap-2">
-            <p id="ed-corps-titre" className="m-0 text-sm font-semibold text-ink">
-              Corps{' '}
-              <span className="text-err" aria-hidden="true">
-                *
-              </span>
-            </p>
-            <Controller
-              control={control}
-              name="content"
-              render={({ field, fieldState }) => (
-                <Suspense fallback={<Skeleton className="h-80 w-full" />}>
-                  <RichTextEditor
-                    id="ed-corps"
-                    label="Corps de l’annonce"
-                    initialHtml={field.value}
-                    onChange={(html) => setValue('content', html, { shouldValidate: formState.isSubmitted, shouldDirty: true })}
-                    invalid={Boolean(fieldState.error)}
-                    describedBy={fieldState.error ? 'ed-corps-erreur' : undefined}
-                  />
-                </Suspense>
-              )}
-            />
-            {formState.errors.content && (
-              <p id="ed-corps-erreur" role="alert" className="m-0 flex items-center gap-2 text-sm text-err">
-                <Icon name="alerte" size={16} /> {formState.errors.content.message}
-              </p>
-            )}
-          </div>
-        </section>
-
-        <PublicationPanel form={form} article={article} places={places.data ?? []} onDelete={() => setConfirm('delete')} />
+      <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_368px]">
+        <ContentFields form={form} places={places.data ?? []} nodeLabel={nodeName ? parishLabel(nodeName) : 'Toute la paroisse'} />
+        <aside aria-label="Aperçu et publication" className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-6">
+          <AppPreview form={form} nodeName={nodeName ?? ''} />
+          <PublicationPanel form={form} article={article} />
+        </aside>
       </div>
 
       <Modal

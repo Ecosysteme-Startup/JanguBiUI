@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { extractFirstLink, waitForLastEmail } from '../helpers/mailpit';
 
 test.describe('Visiteur', () => {
@@ -8,7 +9,7 @@ test.describe('Visiteur', () => {
     await page.screenshot({ path: `docs/v1/recette/captures/01/visiteur-accueil-${testInfo.project.name}.png`, fullPage: true });
 
     await page.goto('/parole');
-    await expect(page.getByText(/parole|lecture/i).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { level: 1, name: /la parole du jour/i })).toBeVisible({ timeout: 10_000 });
     await page.screenshot({ path: `docs/v1/recette/captures/01/visiteur-parole-${testInfo.project.name}.png`, fullPage: true });
   });
 
@@ -39,7 +40,7 @@ test.describe('Visiteur', () => {
     await page.goto('/pour-les-paroisses');
     await page.getByRole('link', { name: /contact/i }).first().click().catch(() => undefined);
 
-    await page.getByLabel(/prénom et nom/i).fill('Paroisse de Test E2E');
+    await page.getByLabel(/nom et prénom/i).fill('Paroisse de Test E2E');
     await page.getByLabel(/fonction/i).selectOption({ label: 'Secrétaire paroissiale' });
     await page.getByLabel(/paroisse ou service/i).fill('Paroisse de Test E2E');
     await page.getByLabel(/diocèse/i).selectOption({ label: 'Archidiocèse de Dakar' });
@@ -48,7 +49,12 @@ test.describe('Visiteur', () => {
     await page.getByRole('checkbox', { name: /j.accepte que numerisen/i }).check();
 
     await page.getByRole('button', { name: 'Envoyer la demande' }).click();
-    await expect(page.getByText(/envoyé|merci|reçu|transmise/i).first()).toBeVisible({ timeout: 10_000 });
+    // L'API limite les envois par adresse IP (anti-abus) : après plusieurs passages de la suite,
+    // l'utilisateur doit voir un message français clair plutôt qu'une confirmation.
+    const sent = page.getByText(/envoyé|merci|reçu|transmise/i).first();
+    const throttled = page.getByText(/trop de tentatives\. réessayez/i);
+    await expect(sent.or(throttled)).toBeVisible({ timeout: 10_000 });
+    if (await throttled.isVisible()) return;
 
     const mail = await waitForLastEmail('contact@numerisen.sn', { timeoutMs: 15_000, subjectContains: 'Test E2E' }).catch(() =>
       waitForLastEmail('contact@numerisen.sn', { timeoutMs: 5_000 }),

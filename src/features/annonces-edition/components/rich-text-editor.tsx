@@ -23,19 +23,13 @@ type RichTextEditorProps = {
 
 /** Styles du contenu : ceux de la lecture fidèle (FID-Annonce), en tokens. */
 const contentClasses = cn(
-  'min-h-72 px-5 py-4 text-body text-ink outline-none',
-  '[&_p]:my-3 [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:font-serif [&_h2]:text-h3 [&_h2]:font-normal',
-  '[&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:font-serif [&_h3]:text-h4 [&_h3]:font-normal',
-  '[&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6',
-  '[&_blockquote]:my-4 [&_blockquote]:border-l-0 [&_blockquote]:font-serif [&_blockquote]:text-lead [&_blockquote]:italic [&_blockquote]:text-ink-2',
+  'min-h-[196px] px-[18px] py-4 text-16 leading-relaxed text-ink outline-none',
+  '[&>*:first-child]:mt-0 [&_p]:mb-0 [&_p]:mt-3 [&_strong]:font-semibold',
+  '[&_h2]:mb-1 [&_h2]:mt-5 [&_h2]:text-20 [&_h2]:font-semibold [&_h3]:mb-1 [&_h3]:mt-4 [&_h3]:text-17 [&_h3]:font-semibold',
+  '[&_ul]:mb-0 [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-[22px] [&_ol]:mb-0 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:pl-[22px]',
+  '[&_blockquote]:my-4 [&_blockquote]:font-serif [&_blockquote]:text-18 [&_blockquote]:italic [&_blockquote]:text-ink-2',
   '[&_a]:text-primary [&_a]:underline',
 );
-
-const STYLES = [
-  { value: 'p', label: 'Paragraphe' },
-  { value: 'h2', label: 'Titre de section' },
-  { value: 'h3', label: 'Sous-titre' },
-] as const;
 
 type ToolProps = { icon?: IconName; text?: string; label: string; active?: boolean; onClick: () => void };
 
@@ -47,15 +41,15 @@ const Tool = ({ icon, text, label, active, onClick }: ToolProps) => (
     title={label}
     onClick={onClick}
     className={cn(
-      'hit inline-flex size-9 items-center justify-center rounded text-base text-ink transition-colors hover:bg-surface-2',
-      active && 'bg-tint-50 text-primary-strong',
+      'hit inline-flex size-8 items-center justify-center rounded-8 text-15 font-semibold text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink',
+      active && 'bg-surface-2 text-ink',
     )}
   >
     {icon ? <Icon name={icon} size={20} /> : text}
   </button>
 );
 
-const Separator = () => <span aria-hidden="true" className="mx-1 h-6 w-px bg-line" />;
+const Separator = () => <span aria-hidden="true" className="mx-1.5 h-5 w-px bg-line" />;
 
 const LinkField = ({ editor, onDone }: { editor: Editor; onDone: () => void }) => {
   const fieldId = useId();
@@ -77,7 +71,7 @@ const LinkField = ({ editor, onDone }: { editor: Editor; onDone: () => void }) =
   };
   return (
     <div className="flex flex-wrap items-end gap-2 border-b border-line bg-surface px-3 py-2">
-      <label htmlFor={fieldId} className="flex flex-col gap-1 text-sm font-semibold text-ink">
+      <label htmlFor={fieldId} className="flex flex-col gap-1 text-14 font-medium text-ink">
         Adresse du lien
         <input
           id={fieldId}
@@ -91,7 +85,7 @@ const LinkField = ({ editor, onDone }: { editor: Editor; onDone: () => void }) =
             }
           }}
           aria-invalid={error ? true : undefined}
-          className="h-9 w-72 rounded border border-line-field bg-paper px-2 text-sm font-normal text-ink"
+          className="h-9 w-72 max-w-full rounded-10 border border-line-field bg-paper px-3 text-14 font-normal text-ink"
         />
       </label>
       <Button size="sm" onClick={apply}>
@@ -101,7 +95,7 @@ const LinkField = ({ editor, onDone }: { editor: Editor; onDone: () => void }) =
         Annuler
       </Button>
       {error && (
-        <p role="alert" className="m-0 w-full text-sm text-err">
+        <p role="alert" className="m-0 w-full text-13 text-err">
           {error}
         </p>
       )}
@@ -110,12 +104,11 @@ const LinkField = ({ editor, onDone }: { editor: Editor; onDone: () => void }) =
 };
 
 const Toolbar = ({ editor }: { editor: Editor }) => {
-  const styleId = useId();
   const [linkOpen, setLinkOpen] = useState(false);
   const state = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
-      style: e.isActive('heading', { level: 2 }) ? 'h2' : e.isActive('heading', { level: 3 }) ? 'h3' : 'p',
+      heading: e.isActive('heading', { level: 2 }),
       bold: e.isActive('bold'),
       italic: e.isActive('italic'),
       bullet: e.isActive('bulletList'),
@@ -126,39 +119,21 @@ const Toolbar = ({ editor }: { editor: Editor }) => {
     }),
   });
   const chain = () => editor.chain().focus();
-  const setStyle = (value: string) => {
-    if (value === 'p') chain().setParagraph().run();
-    else chain().setHeading({ level: value === 'h2' ? 2 : 3 }).run();
-  };
 
   return (
     <>
-      <div role="toolbar" aria-label="Mise en forme" className="flex flex-wrap items-center gap-1 border-b border-line bg-surface px-2 py-1.5">
-        <label htmlFor={styleId} className="sr-only">
-          Style de paragraphe
-        </label>
-        <select
-          id={styleId}
-          value={state.style}
-          onChange={(e) => setStyle(e.target.value)}
-          className="h-9 rounded border border-line bg-paper px-2 text-sm text-ink"
-        >
-          {STYLES.map((s) => (
-            <option key={s.value} value={s.value}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-        <Separator />
+      <div role="toolbar" aria-label="Mise en forme" className="flex flex-wrap items-center gap-0.5 border-b border-line bg-surface px-2 py-1.5">
+        <Tool text="H" label="Intertitre" active={state.heading} onClick={() => chain().toggleHeading({ level: 2 }).run()} />
         <Tool text="B" label="Gras" active={state.bold} onClick={() => chain().toggleBold().run()} />
         <Tool text="I" label="Italique" active={state.italic} onClick={() => chain().toggleItalic().run()} />
-        <Separator />
         <Tool icon="liste" label="Liste à puces" active={state.bullet} onClick={() => chain().toggleBulletList().run()} />
         <Tool icon="liste-numerotee" label="Liste numérotée" active={state.ordered} onClick={() => chain().toggleOrderedList().run()} />
         <Separator />
         <Tool icon="lien" label="Lien" active={state.link || linkOpen} onClick={() => setLinkOpen((o) => !o)} />
         <Tool icon="citation" label="Citation" active={state.quote} onClick={() => chain().toggleBlockquote().run()} />
-        <span className="tnum ml-auto pr-2 text-meta text-ink-3">{state.stats}</span>
+        <Separator />
+        <Tool icon="annuler" label="Annuler la dernière modification" onClick={() => chain().undo().run()} />
+        <span className="tnum ml-auto pr-1 text-13 text-ink-3">{state.stats}</span>
       </div>
       {linkOpen && <LinkField editor={editor} onDone={() => setLinkOpen(false)} />}
     </>
@@ -204,8 +179,15 @@ export const RichTextEditor = ({ id, label, initialHtml, onChange, invalid, desc
   }, [editor, invalid, describedBy]);
 
   return (
-    <div className={cn('rounded border bg-paper', invalid ? 'border-2 border-err' : 'border-line-field')}>
-      {editor ? <Toolbar editor={editor} /> : <div className="h-12 border-b border-line bg-surface" />}
+    <div
+      className={cn(
+        'overflow-hidden rounded-12 border bg-paper',
+        invalid
+          ? 'border-err-line ring-1 ring-inset ring-err-line'
+          : 'border-line-field focus-within:border-primary focus-within:ring-1 focus-within:ring-inset focus-within:ring-primary',
+      )}
+    >
+      {editor ? <Toolbar editor={editor} /> : <div className="h-11 border-b border-line bg-surface" />}
       <EditorContent editor={editor} />
     </div>
   );

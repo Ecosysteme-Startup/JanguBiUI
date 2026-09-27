@@ -1,70 +1,112 @@
-import DOMPurify from 'isomorphic-dompurify';
+'use client';
 
+import DOMPurify from 'isomorphic-dompurify';
+import { useId, useState } from 'react';
+
+import { IconButton } from '@/components/ui/icon-button';
+import { paths } from '@/config/paths';
 import type { Reading } from '@/features/parole/api/get-liturgy-day';
-import { TEXT_SIZES, type TextSize } from '@/features/parole/components/text-size-control';
-import { closingFormula, readingLabel, readingTitle } from '@/features/parole/utils/liturgy';
+import { TEXT_SIZES, TextSizeControl, type TextSize } from '@/features/parole/components/text-size-control';
+import { closingFormula, readingLabel, readingPlainText, readingTitle } from '@/features/parole/utils/liturgy';
 import { cn } from '@/utils/cn';
+import { longDate } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
 
 /** Texte AELF : balises de texte seulement, aucun attribut (ni image, ni lien, ni script). */
 const READING_SANITIZE = { ALLOWED_TAGS: ['p', 'br', 'sup', 'em', 'i', 'strong', 'b', 'span'], ALLOWED_ATTR: [] };
 
-export const readingAnchor = (index: number) => `lecture-${index + 1}`;
-export const readingNumber = (index: number) => String(index + 1).padStart(2, '0');
-
-/** Une lecture de la messe : légende numérotée, titre, versets numérotés, acclamation. */
-export const ReadingSection = ({
-  reading,
-  index,
-  size,
-  hiddenOnMobile,
-}: {
+type Props = {
   reading: Reading;
-  index: number;
+  date: string;
+  notice: string;
   size: TextSize;
-  hiddenOnMobile: boolean;
-}) => {
-  const titleId = `${readingAnchor(index)}-titre`;
-  const closing = closingFormula(reading.type);
+  onSize: (size: TextSize) => void;
+};
+
+/** La lecture choisie (FID-Parole) : titre, outils (taille, copier, partager), versets, acclamation. */
+export const ReadingSection = ({ reading, date, notice, size, onSize }: Props) => {
+  const [status, setStatus] = useState('');
+  const titleId = useId();
+  const closing = closingFormula(reading.type)?.replace(/^—\s*/, '');
   const firstChapter = reading.verses[0]?.chapter;
+  const publicUrl = () => `${window.location.origin}${paths.parole.getHref(date)}`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(readingPlainText(reading));
+      setStatus('Texte de la lecture copié.');
+    } catch {
+      setStatus('Copie impossible : sélectionnez le texte.');
+    }
+  };
+
+  const share = async () => {
+    const title = `Les lectures du ${longDate(date).toLowerCase()}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url: publicUrl() });
+        return;
+      }
+      await navigator.clipboard.writeText(publicUrl());
+      setStatus('Lien des lectures copié.');
+    } catch {
+      setStatus('Partage impossible pour le moment.');
+    }
+  };
+
+  const shareOnWhatsApp = () => {
+    const text = `Les lectures du ${longDate(date).toLowerCase()} : ${publicUrl()}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <section
-      id={readingAnchor(index)}
-      aria-labelledby={titleId}
-      className={cn('scroll-mt-6', hiddenOnMobile && 'hidden lg:block')}
-    >
-      <p className="tnum m-0 flex items-baseline justify-between gap-4 border-t border-line-strong pt-3 text-meta text-ink-2">
-        <span>
-          <span className="text-primary">{readingNumber(index)}</span> — {readingLabel(reading.type)}
-        </span>
-        <span>{reading.citation}</span>
-      </p>
-      <h2 id={titleId} className="m-0 mt-4 font-serif text-[1.8125rem] font-normal leading-[1.1] tracking-[-0.01em] text-ink">
-        {readingTitle(reading)}
-      </h2>
+    <article aria-labelledby={titleId} className="mt-8">
+      <div className="flex flex-wrap-reverse items-start justify-between gap-x-6 gap-y-2">
+        <div className="min-w-0 flex-1 basis-60">
+          <p className="m-0 text-14 text-ink-3">{readingLabel(reading.type)}</p>
+          <h2 id={titleId} className="m-0 mt-1 text-24 font-semibold text-ink">
+            {readingTitle(reading)}
+          </h2>
+          <p className="tnum m-0 mt-1 text-15 text-ink-2">{reading.citation}</p>
+        </div>
+        <div className="flex shrink-0 gap-1">
+          <TextSizeControl value={size} onChange={onSize} />
+          <IconButton icon="copier" label="Copier le texte" className="text-ink-2" onClick={copy} />
+          <IconButton icon="partager" label="Partager" className="text-ink-2" onClick={share} />
+        </div>
+      </div>
+
       {reading.verses.length > 0 ? (
-        <div className="mt-6 flex max-w-reading flex-col gap-2 font-serif text-ink">
+        <div className={cn('mt-7 font-serif text-ink', TEXT_SIZES[size].reading)}>
           {reading.verses.map((v) => (
-            <p key={`${v.chapter}-${v.number}`} className={cn('m-0 grid grid-cols-[40px_minmax(0,1fr)] gap-2', TEXT_SIZES[size].reading)}>
-              <span className="tnum pt-1.5 font-sans text-meta text-primary">
-                {v.chapter === firstChapter ? v.number : `${v.chapter}, ${v.number}`}
-              </span>
-              <span>{frenchTypo(v.text)}</span>
+            <p key={`${v.chapter}-${v.number}`} className="m-0 [&+p]:mt-4">
+              <sup className="tnum mr-1.5 font-sans text-12 text-ink-3">{v.chapter === firstChapter ? v.number : `${v.chapter}, ${v.number}`}</sup>
+              {frenchTypo(v.text)}
             </p>
           ))}
+          {closing && <p className="m-0 mt-7 text-ink-2">{closing}</p>}
         </div>
       ) : reading.text ? (
-        <div
-          className={cn('mt-6 max-w-reading font-serif text-ink [&_p]:m-0 [&_p]:mb-3', TEXT_SIZES[size].reading)}
-          // Texte AELF (source « aelf ») : HTML fourni par l'API, assaini avant affichage.
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(reading.text, READING_SANITIZE) }}
-        />
+        <div className={cn('mt-7 font-serif text-ink [&_p]:m-0 [&_p+p]:mt-4', TEXT_SIZES[size].reading)}>
+          <div
+            // Texte AELF (source « aelf ») : HTML fourni par l'API, assaini avant affichage.
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(reading.text, READING_SANITIZE) }}
+          />
+          {closing && <p className="m-0 mt-7 text-ink-2">{closing}</p>}
+        </div>
       ) : (
-        <p className="m-0 mt-6 max-w-reading text-base text-ink-3">Le texte de cette lecture n’est pas encore disponible.</p>
+        <p className="m-0 mt-7 text-16 text-ink-3">Le texte de cette lecture n’est pas encore disponible.</p>
       )}
-      {closing && (reading.verses.length > 0 || reading.text) && (
-        <p className="m-0 ml-12 mt-4 font-serif text-h4 italic leading-[1.3] text-ink-2">{closing}</p>
-      )}
-    </section>
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line pt-4 text-13 text-ink-3">
+        <span>{notice}</span>
+        <button type="button" onClick={shareOnWhatsApp} className="hit font-medium text-primary hover:text-primary-strong">
+          Envoyer sur WhatsApp
+        </button>
+      </div>
+      <p role="status" aria-live="polite" className="m-0 min-h-5 text-13 text-ink-3">
+        {status}
+      </p>
+    </article>
   );
 };

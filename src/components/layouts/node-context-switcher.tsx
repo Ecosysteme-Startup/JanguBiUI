@@ -3,60 +3,68 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import NextLink from 'next/link';
 
-import { Icon } from '@/components/ui/icon';
+import { Icon, type IconName } from '@/components/ui/icon';
 import { type BackofficeKind, backofficeKindOf } from '@/config/nav';
 import { paths } from '@/config/paths';
 import type { NodeContext } from '@/lib/can';
 
 const KIND_LABEL: Record<BackofficeKind, string> = { paroisse: 'Paroisses', diocese: 'Diocèses et doyennés', plateforme: 'Plateforme' };
+const KIND_ICON: Record<BackofficeKind, IconName> = { paroisse: 'paroisse', diocese: 'diocese', plateforme: 'globe' };
 const ORDER: BackofficeKind[] = ['paroisse', 'diocese', 'plateforme'];
 
 export const hrefOfContext = (context: NodeContext) =>
   context.nodeId ? paths.espace.root.getHref(context.nodeId) : paths.plateforme.root.getHref();
 
-type Props = { current: { eyebrow: string; name: string; parent?: string }; contexts: NodeContext[]; currentId: string | null };
+type Props = {
+  kind: BackofficeKind;
+  /** `name` : nom du nœud ; `space` : « Espace paroisse » ; `parent` : rattachement (infobulle). */
+  current: { name: string; space: string; parent?: string };
+  contexts: NodeContext[];
+  currentId: string | null;
+};
 
-/** Sélecteur de contexte (PAR/DIO/PLA-Tableau-de-bord) : nœuds où l'on détient une capacité, groupés par niveau. */
-export const NodeContextSwitcher = ({ current, contexts, currentId }: Props) => {
-  const groups = ORDER.map((kind) => ({ kind, items: contexts.filter((c) => backofficeKindOf(c.type) === kind) })).filter((g) => g.items.length);
+/**
+ * Sélecteur de nœud en tête de la barre latérale (WEB-PAR-*, 232 × 56) : pastille 32 b100, nom
+ * 15/600 et espace 13 ink3, chevron ; ouvre la liste des nœuds où l'on détient une capacité.
+ */
+export const NodeContextSwitcher = ({ kind, current, contexts, currentId }: Props) => {
+  const groups = ORDER.map((k) => ({ kind: k, items: contexts.filter((c) => backofficeKindOf(c.type) === k) })).filter((g) => g.items.length);
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        aria-label={`Changer de contexte : ${current.name}`}
-        className="mt-6 flex w-full items-center justify-between gap-2 rounded border border-line-field bg-paper p-3 text-left text-ink hover:border-ink"
+        aria-label={`Changer de contexte : ${current.name}, ${current.space.toLowerCase()}`}
+        className="flex min-h-14 w-full items-center gap-2.5 rounded-12 border border-line bg-paper px-3 py-2 text-left text-ink shadow-card transition-colors hover:border-line-active"
       >
-        <span className="flex min-w-0 flex-col gap-1">
-          <span className="tnum text-meta text-ink-3">{current.eyebrow}</span>
+        <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-8 bg-tint-100 text-primary-strong">
+          <Icon name={KIND_ICON[kind]} size={18} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col leading-[18px]">
           {/* Deux lignes, puis coupe avec infobulle (A11Y-18) : « Paroisse Saint-Dominique » reste lisible. */}
-          <span title={current.name} className="line-clamp-2 break-words font-serif text-[1.3125rem] leading-[1.1]">
+          <span title={current.parent ? `${current.name} · ${current.parent}` : current.name} className="line-clamp-2 break-words text-15 font-semibold leading-[18px]">
             {current.name}
           </span>
-          {current.parent && (
-            <span title={current.parent} className="line-clamp-2 break-words text-xs text-ink-2">
-              {current.parent}
-            </span>
-          )}
+          <span className="text-13 leading-[18px] text-ink-3">{current.space}</span>
         </span>
-        <Icon name="chevron-bas" size={18} />
+        <Icon name="chevron-bas" size={18} className="shrink-0 text-ink-3" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           align="start"
           sideOffset={6}
-          className="z-50 max-h-[60vh] w-[260px] overflow-y-auto rounded border border-line-strong bg-paper p-2 shadow-modal"
+          className="z-50 max-h-[60vh] w-[260px] overflow-y-auto rounded-12 border border-line bg-paper p-1.5 shadow-menu"
         >
           {groups.map((group) => (
             <DropdownMenu.Group key={group.kind}>
-              <DropdownMenu.Label className="tnum px-2 pb-1 pt-2 text-meta text-ink-3">{KIND_LABEL[group.kind]}</DropdownMenu.Label>
+              <DropdownMenu.Label className="px-2.5 pb-1 pt-1.5 text-13 text-ink-3">{KIND_LABEL[group.kind]}</DropdownMenu.Label>
               {group.items.map((context) => (
                 <DropdownMenu.Item key={context.nodeId ?? 'plateforme'} asChild>
                   <NextLink
                     href={hrefOfContext(context)}
                     aria-current={context.nodeId === currentId ? 'true' : undefined}
-                    className="flex min-h-11 items-center justify-between gap-2 rounded px-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-2"
+                    className="flex min-h-9 items-center justify-between gap-2 rounded-8 px-2.5 text-14 text-ink outline-none hover:text-ink data-[highlighted]:bg-surface-2"
                   >
                     {context.name}
-                    {context.nodeId === currentId && <Icon name="check" size={16} />}
+                    {context.nodeId === currentId && <Icon name="check" size={16} className="text-primary" />}
                   </NextLink>
                 </DropdownMenu.Item>
               ))}

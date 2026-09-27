@@ -26,19 +26,19 @@ describe('PAR-Demandes', () => {
     const table = await screen.findByRole('table');
     expect(within(table).getAllByRole('row')).toHaveLength(7);
     expect(within(table).getByRole('link', { name: 'DOC-20260921-00412' })).toHaveAttribute('href', `${base}/${ACTE_IDS.verification}`);
-    expect(within(table).getByText('En retard')).toBeInTheDocument();
+    expect(within(table).getByTitle('En retard')).toHaveTextContent(/j, en retard$/);
     expect(await screen.findByRole('button', { name: /^toutes 6/i })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: /^soumises 1/i })).toBeInTheDocument();
   });
 
-  it('accorde le nombre de demandes dans la file (« 1 demande », « 6 demandes »)', async () => {
+  it('accorde le nombre de demandes au pied de la file (« 1 demande », « 6 demandes »)', async () => {
     const { unmount } = renderApp(<QueueView nodeId={ids.saintDominique} />);
-    expect(await screen.findByText(/6 demandes dans la file/)).toBeInTheDocument();
+    expect(await screen.findByText('6 demandes')).toBeInTheDocument();
     unmount();
 
     actesState.requests = actesState.requests.slice(0, 1);
     renderApp(<QueueView nodeId={ids.saintDominique} />);
-    expect(await screen.findByText(/— Registre · 1 demande dans la file/)).toBeInTheDocument();
+    expect(await screen.findByText('1 demande')).toBeInTheDocument();
   });
 
   it('filtre par statut, type et retard, et garde les filtres dans l’URL', async () => {
@@ -55,7 +55,7 @@ describe('PAR-Demandes', () => {
 
     await user.click(screen.getByRole('button', { name: /en retard/i }));
     expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?statut=under_verification&type=baptism&retard=1`, { scroll: false });
-    await vi.waitFor(() => expect(within(screen.getByRole('table')).getByText('DOC-20260921-00412')).toBeInTheDocument());
+    await vi.waitFor(() => expect(within(screen.getByRole('table')).getByRole('link', { name: 'DOC-20260921-00412' })).toBeInTheDocument());
   });
 
   it('montre le motif et la personne assignée, et filtre par motif, période et assignation', async () => {
@@ -64,18 +64,18 @@ describe('PAR-Demandes', () => {
     const table = await screen.findByRole('table');
 
     const row = within(table).getByRole('link', { name: 'DOC-20260921-00412' }).closest('tr') as HTMLElement;
-    expect(within(row).getByText('Germaine Faye')).toBeInTheDocument();
-    expect(within(row).getByText('Mariage religieux')).toBeInTheDocument();
+    expect(within(row).getByTitle('Germaine Faye')).toHaveTextContent('G. Faye');
+    expect(within(row).getByText(/· pour mariage religieux$/)).toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText('Motif'), 'personal');
     expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?motif=personal`, { scroll: false });
     await vi.waitFor(() => expect(within(screen.getByRole('table')).getAllByRole('row')).toHaveLength(2));
-    expect(within(screen.getByRole('table')).getByText('DOC-20260904-00399')).toBeInTheDocument();
+    expect(within(screen.getByRole('table')).getByRole('link', { name: 'DOC-20260904-00399' })).toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText('Motif'), '');
     await user.selectOptions(screen.getByLabelText('Assignation'), 'aucun');
     expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?assigne=aucun`, { scroll: false });
-    await vi.waitFor(() => expect(within(screen.getByRole('table')).queryByText('DOC-20260921-00412')).not.toBeInTheDocument());
+    await vi.waitFor(() => expect(within(screen.getByRole('table')).queryByRole('link', { name: 'DOC-20260921-00412' })).not.toBeInTheDocument());
 
     await user.selectOptions(screen.getByLabelText('Période de réception'), '7j');
     expect(navigation.replace).toHaveBeenLastCalledWith(`${base}?periode=7j&assigne=aucun`, { scroll: false });

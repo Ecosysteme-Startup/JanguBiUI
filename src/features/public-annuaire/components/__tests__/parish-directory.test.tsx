@@ -38,21 +38,22 @@ describe('Annuaire des paroisses', () => {
     renderApp(<DirectoryPage />);
 
     expect(await screen.findByText('12 paroisses')).toBeInTheDocument();
-    const link = list().getByRole('link', { name: /paroisse saint-dominique/i });
+    expect(await screen.findByText(/, dont 1 sur jàngu bi/i)).toBeInTheDocument();
+    const link = list().getByRole('link', { name: /saint-dominique/i });
     expect(link).toHaveAttribute('href', '/paroisses/DAK-SAINT-DOMINIQUE');
-    expect(link).toHaveTextContent('Active');
-    expect(list().getByRole('link', { name: /saint-joseph de médina/i })).toHaveTextContent('Fiche d’annuaire');
+    expect(link).toHaveTextContent('Sur Jàngu Bi');
+    expect(list().getByRole('link', { name: /saint-joseph de médina/i })).toHaveTextContent('Annuaire diocésain');
     expect(list().getAllByRole('listitem')).toHaveLength(10);
   });
 
-  it('affiche les messes du dimanche et le doyenné de chaque paroisse', async () => {
+  it('affiche le lieu, le doyenné et la prochaine messe (ou les messes du dimanche)', async () => {
     renderApp(<DirectoryPage />);
 
     expect(await screen.findByText('12 paroisses')).toBeInTheDocument();
-    const link = list().getByRole('link', { name: /paroisse saint-dominique/i });
-    expect(link).toHaveTextContent('Avenue Cheikh Anta Diop, Point E, Dakar · Doyenné Plateau-Médina');
-    expect(link).toHaveTextContent('7 h 30 · 9 h 30 · 11 h 30 · 18 h 30');
-    expect(list().getByRole('link', { name: /saint-joseph de médina/i })).toHaveTextContent('Non renseignées');
+    const link = list().getByRole('link', { name: /saint-dominique/i });
+    expect(link).toHaveTextContent('Avenue Cheikh Anta Diop, Point E, Dakar · doyenné Plateau-Médina');
+    await waitFor(() => expect(link).toHaveTextContent(/prochaine messe/i));
+    expect(list().getByRole('link', { name: /saint-joseph de médina/i })).not.toHaveTextContent(/messe/i);
   });
 
   it('pagine par dix et garde la page dans l’URL', async () => {
@@ -72,15 +73,15 @@ describe('Annuaire des paroisses', () => {
     renderApp(<DirectoryPage />);
     await screen.findByText('12 paroisses');
 
-    await user.type(screen.getByLabelText('Paroisse, quartier ou ville'), 'Médina');
+    await user.type(screen.getByLabelText('Rechercher'), 'Médina');
 
     expect(await screen.findByText('1 paroisse')).toBeInTheDocument();
     expect(navigation.replace).toHaveBeenLastCalledWith('/paroisses?q=M%C3%A9dina', { scroll: false });
     expect(list().getByRole('link', { name: /saint-joseph de médina/i })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /retirer le filtre « médina »/i }));
+    await user.click(screen.getByRole('button', { name: 'Effacer les filtres' }));
     expect(await screen.findByText('12 paroisses')).toBeInTheDocument();
-    expect(screen.getByLabelText('Paroisse, quartier ou ville')).toHaveValue('');
+    expect(screen.getByLabelText('Rechercher')).toHaveValue('');
   });
 
   it('filtre par diocèse puis par doyenné (sous-arbre)', async () => {
@@ -98,7 +99,7 @@ describe('Annuaire des paroisses', () => {
     await waitFor(() => expect(doyenne).toBeEnabled());
     await user.selectOptions(doyenne, 'Plateau-Médina');
     expect(await screen.findByText('3 paroisses')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /retirer le filtre doyenné plateau-médina/i })).toBeInTheDocument();
+    expect(navigation.replace).toHaveBeenLastCalledWith(expect.stringMatching(/doyenne=/), { scroll: false });
   });
 
   it('restreint aux paroisses actives sur Jàngu Bi', async () => {
@@ -106,7 +107,7 @@ describe('Annuaire des paroisses', () => {
     renderApp(<DirectoryPage />);
     await screen.findByText('12 paroisses');
 
-    await user.click(screen.getByRole('checkbox', { name: 'Active sur Jàngu Bi' }));
+    await user.click(screen.getByRole('switch', { name: 'Sur Jàngu Bi seulement' }));
 
     expect(await screen.findByText('1 paroisse')).toBeInTheDocument();
     expect(navigation.replace).toHaveBeenLastCalledWith('/paroisses?active=1', { scroll: false });
@@ -116,7 +117,7 @@ describe('Annuaire des paroisses', () => {
     renderApp(<DirectoryPage initial="q=ouakam" />);
 
     expect(await screen.findByText('1 paroisse')).toBeInTheDocument();
-    expect(screen.getByLabelText('Paroisse, quartier ou ville')).toHaveValue('ouakam');
+    expect(screen.getByLabelText('Rechercher')).toHaveValue('ouakam');
   });
 
   it('explique une recherche sans résultat et propose d’effacer les filtres', async () => {

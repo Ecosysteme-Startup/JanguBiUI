@@ -4,7 +4,11 @@ import type { Capacite } from '@/lib/capacites';
 
 export type NavLeaf = { label: string; href: string; icon?: IconName; match?: 'exact' | 'prefix' };
 
-/** Espace fidèle (FID-Accueil) : rubriques et sous-rubriques de la sidebar. */
+/**
+ * Espace fidèle (WEB-FID-*) : cinq rubriques de la barre latérale. Les sous-rubriques (Bible,
+ * Chapelet, Annonces…) vivent dans la page (contrôle segmenté, onglets), plus dans la barre ;
+ * `children` reste la liste de référence de la recherche rapide et du menu mobile.
+ */
 export const FIDELE_NAV: (NavLeaf & { children?: NavLeaf[] })[] = [
   { label: 'Accueil', href: paths.app.root.getHref(), icon: 'accueil', match: 'exact' },
   {
@@ -37,8 +41,13 @@ export const FIDELE_NAV: (NavLeaf & { children?: NavLeaf[] })[] = [
       { label: 'Rendez-vous de confession', href: paths.app.confession.getHref() },
     ],
   },
-  { label: 'Profil', href: paths.app.profil.getHref(), icon: 'profil' },
 ];
+
+/** Rubriques de la barre latérale actives aussi sur ces chemins (Bible et Chapelet sont « La Parole »). */
+export const FIDELE_ALIASES: Record<string, string[]> = {
+  [paths.app.parole.getHref()]: [paths.app.bible.root.getHref(), paths.app.chapelet.getHref()],
+  [paths.app.pretres.list.getHref()]: [paths.app.confession.getHref()],
+};
 
 /** Barre mobile (MOB-Accueil) : cinq entrées fixes ; le reste est dans le menu « Plus ». */
 export const MOBILE_TABS: NavLeaf[] = [
@@ -93,75 +102,61 @@ export const BACKOFFICE_LABEL: Record<BackofficeKind, string> = {
 export type BackofficeItem = NavLeaf & { capacites: Capacite[] };
 export type BackofficeGroup = { title: string; items: BackofficeItem[] };
 
-/** Sidebar du back-office : une entrée n'apparaît que si l'une de ses capacités est détenue. */
+/**
+ * Barre latérale du back-office (WEB-PAR-*, WEB-DIO-*, WEB-PLA-*) : groupes séparés par un filet,
+ * sans titre. Une entrée n'apparaît que si l'une de ses capacités est détenue.
+ */
 export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeGroup[] => {
   if (kind === 'plateforme') {
     return [
       {
-        title: 'Pilotage',
+        title: 'Plateforme',
         items: [
-          { label: 'Tableau de bord', href: paths.plateforme.root.getHref(), icon: 'accueil', match: 'exact', capacites: ['plateforme.admin'] },
-        ],
-      },
-      {
-        title: 'Paramétrage',
-        items: [
+          { label: 'Tableau de bord', href: paths.plateforme.root.getHref(), icon: 'tableau-de-bord', match: 'exact', capacites: ['plateforme.admin'] },
           { label: 'Référentiels', href: paths.plateforme.referentiels.getHref(), icon: 'structure', capacites: ['plateforme.admin'] },
           { label: 'Comptes', href: paths.plateforme.comptes.getHref(), icon: 'utilisateurs', capacites: ['plateforme.admin'] },
-        ],
-      },
-      {
-        title: 'Conformité',
-        items: [
-          { label: 'Journal d’audit', href: paths.plateforme.audit.getHref(), icon: 'bouclier', capacites: ['plateforme.admin', 'audit.voir'] },
+          { label: 'Journal d’audit', href: paths.plateforme.audit.getHref(), icon: 'historique', capacites: ['plateforme.admin', 'audit.voir'] },
         ],
       },
     ];
   }
   const e = paths.espace;
-  const pilotage: BackofficeGroup = {
-    title: 'Pilotage',
-    items: [
-      { label: 'Tableau de bord', href: e.root.getHref(nodeId), icon: 'accueil', match: 'exact', capacites: ['tableau_bord.voir'] },
-      { label: 'Journal d’audit', href: e.audit.getHref(nodeId), icon: 'bouclier', capacites: ['audit.voir'] },
-    ],
-  };
   if (kind === 'diocese') {
     return [
-      pilotage,
       {
         title: 'Gouvernance',
         items: [
+          { label: 'Tableau de bord', href: e.root.getHref(nodeId), icon: 'tableau-de-bord', match: 'exact', capacites: ['tableau_bord.voir'] },
           { label: 'Structure', href: e.structure.getHref(nodeId), icon: 'structure', capacites: ['structure.gerer'] },
-          { label: 'Nominations', href: e.nominations.getHref(nodeId), icon: 'utilisateurs', capacites: ['offices.nommer'] },
-          { label: 'Annuaire du clergé', href: e.clerge.getHref(nodeId), icon: 'bouclier', capacites: ['personnes.verifier'] },
+          { label: 'Nominations', href: e.nominations.getHref(nodeId), icon: 'utilisateur-ok', capacites: ['offices.nommer'] },
+          { label: 'Clergé', href: e.clerge.getHref(nodeId), icon: 'utilisateurs', capacites: ['personnes.verifier'] },
         ],
+      },
+      {
+        title: 'Administration',
+        items: [{ label: 'Journal d’audit', href: e.audit.getHref(nodeId), icon: 'historique', capacites: ['audit.voir'] }],
       },
     ];
   }
   return [
-    pilotage,
     {
       title: 'Vie paroissiale',
       items: [
-        { label: 'Annonces', href: e.annonces.list.getHref(nodeId), icon: 'annonce', capacites: ['annonces.publier'] },
-        { label: 'Horaires et lieux de culte', href: e.horaires.getHref(nodeId), icon: 'horloge', capacites: ['horaires.gerer'] },
-        { label: 'Agenda', href: e.agenda.getHref(nodeId), icon: 'calendrier', capacites: ['evenements.gerer'] },
-      ],
-    },
-    {
-      title: 'Sacrements et accueil',
-      items: [
+        { label: 'Aujourd’hui', href: e.root.getHref(nodeId), icon: 'aujourdhui', match: 'exact', capacites: ['tableau_bord.voir'] },
         { label: 'Demandes d’actes', href: e.demandes.list.getHref(nodeId), icon: 'document', capacites: ['actes.traiter'] },
         { label: 'Messagerie', href: e.messagerie.getHref(nodeId), icon: 'message', capacites: ['messagerie.recevoir_fideles'] },
-        { label: 'Confessions', href: e.confessions.getHref(nodeId), icon: 'confession', capacites: ['confessions.gerer', 'confessions.voir_planning'] },
+        { label: 'Confessions', href: e.confessions.getHref(nodeId), icon: 'calendrier-horloge', capacites: ['confessions.gerer', 'confessions.voir_planning'] },
+        { label: 'Annonces', href: e.annonces.list.getHref(nodeId), icon: 'annonce', capacites: ['annonces.publier'] },
+        { label: 'Horaires et lieux', href: e.horaires.getHref(nodeId), icon: 'horloge', capacites: ['horaires.gerer'] },
+        { label: 'Agenda', href: e.agenda.getHref(nodeId), icon: 'calendrier', capacites: ['evenements.gerer'] },
       ],
     },
     {
       title: 'Administration',
       items: [
-        { label: 'Équipe et nominations', href: e.equipe.getHref(nodeId), icon: 'utilisateurs', capacites: ['offices.nommer', 'tableau_bord.voir'] },
+        { label: 'Équipe', href: e.equipe.getHref(nodeId), icon: 'utilisateurs', capacites: ['offices.nommer', 'tableau_bord.voir'] },
         { label: 'Paramètres', href: e.parametres.getHref(nodeId), icon: 'reglages', capacites: ['horaires.gerer'] },
+        { label: 'Journal d’audit', href: e.audit.getHref(nodeId), icon: 'historique', capacites: ['audit.voir'] },
       ],
     },
   ];

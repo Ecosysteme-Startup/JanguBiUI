@@ -16,9 +16,9 @@ type Props = {
 };
 
 const Row = ({ term, children }: { term: string; children: React.ReactNode }) => (
-  <div className="grid gap-1 border-b border-line py-3 sm:grid-cols-[200px_minmax(0,1fr)] sm:gap-4">
-    <dt className="tnum text-meta text-ink-3">{term}</dt>
-    <dd className="m-0 text-base text-ink">{children}</dd>
+  <div className="grid gap-1 border-t border-line py-3 sm:grid-cols-[200px_minmax(0,1fr)] sm:gap-4">
+    <dt className="text-14 text-ink-3">{term}</dt>
+    <dd className="m-0 text-15 font-medium text-ink">{children}</dd>
   </div>
 );
 
@@ -32,7 +32,7 @@ export const WizardStepRecap = ({ options, file, followed, onEdit }: Props) => {
 
   return (
     <div>
-      <dl className="m-0 border-t border-line-strong">
+      <dl className="m-0">
         <Row term="Acte demandé">{v.document_type === 'other' ? v.document_type_free : type?.label}</Row>
         <Row term="Paroisse du sacrement">{v.parish?.name}</Row>
         <Row term="Au nom de">
@@ -59,14 +59,14 @@ export const WizardStepRecap = ({ options, file, followed, onEdit }: Props) => {
             : `Au secrétariat de ${v.parish?.name ?? 'la paroisse du sacrement'}`}
         </Row>
       </dl>
-      <div className="mt-4 flex flex-wrap gap-6">
-        <Button variant="tertiary" size="sm" onClick={() => onEdit(0)}>
+      <div className="mt-2 flex flex-wrap gap-2 border-t border-line pt-3">
+        <Button variant="ghost" size="sm" onClick={() => onEdit(0)}>
           Modifier l’acte
         </Button>
-        <Button variant="tertiary" size="sm" onClick={() => onEdit(1)}>
+        <Button variant="ghost" size="sm" onClick={() => onEdit(1)}>
           Modifier la paroisse
         </Button>
-        <Button variant="tertiary" size="sm" onClick={() => onEdit(2)}>
+        <Button variant="ghost" size="sm" onClick={() => onEdit(2)}>
           Modifier les informations
         </Button>
       </div>

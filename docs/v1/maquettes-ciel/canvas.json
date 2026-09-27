@@ -1,0 +1,983 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Main.dc.html": {
+      "h": 1320,
+      "is_interactive": true,
+      "page": "sommaire",
+      "title": "Sommaire",
+      "w": 1200,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-Accueil.dc.html": {
+      "h": 5883,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Accueil public · sombre",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-Connexion.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Connexion · sombre",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "Sombre-WEB-DIO-Clerge.dc.html": {
+      "h": 1110,
+      "is_interactive": true,
+      "page": "sdio",
+      "title": "Espace diocèse · Clergé · sombre",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Sombre-WEB-DIO-Nominations.dc.html": {
+      "h": 1806,
+      "is_interactive": true,
+      "page": "sdio",
+      "title": "Espace diocèse · Nominations · sombre",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Sombre-WEB-DIO-Structure.dc.html": {
+      "h": 1248,
+      "is_interactive": true,
+      "page": "sdio",
+      "title": "Espace diocèse · Structure · sombre",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sombre-WEB-DIO-Tableau-de-bord.dc.html": {
+      "h": 1415,
+      "is_interactive": true,
+      "page": "sdio",
+      "title": "Espace diocèse · Tableau de bord · sombre",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-Design-System.dc.html": {
+      "h": 8000,
+      "is_interactive": true,
+      "page": "sds",
+      "title": "Design system web · sombre",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-Erreur-404.dc.html": {
+      "h": 899,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Page introuvable · sombre",
+      "w": 1440,
+      "x": 13680,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Accueil.dc.html": {
+      "h": 1360,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Accueil fidèle · sombre",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Annonce.dc.html": {
+      "h": 1048,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Annonce, quête impérée · sombre",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Bible.dc.html": {
+      "h": 1072,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Bible, Luc 9 · sombre",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Chapelet.dc.html": {
+      "h": 944,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Chapelet · sombre",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Confession-RDV.dc.html": {
+      "h": 820,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Rendez-vous de confession · sombre",
+      "w": 1440,
+      "x": 19760,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Conversation.dc.html": {
+      "h": 960,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Conversation · sombre",
+      "w": 1440,
+      "x": 18240,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Demande-Nouvelle.dc.html": {
+      "h": 1419,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Nouvelle demande · sombre",
+      "w": 1440,
+      "x": 13680,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Demande-Suivi.dc.html": {
+      "h": 1224,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Suivi de demande · sombre",
+      "w": 1440,
+      "x": 15200,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Demandes.dc.html": {
+      "h": 880,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Mes demandes · sombre",
+      "w": 1440,
+      "x": 12160,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Evenement.dc.html": {
+      "h": 972,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Événement, messe de rentrée · sombre",
+      "w": 1440,
+      "x": 9120,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Ma-Paroisse.dc.html": {
+      "h": 1768,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Ma paroisse · sombre",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Notifications.dc.html": {
+      "h": 1209,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Notifications · sombre",
+      "w": 1440,
+      "x": 10640,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Parole.dc.html": {
+      "h": 1722,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "La Parole du jour · sombre",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Pretres.dc.html": {
+      "h": 975,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Prêtres joignables · sombre",
+      "w": 1440,
+      "x": 16720,
+      "y": 0
+    },
+    "Sombre-WEB-FID-Profil.dc.html": {
+      "h": 1857,
+      "is_interactive": true,
+      "page": "sfid",
+      "title": "Profil et réglages · sombre",
+      "w": 1440,
+      "x": 21280,
+      "y": 0
+    },
+    "Sombre-WEB-Fiche-Paroisse.dc.html": {
+      "h": 2540,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Fiche paroisse · sombre",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Sombre-WEB-Inscription-Compte.dc.html": {
+      "h": 1032,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Créer un compte · sombre",
+      "w": 1440,
+      "x": 9120,
+      "y": 0
+    },
+    "Sombre-WEB-Inscription-Consentement.dc.html": {
+      "h": 986,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Consentements · sombre",
+      "w": 1440,
+      "x": 12160,
+      "y": 0
+    },
+    "Sombre-WEB-Inscription-Paroisse.dc.html": {
+      "h": 1107,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Choisir sa paroisse · sombre",
+      "w": 1440,
+      "x": 10640,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Agenda.dc.html": {
+      "h": 1032,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Agenda · sombre",
+      "w": 1440,
+      "x": 9120,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Annonce-Editeur.dc.html": {
+      "h": 1312,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Nouvelle annonce · sombre",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Annonces.dc.html": {
+      "h": 1232,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Annonces · sombre",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Confessions.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Confessions · sombre",
+      "w": 1440,
+      "x": 12160,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Demande-Detail.dc.html": {
+      "h": 1472,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · JB-2026-00405 · sombre",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Demandes.dc.html": {
+      "h": 1259,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Demandes d'actes · sombre",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Equipe.dc.html": {
+      "h": 888,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Équipe · sombre",
+      "w": 1440,
+      "x": 13680,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Horaires.dc.html": {
+      "h": 1256,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Horaires et lieux · sombre",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Messagerie.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Messagerie · sombre",
+      "w": 1440,
+      "x": 10640,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Parametres.dc.html": {
+      "h": 1696,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Paramètres · sombre",
+      "w": 1440,
+      "x": 15200,
+      "y": 0
+    },
+    "Sombre-WEB-PAR-Tableau-de-bord.dc.html": {
+      "h": 1375,
+      "is_interactive": true,
+      "page": "spar",
+      "title": "Espace paroisse · Aujourd'hui · sombre",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-PLA-Audit.dc.html": {
+      "h": 1087,
+      "is_interactive": true,
+      "page": "spla",
+      "title": "Plateforme · Journal d'audit · sombre",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Sombre-WEB-PLA-Comptes.dc.html": {
+      "h": 1103,
+      "is_interactive": true,
+      "page": "spla",
+      "title": "Plateforme · Comptes · sombre",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Sombre-WEB-PLA-Referentiels.dc.html": {
+      "h": 1340,
+      "is_interactive": true,
+      "page": "spla",
+      "title": "Plateforme · Référentiels · sombre",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sombre-WEB-PLA-Tableau-de-bord.dc.html": {
+      "h": 1023,
+      "is_interactive": true,
+      "page": "spla",
+      "title": "Plateforme · Tableau de bord · sombre",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Sombre-WEB-Paroisses.dc.html": {
+      "h": 1620,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Paroisses · sombre",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Sombre-WEB-Parole-du-jour.dc.html": {
+      "h": 1917,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Parole du jour · sombre",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sombre-WEB-Pour-les-paroisses.dc.html": {
+      "h": 4798,
+      "is_interactive": true,
+      "page": "spub",
+      "title": "Pour les paroisses · sombre",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "WEB-Accueil.dc.html": {
+      "h": 5883,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Accueil public",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WEB-Connexion.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Connexion",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "WEB-DIO-Clerge.dc.html": {
+      "h": 1110,
+      "is_interactive": true,
+      "page": "dio",
+      "title": "Espace diocèse · Clergé",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "WEB-DIO-Nominations.dc.html": {
+      "h": 1806,
+      "is_interactive": true,
+      "page": "dio",
+      "title": "Espace diocèse · Nominations",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "WEB-DIO-Structure.dc.html": {
+      "h": 1248,
+      "is_interactive": true,
+      "page": "dio",
+      "title": "Espace diocèse · Structure",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "WEB-DIO-Tableau-de-bord.dc.html": {
+      "h": 1415,
+      "is_interactive": true,
+      "page": "dio",
+      "title": "Espace diocèse · Tableau de bord",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WEB-Design-System.dc.html": {
+      "h": 8000,
+      "is_interactive": true,
+      "page": "ds",
+      "title": "Design system web",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WEB-Erreur-404.dc.html": {
+      "h": 899,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Page introuvable",
+      "w": 1440,
+      "x": 13680,
+      "y": 0
+    },
+    "WEB-FID-Accueil.dc.html": {
+      "h": 1360,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Accueil fidèle",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WEB-FID-Annonce.dc.html": {
+      "h": 1048,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Annonce, quête impérée",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "WEB-FID-Bible.dc.html": {
+      "h": 1072,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Bible, Luc 9",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "WEB-FID-Chapelet.dc.html": {
+      "h": 944,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Chapelet",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "WEB-FID-Confession-RDV.dc.html": {
+      "h": 820,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Rendez-vous de confession",
+      "w": 1440,
+      "x": 19760,
+      "y": 0
+    },
+    "WEB-FID-Conversation.dc.html": {
+      "h": 960,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Conversation",
+      "w": 1440,
+      "x": 18240,
+      "y": 0
+    },
+    "WEB-FID-Demande-Nouvelle.dc.html": {
+      "h": 1419,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Nouvelle demande",
+      "w": 1440,
+      "x": 13680,
+      "y": 0
+    },
+    "WEB-FID-Demande-Suivi.dc.html": {
+      "h": 1224,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Suivi de demande",
+      "w": 1440,
+      "x": 15200,
+      "y": 0
+    },
+    "WEB-FID-Demandes.dc.html": {
+      "h": 880,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Mes demandes",
+      "w": 1440,
+      "x": 12160,
+      "y": 0
+    },
+    "WEB-FID-Evenement.dc.html": {
+      "h": 972,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Événement, messe de rentrée",
+      "w": 1440,
+      "x": 9120,
+      "y": 0
+    },
+    "WEB-FID-Ma-Paroisse.dc.html": {
+      "h": 1768,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Ma paroisse",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "WEB-FID-Notifications.dc.html": {
+      "h": 1209,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Notifications",
+      "w": 1440,
+      "x": 10640,
+      "y": 0
+    },
+    "WEB-FID-Parole.dc.html": {
+      "h": 1722,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "La Parole du jour",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "WEB-FID-Pretres.dc.html": {
+      "h": 975,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Prêtres joignables",
+      "w": 1440,
+      "x": 16720,
+      "y": 0
+    },
+    "WEB-FID-Profil.dc.html": {
+      "h": 1857,
+      "is_interactive": true,
+      "page": "fid",
+      "title": "Profil et réglages",
+      "w": 1440,
+      "x": 21280,
+      "y": 0
+    },
+    "WEB-Fiche-Paroisse.dc.html": {
+      "h": 2540,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Fiche paroisse",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "WEB-Inscription-Compte.dc.html": {
+      "h": 1032,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Créer un compte",
+      "w": 1440,
+      "x": 9120,
+      "y": 0
+    },
+    "WEB-Inscription-Consentement.dc.html": {
+      "h": 986,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Consentements",
+      "w": 1440,
+      "x": 12160,
+      "y": 0
+    },
+    "WEB-Inscription-Paroisse.dc.html": {
+      "h": 1107,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Choisir sa paroisse",
+      "w": 1440,
+      "x": 10640,
+      "y": 0
+    },
+    "WEB-PAR-Agenda.dc.html": {
+      "h": 1032,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Agenda",
+      "w": 1440,
+      "x": 9120,
+      "y": 0
+    },
+    "WEB-PAR-Annonce-Editeur.dc.html": {
+      "h": 1312,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Nouvelle annonce",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "WEB-PAR-Annonces.dc.html": {
+      "h": 1232,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Annonces",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "WEB-PAR-Confessions.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Confessions",
+      "w": 1440,
+      "x": 12160,
+      "y": 0
+    },
+    "WEB-PAR-Demande-Detail.dc.html": {
+      "h": 1472,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · JB-2026-00405",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "WEB-PAR-Demandes.dc.html": {
+      "h": 1259,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Demandes d'actes",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "WEB-PAR-Equipe.dc.html": {
+      "h": 888,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Équipe",
+      "w": 1440,
+      "x": 13680,
+      "y": 0
+    },
+    "WEB-PAR-Horaires.dc.html": {
+      "h": 1256,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Horaires et lieux",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "WEB-PAR-Messagerie.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Messagerie",
+      "w": 1440,
+      "x": 10640,
+      "y": 0
+    },
+    "WEB-PAR-Parametres.dc.html": {
+      "h": 1696,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Paramètres",
+      "w": 1440,
+      "x": 15200,
+      "y": 0
+    },
+    "WEB-PAR-Tableau-de-bord.dc.html": {
+      "h": 1375,
+      "is_interactive": true,
+      "page": "par",
+      "title": "Espace paroisse · Aujourd'hui",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WEB-PLA-Audit.dc.html": {
+      "h": 1087,
+      "is_interactive": true,
+      "page": "pla",
+      "title": "Plateforme · Journal d'audit",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "WEB-PLA-Comptes.dc.html": {
+      "h": 1103,
+      "is_interactive": true,
+      "page": "pla",
+      "title": "Plateforme · Comptes",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "WEB-PLA-Referentiels.dc.html": {
+      "h": 1340,
+      "is_interactive": true,
+      "page": "pla",
+      "title": "Plateforme · Référentiels",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "WEB-PLA-Tableau-de-bord.dc.html": {
+      "h": 1023,
+      "is_interactive": true,
+      "page": "pla",
+      "title": "Plateforme · Tableau de bord",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "WEB-Paroisses.dc.html": {
+      "h": 1620,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Paroisses",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "WEB-Parole-du-jour.dc.html": {
+      "h": 1917,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Parole du jour",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "WEB-Pour-les-paroisses.dc.html": {
+      "h": 4798,
+      "is_interactive": true,
+      "page": "pub",
+      "title": "Pour les paroisses",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-26T09:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "sommaire",
+    "view": "canvas"
+  },
+  "notes": {},
+  "order": [
+    "Main.dc.html",
+    "WEB-Accueil.dc.html",
+    "WEB-Parole-du-jour.dc.html",
+    "WEB-Paroisses.dc.html",
+    "WEB-Fiche-Paroisse.dc.html",
+    "WEB-Pour-les-paroisses.dc.html",
+    "WEB-Connexion.dc.html",
+    "WEB-Inscription-Compte.dc.html",
+    "WEB-Inscription-Paroisse.dc.html",
+    "WEB-Inscription-Consentement.dc.html",
+    "WEB-Erreur-404.dc.html",
+    "WEB-FID-Accueil.dc.html",
+    "WEB-FID-Parole.dc.html",
+    "WEB-FID-Bible.dc.html",
+    "WEB-FID-Chapelet.dc.html",
+    "WEB-FID-Ma-Paroisse.dc.html",
+    "WEB-FID-Annonce.dc.html",
+    "WEB-FID-Evenement.dc.html",
+    "WEB-FID-Notifications.dc.html",
+    "WEB-FID-Demandes.dc.html",
+    "WEB-FID-Demande-Nouvelle.dc.html",
+    "WEB-FID-Demande-Suivi.dc.html",
+    "WEB-FID-Pretres.dc.html",
+    "WEB-FID-Conversation.dc.html",
+    "WEB-FID-Confession-RDV.dc.html",
+    "WEB-FID-Profil.dc.html",
+    "WEB-PAR-Tableau-de-bord.dc.html",
+    "WEB-PAR-Demandes.dc.html",
+    "WEB-PAR-Demande-Detail.dc.html",
+    "WEB-PAR-Annonces.dc.html",
+    "WEB-PAR-Annonce-Editeur.dc.html",
+    "WEB-PAR-Horaires.dc.html",
+    "WEB-PAR-Agenda.dc.html",
+    "WEB-PAR-Messagerie.dc.html",
+    "WEB-PAR-Confessions.dc.html",
+    "WEB-PAR-Equipe.dc.html",
+    "WEB-PAR-Parametres.dc.html",
+    "WEB-DIO-Tableau-de-bord.dc.html",
+    "WEB-DIO-Structure.dc.html",
+    "WEB-DIO-Nominations.dc.html",
+    "WEB-DIO-Clerge.dc.html",
+    "WEB-PLA-Tableau-de-bord.dc.html",
+    "WEB-PLA-Referentiels.dc.html",
+    "WEB-PLA-Comptes.dc.html",
+    "WEB-PLA-Audit.dc.html",
+    "WEB-Design-System.dc.html",
+    "Sombre-WEB-Accueil.dc.html",
+    "Sombre-WEB-Parole-du-jour.dc.html",
+    "Sombre-WEB-Paroisses.dc.html",
+    "Sombre-WEB-Fiche-Paroisse.dc.html",
+    "Sombre-WEB-Pour-les-paroisses.dc.html",
+    "Sombre-WEB-Connexion.dc.html",
+    "Sombre-WEB-Inscription-Compte.dc.html",
+    "Sombre-WEB-Inscription-Paroisse.dc.html",
+    "Sombre-WEB-Inscription-Consentement.dc.html",
+    "Sombre-WEB-Erreur-404.dc.html",
+    "Sombre-WEB-FID-Accueil.dc.html",
+    "Sombre-WEB-FID-Parole.dc.html",
+    "Sombre-WEB-FID-Bible.dc.html",
+    "Sombre-WEB-FID-Chapelet.dc.html",
+    "Sombre-WEB-FID-Ma-Paroisse.dc.html",
+    "Sombre-WEB-FID-Annonce.dc.html",
+    "Sombre-WEB-FID-Evenement.dc.html",
+    "Sombre-WEB-FID-Notifications.dc.html",
+    "Sombre-WEB-FID-Demandes.dc.html",
+    "Sombre-WEB-FID-Demande-Nouvelle.dc.html",
+    "Sombre-WEB-FID-Demande-Suivi.dc.html",
+    "Sombre-WEB-FID-Pretres.dc.html",
+    "Sombre-WEB-FID-Conversation.dc.html",
+    "Sombre-WEB-FID-Confession-RDV.dc.html",
+    "Sombre-WEB-FID-Profil.dc.html",
+    "Sombre-WEB-PAR-Tableau-de-bord.dc.html",
+    "Sombre-WEB-PAR-Demandes.dc.html",
+    "Sombre-WEB-PAR-Demande-Detail.dc.html",
+    "Sombre-WEB-PAR-Annonces.dc.html",
+    "Sombre-WEB-PAR-Annonce-Editeur.dc.html",
+    "Sombre-WEB-PAR-Horaires.dc.html",
+    "Sombre-WEB-PAR-Agenda.dc.html",
+    "Sombre-WEB-PAR-Messagerie.dc.html",
+    "Sombre-WEB-PAR-Confessions.dc.html",
+    "Sombre-WEB-PAR-Equipe.dc.html",
+    "Sombre-WEB-PAR-Parametres.dc.html",
+    "Sombre-WEB-DIO-Tableau-de-bord.dc.html",
+    "Sombre-WEB-DIO-Structure.dc.html",
+    "Sombre-WEB-DIO-Nominations.dc.html",
+    "Sombre-WEB-DIO-Clerge.dc.html",
+    "Sombre-WEB-PLA-Tableau-de-bord.dc.html",
+    "Sombre-WEB-PLA-Referentiels.dc.html",
+    "Sombre-WEB-PLA-Comptes.dc.html",
+    "Sombre-WEB-PLA-Audit.dc.html",
+    "Sombre-WEB-Design-System.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "sommaire",
+      "name": "00 · Sommaire"
+    },
+    {
+      "id": "pub",
+      "name": "01 · Site public et inscription — clair"
+    },
+    {
+      "id": "fid",
+      "name": "02 · Espace fidèle — clair"
+    },
+    {
+      "id": "par",
+      "name": "03 · Espace paroisse — clair"
+    },
+    {
+      "id": "dio",
+      "name": "04 · Espace diocèse — clair"
+    },
+    {
+      "id": "pla",
+      "name": "05 · Plateforme — clair"
+    },
+    {
+      "id": "ds",
+      "name": "06 · Design system — clair"
+    },
+    {
+      "id": "spub",
+      "name": "07 · Site public et inscription — sombre"
+    },
+    {
+      "id": "sfid",
+      "name": "08 · Espace fidèle — sombre"
+    },
+    {
+      "id": "spar",
+      "name": "09 · Espace paroisse — sombre"
+    },
+    {
+      "id": "sdio",
+      "name": "10 · Espace diocèse — sombre"
+    },
+    {
+      "id": "spla",
+      "name": "11 · Plateforme — sombre"
+    },
+    {
+      "id": "sds",
+      "name": "12 · Design system — sombre"
+    }
+  ],
+  "title": "Jàngu Bi — Web · Ciel produit"
+}

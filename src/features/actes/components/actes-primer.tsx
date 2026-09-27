@@ -1,38 +1,42 @@
 import { Icon } from '@/components/ui/icon';
 import { cn } from '@/utils/cn';
 
-/** Encart pédagogique de FID-Demandes : paroisse du sacrement, original papier, repères de délai. */
+const STEPS = [
+  ['Vous faites la demande', 'À la paroisse où le sacrement a été célébré : c’est elle qui tient le registre.'],
+  ['Le secrétariat vérifie', 'Il retrouve l’acte au registre et peut vous demander une précision.'],
+  ['Le curé signe l’original', 'Vous êtes prévenu dès qu’il est prêt à retirer.'],
+  ['Vous le retirez sur place', 'Au secrétariat, avec votre pièce d’identité, ou par un tiers muni d’une procuration.'],
+] as const;
+
+/** « Comment ça marche » et « Un original papier » (FID-Demandes, colonne de droite). */
 export const ActesPrimer = ({ className }: { className?: string }) => (
-  <aside aria-label="Comment fonctionne une demande d’acte" className={cn('flex flex-col gap-8', className)}>
-    <div role="note" className="rounded border border-primary bg-tint-50 p-6">
-      <p className="m-0 flex items-center gap-2 text-base font-semibold text-primary-strong">
+  <aside aria-labelledby="dem-ccm" className={cn('flex min-w-0 flex-col gap-4', className)}>
+    <div className="rounded-16 border border-line bg-surface p-6">
+      <h2 id="dem-ccm" className="m-0 text-18 font-semibold text-ink">
+        Comment ça marche
+      </h2>
+      <ol className="m-0 mt-4 flex list-none flex-col gap-4 p-0">
+        {STEPS.map(([title, text], i) => (
+          <li key={title} className="grid grid-cols-[24px_minmax(0,1fr)] gap-3">
+            <span aria-hidden="true" className="tnum inline-flex size-6 items-center justify-center rounded-full bg-tint-100 text-13 font-semibold text-tint-800">
+              {i + 1}
+            </span>
+            <span className="flex flex-col">
+              <span className="text-15 font-semibold text-ink">{title}</span>
+              <span className="text-14 text-ink-2">{text}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div role="note" className="rounded-16 bg-tint-50 px-6 py-5 text-tint-900">
+      <p className="m-0 flex items-center gap-2 text-15 font-semibold">
         <Icon name="info" size={18} />
-        Bon à savoir
+        Un original papier
       </p>
-      <p className="m-0 mt-4 font-serif text-[1.375rem] italic leading-tight text-ink">
-        L’acte est délivré par la paroisse où le sacrement a été célébré ; il vous est remis en original signé et scellé.
-      </p>
-      <p className="m-0 mt-4 text-sm leading-normal text-ink">
-        Baptisé ailleurs que dans la paroisse que vous suivez aujourd’hui ? Adressez la demande à la paroisse du baptême. Aucun acte
-        n’est délivré par voie numérique : seul l’original fait foi.
+      <p className="m-0 mt-2 text-14">
+        Chaque acte est signé et scellé par la paroisse. Aucun document n’est envoyé par Jàngu Bi, ni par e-mail ni en PDF.
       </p>
     </div>
-    <section aria-labelledby="dem-delais">
-      <p id="dem-delais" className="tnum m-0 border-t border-line-strong pt-3 text-meta text-ink-2">
-        Repères
-      </p>
-      <dl className="m-0 mt-4">
-        <div className="border-b border-line pb-4">
-          <dt className="tnum text-meta text-ink-3">Délai indicatif</dt>
-          <dd className="m-0 mt-2 font-serif text-[2.6875rem] leading-none tracking-tight text-ink">3 à 7 jours</dd>
-          <dd className="m-0 mt-1 text-sm text-ink-2">entre l’envoi et la mise à disposition.</dd>
-        </div>
-        <div className="pt-4">
-          <dt className="tnum text-meta text-ink-3">Validité pour un mariage</dt>
-          <dd className="m-0 mt-2 font-serif text-[2rem] leading-none text-ink">6 mois</dd>
-          <dd className="m-0 mt-1 text-sm text-ink-2">Un extrait plus ancien vous sera redemandé.</dd>
-        </div>
-      </dl>
-    </section>
   </aside>
 );

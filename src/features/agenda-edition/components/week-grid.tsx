@@ -24,9 +24,9 @@ interface WeekGridProps {
 
 const eventClass = (selected: boolean, cancelled: boolean) =>
   cn(
-    'w-full overflow-hidden rounded border px-1.5 text-left text-xs transition-colors',
-    selected ? 'border-ink bg-ink text-paper' : 'border-line bg-tint-50 text-ink hover:bg-surface-2',
-    cancelled && !selected && 'text-ink-3 line-through',
+    'w-full overflow-hidden rounded-6 border px-1.5 text-left text-12 transition-colors',
+    selected ? 'border-primary-fill bg-primary-fill text-on-primary' : 'border-line-active bg-tint-50 text-tint-900 hover:bg-tint-100',
+    cancelled && !selected && 'border-line bg-surface-2 text-ink-3 line-through',
   );
 
 /**
@@ -46,18 +46,18 @@ export const WeekGrid = ({ date, events, selectedId, onSelect }: WeekGridProps) 
   const timelineHeight = (to - from) * HOUR_PX;
 
   return (
-    <section aria-label={`${weekTitle(date)}, vue semaine`} className="mt-6">
+    <section aria-label={`${weekTitle(date)}, vue semaine`} className="overflow-hidden rounded-16 border border-line bg-paper shadow-card">
       {/* Sous 768 px la grille (720 px) défile : zone focalisable même sans événement à tabuler (A11Y-12). */}
       <ScrollRegion label="Grille de la semaine, défilement horizontal">
-        <div className="grid min-w-[720px] grid-cols-[48px_repeat(7,minmax(0,1fr))]">
+        <div className="grid min-w-[720px] grid-cols-[60px_repeat(7,minmax(0,1fr))]">
           <div aria-hidden="true">
-            <div className="h-12 border-b border-line-strong" />
-            <div className="tnum flex items-center border-b border-line pr-1 text-meta text-ink-3" style={{ height: allDayHeight }}>
+            <div className="h-12 border-b border-line bg-surface" />
+            <div className="tnum flex items-center border-b border-line pl-2 text-12 text-ink-3" style={{ height: allDayHeight }}>
               Journée
             </div>
             <div className="relative" style={{ height: timelineHeight }}>
               {hours.map((h) => (
-                <span key={h} className="tnum absolute right-2 -translate-y-1/2 text-meta text-ink-3" style={{ top: (h - from) * HOUR_PX }}>
+                <span key={h} className="tnum absolute right-2 -translate-y-1/2 text-12 text-ink-3" style={{ top: (h - from) * HOUR_PX }}>
                   {h} h
                 </span>
               ))}
@@ -68,10 +68,10 @@ export const WeekGrid = ({ date, events, selectedId, onSelect }: WeekGridProps) 
             const d = dayjs(day);
             const isToday = day === today;
             return (
-              <div key={day} role="group" aria-label={d.format('dddd D MMMM')} className={cn('min-w-0 border-r border-line', index === 0 && 'border-l')}>
-                <div aria-hidden="true" className={cn('flex h-12 items-baseline gap-1.5 border-b border-line-strong px-2 pt-3', isToday && 'bg-tint-50')}>
-                  <span className="tnum text-meta text-ink-3">{d.format('ddd')}</span>
-                  <span className={cn('tnum font-serif text-h4', isToday ? 'font-semibold text-primary' : 'text-ink')}>{d.date() === 1 ? '1er' : d.date()}</span>
+              <div key={day} role="group" aria-label={d.format('dddd D MMMM')} className={cn('min-w-0 border-l border-line')}>
+                <div aria-hidden="true" className={cn('flex h-12 items-center gap-1.5 border-b border-line bg-surface px-2', isToday && 'bg-tint-50')}>
+                  <span className="tnum text-13 font-medium text-ink-3">{d.format('ddd')}</span>
+                  <span className={cn('tnum inline-flex h-6 min-w-6 items-center justify-center rounded-full text-13 font-semibold', isToday ? 'bg-primary-fill px-1.5 text-on-primary' : 'text-ink')}>{d.date() === 1 ? '1er' : d.date()}</span>
                 </div>
                 <ul className="m-0 flex list-none flex-col gap-1 border-b border-line p-1" style={{ height: allDayHeight }}>
                   {longByDay[index].map((event) => (

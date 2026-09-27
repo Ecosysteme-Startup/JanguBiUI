@@ -50,3 +50,69 @@ export const readingExcerpt = (reading: Reading, maxLength = 180): { text: strin
   const text = sentence.length > maxLength ? `${sentence.slice(0, maxLength).replace(/\s+\S*$/, '')}…` : sentence;
   return { text, verse: first?.number };
 };
+
+const GOSPELS = /^(Matthieu|Marc|Luc|Jean)$/;
+
+/** Nom du livre au singulier (« Psaumes » → « Psaume »). */
+const bookName = (book: string) => (book === 'Psaumes' ? 'Psaume' : book);
+
+/**
+ * Titre d'une lecture : livre en toutes lettres et versets de la référence
+ * (« Ecclésiaste 11, 9 – 12, 8 », « Évangile selon saint Luc 9, 43b-45 »).
+ * Sans verset (texte AELF seul), la référence abrégée est gardée telle quelle.
+ */
+export const readingTitle = (reading: Reading) => {
+  const book = reading.verses[0]?.book;
+  const numbers = reading.citation.replace(/^\S+\s+/, '');
+  if (!book || numbers === reading.citation) return reading.citation;
+  if (GOSPELS.test(book) && readingLabel(reading.type) === 'Évangile') return `Évangile selon saint ${book} ${numbers}`;
+  return `${bookName(book)} ${numbers}`;
+};
+
+/** Référence courte pour une grille : le psaume sans ses versets (« Ps 89 (90) »). */
+export const shortCitation = (citation: string) => (/^Ps\b/.test(citation) ? citation.replace(/,.*$/, '') : citation);
+
+type ReadingKind = 'lecture' | 'psaume' | 'evangile';
+
+const kindOf = (reading: Reading): ReadingKind => {
+  const label = readingLabel(reading.type);
+  if (label === 'Psaume' || label === 'Cantique') return 'psaume';
+  if (label === 'Évangile' || label === 'Acclamation de l’Évangile') return 'evangile';
+  return 'lecture';
+};
+
+/** Première lecture (ou psaume, ou évangile) du jour ; l'acclamation n'est pas l'Évangile. */
+export const findReading = (readings: Reading[], kind: ReadingKind) =>
+  readings.find((reading) => kindOf(reading) === kind && readingLabel(reading.type) !== 'Acclamation de l’Évangile');
+
+export type ReadingTab = { key: 'lectures' | 'psaume' | 'evangile'; label: string; readings: Reading[] };
+
+/** Les trois onglets de la Parole du jour (WEB-Parole-du-jour) ; un onglet vide est retiré. */
+export const readingTabs = (readings: Reading[]): ReadingTab[] =>
+  (
+    [
+      { key: 'lectures', label: 'Lectures', readings: readings.filter((r) => kindOf(r) === 'lecture') },
+      { key: 'psaume', label: 'Psaume', readings: readings.filter((r) => kindOf(r) === 'psaume') },
+      { key: 'evangile', label: 'Évangile', readings: readings.filter((r) => kindOf(r) === 'evangile') },
+    ] satisfies ReadingTab[]
+  ).filter((tab) => tab.readings.length > 0);
+
+/** Référence du premier verset (« Ecclésiaste 11, 8 ») ; `null` sans verset. */
+export const firstVerseReference = (reading: Reading) => {
+  const verse = reading.verses[0];
+  return verse ? `${bookName(verse.book)} ${verse.chapter}, ${verse.number}` : null;
+};
+
+/** Onglet d'une lecture dans la Parole du jour (ancre `#lectures`, `#psaume`, `#evangile`). */
+export const readingTabKey = (reading: Reading): ReadingTab['key'] => {
+  const kind = kindOf(reading);
+  return kind === 'lecture' ? 'lectures' : kind;
+};
+
+/** Intitulé d'une lecture : le livre (« Ecclésiaste »), « Psaume » ou « Évangile selon saint Luc ». */
+export const readingHeading = (reading: Reading) => {
+  const book = reading.verses[0]?.book;
+  if (!book) return readingLabel(reading.type);
+  if (GOSPELS.test(book) && readingLabel(reading.type) === 'Évangile') return `Évangile selon saint ${book}`;
+  return bookName(book);
+};

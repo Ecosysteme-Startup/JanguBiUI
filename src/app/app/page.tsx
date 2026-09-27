@@ -1,22 +1,36 @@
+import { ConfessionCard } from '@/features/accueil/components/confession-card';
 import { CurrentRequestCard } from '@/features/accueil/components/current-request-card';
 import { HomeGreeting } from '@/features/accueil/components/home-greeting';
+import { LatestAnnouncements } from '@/features/accueil/components/latest-announcements';
+import { NextEvent } from '@/features/accueil/components/next-event';
+import { NextMasses } from '@/features/accueil/components/next-masses';
 import { PriestCard } from '@/features/accueil/components/priest-card';
 import { RosaryCard } from '@/features/accueil/components/rosary-card';
 import { WordOfTheDay } from '@/features/accueil/components/word-of-the-day';
-import { ParishWeekDigest } from '@/features/paroisse/components/parish-week-digest';
 
-/** Accueil de l'espace fidèle (FID-Accueil, MOB-Accueil) : composition de plusieurs features. */
+const row = 'mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 xl:grid-cols-[minmax(0,1fr)_336px] xl:items-start';
+
+/** Accueil de l'espace fidèle (FID-Accueil) : Parole, messes, demande, confession, annonces, prêtre. */
 const FideleHomePage = () => (
-  <div className="mx-auto max-w-[1180px]">
+  <div className="min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
     <HomeGreeting />
-    <div className="mt-8 grid gap-10 lg:mt-10 lg:grid-cols-12 lg:gap-6">
-      <WordOfTheDay className="lg:col-span-7" />
-      <CurrentRequestCard number="02" className="lg:col-span-5" />
+    <div className={row}>
+      <WordOfTheDay />
+      <NextMasses />
     </div>
-    <div className="mt-10 grid gap-10 lg:mt-12 lg:grid-cols-12 lg:gap-6">
-      <ParishWeekDigest number="03" className="lg:col-span-6" />
-      <PriestCard number="04" className="lg:col-span-3" />
-      <RosaryCard number="05" className="lg:col-span-3" />
+    <div className={row}>
+      <CurrentRequestCard />
+      <ConfessionCard />
+    </div>
+    <div className={row}>
+      <div className="flex min-w-0 flex-col gap-8">
+        <LatestAnnouncements />
+        <NextEvent />
+      </div>
+      <div className="flex min-w-0 flex-col gap-8">
+        <PriestCard />
+        <RosaryCard />
+      </div>
     </div>
   </div>
 );

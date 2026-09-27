@@ -19,7 +19,7 @@ describe('Squelettes de chargement à hauteur stable', () => {
   beforeEach(() => resetF5bState());
 
   it('accueil fidèle : chaque bloc réserve la place de son contenu', async () => {
-    pending('/me/', '/liturgy/today/', '/documents/requests/', '/messaging/priests/', '/rosary/today/');
+    pending('/me/', '/liturgy/today/', '/documents/requests/', '/messaging/priests/', '/messaging/conversations/', '/rosary/today/');
     renderApp(<FideleHomePage />);
 
     const parole = await screen.findByTestId('parole-squelette');
@@ -29,33 +29,20 @@ describe('Squelettes de chargement à hauteur stable', () => {
 
     expect(within(screen.getByTestId('demande-squelette')).getByText('Chargement de votre demande…')).toBeInTheDocument();
     expect(within(screen.getByTestId('pretre-squelette')).getByText('Chargement des prêtres…')).toBeInTheDocument();
-    const paroisse = screen.getByTestId('paroisse-squelette');
-    expect(within(paroisse).getAllByRole('listitem', { hidden: true })).toHaveLength(3);
+    expect(within(screen.getByTestId('messes-squelette')).getByText('Chargement des horaires…')).toBeInTheDocument();
+    expect(within(screen.getByTestId('annonces-squelette')).getByText('Chargement des annonces…')).toBeInTheDocument();
   });
 
-  it('accueil fidèle : la semaine paroissiale attend ses trois sources avant de s’afficher', async () => {
-    pending('/agenda/');
-    const { queryClient } = renderApp(<FideleHomePage />);
-
-    // L'annonce et les horaires sont arrivés…
-    await waitFor(() => {
-      const parish = queryClient.getQueryCache().findAll({ queryKey: ['paroisse'] });
-      expect(parish.filter((q) => q.state.status === 'success')).toHaveLength(2);
-    });
-    // … mais on ne les affiche pas seuls : l'événement, en arrivant, les aurait décalés.
-    const section = screen.getByRole('region', { name: /cette semaine/i });
-    expect(within(section).getByTestId('paroisse-squelette')).toBeInTheDocument();
-    expect(within(section).queryByRole('link', { name: /quête impérée/i })).not.toBeInTheDocument();
-  });
-
-  it('mes demandes : le tableau (en-tête et lignes) et la phrase d’en-tête sont réservés', async () => {
+  it('mes demandes : les cartes de suivi sont réservées à leur hauteur', async () => {
     pending('/documents/requests/');
     renderApp(<DemandesPage />);
 
     const skeleton = await screen.findByTestId('demandes-squelette');
     expect(within(skeleton).getByText('Chargement de vos demandes…')).toBeInTheDocument();
-    const table = within(skeleton).getByRole('table', { hidden: true });
-    expect(within(table).getAllByRole('row', { hidden: true })).toHaveLength(4); // en-tête + 3 lignes
+    // Deux cartes de suivi (maquette FID-Demandes), chacune à la hauteur d'une carte chargée.
+    const cards = skeleton.querySelectorAll('[aria-hidden="true"]');
+    expect(cards).toHaveLength(2);
+    cards.forEach((card) => expect(card).toHaveClass('h-[184px]'));
     expect(screen.getByRole('link', { name: /nouvelle demande/i })).toBeInTheDocument();
   });
 });

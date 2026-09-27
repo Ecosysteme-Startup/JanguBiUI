@@ -86,4 +86,20 @@ describe('Clergé', () => {
 
     await waitFor(() => expect(f8bState.requests.at(-1)).toMatchObject({ body: { decision: 'verifie', note: '' } }));
   });
+
+  it('filtre par statut et ferme la fiche', async () => {
+    const user = userEvent.setup();
+    renderApp(<ClergePage />, { capacites: grantsChancelier });
+
+    await screen.findByRole('heading', { level: 2, name: 'Père Luc Bassène' });
+    await user.selectOptions(screen.getByLabelText('Statut'), 'Complément demandé');
+    const list = screen.getByRole('table');
+    expect(within(list).queryByText('Père Luc Bassène')).not.toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: 'Père Basile Ndione' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Fermer la fiche' }));
+    expect(screen.queryByRole('heading', { level: 2, name: 'Père Basile Ndione' })).not.toBeInTheDocument();
+    await user.click(within(list).getByRole('button', { name: 'Père Basile Ndione' }));
+    expect(await screen.findByRole('heading', { level: 2, name: 'Père Basile Ndione' })).toBeInTheDocument();
+  });
 });

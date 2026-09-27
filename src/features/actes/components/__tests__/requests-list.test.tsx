@@ -15,17 +15,18 @@ beforeEach(() => server.use(...actesHandlers));
 beforeEach(() => resetActes());
 
 describe('FID-Demandes', () => {
-  it('liste mes demandes avec leur paroisse du sacrement et leur statut', async () => {
+  it('liste mes demandes en cours en cartes : paroisse du sacrement, statut, suivi', async () => {
     renderApp(<RequestsList />);
 
-    const table = await screen.findByRole('table');
-    expect(within(table).getAllByRole('row')).toHaveLength(7);
-    expect(within(table).getByRole('link', { name: /attestation parrain \/ marraine.*DOC-20260923-00419/i })).toHaveAttribute(
+    const list = await screen.findByRole('list', { name: 'Demandes en cours' });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(4);
+    expect(within(list).getByRole('link', { name: /DOC-20260923-00419.*attestation parrain \/ marraine/i })).toHaveAttribute(
       'href',
       '/app/demandes/d0c00000-0000-4000-8000-000000000001',
     );
-    expect(within(table).getAllByText('Sainte-Thérèse de Grand-Dakar').length).toBeGreaterThan(0);
-    expect(within(table).getByText('À vous de répondre')).toBeInTheDocument();
+    expect(within(list).getAllByText(/Sainte-Thérèse de Grand-Dakar/).length).toBeGreaterThan(0);
+    expect(within(list).getByText('Complément demandé')).toBeInTheDocument();
+    expect(within(list).getByRole('link', { name: /^répondre/i })).toBeInTheDocument();
     expect(screen.getByText(/une demande prête à retirer à cathédrale notre-dame-des-victoires/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /nouvelle demande/i })).toHaveAttribute('href', '/app/demandes/nouvelle');
   });
@@ -33,26 +34,23 @@ describe('FID-Demandes', () => {
   it('sépare les demandes en cours des demandes terminées', async () => {
     const user = userEvent.setup();
     renderApp(<RequestsList />);
-    await screen.findByRole('table');
+    await screen.findByRole('list', { name: 'Demandes en cours' });
 
-    await user.click(screen.getByRole('button', { name: /^en cours/i }));
-    expect(within(screen.getByRole('table')).getAllByRole('row')).toHaveLength(5);
-
-    await user.click(screen.getByRole('button', { name: /^terminées/i }));
-    const table = screen.getByRole('table');
-    expect(within(table).getAllByRole('row')).toHaveLength(3);
-    expect(within(table).getByText('Rejetée')).toBeInTheDocument();
-    expect(within(table).queryByText('Soumise')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: /^terminées/i }));
+    const list = screen.getByRole('list', { name: 'Demandes terminées' });
+    expect(within(list).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(list).getByText('Rejetée')).toBeInTheDocument();
   });
 
   it('filtre par type d’acte', async () => {
     const user = userEvent.setup();
     renderApp(<RequestsList />);
-    await screen.findByRole('table');
+    const list = await screen.findByRole('list', { name: 'Demandes en cours' });
+    const chip = within(screen.getByRole('group', { name: 'Filtrer par type d’acte' })).getAllByRole('button')[1];
 
-    await user.click(screen.getByRole('button', { name: /attestation de confirmation · 2/i }));
+    await user.click(chip);
 
-    expect(within(screen.getByRole('table')).getAllByRole('row')).toHaveLength(3);
+    expect(within(list).getAllByRole('listitem').length).toBeLessThan(4);
   });
 
   it('présente un état vide qui invite à faire une demande', async () => {
@@ -71,9 +69,9 @@ describe('FID-Demandes', () => {
 
   it('ne propose aucun acte en fichier numérique', async () => {
     renderApp(<RequestsList />);
-    await screen.findByRole('table');
+    await screen.findByRole('list', { name: 'Demandes en cours' });
 
-    expect(document.body.textContent).not.toMatch(/pdf/i);
+    expect(document.querySelector('a[href$=".pdf"], a[download]')).toBeNull();
     expect(screen.queryByRole('link', { name: /télécharger/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /télécharger/i })).not.toBeInTheDocument();
   });

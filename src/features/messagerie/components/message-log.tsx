@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-import { Avatar } from '@/components/ui/avatar';
+import { Icon } from '@/components/ui/icon';
 import { cn } from '@/utils/cn';
-import { dayjs, hour } from '@/utils/dates';
+import { dayjs } from '@/utils/dates';
 
 import type { Message } from '../api/schemas';
 
@@ -58,27 +58,51 @@ export const groupMessages = (
     return day ? [...days.slice(0, -1), next] : [...days, next];
   }, []);
 
-const Bubble = ({ message, mine }: { message: Message; mine: boolean }) => (
-  <div
+/** Rayons des bulles : l'angle « queue » est côté auteur, les suivantes s'empilent (FID-Conversation). */
+const bubbleRadius = (mine: boolean, index: number) => {
+  if (mine) return 'rounded-[16px_16px_4px_16px]';
+  return index === 0 ? 'rounded-[16px_16px_16px_4px]' : 'rounded-[4px_16px_16px_4px]';
+};
+
+const Bubble = ({ message, mine, index }: { message: Message; mine: boolean; index: number }) => (
+  <p
     className={cn(
-      'whitespace-pre-line break-words rounded-md px-4 py-3 text-body',
-      mine
-        ? 'bg-primary-fill text-on-primary'
-        : 'border border-line bg-surface text-ink',
-      message.content === null && 'italic opacity-80',
+      'm-0 whitespace-pre-line break-words px-4 py-3 text-15 text-ink',
+      bubbleRadius(mine, index),
+      mine ? 'bg-tint-100' : 'border border-line bg-surface',
+      message.content === null && 'italic text-ink-3',
     )}
   >
     {message.content ?? 'Message supprimé'}
-  </div>
+  </p>
 );
 
 const GroupMeta = ({ group }: { group: Group }) => {
   const last = group.messages.at(-1)!;
-  const time = hour(last.created_at);
-  const text = group.mine
-    ? `${last.read_at ? 'Lu' : 'Envoyé'} · ${time}`
-    : `${group.sender} · ${time}`;
-  return <span className="tnum text-meta text-ink-3">{text}</span>;
+  const time = dayjs(last.created_at).format('HH:mm');
+  if (!group.mine) {
+    return (
+      <span className="tnum text-12 text-ink-3">
+        <span className="sr-only">{group.sender}, </span>
+        {time}
+      </span>
+    );
+  }
+  return (
+    <span className="tnum inline-flex items-center gap-1 text-12 text-ink-3">
+      {last.read_at ? (
+        <>
+          <Icon name="check-double" size={14} />
+          Lu · {time}
+        </>
+      ) : (
+        <>
+          <span className="sr-only">Envoyé · </span>
+          {time}
+        </>
+      )}
+    </span>
+  );
 };
 
 /** Fil des messages, ancré en bas ; les plus anciens défilent au-dessus. */
@@ -103,56 +127,35 @@ export const MessageLog = ({
       ref={ref}
       role="log"
       aria-label={`Messages avec ${peerName}`}
-      className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4 lg:px-6"
+      className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-6 lg:px-8"
     >
       <div className="mt-auto" />
-      {messages.length === 0 && (
-        <p className="m-0 text-center text-sm text-ink-3">
-          Aucun message pour l’instant. Écrivez le premier.
-        </p>
-      )}
-      {groupMessages(messages, meId, peerName).map((day) => (
-        <div key={day.key} className="flex flex-col gap-4">
-          <p className="tnum m-0 flex items-center gap-4 text-meta text-ink-3">
-            <span aria-hidden="true" className="h-px flex-1 bg-line" />
-            {day.label}
-            <span aria-hidden="true" className="h-px flex-1 bg-line" />
-          </p>
-          {day.groups.map((group) =>
-            group.mine ? (
-              <div
-                key={group.key}
-                className="ml-auto flex max-w-[85%] flex-col items-end gap-1 lg:max-w-[80%]"
-              >
-                {group.messages.map((m) => (
-                  <Bubble key={m.id} message={m} mine />
-                ))}
-                <GroupMeta group={group} />
-              </div>
-            ) : (
-              <div
-                key={group.key}
-                className="flex max-w-[90%] items-end gap-2 lg:max-w-[86%]"
-              >
-                <Avatar
-                  name={group.sender}
-                  size={32}
-                  className="mb-[22px] hidden sm:inline-flex"
-                />
-                <div className="flex flex-col items-start gap-1">
-                  {group.messages.map((m) => (
-                    <Bubble key={m.id} message={m} mine={false} />
-                  ))}
-                  <GroupMeta group={group} />
-                </div>
-              </div>
-            ),
+      {messages.length === 0 && <p className="m-0 text-center text-14 text-ink-3">Aucun message pour l’instant. Écrivez le premier.</p>}
+      {groupMessages(messages, meId, peerName).map((day, dayIndex) => (
+        <div key={day.key} className="flex flex-col">
+          {dayIndex === 0 ? (
+            <p className="m-0 mb-4 self-center rounded-full border border-line bg-surface px-3.5 py-2 text-13 text-ink-2">{day.label}</p>
+          ) : (
+            <p className="m-0 mb-3 mt-5 self-center text-13 font-medium text-ink-3">{day.label}</p>
           )}
+          {day.groups.map((group, groupIndex) => (
+            <div
+              key={group.key}
+              className={cn(
+                'flex max-w-[min(520px,85%)] flex-col gap-1',
+                groupIndex > 0 && 'mt-3',
+                group.mine ? 'items-end self-end' : 'items-start self-start',
+              )}
+            >
+              {group.messages.map((m, index) => (
+                <Bubble key={m.id} message={m} mine={group.mine} index={index} />
+              ))}
+              <GroupMeta group={group} />
+            </div>
+          ))}
         </div>
       ))}
-      {peerTyping && (
-        <p className="tnum m-0 text-meta text-ink-3">{peerName} écrit…</p>
-      )}
+      {peerTyping && <p className="m-0 mt-3 text-13 text-ink-3">{peerName} écrit…</p>}
     </div>
   );
 };

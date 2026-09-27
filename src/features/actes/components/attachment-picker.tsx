@@ -16,23 +16,23 @@ export const AttachmentPicker = ({ id, file, onChange }: { id: string; file: Fil
   return (
     <div>
       {file ? (
-        <div className="flex items-center gap-3 rounded border border-line bg-surface px-4 py-2">
+        <div className="flex items-center gap-3 rounded-12 border border-line bg-surface px-4 py-2">
           <Icon name="document" size={20} className="shrink-0 text-ink-3" />
-          <span className="min-w-0 flex-1 truncate text-sm text-ink">{file.name}</span>
-          <span className="tnum text-meta text-ink-3">{size(file.size)}</span>
+          <span className="min-w-0 flex-1 truncate text-14 text-ink">{file.name}</span>
+          <span className="tnum text-13 text-ink-3">{size(file.size)}</span>
           <IconButton icon="x" size="sm" label={`Retirer le fichier ${file.name}`} onClick={() => onChange(null)} />
         </div>
       ) : (
         <label
           htmlFor={id}
-          className="flex cursor-pointer items-center gap-3 rounded border border-dashed border-line-field bg-surface px-4 py-4 hover:border-ink"
+          className="flex cursor-pointer items-center gap-3 rounded-12 border border-dashed border-line-field bg-surface px-4 py-4 hover:border-primary has-[:focus-visible]:outline"
         >
           <Icon name="import" size={22} className="shrink-0 text-primary" />
           <span>
-            <span className="block text-base text-ink">
+            <span className="block text-15 text-ink">
               Déposer un fichier ou <span className="text-primary underline">parcourir</span>
             </span>
-            <span className="block text-sm text-ink-3">Carte de baptême, livret · photo ou scan · 5 Mo au plus</span>
+            <span className="block text-13 text-ink-3">Carte de baptême, livret · photo ou scan · 5 Mo au plus</span>
           </span>
         </label>
       )}
@@ -55,7 +55,7 @@ export const AttachmentPicker = ({ id, file, onChange }: { id: string; file: Fil
         }}
       />
       {error && (
-        <p id={`${id}-err`} role="alert" className="m-0 mt-2 text-sm text-err">
+        <p id={`${id}-err`} role="alert" className="m-0 mt-2 text-13 text-err">
           {error}
         </p>
       )}

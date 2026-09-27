@@ -1,9 +1,11 @@
-import { cn } from '@/utils/cn';
+import { Badge } from '@/components/ui/badge';
 
-/** Présence sur Jàngu Bi : paroisse active (tenue par son secrétariat) ou simple fiche d'annuaire. */
-export const ParishStatus = ({ active, className }: { active: boolean; className?: string }) => (
-  <span className={cn('inline-flex items-center gap-2 text-sm', active ? 'font-medium text-ink' : 'text-ink-3', className)}>
-    <span aria-hidden="true" className={cn('inline-block size-2 rounded-full', active ? 'bg-primary' : 'border border-ink-3')} />
-    {active ? 'Active' : 'Fiche d’annuaire'}
-  </span>
-);
+/** Présence sur Jàngu Bi : « Sur Jàngu Bi » (tenue par son secrétariat) ou « Annuaire diocésain ». */
+export const ParishStatus = ({ active, className }: { active: boolean; className?: string }) =>
+  active ? (
+    <Badge tone="ok" className={className}>
+      Sur Jàngu Bi
+    </Badge>
+  ) : (
+    <span className={className ? `text-13 text-ink-3 ${className}` : 'text-13 text-ink-3'}>Annuaire diocésain</span>
+  );

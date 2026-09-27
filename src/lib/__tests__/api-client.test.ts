@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
-import { api, ApiError, configureApiAuth } from '@/lib/api-client';
+import { api, ApiError, configureApiAuth, errorMessageOf } from '@/lib/api-client';
 import { apiUrl } from '@/testing/mocks/api-url';
 import { server } from '@/testing/mocks/server';
 
@@ -92,5 +92,24 @@ describe('401 puis nouvel essai', () => {
 
     await expect(api.get('/me/')).rejects.toMatchObject({ status: 401 });
     expect(calls).toBe(1);
+  });
+});
+
+describe('errorMessageOf : limitation de débit (429)', () => {
+  it('traduit le message DRF en français avec le délai en minutes', () => {
+    const body = { detail: 'Request was throttled. Expected available in 879 seconds.' };
+    expect(errorMessageOf(body, 429)).toBe('Trop de tentatives. Réessayez dans 15 minutes.');
+  });
+
+  it('donne un message générique sans délai connu', () => {
+    expect(errorMessageOf({ error: { code: 'throttled', message: 'Request was throttled.' } }, 429)).toBe(
+      'Trop de tentatives. Réessayez un peu plus tard.',
+    );
+  });
+
+  it('dit « 1 minute » pour un délai court', () => {
+    expect(errorMessageOf({ detail: 'Request was throttled. Expected available in 20 seconds.' }, 429)).toBe(
+      'Trop de tentatives. Réessayez dans 1 minute.',
+    );
   });
 });

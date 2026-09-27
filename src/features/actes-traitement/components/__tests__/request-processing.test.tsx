@@ -14,17 +14,18 @@ beforeEach(() => server.use(...actesHandlers));
 beforeEach(() => resetActes());
 
 const render = (id: string) => renderApp(<RequestProcessing nodeId={ids.saintDominique} id={id} />);
-const decision = () => screen.getByRole('region', { name: 'Étape suivante' });
+const decision = () => screen.getByRole('region', { name: 'Statut' });
 
 describe('PAR-Demande-Detail', () => {
   it('montre les informations du fidèle, le registre, le journal et les notes internes', async () => {
     render(ACTE_IDS.verification);
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Marie-Thérèse Ndèye Diouf' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Certificat de baptême' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /Marie-Thérèse Ndèye Diouf/ })).toBeInTheDocument();
     expect(screen.getByText('+221 77 418 26 90')).toBeInTheDocument();
     expect(screen.getByLabelText('Volume')).toHaveValue('II');
     expect(screen.getByLabelText('N° d’acte')).toHaveValue('187');
-    expect(screen.getByText('Statut : En vérification')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: /historique/i })).getByText('Passée en vérification')).toBeInTheDocument();
     expect(await screen.findByText('Deux baptêmes au même nom en 1992 : vérifier la marraine.')).toBeInTheDocument();
     expect(screen.getByText('Non visibles du fidèle')).toBeInTheDocument();
   });
@@ -34,11 +35,26 @@ describe('PAR-Demande-Detail', () => {
     await screen.findByRole('heading', { level: 1 });
 
     const panel = decision();
-    expect(within(panel).getByRole('button', { name: 'Marquer comme prête à retirer' })).toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: 'Demander un complément' })).toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: 'Rejeter' })).toBeInTheDocument();
+    const choices = within(panel).getByRole('group', { name: 'Changer le statut' });
+    expect(within(choices).getAllByRole('radio').map((r) => r.closest('label')?.textContent)).toEqual([
+      expect.stringMatching(/^Complément demandé/),
+      expect.stringMatching(/^Prête à retirer/),
+      expect.stringMatching(/^Rejetée/),
+    ]);
+    expect(within(panel).getByRole('radio', { name: /prête à retirer/i })).toBeChecked();
     expect(within(panel).queryByRole('button', { name: /marquer comme retirée/i })).not.toBeInTheDocument();
     expect(within(panel).queryByRole('button', { name: /commencer la vérification/i })).not.toBeInTheDocument();
+  });
+
+  it('n’autorise « prête à retirer » qu’une fois l’original signé et scellé', async () => {
+    const user = userEvent.setup();
+    render(ACTE_IDS.verification);
+    await screen.findByRole('heading', { level: 1 });
+
+    const button = within(decision()).getByRole('button', { name: 'Marquer prête à retirer' });
+    expect(button).toBeDisabled();
+    await user.click(within(decision()).getByRole('checkbox', { name: /signé par le curé et scellé/i }));
+    expect(button).toBeEnabled();
   });
 
   it.each([
@@ -60,14 +76,15 @@ describe('PAR-Demande-Detail', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Commencer la vérification' }));
 
-    expect(await within(decision()).findByRole('button', { name: 'Marquer comme prête à retirer' })).toBeInTheDocument();
+    expect(await within(decision()).findByRole('button', { name: 'Marquer prête à retirer' })).toBeInTheDocument();
     expect(actesState.lastTransition).toEqual({ id: ACTE_IDS.submitted, transition: 'start-verification', body: { message: '', pickup_hours: '' } });
   });
 
   it('exige un motif pour rejeter, puis transmet le rejet', async () => {
     const user = userEvent.setup();
     render(ACTE_IDS.verification);
-    await user.click(await screen.findByRole('button', { name: 'Rejeter' }));
+    await user.click(await screen.findByRole('radio', { name: /rejetée/i }));
+    await user.click(within(decision()).getByRole('button', { name: 'Rejeter la demande' }));
 
     const dialog = await screen.findByRole('dialog', { name: 'Rejeter la demande' });
     await user.click(within(dialog).getByRole('button', { name: 'Rejeter la demande' }));
@@ -85,7 +102,8 @@ describe('PAR-Demande-Detail', () => {
   it('demande un complément au fidèle', async () => {
     const user = userEvent.setup();
     render(ACTE_IDS.verification);
-    await user.click(await screen.findByRole('button', { name: 'Demander un complément' }));
+    await user.click(await screen.findByRole('radio', { name: /complément demandé/i }));
+    await user.click(within(decision()).getByRole('button', { name: 'Demander un complément' }));
 
     const dialog = await screen.findByRole('dialog', { name: 'Demander un complément' });
     await user.type(within(dialog).getByLabelText(/complément attendu/i), 'Nom de la marraine ?');
@@ -98,7 +116,8 @@ describe('PAR-Demande-Detail', () => {
   it('marque prête à retirer avec le lieu et les horaires de retrait', async () => {
     const user = userEvent.setup();
     render(ACTE_IDS.verification);
-    await user.click(await screen.findByRole('button', { name: 'Marquer comme prête à retirer' }));
+    await user.click(await screen.findByRole('checkbox', { name: /signé par le curé et scellé/i }));
+    await user.click(within(decision()).getByRole('button', { name: 'Marquer prête à retirer' }));
 
     const dialog = await screen.findByRole('dialog', { name: 'Marquer comme prête à retirer' });
     await user.selectOptions(await within(dialog).findByLabelText('Lieu de retrait'), await within(dialog).findByRole('option', { name: 'Église Sainte-Thérèse' }));
@@ -126,6 +145,7 @@ describe('PAR-Demande-Detail', () => {
 
     await user.type(screen.getByLabelText('Ajouter une note interne'), 'Acte retrouvé.');
     await user.click(screen.getByRole('button', { name: 'Ajouter' }));
+    expect(screen.getByRole('region', { name: /notes internes/i })).toHaveTextContent('Non visibles du fidèle');
     expect(await screen.findByText('Acte retrouvé.')).toBeInTheDocument();
   });
 
@@ -135,7 +155,7 @@ describe('PAR-Demande-Detail', () => {
     const pieces = await screen.findByRole('list', { name: 'Pièces jointes du fidèle' });
     expect(within(pieces).getByText('carte-bapteme-1992.jpg')).toBeInTheDocument();
     expect(within(pieces).getByText(/412 Ko · déposée le 21\.09/)).toBeInTheDocument();
-    const link = within(pieces).getByRole('link', { name: /consulter carte-bapteme-1992\.jpg/i });
+    const link = within(pieces).getByRole('link', { name: /ouvrir carte-bapteme-1992\.jpg/i });
     expect(link).toHaveAttribute('href', expect.stringContaining('token='));
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -145,45 +165,35 @@ describe('PAR-Demande-Detail', () => {
     render(ACTE_IDS.verification);
 
     const history = await screen.findByRole('region', { name: /historique des statuts/i });
-    expect(within(history).getByText('Marie-Thérèse Diouf, depuis l’espace fidèle')).toBeInTheDocument();
-    expect(within(history).getByText('Germaine Faye')).toBeInTheDocument();
+    expect(within(history).getByText('Soumise depuis l’espace fidèle')).toBeInTheDocument();
+    expect(within(history).getByText(/^Marie-Thérèse Diouf · /)).toBeInTheDocument();
+    expect(within(history).getAllByText(/^Germaine Faye · /).length).toBeGreaterThan(0);
     expect(await screen.findByText(/^Germaine Faye · 22\.09/)).toBeInTheDocument();
-  });
-
-  it('numérote les sections sans trou, assignation comprise', async () => {
-    render(ACTE_IDS.submitted);
-    await screen.findByRole('region', { name: /assignation/i });
-
-    const numbers = screen
-      .getAllByRole('heading', { level: 2 })
-      .map((h) => /^(\d\d) — /.exec(h.textContent ?? '')?.[1])
-      .filter(Boolean);
-    expect(numbers).toEqual(['01', '02', '03', '04', '05']);
   });
 
   it('assigne la demande à une personne de l’équipe, puis la remet à assigner', async () => {
     const user = userEvent.setup();
     render(ACTE_IDS.submitted);
-    const section = await screen.findByRole('region', { name: /assignation/i });
-    expect(within(section).getByText('À assigner', { selector: 'span' })).toBeInTheDocument();
+    const section = await screen.findByRole('region', { name: 'Attribution' });
+    expect(within(section).getByLabelText('Suivie par')).toHaveValue('');
 
-    await user.selectOptions(within(section).getByLabelText('Confier la demande à'), await within(section).findByRole('option', { name: 'Germaine Faye' }));
-    await user.click(within(section).getByRole('button', { name: 'Enregistrer l’assignation' }));
+    await user.selectOptions(within(section).getByLabelText('Suivie par'), await within(section).findByRole('option', { name: 'Germaine Faye' }));
+    await user.click(within(section).getByRole('button', { name: 'Enregistrer l’attribution' }));
 
     await vi.waitFor(() => expect(actesState.lastAssign).toEqual({ id: ACTE_IDS.submitted, body: { assignee_id: '5f0c0000-0000-4000-8000-0000000000bb' } }));
-    expect(await screen.findByText('Assignée à Germaine Faye', { selector: 'header span' })).toBeInTheDocument();
+    await vi.waitFor(() => expect(within(screen.getByRole('region', { name: 'Attribution' })).getByLabelText('Suivie par')).toHaveValue('5f0c0000-0000-4000-8000-0000000000bb'));
 
-    const again = screen.getByRole('region', { name: /assignation/i });
-    await user.selectOptions(within(again).getByLabelText('Confier la demande à'), '');
-    await user.click(within(again).getByRole('button', { name: 'Enregistrer l’assignation' }));
+    const again = screen.getByRole('region', { name: 'Attribution' });
+    await user.selectOptions(within(again).getByLabelText('Suivie par'), '');
+    await user.click(within(again).getByRole('button', { name: 'Enregistrer l’attribution' }));
     await vi.waitFor(() => expect(actesState.lastAssign?.body).toEqual({ assignee_id: null }));
   });
 
-  it('propose de se l’assigner', async () => {
+  it('propose de se l’attribuer', async () => {
     const user = userEvent.setup();
     render(ACTE_IDS.submitted);
 
-    await user.click(await screen.findByRole('button', { name: 'Me l’assigner' }));
+    await user.click(await screen.findByRole('button', { name: 'Me l’attribuer' }));
 
     await vi.waitFor(() => expect(actesState.lastAssign?.body).toEqual({ assignee_id: '5f0c0000-0000-4000-8000-0000000000aa' }));
   });

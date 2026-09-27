@@ -1,10 +1,7 @@
-import type { Mystery, Prayer, RosaryToday } from '@/hooks/use-rosary-today';
+import type { Mystery, Prayer } from '@/hooks/use-rosary-today';
 
 /** « fruit : la confiance » (maquette FID-Chapelet) ; rien si le mystère n'en a pas. */
 export const fruitLabel = (m: Mystery) => (m.fruit ? `fruit : ${m.fruit.charAt(0).toLowerCase()}${m.fruit.slice(1)}` : null);
-
-/** 1er, 2e… (masculin, pour « mystère ») */
-export const ordinal = (n: number) => (n === 1 ? '1er' : `${n}e`);
 
 /** Titre sans le point final des données (« Les noces de Cana. » → « Les noces de Cana »). */
 export const mysteryTitle = (m: Mystery) => m.title.replace(/\.\s*$/, '');
@@ -38,11 +35,22 @@ export const beadsOf = (decade: Prayer[]): Bead[] => {
   });
 };
 
-// Environ 18 s par grain : une dizaine (13 grains) dure un peu moins de 4 minutes.
-const SECONDS_PER_BEAD = 18;
+const ORDINAL_WORDS = ['Premier', 'Deuxième', 'Troisième', 'Quatrième', 'Cinquième'];
 
-export const remainingMinutes = (rosary: RosaryToday, mystery: number, step: number) => {
-  const decades = rosary.day.group.mysteries.map((m) => decadeOf(m, rosary.standalone_prayers).length);
-  const left = decades.slice(mystery).reduce((n, len) => n + len, 0) - step;
-  return Math.max(1, Math.round((left * SECONDS_PER_BEAD) / 60));
+/** « Troisième mystère lumineux » (en-tête de la dizaine). */
+export const mysteryHeading = (n: number, group: string) =>
+  `${ORDINAL_WORDS[n - 1] ?? `${n}e`} mystère ${group.replace(/^myst[èe]res\s+/i, '').toLowerCase()}`;
+
+/** Les mystères selon les jours (usage de l'Église) ; jours numérotés comme l'API : lundi = 0. */
+export const MYSTERIES_BY_DAY: { days: string; group: string; weekdays: number[] }[] = [
+  { days: 'Lundi et samedi', group: 'Joyeux', weekdays: [0, 5] },
+  { days: 'Mardi et vendredi', group: 'Douloureux', weekdays: [1, 4] },
+  { days: 'Mercredi et dimanche', group: 'Glorieux', weekdays: [2, 6] },
+  { days: 'Jeudi', group: 'Lumineux', weekdays: [3] },
+];
+
+/** `?jour=N` de l'URL : un jour de 0 (lundi) à 6 (dimanche), sinon null. */
+export const parseWeekday = (value: string | undefined | null): number | null => {
+  if (!value || !/^[0-6]$/.test(value)) return null;
+  return Number(value);
 };

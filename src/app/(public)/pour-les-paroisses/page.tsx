@@ -1,43 +1,65 @@
 import type { Metadata } from 'next';
 
-import { ContactForm } from '@/features/public-offre/components/contact-form';
-import { OfferCommitments } from '@/features/public-offre/components/offer-commitments';
+import { OfferBenefits } from '@/features/public-offre/components/offer-benefits';
+import { OfferContact } from '@/features/public-offre/components/offer-contact';
 import { OfferHero } from '@/features/public-offre/components/offer-hero';
-import { OfferPilot } from '@/features/public-offre/components/offer-pilot';
-import { OfferQuestions } from '@/features/public-offre/components/offer-questions';
-import { OfferTools } from '@/features/public-offre/components/offer-tools';
+import { OfferRoles } from '@/features/public-offre/components/offer-roles';
+import { OfferSteps } from '@/features/public-offre/components/offer-steps';
+
+import { FaqSection, type FaqItem } from '../_components/faq-section';
 
 export const metadata: Metadata = {
   title: 'Pour les paroisses',
   description:
-    'Jàngu Bi pour les paroisses et diocèses du Sénégal : annonces, horaires, demandes d’actes, messagerie des prêtres. Pilote gratuit de 12 semaines.',
+    'Jàngu Bi pour les paroisses et diocèses du Sénégal : annonces, horaires, demandes d’actes, messagerie des prêtres. Pilote avec l’archidiocèse de Dakar.',
 };
 
-/** Offre aux paroisses et formulaire de contact (PUB-Pour-les-paroisses). */
+const QUESTIONS: FaqItem[] = [
+  {
+    q: 'Qui décide de l’arrivée d’une paroisse sur Jàngu Bi ?',
+    a: 'Le curé, avec l’accord de la chancellerie de son diocèse. Une demande peut venir d’un paroissien ou du secrétariat, mais rien n’est ouvert sans l’accord du curé.',
+  },
+  {
+    q: 'Nos registres papier sont-ils numérisés ?',
+    a: 'Non. Les registres restent au presbytère. Jàngu Bi transmet les demandes d’actes ; le secrétariat vérifie dans le registre et délivre l’original papier, signé et scellé.',
+  },
+  {
+    q: 'Faut-il un ordinateur au secrétariat ?',
+    a: 'Un ordinateur ou une tablette avec une connexion internet suffit pour le secrétariat. Les prêtres peuvent répondre depuis leur téléphone.',
+  },
+  {
+    q: 'Les prêtres doivent-ils répondre à tous les messages ?',
+    a: 'Non. Chaque prêtre choisit s’il est joignable et à quels moments, et peut suspendre sa disponibilité. La confession ne se fait jamais par message.',
+  },
+  {
+    q: 'Que se passe-t-il quand le curé est nommé ailleurs ?',
+    a: 'Ses accès suivent sa nomination : ils se ferment à la date de fin de l’office, et son successeur les reçoit à sa prise de fonction. Les données restent à la paroisse.',
+  },
+];
+
+/** Offre aux paroisses et formulaire de contact (WEB-Pour-les-paroisses). */
 const PourLesParoissesPage = () => (
-  <div className="flex flex-col gap-24">
+  <>
     <OfferHero />
-    <OfferTools />
-    <OfferPilot />
-    <OfferCommitments />
-    <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 lg:gap-6">
-      <div className="lg:col-span-5">
-        <OfferQuestions />
-      </div>
-      <section id="contact" aria-labelledby="contact-titre" className="scroll-mt-6 border border-line bg-surface p-6 md:p-10 lg:col-span-6 lg:col-start-7">
-        <p className="tnum m-0 text-meta text-primary">Contact</p>
-        <h2 id="contact-titre" className="m-0 mt-2 font-serif text-h2 font-normal text-ink">
-          Demander une présentation
-        </h2>
-        <p className="m-0 mt-3 text-base text-ink-2">
-          Nous vous rappelons sous 5 jours ouvrés pour fixer une présentation au presbytère ou à la chancellerie.
-        </p>
-        <div className="mt-8">
-          <ContactForm />
-        </div>
-      </section>
-    </div>
-  </div>
+    <OfferBenefits />
+    <OfferSteps />
+    <OfferRoles />
+    <FaqSection
+      id="faq-paroisses-titre"
+      title="Questions des curés et des secrétariats"
+      items={QUESTIONS}
+      intro={
+        <>
+          Une autre question&nbsp;? Écrivez à{' '}
+          <a href="mailto:paroisses@jangubi.sn" className="font-semibold">
+            paroisses@jangubi.sn
+          </a>
+          .
+        </>
+      }
+    />
+    <OfferContact />
+  </>
 );
 
 export default PourLesParoissesPage;

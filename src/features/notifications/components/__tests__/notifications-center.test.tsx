@@ -34,6 +34,13 @@ class FakeWebSocket {
   }
 }
 
+// Midi : les notifications « il y a 5 minutes » restent aujourd'hui, même si la suite tourne après minuit.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-24T12:00:00'));
+});
+afterEach(() => vi.useRealTimers());
+
 beforeEach(() => {
   resetF5bState();
   FakeWebSocket.instances = [];
@@ -47,9 +54,9 @@ describe('Notifications (/app/notifications)', () => {
 
     expect(await screen.findByText('Père Emmanuel Tine vous a écrit')).toBeInTheDocument();
     expect(screen.getByText(/le contenu du message s.affiche seulement dans la conversation/i)).toBeInTheDocument();
-    expect(screen.getByText('Mon espace · 3 non lues')).toBeInTheDocument();
+    expect(screen.getByText('3 non lues.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: /^aujourd.hui/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: /^hier/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Cette semaine' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /nouvelle annonce de saint-dominique/i })).toHaveAttribute(
       'href',
       expect.stringMatching(/^\/app\/paroisse\/annonces\//),
@@ -84,10 +91,10 @@ describe('Notifications (/app/notifications)', () => {
     await user.click(await screen.findByRole('link', { name: /père emmanuel tine vous a écrit/i }));
     document.removeEventListener('click', stay);
     await vi.waitFor(() => expect(f5bState.readIds).toEqual(['n1']));
-    expect(await screen.findByText('Mon espace · 2 non lues')).toBeInTheDocument();
+    expect(await screen.findByText('2 non lues.')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /tout marquer comme lu/i }));
-    expect(await screen.findByText('Mon espace · 0 non lue')).toBeInTheDocument();
+    expect(await screen.findByText('Tout est lu.')).toBeInTheDocument();
     expect(screen.queryAllByRole('img', { name: 'Non lue' })).toHaveLength(0);
   });
 

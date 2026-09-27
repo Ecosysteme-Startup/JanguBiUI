@@ -1,4 +1,15 @@
-import { calendarLine, closingFormula, dayWindow, parseIsoDate, readingLabel, rosaryOfDay } from '@/features/parole/utils/liturgy';
+import {
+  closingFormula,
+  dayTileLabel,
+  parseIsoDate,
+  readingLabel,
+  readingPlainText,
+  readingShortTitle,
+  readingTabLabel,
+  readingTitle,
+  weekOf,
+  yearLine,
+} from '@/features/parole/utils/liturgy';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { server } from '@/testing/mocks/server';
 
@@ -26,18 +37,48 @@ describe('utilitaires de la Parole', () => {
     expect(parseIsoDate(undefined)).toBeUndefined();
   });
 
-  it('construit la fenêtre de jours et les mystères du jour', () => {
-    expect(dayWindow('2026-09-24').map((d) => d.iso)).toEqual(['2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25', '2026-09-26', '2026-09-27']);
-    expect(rosaryOfDay('2026-09-24')).toEqual({ weekday: 'jeudi', group: 'lumineux' });
-    expect(rosaryOfDay('2026-09-27').group).toBe('glorieux');
+  it('construit la semaine du lundi au dimanche', () => {
+    expect(weekOf('2026-09-24')).toEqual(['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25', '2026-09-26', '2026-09-27']);
+    expect(weekOf('2026-09-27')[0]).toBe('2026-09-21');
+    expect(weekOf('2026-09-21')[6]).toBe('2026-09-27');
   });
 
-  it('résume le calendrier d’un dimanche avec son année liturgique', () => {
-    expect(
-      calendarLine({
-        liturgical_year: 2026, season: 'ordinaire', season_label: 'Temps ordinaire', week: 26,
-        celebration: '26e dimanche du temps ordinaire', rank: 'dimanche', color: 'vert', sunday_cycle: 'A', weekday_cycle: 'II',
-      }),
-    ).toBe('Dimanche · 26e dimanche du temps ordinaire · année A');
+  it('abrège le libellé du jour dans la bande de dates', () => {
+    expect(dayTileLabel({ rank: 'ferie', celebration: 'Jeudi de la 25e semaine' })).toBe('Férie');
+    expect(dayTileLabel({ rank: 'dimanche', celebration: '26e dimanche du temps ordinaire' })).toBe('Dimanche');
+    expect(dayTileLabel({ rank: 'fete', celebration: 'Saint Matthieu, apôtre et évangéliste' })).toBe('S. Matthieu');
+    expect(dayTileLabel({ rank: 'memoire', celebration: 'Sainte Thérèse de l’Enfant-Jésus' })).toBe('Ste Thérèse de l’Enfant-Jésus');
+  });
+
+  it('dit l’année liturgique', () => {
+    expect(yearLine({ rank: 'ferie', sunday_cycle: 'A', weekday_cycle: 'II' })).toBe('Année paire, cycle A');
+    expect(yearLine({ rank: 'dimanche', sunday_cycle: 'B', weekday_cycle: 'I' })).toBe('Cycle B');
+  });
+
+  it('nomme les onglets de lecture selon leur nombre', () => {
+    const semaine = [{ type: 'lecture_1' }, { type: 'psaume' }, { type: 'evangile' }];
+    expect(semaine.map((_, i) => readingTabLabel(semaine, i))).toEqual(['Lecture', 'Psaume', 'Évangile']);
+    const dimanche = [{ type: 'lecture_1' }, { type: 'psaume' }, { type: 'lecture_2' }, { type: 'evangile' }];
+    expect(dimanche.map((_, i) => readingTabLabel(dimanche, i))).toEqual(['1re lecture', 'Psaume', '2e lecture', 'Évangile']);
+  });
+
+  it('résume une lecture en titre court et en texte à copier', () => {
+    const reading = {
+      type: 'evangile',
+      citation: 'Lc 9, 7-9',
+      text: null,
+      verses: [
+        { book: 'Luc', chapter: 9, number: 7, text: 'Hérode entendit parler.' },
+        { book: 'Luc', chapter: 9, number: 8, text: 'Car les uns disaient.' },
+      ],
+    };
+    expect(readingShortTitle(reading)).toBe('Luc 9');
+    expect(readingShortTitle({ ...reading, verses: [{ ...reading.verses[0], book: 'Psaumes', chapter: 89 }] })).toBe('Psaume 89');
+    expect(readingTitle(reading)).toBe('Évangile de Jésus Christ selon saint Luc');
+    expect(readingTitle({ ...reading, type: 'psaume', verses: [{ ...reading.verses[0], book: 'Psaumes', chapter: 90 }] })).toBe('Psaume 90');
+    expect(readingTitle({ ...reading, type: 'lecture_1', verses: [{ ...reading.verses[0], book: 'Ecclésiaste' }] })).toBe('Ecclésiaste');
+    expect(readingPlainText(reading)).toBe('Évangile · Lc 9, 7-9\n\n7 Hérode entendit parler.\n8 Car les uns disaient.');
+    expect(readingShortTitle({ ...reading, verses: [] })).toBe('Lc 9, 7-9');
+    expect(readingPlainText({ ...reading, verses: [], text: '<p>Hérode <em>entendit</em>.</p>' })).toBe('Évangile · Lc 9, 7-9\n\nHérode entendit.');
   });
 });

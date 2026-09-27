@@ -17,10 +17,11 @@ describe('LegalArticle', () => {
       />,
     );
     const nav = screen.getByRole('navigation', { name: 'Sommaire' });
-    // Colonnes 1-3 et même rangée que le texte (colonnes 5-12) : aucune colonne partagée.
-    expect(nav).toHaveClass('lg:sticky', 'lg:col-start-1', 'lg:col-span-3', 'lg:row-start-2', 'bg-paper');
-    const body = screen.getByRole('region', { name: /01\s*Objet|Objet/ }).parentElement!;
-    expect(body).toHaveClass('lg:col-start-5', 'lg:row-start-2');
+    // Sommaire collant dans la 1re colonne de la grille, le texte dans la 2de : aucun chevauchement.
+    expect(nav).toHaveClass('lg:sticky');
+    const grid = nav.parentElement!;
+    expect(grid).toHaveClass('lg:grid-cols-[280px_minmax(0,680px)]');
+    expect(screen.getByRole('region', { name: 'Objet' }).parentElement!.parentElement).toBe(grid);
     expect(screen.getByRole('link', { name: /Compte/ })).toHaveAttribute('href', '#compte');
   });
 });

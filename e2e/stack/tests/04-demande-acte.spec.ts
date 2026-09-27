@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+
 import { KC_DEMO_PASSWORD, loginViaKeycloak, logout } from '../helpers/auth';
 
 const FIDELE = 'fidele@demo.jangubi.sn';
@@ -35,7 +36,11 @@ test('Demande d’acte : dépôt (fidèle) → traitement (secrétaire) → comp
   if (await moisField.count()) await moisField.selectOption({ index: 1 });
   const anneeField = fidelePage.getByLabel(/année du baptême/i);
   if (await anneeField.count()) await anneeField.fill('1992');
-  await fidelePage.getByRole('radio', { name: /usage personnel/i }).click();
+  // Au clavier : sous 1024 px, la barre de navigation fixe du bas peut recouvrir la pastille au défilement.
+  const personalUse = fidelePage.getByRole('radio', { name: /usage personnel/i });
+  await personalUse.focus();
+  await personalUse.press('Space');
+  await expect(personalUse).toBeChecked();
   const consentBox = fidelePage.getByRole('checkbox').first();
   if (await consentBox.count()) await consentBox.check();
   await fidelePage.getByRole('button', { name: /voir le récapitulatif|continuer/i }).click();
@@ -77,8 +82,14 @@ test('Demande d’acte : dépôt (fidèle) → traitement (secrétaire) → comp
     await secPage.waitForLoadState('networkidle').catch(() => undefined);
   }
 
+  // Panneau « Statut » (maquette PAR-Demande-Detail) : choix du statut suivant, puis bouton d'action.
+  const supplementChoice = secPage.getByRole('radio', { name: /^complément demandé/i });
+  await expect(supplementChoice).toBeVisible({ timeout: 10_000 });
+  await supplementChoice.focus();
+  await supplementChoice.press('Space');
+  await expect(supplementChoice).toBeChecked();
   const supplementButton = secPage.getByRole('button', { name: 'Demander un complément' });
-  await expect(supplementButton).toBeVisible({ timeout: 10_000 });
+  await expect(supplementButton).toBeVisible();
   await supplementButton.click();
   const dialog = secPage.getByRole('dialog', { name: 'Demander un complément' });
   await dialog.getByLabel(/complément attendu/i).fill('Merci de préciser le nom de la marraine (recette E2E).');

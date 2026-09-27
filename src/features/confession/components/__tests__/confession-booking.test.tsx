@@ -42,7 +42,7 @@ describe('ConfessionBooking (FID-Confession-RDV)', () => {
       ),
     ).toHaveLength(0);
     expect(
-      screen.getByText('Aucun contenu n’est demandé.'),
+      screen.getByText('Aucun motif n’est demandé'),
     ).toBeInTheDocument();
   });
 
@@ -51,23 +51,22 @@ describe('ConfessionBooking (FID-Confession-RDV)', () => {
     renderBooking();
 
     const days = await screen.findByRole('group', {
-      name: /jours de la semaine du 21 au 27 septembre/i,
+      name: /jours de septembre 2026 avec des créneaux libres/i,
     });
+    // Seuls les jours ouverts sont des boutons : le samedi 26, choisi d'office.
+    expect(within(days).getAllByRole('button')).toHaveLength(1);
     expect(
       within(days).getByRole('button', {
         name: /samedi 26 septembre, 12 créneaux libres/i,
       }),
     ).toHaveAttribute('aria-pressed', 'true');
-    expect(
-      within(days).getByRole('button', { name: /lundi 21 septembre : passé/i }),
-    ).toBeDisabled();
 
     await user.click(screen.getByRole('button', { name: /16 h 40/ }));
-    expect(
-      screen.getByRole('heading', { name: /samedi 26 septembre, 16 h 40/i }),
-    ).toBeInTheDocument();
+    const recap = screen.getByRole('region', { name: 'Votre rendez-vous' });
+    expect(within(recap).getByText('16:40 – 16:50')).toBeInTheDocument();
+    expect(within(recap).getByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
     await user.click(
-      screen.getByRole('button', { name: 'Confirmer le rendez-vous' }),
+      within(recap).getByRole('button', { name: 'Réserver 16 h 40' }),
     );
 
     await vi.waitFor(() =>
@@ -77,7 +76,7 @@ describe('ConfessionBooking (FID-Confession-RDV)', () => {
       name: 'Mes rendez-vous à venir',
     });
     expect(
-      within(mine).getByText('Confession · Abbé Augustin Ndiaye'),
+      within(mine).getByText('16 h 40 · Abbé Augustin Ndiaye'),
     ).toBeInTheDocument();
   });
 
@@ -85,9 +84,7 @@ describe('ConfessionBooking (FID-Confession-RDV)', () => {
     const user = userEvent.setup();
     renderBooking();
 
-    await user.click(
-      await screen.findByRole('radio', { name: 'Père Emmanuel Tine' }),
-    );
+    await user.click(await screen.findByRole('radio', { name: 'Père Tine' }));
 
     const grid = screen.getByRole('group', {
       name: /créneaux du samedi 26 septembre/i,
@@ -115,9 +112,7 @@ describe('ConfessionBooking (FID-Confession-RDV)', () => {
     renderBooking();
 
     await user.click(await screen.findByRole('button', { name: /16 h 10/ }));
-    await user.click(
-      screen.getByRole('button', { name: 'Confirmer le rendez-vous' }),
-    );
+    await user.click(screen.getByRole('button', { name: /^Réserver/ }));
 
     expect(
       await screen.findByText('Ce créneau vient d’être pris'),
@@ -128,9 +123,7 @@ describe('ConfessionBooking (FID-Confession-RDV)', () => {
     const user = userEvent.setup();
     renderBooking();
     await user.click(await screen.findByRole('button', { name: /17 h 20/ }));
-    await user.click(
-      screen.getByRole('button', { name: 'Confirmer le rendez-vous' }),
-    );
+    await user.click(screen.getByRole('button', { name: /^Réserver/ }));
 
     await user.click(
       await screen.findByRole('button', {

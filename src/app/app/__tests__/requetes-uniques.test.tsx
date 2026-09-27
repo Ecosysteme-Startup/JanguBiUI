@@ -3,8 +3,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode } from 'react';
 
 import FideleLayout from '@/app/app/layout';
-import ChapeletPage from '@/app/app/chapelet/page';
 import FideleHomePage from '@/app/app/page';
+import { ChapeletView } from '@/features/chapelet/components/chapelet-view';
 import { resetF5bState } from '@/testing/mocks/db-f5b';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { server } from '@/testing/mocks/server';
@@ -40,14 +40,14 @@ describe('Espace fidèle : une seule requête par ressource', () => {
       </StrictMode>,
     );
 
-    expect(await screen.findByRole('heading', { level: 1, name: /jàmm ak jàmm/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: /bonjour/i })).toBeInTheDocument();
     expect(await screen.findByText('Mystères lumineux')).toBeInTheDocument();
     await waitFor(() => expect(requests.length).toBeGreaterThan(3));
     server.events.removeListener('request:start', record);
 
     const duplicates = requests.filter((path, index) => requests.indexOf(path) !== index);
     expect(duplicates).toEqual([]);
-    expect(requests.filter((path) => path.startsWith('/api/v1/me/'))).toHaveLength(1);
+    expect(requests.filter((path) => path === '/api/v1/me/')).toHaveLength(1);
   });
 
   it('le chapelet relit le cache de l’accueil sans perdre les prières d’ouverture (même clé, même schéma)', async () => {
@@ -64,12 +64,12 @@ describe('Espace fidèle : une seule requête par ressource', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <ChapeletPage />
+        <ChapeletView />
       </QueryClientProvider>,
     );
     // Avant : l'accueil mettait en cache une version tronquée (sans `standalone_prayers`) et le
     // chapelet guidé plantait en la relisant.
-    expect(await screen.findByRole('heading', { level: 1, name: /les mystères lumineux/i })).toBeInTheDocument();
-    expect(screen.getByText('Mystère 1 sur 5')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: 'Le baptême de Jésus au Jourdain' })).toBeInTheDocument();
+    expect(screen.getByText('Dizaine 1 sur 5')).toBeInTheDocument();
   });
 });

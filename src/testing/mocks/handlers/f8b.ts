@@ -248,8 +248,10 @@ export const f8bHandlers = [
     const url = new URL(request.url);
     const q = (url.searchParams.get('q') ?? '').toLowerCase();
     const status = url.searchParams.get('status');
+    const role = url.searchParams.get('role');
     const items = f8bState.accounts.filter(
-      (a) => (!q || `${a.full_name} ${a.email}`.toLowerCase().includes(q)) && (!status || a.status === status),
+      (a) =>
+        (!q || `${a.full_name} ${a.email}`.toLowerCase().includes(q)) && (!status || a.status === status) && (!role || a.realm_role === role),
     );
     return HttpResponse.json(page(items, url));
   }),

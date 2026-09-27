@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Sombre · Fiche paroisse</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p:hover{background:#085E90 !important}
+.jb-btn-o:hover{background:#111A24 !important;border-color:#5F7085 !important}
+.jb-nav:hover{color:#E8EEF5 !important;background:#111A24 !important}
+.jb-card:hover{border-color:#26618F !important}
+.jb-row:hover{background:#111A24}
+.jb-foot:hover{color:#E8EEF5 !important}
+.jb-day:hover{background:#18232F}
+</style>
+</helmet>
+<div style="width: 1440px; height: 2540px; box-sizing: border-box; overflow: hidden; position: relative; background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px;">
+
+  <!-- EN-TÊTE PUBLIC 72px -->
+  <header style="height: 72px; border-bottom: 1px solid #243142; background: #0B1118;">
+    <div style="max-width: 1200px; height: 72px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 32px;">
+      <div style="display: flex; align-items: center; gap: 40px;">
+        <a href="Sombre-WEB-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: inline-flex; align-items: center; gap: 10px; color: #E8EEF5;">
+          <span style="width: 32px; height: 32px; border-radius: 9px; background: #0A6BA3; display: inline-flex; align-items: center; justify-content: center; color: #F5F9FC;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>
+          </span>
+          <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 22px; font-weight: 600; letter-spacing: -0.01em;">Jàngu Bi</span>
+        </a>
+        <nav aria-label="Navigation principale" style="display: flex; align-items: center; gap: 4px;">
+          <a href="Sombre-WEB-Parole-du-jour.dc.html" class="jb-nav" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 10px; color: #BAC6D3; font-size: 15px; font-weight: 500;">La Parole du jour</a>
+          <a href="Sombre-WEB-Fiche-Paroisse.dc.html" aria-current="page" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 10px; color: #E8EEF5; background: #111A24; font-size: 15px; font-weight: 500;">Paroisses</a>
+          <a href="#" class="jb-nav" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 10px; color: #BAC6D3; font-size: 15px; font-weight: 500;">Pour les paroisses</a>
+          <a href="#" class="jb-nav" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 10px; color: #BAC6D3; font-size: 15px; font-weight: 500;">Aide</a>
+        </nav>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="Sombre-WEB-Connexion.dc.html" class="jb-btn-o" style="height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 12px; border: 1px solid #243142; color: #E8EEF5; font-size: 15px; font-weight: 600;">Se connecter</a>
+        <a href="Sombre-WEB-Connexion.dc.html" class="jb-btn-p" style="height: 40px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 12px; background: #0A6BA3; color: #F5F9FC; font-size: 15px; font-weight: 600;">Créer un compte</a>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 32px 0 96px;">
+
+    <!-- Fil d'Ariane -->
+    <nav aria-label="Fil d'Ariane" style="display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; color: #92A2B4;">
+      <a href="#" style="color: #BAC6D3;">Paroisses</a>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+      <a href="#" style="color: #BAC6D3;">Archidiocèse de Dakar</a>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+      <span aria-current="page">Saint-Dominique</span>
+    </nav>
+
+    <!-- En-tête de la fiche -->
+    <div style="margin-top: 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;">
+      <div>
+        <h1 style="margin: 0; font-size: 40px; line-height: 48px; font-weight: 600; letter-spacing: -0.015em;">Paroisse Saint-Dominique</h1>
+        <p style="margin: 8px 0 0; font-size: 18px; line-height: 28px; color: #BAC6D3;">Paroisse universitaire, Point E, Dakar. Doyenné Plateau-Médina, archidiocèse de Dakar.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex: none;">
+        <a href="#" class="jb-btn-o" aria-label="Partager la fiche" style="width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #243142; color: #E8EEF5;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><path d="m16 6-4-4-4 4"></path><path d="M12 2v13"></path></svg></a>
+        <a href="Sombre-WEB-Connexion.dc.html" class="jb-btn-p" style="height: 48px; padding: 0 20px; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; background: #0A6BA3; color: #F5F9FC; font-size: 16px; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>Suivre cette paroisse</a>
+      </div>
+    </div>
+
+    <!-- Photos -->
+    <div style="margin-top: 32px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; grid-template-rows: 360px;">
+      <div data-photo-slot="paroisse-saint-dominique-facade" style="height: 360px; border-radius: 16px; overflow: hidden; background: #0F2233;">
+        <svg width="100%" height="100%" viewBox="0 0 792 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M0 360v-80h792v80z" fill="#13304A"></path>
+          <path d="M290 360V190a106 106 0 0 1 212 0v170" fill="#13304A"></path>
+          <path d="M326 360V200a70 70 0 0 1 140 0v160" fill="#0F2233"></path>
+          <path d="M396 36v72M372 60h48" stroke="#3FA3DD" stroke-width="3" stroke-linecap="round"></path>
+          <path d="M396 130 140 360M396 130 652 360M396 130v230" stroke="#26618F" stroke-width="1"></path>
+          <circle cx="396" cy="250" r="26" fill="none" stroke="#26618F" stroke-width="1.5"></circle>
+        </svg>
+      </div>
+      <div style="display: grid; grid-template-rows: 174px 174px; gap: 12px;">
+        <div data-photo-slot="paroisse-chapelle-cite-universitaire" style="height: 174px; border-radius: 16px; overflow: hidden; background: #0F2233;">
+          <svg width="100%" height="100%" viewBox="0 0 388 174" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M0 174v-36h388v36z" fill="#13304A"></path><path d="M134 174v-78l60-44 60 44v78z" fill="#13304A"></path><path d="M176 174v-46a18 18 0 0 1 36 0v46" fill="#0F2233"></path><path d="M194 14v28M184 24h20" stroke="#3FA3DD" stroke-width="2" stroke-linecap="round"></path></svg>
+        </div>
+        <div data-photo-slot="paroisse-interieur-nef" style="height: 174px; border-radius: 16px; overflow: hidden; background: #0F2233;">
+          <svg width="100%" height="100%" viewBox="0 0 388 174" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M60 174V70a40 40 0 0 1 80 0v104M154 174V70a40 40 0 0 1 80 0v104M248 174V70a40 40 0 0 1 80 0v104" fill="none" stroke="#26618F" stroke-width="2"></path><path d="M0 174v-24h388v24z" fill="#13304A"></path><circle cx="194" cy="66" r="14" fill="none" stroke="#3FA3DD" stroke-width="1.5"></circle></svg>
+        </div>
+      </div>
+    </div>
+    <p style="margin: 8px 0 0; font-size: 13px; line-height: 18px; color: #92A2B4;">Église Saint-Dominique, Point E, et chapelle de la Cité universitaire.</p>
+
+    <div style="margin-top: 48px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 96px; align-items: start;">
+
+      <!-- ===== COLONNE PRINCIPALE ===== -->
+      <div style="display: flex; flex-direction: column; gap: 56px;">
+
+        <!-- Horaires -->
+        <section>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h2 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em;">Horaires des messes</h2>
+            <a href="#" style="font-size: 15px; font-weight: 600;">Semaine suivante</a>
+          </div>
+          <div role="tablist" aria-label="Jours" style="margin-top: 20px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; text-align: center; font-variant-numeric: tabular-nums;">
+            <a href="#" role="tab" aria-selected="false" class="jb-day" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #243142; color: #E8EEF5;"><span style="font-size: 12px; line-height: 16px; color: #92A2B4;">lun.</span><span style="font-size: 18px; line-height: 24px; font-weight: 600;">21</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #26618F;"></span></a>
+            <a href="#" role="tab" aria-selected="false" class="jb-day" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #243142; color: #E8EEF5;"><span style="font-size: 12px; line-height: 16px; color: #92A2B4;">mar.</span><span style="font-size: 18px; line-height: 24px; font-weight: 600;">22</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #26618F;"></span></a>
+            <a href="#" role="tab" aria-selected="false" class="jb-day" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #243142; color: #E8EEF5;"><span style="font-size: 12px; line-height: 16px; color: #92A2B4;">mer.</span><span style="font-size: 18px; line-height: 24px; font-weight: 600;">23</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #26618F;"></span></a>
+            <a href="#" role="tab" aria-selected="true" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #7CC3EE; box-shadow: inset 0 0 0 1px #0A6BA3; background: #0F2233; color: #7CC3EE;"><span style="font-size: 12px; line-height: 16px; font-weight: 500;">aujourd'hui</span><span style="font-size: 18px; line-height: 24px; font-weight: 700;">24</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #0A6BA3;"></span></a>
+            <a href="#" role="tab" aria-selected="false" class="jb-day" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #243142; color: #E8EEF5;"><span style="font-size: 12px; line-height: 16px; color: #92A2B4;">ven.</span><span style="font-size: 18px; line-height: 24px; font-weight: 600;">25</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #26618F;"></span></a>
+            <a href="#" role="tab" aria-selected="false" class="jb-day" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #243142; color: #E8EEF5;"><span style="font-size: 12px; line-height: 16px; color: #92A2B4;">sam.</span><span style="font-size: 18px; line-height: 24px; font-weight: 600;">26</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #26618F;"></span></a>
+            <a href="#" role="tab" aria-selected="false" class="jb-day" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 0 12px; border-radius: 14px; border: 1px solid #243142; color: #E8EEF5;"><span style="font-size: 12px; line-height: 16px; color: #92A2B4;">dim.</span><span style="font-size: 18px; line-height: 24px; font-weight: 600;">27</span><span style="width: 5px; height: 5px; border-radius: 50%; background: #26618F;"></span></a>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 20px; padding: 16px 20px; border-radius: 16px; border: 1px solid #243142; color: #92A2B4;">
+              <div style="width: 64px; flex: none; font-variant-numeric: tabular-nums;"><div style="font-size: 17px; line-height: 24px; font-weight: 600;">07:00</div><div style="font-size: 13px; line-height: 18px;">30 min</div></div>
+              <div style="width: 1px; align-self: stretch; background: #243142;"></div>
+              <div style="flex: 1;"><div style="font-size: 16px; line-height: 24px; font-weight: 600;">Messe du matin</div><div style="font-size: 14px; line-height: 20px;">Église Saint-Dominique</div></div>
+              <span style="height: 24px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: 999px; background: #18232F; color: #BAC6D3; font-size: 12px; font-weight: 500;">Passée</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px; padding: 16px 20px; border-radius: 16px; border: 1px solid #26618F; background: #0F2233;">
+              <div style="width: 64px; flex: none; font-variant-numeric: tabular-nums;"><div style="font-size: 17px; line-height: 24px; font-weight: 600;">18:30</div><div style="font-size: 13px; line-height: 18px; color: #BAC6D3;">45 min</div></div>
+              <div style="width: 1px; align-self: stretch; background: #1B4466;"></div>
+              <div style="flex: 1;"><div style="font-size: 16px; line-height: 24px; font-weight: 600;">Messe du soir</div><div style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Église Saint-Dominique</div></div>
+              <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; line-height: 20px; color: #7CC3EE; font-weight: 500;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>Prochaine</span>
+            </div>
+          </div>
+
+          <h3 style="margin: 32px 0 0; font-size: 16px; line-height: 24px; font-weight: 600;">Chaque semaine</h3>
+          <div style="margin-top: 12px; border-radius: 16px; background: #111A24; border: 1px solid #243142; font-size: 15px; line-height: 22px;">
+            <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 16px 20px; border-bottom: 1px solid #243142;"><span style="font-weight: 600;">Dimanche</span><span style="color: #BAC6D3; font-variant-numeric: tabular-nums;">7&nbsp;h&nbsp;30, 9&nbsp;h&nbsp;30 (messe des étudiants), 11&nbsp;h&nbsp;30, 18&nbsp;h&nbsp;30</span></div>
+            <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 16px 20px; border-bottom: 1px solid #243142;"><span style="font-weight: 600;">Du lundi au vendredi</span><span style="color: #BAC6D3; font-variant-numeric: tabular-nums;">7&nbsp;h, 18&nbsp;h&nbsp;30</span></div>
+            <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 16px 20px;"><span style="font-weight: 600;">Samedi</span><span style="color: #BAC6D3; font-variant-numeric: tabular-nums;">Confessions de 16&nbsp;h à 18&nbsp;h, messe anticipée à 18&nbsp;h&nbsp;30</span></div>
+          </div>
+        </section>
+
+        <!-- Annonces -->
+        <section>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h2 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em;">Annonces du dimanche</h2>
+            <a href="#" style="font-size: 15px; font-weight: 600;">Voir les 6 annonces</a>
+          </div>
+          <p style="margin: 4px 0 0; font-size: 15px; line-height: 22px; color: #BAC6D3;">Lues à la fin des messes du 26 et 27 septembre.</p>
+          <div style="margin-top: 16px; border-radius: 16px; border: 1px solid #243142; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18); overflow: hidden;">
+            <a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #243142; color: #E8EEF5;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; color: #92A2B4;"><span style="display: inline-flex; align-items: center; gap: 4px; color: #A8D8F5; font-weight: 500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg>Épinglée</span><span>·</span><span>Liturgie</span></div>
+                <div style="margin-top: 4px; font-size: 17px; line-height: 24px; font-weight: 600;">Quête impérée pour le Grand Séminaire de Brin</div>
+                <div style="margin-top: 2px; font-size: 15px; line-height: 22px; color: #BAC6D3;">À toutes les messes de ce dimanche 27 septembre, pour la formation des séminaristes.</div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+            <a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #243142; color: #E8EEF5;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 13px; line-height: 18px; color: #92A2B4;">Catéchèse</div>
+                <div style="margin-top: 4px; font-size: 17px; line-height: 24px; font-weight: 600;">Inscriptions au catéchisme 2026-2027</div>
+                <div style="margin-top: 2px; font-size: 15px; line-height: 22px; color: #BAC6D3;">Au secrétariat, jusqu'au 11 octobre. Apportez l'extrait de baptême de l'enfant.</div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+            <a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #243142; color: #E8EEF5;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 13px; line-height: 18px; color: #92A2B4;">Liturgie</div>
+                <div style="margin-top: 4px; font-size: 17px; line-height: 24px; font-weight: 600;">Messe d'action de grâce pour la rentrée universitaire</div>
+                <div style="margin-top: 2px; font-size: 15px; line-height: 22px; color: #BAC6D3;">Dimanche 4 octobre à 9&nbsp;h&nbsp;30, église Saint-Dominique.</div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+            <a href="#" class="jb-row" style="display: flex; align-items: center; gap: 16px; padding: 20px 24px; color: #E8EEF5;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 13px; line-height: 18px; color: #92A2B4;">Vie paroissiale</div>
+                <div style="margin-top: 4px; font-size: 17px; line-height: 24px; font-weight: 600;">Répétition de la chorale Sainte-Cécile</div>
+                <div style="margin-top: 2px; font-size: 15px; line-height: 22px; color: #BAC6D3;">Samedi 26 septembre à 16&nbsp;h, salle paroissiale. Nouvelles voix bienvenues.</div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Lieux de culte -->
+        <section>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <h2 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em;">Lieux de culte</h2>
+            <span style="font-size: 15px; color: #92A2B4;">2 lieux</span>
+          </div>
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+            <div style="border-radius: 16px; border: 1px solid #243142; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18); overflow: hidden;">
+              <div style="height: 140px; background: #18232F;">
+                <svg width="100%" height="100%" viewBox="0 0 352 140" preserveAspectRatio="xMidYMid slice" aria-label="Plan : église Saint-Dominique, Point E" role="img">
+                  <path d="M0 20h120v50H0zM140 0h110v60H140zM270 0h82v90h-82zM0 90h150v50H0zM170 80h80v60h-80z" fill="#111A24"></path>
+                  <path d="M-10 78 362 70M130 -10l30 160M260 -10v160M0 16l352 30" stroke="#0B1118" stroke-width="10" fill="none"></path>
+                  <path d="M-10 78 362 70" stroke="#243142" stroke-width="1" fill="none"></path>
+                  <circle cx="205" cy="62" r="14" fill="#26618F" opacity="0.6"></circle>
+                  <circle cx="205" cy="62" r="7" fill="#7CC3EE" stroke="#0B1118" stroke-width="3"></circle>
+                </svg>
+              </div>
+              <div style="padding: 16px 20px 20px;">
+                <div style="font-size: 16px; line-height: 24px; font-weight: 600;">Église Saint-Dominique</div>
+                <div style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Boulevard de l'Est, Point E, Dakar</div>
+                <a href="#" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>Itinéraire</a>
+              </div>
+            </div>
+            <div style="border-radius: 16px; border: 1px solid #243142; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18); overflow: hidden;">
+              <div style="height: 140px; background: #18232F;">
+                <svg width="100%" height="100%" viewBox="0 0 352 140" preserveAspectRatio="xMidYMid slice" aria-label="Plan : chapelle de la Cité universitaire, campus UCAD" role="img">
+                  <path d="M20 10h140v70H20zM190 10h140v40H190zM190 70h140v70H190zM0 100h160v40H0z" fill="#111A24"></path>
+                  <path d="M-10 90h372M175 -10v160M0 60 160 90" stroke="#0B1118" stroke-width="10" fill="none"></path>
+                  <circle cx="120" cy="48" r="14" fill="#26618F" opacity="0.6"></circle>
+                  <circle cx="120" cy="48" r="7" fill="#7CC3EE" stroke="#0B1118" stroke-width="3"></circle>
+                </svg>
+              </div>
+              <div style="padding: 16px 20px 20px;">
+                <div style="font-size: 16px; line-height: 24px; font-weight: 600;">Chapelle de la Cité universitaire</div>
+                <div style="font-size: 14px; line-height: 20px; color: #BAC6D3;">Campus de l'UCAD, Fann, Dakar</div>
+                <a href="#" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>Itinéraire</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ===== COLONNE LATÉRALE ===== -->
+      <aside style="display: flex; flex-direction: column; gap: 24px;">
+        <section style="padding: 24px; border-radius: 16px; background: #0B1118; border: 1px solid #243142; box-shadow: 0 1px 2px rgba(0,0,0,0.18);">
+          <div style="font-size: 14px; line-height: 20px; color: #92A2B4;">Prochaine messe</div>
+          <div style="margin-top: 4px; font-size: 24px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums;">Aujourd'hui, 18&nbsp;h&nbsp;30</div>
+          <div style="font-size: 15px; line-height: 22px; color: #BAC6D3;">Messe du soir, église Saint-Dominique</div>
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #243142; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 20px; font-variant-numeric: tabular-nums;">
+            <div style="display: flex; justify-content: space-between;"><span style="color: #BAC6D3;">Vendredi 25</span><span>7&nbsp;h, 18&nbsp;h&nbsp;30</span></div>
+            <div style="display: flex; justify-content: space-between;"><span style="color: #BAC6D3;">Samedi 26</span><span>18&nbsp;h&nbsp;30, anticipée</span></div>
+            <div style="display: flex; justify-content: space-between;"><span style="color: #BAC6D3;">Dimanche 27</span><span>7&nbsp;h&nbsp;30, 9&nbsp;h&nbsp;30, 11&nbsp;h&nbsp;30, 18&nbsp;h&nbsp;30</span></div>
+          </div>
+        </section>
+
+        <section style="padding: 24px; border-radius: 16px; background: #0B1118; border: 1px solid #243142; box-shadow: 0 1px 2px rgba(0,0,0,0.18);">
+          <h2 style="margin: 0; font-size: 17px; line-height: 24px; font-weight: 600;">Contact</h2>
+          <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 22px;">
+            <div style="display: flex; gap: 12px;">
+              <svg style="flex: none; margin-top: 2px;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <div><a href="#" style="font-weight: 600; font-variant-numeric: tabular-nums;">+221 33 825 47 12</a><div style="font-size: 13px; line-height: 18px; color: #92A2B4;">Secrétariat, du lundi au vendredi, 9&nbsp;h à 12&nbsp;h et 15&nbsp;h à 18&nbsp;h</div></div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <svg style="flex: none; margin-top: 2px;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+              <a href="#" style="font-weight: 600;">secretariat@saintdominique.sn</a>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <svg style="flex: none; margin-top: 2px;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>Boulevard de l'Est, Point E, Dakar</span>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding: 24px; border-radius: 16px; background: #0B1118; border: 1px solid #243142; box-shadow: 0 1px 2px rgba(0,0,0,0.18);">
+          <h2 style="margin: 0; font-size: 17px; line-height: 24px; font-weight: 600;">Clergé et secrétariat</h2>
+          <div style="margin-top: 8px; display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #243142;"><span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">AN</span><div><div style="font-size: 15px; line-height: 22px; font-weight: 600;">Abbé Augustin Ndiaye</div><div style="font-size: 13px; line-height: 18px; color: #BAC6D3;">Curé</div></div></div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #243142;"><span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">ET</span><div><div style="font-size: 15px; line-height: 22px; font-weight: 600;">Père Emmanuel Tine</div><div style="font-size: 13px; line-height: 18px; color: #BAC6D3;">Vicaire, aumônier des étudiants</div></div></div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #243142;"><span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">RS</span><div><div style="font-size: 15px; line-height: 22px; font-weight: 600;">Abbé Robert Sagna</div><div style="font-size: 13px; line-height: 18px; color: #BAC6D3;">Vicaire</div></div></div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0 0;"><span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #18232F; color: #BAC6D3; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">GF</span><div><div style="font-size: 15px; line-height: 22px; font-weight: 600;">Mme Germaine Faye</div><div style="font-size: 13px; line-height: 18px; color: #BAC6D3;">Secrétaire paroissiale</div></div></div>
+          </div>
+          <p style="margin: 16px 0 0; font-size: 13px; line-height: 18px; color: #92A2B4;">Pour écrire à un prêtre, connectez-vous à votre espace. Les échanges sont chiffrés de bout en bout.</p>
+        </section>
+        <section style="padding: 24px; border-radius: 16px; background: #111A24; border: 1px solid #243142;">
+          <h2 style="margin: 0; font-size: 17px; line-height: 24px; font-weight: 600;">Démarches</h2>
+          <div style="margin-top: 12px; font-size: 15px; line-height: 22px; font-weight: 600;">Extrait d'acte de baptême ou de mariage</div>
+          <p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: #BAC6D3;">Si le sacrement a été célébré ici, faites la demande en ligne. L'original papier, signé et scellé, se retire au secrétariat.</p>
+          <a href="Sombre-WEB-Connexion.dc.html" class="jb-btn-o" style="margin-top: 12px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #243142; background: #0B1118; color: #E8EEF5; font-size: 15px; font-weight: 600;">Demander un extrait</a>
+          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #243142; font-size: 15px; line-height: 22px; font-weight: 600;">Confession</div>
+          <p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: #BAC6D3;">Le samedi de 16&nbsp;h à 18&nbsp;h, à l'église. Réservez un créneau pour éviter l'attente.</p>
+          <a href="Sombre-WEB-Connexion.dc.html" class="jb-btn-o" style="margin-top: 12px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid #243142; background: #0B1118; color: #E8EEF5; font-size: 15px; font-weight: 600;">Prendre rendez-vous</a>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- PIED DE PAGE -->
+  <footer style="background: #111A24; border-top: 1px solid #243142;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 48px 0 32px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-weight: 600;">Jàngu Bi</span>
+        <span style="font-size: 14px; line-height: 20px; color: #BAC6D3;">La Parole, votre paroisse et vos démarches, au même endroit. Une application Numerisen.</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;"><span style="font-weight: 600;">Fidèles</span><a href="Sombre-WEB-Parole-du-jour.dc.html" class="jb-foot" style="color: #BAC6D3;">La Parole du jour</a><a href="Sombre-WEB-Fiche-Paroisse.dc.html" class="jb-foot" style="color: #BAC6D3;">Trouver une paroisse</a><a href="#" class="jb-foot" style="color: #BAC6D3;">Application mobile</a></div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;"><span style="font-weight: 600;">Paroisses et diocèses</span><a href="#" class="jb-foot" style="color: #BAC6D3;">Rejoindre Jàngu Bi</a><a href="#" class="jb-foot" style="color: #BAC6D3;">Le pilote Saint-Dominique</a><a href="#" class="jb-foot" style="color: #BAC6D3;">Nous contacter</a></div>
+      <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;"><span style="font-weight: 600;">Informations</span><a href="#" class="jb-foot" style="color: #BAC6D3;">Confidentialité</a><a href="#" class="jb-foot" style="color: #BAC6D3;">Conditions d'utilisation</a><a href="#" class="jb-foot" style="color: #BAC6D3;">Aide</a></div>
+    </div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 16px 0 24px; border-top: 1px solid #243142; display: flex; justify-content: space-between; font-size: 13px; color: #92A2B4;"><span>© 2026 Numerisen, Dakar</span><span>Protection des données personnelles : loi n° 2008-12</span></div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2540}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

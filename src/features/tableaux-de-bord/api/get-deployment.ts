@@ -33,7 +33,9 @@ const listAll = async (params: Record<string, string>): Promise<NodeLite[]> => {
 };
 
 export type DeploymentRow = { id: string; name: string; total: number; active: number; founding: number };
-export type Deployment = { total: number; active: number; founding: number; rows: DeploymentRow[] };
+/** Paroisse du sous-arbre : nom de juridiction et état d'ouverture, jamais une personne. */
+export type DeploymentParish = { id: string; name: string; doyenne: string | null; active: boolean; founding: boolean };
+export type Deployment = { total: number; active: number; founding: number; rows: DeploymentRow[]; parishes: DeploymentParish[] };
 
 export const summarize = (parishes: NodeLite[], doyennes: NodeLite[]): Deployment => {
   const rows = doyennes.map((d) => {
@@ -46,11 +48,19 @@ export const summarize = (parishes: NodeLite[], doyennes: NodeLite[]): Deploymen
       founding: own.filter((p) => p.status === 'en_fondation').length,
     };
   });
+  const doyenneName = new Map(doyennes.map((d) => [d.id, d.name]));
   return {
     total: parishes.length,
     active: parishes.filter((p) => p.is_active_on_platform).length,
     founding: parishes.filter((p) => p.status === 'en_fondation').length,
     rows,
+    parishes: parishes.map((p) => ({
+      id: p.id,
+      name: p.name,
+      doyenne: (p.parent_id && doyenneName.get(p.parent_id)) || null,
+      active: p.is_active_on_platform,
+      founding: p.status === 'en_fondation',
+    })),
   };
 };
 

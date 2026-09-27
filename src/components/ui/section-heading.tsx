@@ -1,39 +1,40 @@
 import { cn } from '@/utils/cn';
 
 /**
- * Titre de section « à la une » : filet d'encre au-dessus, numéro bleu en légende,
- * indication à droite (DS-Composants, en-têtes de planches et de blocs).
+ * Titre de section (WEB-Design-System, « Typographie ») : Section 24/32 (`lg`) ou sous-section
+ * 20/28 (`md`), Libre Franklin 600 ; indication ou action discrète à droite (« Tout voir »).
+ * Plus de filet d'encre ni de numérotation « 01 — » (retirés de la charte Ciel).
  */
 export const SectionHeading = ({
   id,
-  number,
   title,
   aside,
+  size = 'lg',
   className,
   as: Tag = 'h2',
 }: {
   id?: string;
+  /** @deprecated Numérotation retirée de la charte Ciel ; ignoré. */
   number?: string;
   title: React.ReactNode;
   aside?: React.ReactNode;
+  size?: 'lg' | 'md';
   className?: string;
   as?: 'h2' | 'h3';
 }) => (
-  <div className={cn('tnum mb-3 flex items-baseline justify-between gap-4 border-t border-line-strong pt-2 text-meta text-ink-2', className)}>
-    <Tag id={id} className="m-0 text-meta font-normal">
-      {number && <span className="text-primary">{number}</span>}
-      {number && ' — '}
+  <div className={cn('mb-4 flex items-baseline justify-between gap-4', className)}>
+    <Tag id={id} className={cn('m-0 font-semibold text-ink', size === 'lg' ? 'text-24' : 'text-20')}>
       {title}
     </Tag>
-    {aside && <span>{aside}</span>}
+    {aside && <span className="shrink-0 text-14 text-ink-2">{aside}</span>}
   </div>
 );
 
-/** Légende 12 px en chiffres tabulaires (ex. « Étape 1 sur 3 », dates, références). */
+/** Méta 13/18 en chiffres tabulaires (références, dates, « Étape 1 sur 3 »). */
 export const Meta = ({ className, children, tone = 'muted' }: { className?: string; children: React.ReactNode; tone?: 'muted' | 'primary' | 'ink' | 'err' }) => (
   <p
     className={cn(
-      'tnum m-0 text-meta',
+      'tnum m-0 text-13',
       { muted: 'text-ink-3', primary: 'text-primary', ink: 'text-ink', err: 'text-err' }[tone],
       className,
     )}

@@ -16,27 +16,50 @@ describe('FideleShell', () => {
     expect(tabs.getByRole('link', { name: 'Accueil' })).not.toHaveAttribute('aria-current');
   });
 
-  it('affiche le bandeau liturgique du jour', async () => {
+  it('présente les cinq rubriques de la barre latérale, Bible et Chapelet rattachées à « La Parole »', () => {
+    navigation.pathname = '/app/chapelet';
     renderApp(<FideleShell>contenu</FideleShell>);
 
-    expect((await screen.findAllByText(/25/)).length).toBeGreaterThan(0);
-    expect(await screen.findByRole('link', { name: 'Ec 1, 2-11 · Ps 89 (90) · Lc 9, 7-9' })).toHaveAttribute('href', '/app/parole');
+    const nav = within(screen.getByRole('navigation', { name: 'Espace fidèle' }));
+    expect(nav.getAllByRole('link').map((l) => l.textContent)).toEqual(['Accueil', 'La Parole', 'Ma paroisse', 'Mes demandes', 'Parler à un prêtre']);
+    expect(nav.getByRole('link', { name: 'La Parole' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('montre la paroisse suivie dans la sidebar', async () => {
+  it('montre la date du jour dans la barre supérieure et la cloche des notifications', () => {
+    renderApp(<FideleShell>contenu</FideleShell>);
+
+    expect(screen.getByRole('link', { name: /notifications/i })).toHaveAttribute('href', '/app/notifications');
+    expect(screen.getByText(/\d{4}$/)).toBeInTheDocument();
+  });
+
+  it('montre la paroisse suivie et le menu du compte (déconnexion) dans la barre latérale', async () => {
+    const user = userEvent.setup();
     renderApp(<FideleShell>contenu</FideleShell>);
 
     const sidebar = within(screen.getByRole('complementary'));
     expect(await sidebar.findByText('Saint-Dominique')).toBeInTheDocument();
-    expect(sidebar.getByRole('button', { name: /se déconnecter/i })).toBeInTheDocument();
+    await user.click(sidebar.getByRole('button', { name: 'Réglages du compte' }));
+    expect(await screen.findByRole('menuitem', { name: /se déconnecter/i })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /profil et réglages/i })).toHaveAttribute('href', '/app/profil');
   });
 
-  it('ouvre le menu « Plus » avec les rubriques numérotées', async () => {
+  it('ouvre la recherche rapide et filtre les rubriques', async () => {
+    const user = userEvent.setup();
     renderApp(<FideleShell>contenu</FideleShell>);
 
-    await userEvent.click(screen.getByRole('button', { name: /ouvrir le menu/i }));
-    const dialog = await screen.findByRole('dialog', { name: 'Menu' });
-    expect(within(dialog).getByText('01 — La Parole')).toBeInTheDocument();
+    await user.click(within(screen.getByRole('complementary')).getByRole('button', { name: /rechercher/i }));
+    const dialog = await screen.findByRole('dialog', { name: 'Recherche rapide' });
+    await user.type(within(dialog).getByRole('searchbox'), 'chapel');
     expect(within(dialog).getByRole('link', { name: /chapelet/i })).toHaveAttribute('href', '/app/chapelet');
+    expect(within(dialog).queryByRole('link', { name: /mes demandes/i })).not.toBeInTheDocument();
+  });
+
+  it('sous 1024 px, ouvre la barre latérale dans un tiroir « Menu »', async () => {
+    const user = userEvent.setup();
+    renderApp(<FideleShell>contenu</FideleShell>);
+
+    await user.click(screen.getByRole('button', { name: 'Menu' }));
+    const drawer = await screen.findByRole('dialog', { name: 'Menu' });
+    expect(within(drawer).getByRole('link', { name: 'Mes demandes' })).toHaveAttribute('href', '/app/demandes');
   });
 });

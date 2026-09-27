@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 
-import { SectionHeading } from '@/components/ui/section-heading';
-
 export type LegalSection = { id: string; title: string; body: ReactNode };
 
-/** Page de texte sobre (confidentialité, conditions) : titre, sommaire, sections numérotées. */
+/**
+ * Page de texte (confidentialité, conditions), langage des pages publiques « Ciel produit » :
+ * titre 40, chapô 18, sommaire collant à gauche (carte surface), sections titrées 24.
+ */
 export const LegalArticle = ({
   kicker,
   title,
@@ -18,41 +19,39 @@ export const LegalArticle = ({
   updated: string;
   sections: LegalSection[];
 }) => (
-  <article className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-6">
-    <header className="lg:col-span-8">
-      <p className="tnum m-0 flex items-center gap-4 text-meta text-ink-2">
-        <span className="text-primary">{kicker}</span>
-        <span aria-hidden="true" className="inline-block h-px w-10 bg-ink" />
-        <span>Mise à jour : {updated}</span>
-      </p>
-      <h1 className="m-0 mt-4 font-serif text-title font-normal text-ink md:text-h1">{title}</h1>
-      <div className="m-0 mt-6 max-w-reading text-lead text-ink-2">{intro}</div>
+  <article className="jb-container pb-24 pt-10">
+    <header className="max-w-[760px]">
+      <p className="m-0 text-15 font-semibold text-primary">{kicker}</p>
+      <h1 className="m-0 mt-2 text-32 font-semibold text-ink md:text-40">{title}</h1>
+      <div className="m-0 mt-4 text-18 text-ink-2">{intro}</div>
+      <p className="m-0 mt-3 text-14 text-ink-3">Mise à jour : {updated}</p>
     </header>
-    {/* Sommaire dans sa propre colonne (1 à 3), à gauche du texte (5 à 12) : collant, il ne passe
-        plus sur le corps en défilant (A11Y-09). Fond opaque par sécurité. */}
-    <nav
-      aria-label="Sommaire"
-      className="border-t border-ink bg-paper pt-3 lg:sticky lg:top-6 lg:col-span-3 lg:col-start-1 lg:row-start-2 lg:self-start"
-    >
-      <p className="tnum m-0 text-meta text-ink-3">Sommaire</p>
-      <ol className="m-0 mt-3 list-none p-0">
-        {sections.map((section, index) => (
-          <li key={section.id}>
-            <a href={`#${section.id}`} className="flex gap-3 border-b border-line py-2.5 text-base text-ink-2 hover:text-primary">
-              <span className="tnum text-meta text-primary">{String(index + 1).padStart(2, '0')}</span>
+    <div className="mt-12 grid grid-cols-1 items-start gap-10 lg:grid-cols-[280px_minmax(0,680px)] lg:gap-16 xl:gap-24">
+      {/* Sommaire dans sa propre colonne : collant, il ne passe jamais sur le texte (A11Y-09). */}
+      <nav aria-label="Sommaire" className="rounded-16 border border-line bg-surface p-5 lg:sticky lg:top-6">
+        <p className="m-0 text-13 font-medium text-ink-3">Sommaire</p>
+        <ol className="m-0 mt-2 list-none p-0">
+          {sections.map((section) => (
+            <li key={section.id}>
+              <a href={`#${section.id}`} className="hit block rounded-8 px-2 py-1.5 text-15 text-ink-2 hover:bg-paper hover:text-ink">
+                {section.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+      <div className="flex min-w-0 flex-col gap-12">
+        {sections.map((section) => (
+          <section key={section.id} id={section.id} aria-labelledby={`${section.id}-titre`} className="scroll-mt-6">
+            <h2 id={`${section.id}-titre`} className="m-0 text-24 font-semibold text-ink">
               {section.title}
-            </a>
-          </li>
+            </h2>
+            <div className="mt-4 flex flex-col gap-4 text-16 leading-[26px] text-ink-2 [&_a]:font-semibold [&_li]:mt-1.5 [&_p]:m-0 [&_strong]:text-ink [&_ul]:m-0 [&_ul]:pl-5">
+              {section.body}
+            </div>
+          </section>
         ))}
-      </ol>
-    </nav>
-    <div className="flex max-w-reading flex-col gap-12 lg:col-span-8 lg:col-start-5 lg:row-start-2">
-      {sections.map((section, index) => (
-        <section key={section.id} id={section.id} aria-labelledby={`${section.id}-titre`} className="scroll-mt-6">
-          <SectionHeading number={String(index + 1).padStart(2, '0')} title={section.title} as="h2" id={`${section.id}-titre`} />
-          <div className="mt-4 flex flex-col gap-4 text-body text-ink [&_li]:mt-1.5 [&_p]:m-0 [&_ul]:m-0 [&_ul]:pl-5">{section.body}</div>
-        </section>
-      ))}
+      </div>
     </div>
   </article>
 );

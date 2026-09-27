@@ -56,3 +56,59 @@ export const badgeOf = (person: string) =>
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase())
     .join('');
+
+const clock = (iso: string) => dayjs(iso).format('HH:mm');
+
+/** Heures de début des créneaux d'un jour (colonnes de la grille), triées, sans doublon. */
+export const timeColumns = (slots: PlanningSlot[]) => [...new Set(slots.map((s) => clock(s.starts_at)))].sort();
+
+/** « 16:00 – 18:00 » : du premier début à la dernière fin. */
+export const dayRange = (slots: PlanningSlot[]) => {
+  if (slots.length === 0) return '';
+  // Heures du jour comparées entre elles : la plage vaut aussi sur plusieurs jours.
+  const starts = slots.map((s) => clock(s.starts_at)).sort();
+  const ends = slots.map((s) => clock(s.ends_at)).sort();
+  return `${starts[0]} – ${ends[ends.length - 1]}`;
+};
+
+/** Durée la plus fréquente d'un créneau, en minutes. */
+export const slotMinutes = (slots: PlanningSlot[]): number | null => {
+  const counts = new Map<number, number>();
+  slots.forEach((s) => {
+    const minutes = dayjs(s.ends_at).diff(dayjs(s.starts_at), 'minute');
+    counts.set(minutes, (counts.get(minutes) ?? 0) + 1);
+  });
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+};
+
+export type UpcomingDay = { day: string; range: string; open: number; booked: number };
+
+/** Jours ouverts après `afterDay` (section « Jours suivants »). */
+export const upcomingDays = (slots: PlanningSlot[], afterDay: string): UpcomingDay[] => {
+  const byDay = new Map<string, PlanningSlot[]>();
+  slots
+    .filter((s) => dayOf(s) > afterDay)
+    .forEach((s) => byDay.set(dayOf(s), [...(byDay.get(dayOf(s)) ?? []), s]));
+  return [...byDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, ofDay]) => ({
+      day,
+      range: dayRange(ofDay),
+      open: ofDay.filter((s) => s.status !== 'bloque').length,
+      booked: ofDay.filter(isBooked).length,
+    }));
+};
+
+/** Plage habituelle : le jour de semaine le plus ouvert, et sa plage la plus large. */
+export const usualSchedule = (slots: PlanningSlot[]): { weekday: string; range: string } | null => {
+  const open = slots.filter((s) => s.status !== 'bloque');
+  if (open.length === 0) return null;
+  const counts = new Map<number, number>();
+  open.forEach((s) => counts.set(dayjs(s.starts_at).day(), (counts.get(dayjs(s.starts_at).day()) ?? 0) + 1));
+  const weekday = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  const ofWeekday = open.filter((s) => dayjs(s.starts_at).day() === weekday);
+  return { weekday: dayjs(ofWeekday[0].starts_at).format('dddd'), range: dayRange(ofWeekday) };
+};
+
+/** « Abbé A. Ndiaye » → « A. Ndiaye » : les initiales de l'avatar ne prennent pas le titre. */
+export const withoutTitle = (name: string) => name.replace(/^(abbé|père|mgr|monseigneur|frère|sœur|diacre)\s+/i, '');

@@ -4,24 +4,21 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Choice } from '@/components/ui/choice';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Icon } from '@/components/ui/icon';
+import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Pagination } from '@/components/ui/pagination';
 import { Select } from '@/components/ui/select';
 import { LoadingBlock } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import { useDebounce } from '@/hooks/use-debounce';
 import { plural } from '@/utils/plural';
 
-import { type DirectoryNode, useDioceses, useDirectory, useDoyennes } from '../api/get-directory';
+import { type DirectoryNode, EXCERPT_PARAMS, useDioceses, useDirectory, useDoyennes } from '../api/get-directory';
 import { type DirectoryFilters, EMPTY_FILTERS, filtersToParams, filtersToSearch, PAGE_SIZE } from '../utils/filters';
 
 import { ParishMap } from './parish-map';
 import { ParishRow } from './parish-row';
-
-type AppliedFilter = { key: string; label: string; clear: Partial<DirectoryFilters> };
-
 
 /**
  * Annuaire public (PUB-Paroisses) : recherche, diocèse, doyenné, paroisses actives ; les
@@ -36,6 +33,8 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const directory = useDirectory(filtersToParams(filters));
+  const active = useDirectory({ ...filtersToParams(filters), on_platform: true, limit: 1, offset: 0 });
+  const total = useDirectory(EXCERPT_PARAMS).data?.count;
   const dioceses = useDioceses();
   const doyennes = useDoyennes(filters.diocese || undefined);
 
@@ -55,37 +54,18 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
     setDraft((current) => (current.trim() === filters.q ? current : filters.q));
   }, [filters.q]);
 
-  const dioceseName = dioceses.data?.results.find((d) => d.id === filters.diocese)?.name;
-  const doyenneName = doyennes.data?.results.find((d) => d.id === filters.doyenne)?.name;
-  const candidates: (AppliedFilter | null)[] = [
-    filters.q ? { key: 'q', label: `« ${filters.q} »`, clear: { q: '' } } : null,
-    filters.city ? { key: 'city', label: `Ville : ${filters.city}`, clear: { city: '' } } : null,
-    filters.diocese ? { key: 'diocese', label: dioceseName ?? 'Diocèse', clear: { diocese: '', doyenne: '' } } : null,
-    filters.doyenne ? { key: 'doyenne', label: doyenneName ?? 'Doyenné', clear: { doyenne: '' } } : null,
-    filters.active ? { key: 'active', label: 'Active sur Jàngu Bi', clear: { active: false } } : null,
-  ];
-  const applied = candidates.filter((f): f is AppliedFilter => f !== null);
+  const applied = [filters.q, filters.city, filters.diocese, filters.doyenne, filters.active].filter(Boolean).length;
 
   const results = directory.data?.results ?? [];
   const selected: DirectoryNode | undefined = results.find((p) => p.id === selectedId) ?? results[0];
 
   return (
-    <div>
-      <div className="grid grid-cols-1 items-end gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-7">
-          <p className="tnum m-0 flex items-center gap-4 text-meta text-ink-2">
-            <span className="text-primary">Annuaire</span>
-            <span aria-hidden="true" className="inline-block h-px w-10 bg-ink" />
-            <span>Église catholique au Sénégal</span>
-          </p>
-          <h1 className="m-0 mt-4 font-serif text-title font-normal text-ink md:text-h1">
-            Trouver une <em className="italic text-primary">paroisse</em>
-          </h1>
-        </div>
-        <p className="m-0 text-body text-ink-2 lg:col-span-4 lg:col-start-9">
-          Adresses, lieux de culte et horaires des messes. Les fiches des paroisses actives sont tenues à jour par leur secrétariat.
-        </p>
-      </div>
+    <div className="jb-container pb-20 pt-10">
+      <h1 className="m-0 text-32 font-semibold text-ink md:text-40">Trouver une paroisse</h1>
+      <p className="m-0 mt-2 max-w-[900px] text-18 text-ink-2">
+        {total ? `Les ${total} paroisses de l’annuaire. ` : ''}Celles qui sont sur Jàngu Bi publient elles-mêmes leurs horaires, annonces et
+        contacts.
+      </p>
 
       <form
         role="search"
@@ -94,30 +74,20 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
           event.preventDefault();
           navigate({ q: draft.trim() });
         }}
-        className="mt-10 grid grid-cols-1 items-end gap-x-6 gap-y-4 border-t border-ink pt-6 md:grid-cols-2 lg:grid-cols-12"
+        className="mt-8 grid grid-cols-1 items-end gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_260px_240px_auto]"
       >
-        <div className="flex flex-col gap-2 lg:col-span-5">
-          <label htmlFor="annuaire-q" className="text-sm font-semibold text-ink">
-            Paroisse, quartier ou ville
-          </label>
-          <div className="relative">
-            <Icon name="recherche" size={20} className="pointer-events-none absolute left-3.5 top-3.5 text-ink-3" />
-            <Input
-              id="annuaire-q"
-              type="search"
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Ex. Point E, Médina, Saint-Joseph"
-              className="pl-11"
-              autoComplete="off"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 lg:col-span-3">
-          <label htmlFor="annuaire-diocese" className="text-sm font-semibold text-ink">
-            Diocèse
-          </label>
-          <Select id="annuaire-diocese" value={filters.diocese} onChange={(event) => navigate({ diocese: event.target.value, doyenne: '' })}>
+        <Field id="annuaire-q" label="Rechercher" className="md:col-span-2 lg:col-span-1">
+          <Input
+            type="search"
+            icon="recherche"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Nom de la paroisse, quartier ou ville"
+            autoComplete="off"
+          />
+        </Field>
+        <Field id="annuaire-diocese" label="Diocèse">
+          <Select value={filters.diocese} onChange={(event) => navigate({ diocese: event.target.value, doyenne: '' })}>
             <option value="">Tous les diocèses</option>
             {dioceses.data?.results.map((d) => (
               <option key={d.id} value={d.id}>
@@ -125,13 +95,9 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
               </option>
             ))}
           </Select>
-        </div>
-        <div className="flex flex-col gap-2 lg:col-span-2">
-          <label htmlFor="annuaire-doyenne" className="text-sm font-semibold text-ink">
-            Doyenné
-          </label>
+        </Field>
+        <Field id="annuaire-doyenne" label="Doyenné">
           <Select
-            id="annuaire-doyenne"
             value={filters.doyenne}
             disabled={!filters.diocese || !doyennes.data?.results.length}
             onChange={(event) => navigate({ doyenne: event.target.value })}
@@ -143,45 +109,33 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
               </option>
             ))}
           </Select>
+        </Field>
+        <div className="flex h-13 items-center rounded-12 border border-line bg-surface px-4 md:col-span-2 lg:col-span-1">
+          <Switch label="Sur Jàngu Bi seulement" checked={filters.active} onCheckedChange={(active) => navigate({ active })} />
         </div>
-        <Choice
-          label="Active sur Jàngu Bi"
-          checked={filters.active}
-          onChange={(event) => navigate({ active: event.target.checked })}
-          className="flex h-12 items-center rounded border border-line px-3 lg:col-span-2 [&>input]:mt-0"
-        />
       </form>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <div role="group" aria-label="Filtres appliqués" className="flex flex-wrap items-center gap-2">
-          <span className="tnum mr-2 text-meta text-ink-3">Filtres</span>
-          {applied.length === 0 && <span className="text-sm text-ink-3">aucun</span>}
-          {applied.map((filter) => (
-            <button
-              key={filter.key}
-              type="button"
-              aria-label={`Retirer le filtre ${filter.label}`}
-              onClick={() => navigate(filter.clear)}
-              className="hit inline-flex h-8 items-center gap-2 rounded border border-ink bg-ink pl-3 pr-2.5 text-sm text-paper hover:bg-ink-2"
-            >
-              {filter.label}
-              <Icon name="x" size={14} />
-            </button>
-          ))}
-        </div>
-        <p aria-live="polite" className="m-0 text-sm text-ink-2">
-          {directory.data && (
-            <>
-              <strong className="font-semibold text-ink">{plural(directory.data.count, 'paroisse', 'paroisses')}</strong> · triées par nom
-            </>
-          )}
-        </p>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-6">
-        <section aria-label="Liste des paroisses" className="lg:col-span-7">
+      <div className="mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:grid-cols-[minmax(0,1fr)_520px]">
+        <section aria-label="Liste des paroisses" className="min-w-0">
+          <div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4 gap-y-1">
+            <p aria-live="polite" className="m-0 text-15 text-ink-2">
+              {directory.data && (
+                <>
+                  <strong className="font-semibold text-ink">{plural(directory.data.count, 'paroisse', 'paroisses')}</strong>
+                  {!filters.active && active.data ? `, dont ${active.data.count} sur Jàngu Bi` : ''}
+                </>
+              )}
+            </p>
+            {applied > 0 && results.length > 0 && (
+              <button type="button" onClick={() => navigate(EMPTY_FILTERS)} className="hit text-14 font-semibold text-primary hover:text-primary-strong">
+                Effacer les filtres
+              </button>
+            )}
+          </div>
           {directory.isPending ? (
-            <LoadingBlock label="Recherche des paroisses…" lines={6} />
+            <div className="mt-3">
+              <LoadingBlock label="Recherche des paroisses…" lines={6} />
+            </div>
           ) : directory.isError ? (
             <EmptyState
               tone="err"
@@ -200,7 +154,7 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
               icon="recherche"
               title="Aucune paroisse ne correspond à votre recherche."
               action={
-                applied.length > 0 && (
+                applied > 0 && (
                   <Button variant="secondary" onClick={() => navigate(EMPTY_FILTERS)}>
                     Effacer les filtres
                   </Button>
@@ -211,29 +165,19 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
             </EmptyState>
           ) : (
             <>
-              <div
-                aria-hidden="true"
-                className="tnum hidden h-10 grid-cols-[40px_minmax(0,1fr)_150px_140px_20px] items-center gap-4 border-b border-ink text-meta text-ink-3 md:grid"
-              >
-                <span>N°</span>
-                <span>Paroisse</span>
-                <span>Messes du dimanche</span>
-                <span>Sur Jàngu Bi</span>
-                <span />
-              </div>
-              <ol className="m-0 list-none p-0">
+              <ul className="m-0 mt-3 list-none overflow-hidden rounded-16 border border-line bg-paper p-0 shadow-card">
                 {results.map((parish, index) => (
                   <ParishRow
                     key={parish.id}
                     parish={parish}
-                    number={(filters.page - 1) * PAGE_SIZE + index + 1}
                     selected={parish.id === selected?.id}
                     onSelect={() => setSelectedId(parish.id)}
+                    last={index === results.length - 1}
                   />
                 ))}
-              </ol>
+              </ul>
               <Pagination
-                className="mt-2"
+                className="mt-6"
                 offset={(filters.page - 1) * PAGE_SIZE}
                 limit={PAGE_SIZE}
                 total={directory.data.count}
@@ -242,7 +186,7 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
             </>
           )}
         </section>
-        <ParishMap parishes={results} selected={selected} onSelect={setSelectedId} className="lg:sticky lg:top-6 lg:col-span-5" />
+        <ParishMap parishes={results} selected={selected} onSelect={setSelectedId} className="lg:sticky lg:top-6" />
       </div>
     </div>
   );

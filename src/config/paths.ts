@@ -15,6 +15,9 @@ export const paths = {
   confidentialite: { getHref: () => '/confidentialite' },
   conditions: { getHref: () => '/conditions' },
   contact: { getHref: () => '/pour-les-paroisses#contact' },
+  /** Aide (en-tête et pied de page publics) : pas encore de page dédiée, renvoie au contact. */
+  aide: { getHref: () => '/pour-les-paroisses#contact' },
+  applicationMobile: { getHref: () => '/#application' },
 
   auth: {
     connexion: {
@@ -46,7 +49,8 @@ export const paths = {
       root: { getHref: () => '/app/bible' },
       chapitre: { getHref: (livre: string, chapitre: number) => `/app/bible/${enc(livre)}/${chapitre}` },
     },
-    chapelet: { getHref: () => '/app/chapelet' },
+    /** `jour` : 0 (dimanche) à 6, mystères d'un autre jour. */
+    chapelet: { getHref: (jour?: number) => (jour === undefined ? '/app/chapelet' : `/app/chapelet?jour=${jour}`) },
     paroisse: {
       root: { getHref: (section?: 'annonces' | 'horaires' | 'agenda') => `/app/paroisse${section ? `#${section}` : ''}` },
       annonce: { getHref: (id: number | string) => `/app/paroisse/annonces/${id}` },

@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 
-import { StatusDot, type StatusTone } from '@/components/signature/status-dot';
+import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/toast';
 import { apiErrorMessage } from '@/utils/api-errors';
@@ -16,8 +15,10 @@ import { useMyBookings } from '../api/get-my-bookings';
 import type { Booking } from '../api/schemas';
 import { dayTitle } from '../utils/week';
 
-const STATUS: Record<Booking['status'], { label: string; tone: StatusTone }> = {
-  reservee: { label: 'Réservé', tone: 'primary' },
+import { DateTile } from './date-tile';
+
+const STATUS: Record<Booking['status'], { label: string; tone: BadgeTone }> = {
+  reservee: { label: 'Réservé', tone: 'info' },
   annulee_fidele: { label: 'Annulé par vous', tone: 'muted' },
   annulee_pretre: { label: 'Annulé par le prêtre', tone: 'warn' },
   honoree: { label: 'Honoré', tone: 'ok' },
@@ -36,29 +37,23 @@ const BookingRow = ({
   booking: Booking;
   onCancel: (b: Booking) => void;
 }) => (
-  <li className="flex flex-col gap-2 border-b border-line py-3">
-    <div className="grid grid-cols-[72px_minmax(0,1fr)_auto] items-start gap-3">
-      <p className="tnum m-0 text-sm text-ink">
-        {dayjs(booking.slot.starts_at).format('ddd DD.MM')}
-        <span className="block font-serif text-h4">
-          {hour(booking.slot.starts_at)}
-        </span>
-      </p>
-      <div className="min-w-0">
-        <p className="m-0 text-base font-medium text-ink">
-          Confession · {booking.slot.priest_name}
+  <li className="flex flex-col gap-2 border-t border-line py-3">
+    <div className="flex items-start gap-3">
+      <DateTile date={booking.slot.starts_at} size="sm" />
+      <div className="min-w-0 flex-1">
+        <p className="m-0 text-15 font-semibold text-ink">
+          {hour(booking.slot.starts_at)} · {booking.slot.priest_name}
         </p>
-        <p className="m-0 text-sm text-ink-2">{booking.slot.place.name}</p>
-        <StatusDot
-          tone={STATUS[booking.status].tone}
-          label={STATUS[booking.status].label}
-          className="mt-1"
-        />
+        <p className="m-0 text-13 text-ink-2">{booking.slot.place.name}</p>
+        <Badge tone={STATUS[booking.status].tone} dot className="mt-1.5">
+          {STATUS[booking.status].label}
+        </Badge>
       </div>
       {booking.can_cancel && (
         <Button
-          variant="tertiary"
+          variant="ghost"
           size="sm"
+          className="text-err hover:bg-err-bg hover:text-err"
           onClick={() => onCancel(booking)}
           aria-label={`Annuler le rendez-vous du ${dayTitle(booking.slot.starts_at)} à ${hour(booking.slot.starts_at)}`}
         >
@@ -67,9 +62,7 @@ const BookingRow = ({
       )}
     </div>
     {booking.status === 'annulee_pretre' && booking.cancel_message && (
-      <p className="m-0 border border-line bg-surface px-3 py-2 text-sm text-ink">
-        « {booking.cancel_message} »
-      </p>
+      <p className="m-0 rounded-10 bg-surface px-3 py-2 text-14 text-ink">« {booking.cancel_message} »</p>
     )}
   </li>
 );
@@ -95,20 +88,19 @@ export const MyBookings = () => {
   };
 
   return (
-    <section aria-labelledby="mes-rendez-vous">
-      <SectionHeading
-        id="mes-rendez-vous"
-        title="Mes rendez-vous à venir"
-        aside={bookings.data ? String(list.length) : undefined}
-      />
+    <section id="mes-rendez-vous" aria-labelledby="mes-rendez-vous-titre" className="scroll-mt-6 rounded-16 border border-line bg-paper p-6 shadow-card">
+      <h2 id="mes-rendez-vous-titre" className="m-0 mb-3 flex items-baseline justify-between text-18 font-semibold text-ink">
+        Mes rendez-vous à venir
+        {bookings.data && <span className="tnum text-13 font-normal text-ink-3">{list.length}</span>}
+      </h2>
       {bookings.isPending ? (
         <LoadingBlock label="Chargement de vos rendez-vous…" lines={2} />
       ) : bookings.isError ? (
-        <p role="alert" className="m-0 text-sm text-err">
+        <p role="alert" className="m-0 text-14 text-err">
           Vos rendez-vous n’ont pas pu être chargés.
         </p>
       ) : list.length === 0 ? (
-        <p className="m-0 py-2 text-base text-ink-2">
+        <p className="m-0 border-t border-line pt-3 text-15 text-ink-2">
           Aucun rendez-vous à venir.
         </p>
       ) : (
@@ -118,7 +110,7 @@ export const MyBookings = () => {
           ))}
         </ul>
       )}
-      <p className="tnum m-0 mt-3 text-meta text-ink-3">
+      <p className="m-0 mt-3 text-13 text-ink-3">
         Un rappel vous est envoyé la veille et deux heures avant.
       </p>
       {target && (
@@ -142,7 +134,7 @@ export const MyBookings = () => {
             </>
           }
         >
-          <p className="m-0 text-base text-ink-2">
+          <p className="m-0 text-15 text-ink-2">
             Le créneau redevient libre pour une autre personne.
           </p>
         </Modal>

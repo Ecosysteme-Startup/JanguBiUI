@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 
-import { Icon } from '@/components/ui/icon';
+import { Icon, type IconName } from '@/components/ui/icon';
 import { cn } from '@/utils/cn';
 
 export type TreeNode = {
   id: string;
   label: string;
+  /** Icône du type de nœud avant le libellé (province, diocèse, doyenné, paroisse, CEB). */
+  icon?: IconName;
   /** Légende à droite (type de nœud, « 11 par. »). */
   meta?: string;
   /** Indication visuelle avant la légende (pastille « active », « en fondation »). */
@@ -28,7 +30,9 @@ const flatten = (nodes: TreeNode[], expanded: Set<string>, level = 1, parentId: 
 const expandable = (node: TreeNode) => Boolean(node.children?.length) || Boolean(node.hasChildren);
 
 /**
- * Arbre des juridictions (DIO-Structure), motif « tree » de l'ARIA APG :
+ * Arbre des juridictions (WEB-DIO-Structure) : rangées 36 px (32 pour les feuilles), rayon 8,
+ * retrait 20 px par niveau, 14 px ; sélection b50/b800 600, survol surface ; icône de type et
+ * compteur 13 ink3. Motif « tree » de l'ARIA APG :
  * un seul élément dans l'ordre de tabulation, flèches haut/bas pour parcourir,
  * droite/gauche pour ouvrir/fermer, Début/Fin, Entrée ou Espace pour sélectionner.
  */
@@ -151,10 +155,11 @@ export const TreeView = ({
               onSelect(node.id);
             }}
             className={cn(
-              'flex min-h-9 cursor-pointer items-center gap-2 pr-3 hover:bg-surface-2',
-              selected && 'bg-tint-50 hover:bg-tint-50',
+              'flex cursor-pointer items-center gap-2 rounded-8 pr-3 text-ink hover:bg-surface',
+              canOpen ? 'min-h-9' : 'min-h-8',
+              selected && 'bg-tint-50 text-tint-800 hover:bg-tint-50',
             )}
-            style={{ paddingLeft: 4 + (level - 1) * 16 }}
+            style={{ paddingLeft: 4 + (level - 1) * 20 }}
           >
             {canOpen ? (
               <button
@@ -165,18 +170,19 @@ export const TreeView = ({
                   setOpen(node, !open);
                 }}
                 aria-label={open ? `Replier ${node.label}` : `Déplier ${node.label}`}
-                className="inline-flex size-6 shrink-0 items-center justify-center rounded text-ink hover:bg-surface-2"
+                className="inline-flex size-6 shrink-0 items-center justify-center rounded-6 text-ink-3 hover:bg-surface-2"
               >
                 <Icon name={open ? 'chevron-bas' : 'chevron-droite'} size={16} />
               </button>
             ) : (
               <span aria-hidden="true" className="size-6 shrink-0" />
             )}
+            {node.icon && <Icon name={node.icon} size={16} className={cn('shrink-0', selected ? 'text-primary' : 'text-ink-3')} />}
             {/* Retour à la ligne plutôt que troncature muette (A11Y-18) ; infobulle pour la souris. */}
             <span
               title={node.label}
               className={cn(
-                'min-w-0 flex-1 break-words py-1 text-sm text-ink',
+                'min-w-0 flex-1 break-words py-1 text-14',
                 (level <= 2 || selected) && 'font-medium',
                 selected && 'font-semibold',
               )}
@@ -184,7 +190,7 @@ export const TreeView = ({
               {node.label}
             </span>
             {node.hint}
-            {node.meta && <span className="tnum w-24 shrink-0 text-right text-meta text-ink-3">{node.meta}</span>}
+            {node.meta && <span className="tnum w-24 shrink-0 text-right text-13 text-ink-3">{node.meta}</span>}
           </div>
           {canOpen && open && node.children && (
             <ul role="group" className="m-0 list-none p-0">

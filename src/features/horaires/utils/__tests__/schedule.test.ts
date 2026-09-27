@@ -1,4 +1,4 @@
-import { findOverlap, formatRange, formatTime, massesPerWeek } from '../schedule';
+import { clock, exceptionForSlot, findOverlap, formatRange, formatTime, massesPerWeek, weekdayOf } from '../schedule';
 import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
 import { server } from '@/testing/mocks/server';
 
@@ -31,5 +31,32 @@ describe('horaires', () => {
 
   it('compte les messes de la semaine', () => {
     expect(massesPerWeek([{ kind: 'messe' }, { kind: 'confession' }, { kind: 'messe' }])).toBe(2);
+  });
+
+  it('affiche l’heure des grilles comme la maquette (« 7:00 »)', () => {
+    expect(clock('07:00:00')).toBe('7:00');
+    expect(clock('19:15')).toBe('19:15');
+  });
+
+  it('donne le jour de la semaine d’une date, lundi = 0', () => {
+    expect(weekdayOf('2026-10-04')).toBe(6);
+    expect(weekdayOf('2026-10-05')).toBe(0);
+  });
+
+  it('retrouve la prochaine exception qui touche un horaire de la semaine type', () => {
+    const slot = { kind: 'messe' as const, weekday: 6, start_time: '09:30:00' };
+    const exceptions = [
+      { id: 1, date: '2026-10-11', kind: 'messe' as const, cancelled: true, start_time: '09:30', end_time: null, note: '' },
+      { id: 2, date: '2026-10-04', kind: 'messe' as const, cancelled: true, start_time: '09:30:00', end_time: null, note: '' },
+      { id: 3, date: '2026-10-04', kind: 'messe' as const, cancelled: true, start_time: '11:30:00', end_time: null, note: '' },
+    ];
+    expect(exceptionForSlot(slot, exceptions)?.id).toBe(2);
+    expect(exceptionForSlot({ ...slot, kind: 'confession' }, exceptions)).toBeUndefined();
+  });
+
+  it('une annulation de toute la journée touche tous les horaires du jour', () => {
+    const slot = { kind: 'messe' as const, weekday: 5, start_time: '18:30:00' };
+    const allDay = { id: 4, date: '2026-10-10', kind: 'messe' as const, cancelled: true, start_time: null, end_time: null, note: '' };
+    expect(exceptionForSlot(slot, [allDay])?.id).toBe(4);
   });
 });

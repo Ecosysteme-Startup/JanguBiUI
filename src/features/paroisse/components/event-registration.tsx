@@ -6,9 +6,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Notice } from '@/components/ui/notice';
+import { Progress } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { ApiError } from '@/lib/api-client';
 import { dayjs, hour } from '@/utils/dates';
@@ -23,19 +25,21 @@ export const NOTE_MAX = 300;
 
 const Capacity = ({ event }: { event: ParishEvent }) => {
   if (event.max_participants === null) {
-    return <p className="m-0 mt-3 text-base text-ink-2">Inscription libre, sans limite de places.</p>;
+    return <p className="m-0 mt-2 text-14 text-ink-2">Inscription libre, sans limite de places.</p>;
   }
   const left = event.seats_remaining ?? 0;
-  const ratio = Math.min(100, Math.round((event.seats_taken / event.max_participants) * 100));
   return (
     <>
-      <p className="m-0 mt-3 text-base text-ink">
-        <span className="tnum font-serif text-h3">{left}</span> place{left > 1 ? 's' : ''} restante{left > 1 ? 's' : ''} sur{' '}
+      <p className="tnum m-0 mt-2 text-14 text-ink-2">
+        <span className="text-20 font-semibold text-ink">{left}</span> place{left > 1 ? 's' : ''} restante{left > 1 ? 's' : ''} sur{' '}
         {event.max_participants}
       </p>
-      <div role="img" aria-label={`${plural(event.seats_taken, 'place réservée', 'places réservées')} sur ${event.max_participants}`} className="mt-3 h-1 bg-line">
-        <div className="h-1 bg-primary" style={{ width: `${ratio}%` }} />
-      </div>
+      <Progress
+        value={event.seats_taken}
+        max={event.max_participants}
+        label={`${plural(event.seats_taken, 'place réservée', 'places réservées')} sur ${event.max_participants}`}
+        className="mt-3"
+      />
     </>
   );
 };
@@ -77,7 +81,7 @@ const RegistrationForm = ({ event, onDone }: { event: ParishEvent; onDone?: () =
       )}
     >
       <Field id="ev-personnes" label="Personnes" required hint={`Vous compris · ${max} au plus`} error={formState.errors.seats?.message}>
-        <Input type="number" inputMode="numeric" min={1} max={max} {...register('seats', { valueAsNumber: true })} className="w-28" />
+        <Input type="number" inputMode="numeric" controlSize="md" min={1} max={max} {...register('seats', { valueAsNumber: true })} className="w-28" />
       </Field>
       <Field
         id="ev-remarque"
@@ -86,13 +90,13 @@ const RegistrationForm = ({ event, onDone }: { event: ParishEvent; onDone?: () =
         error={formState.errors.note?.message}
         counter={{ value: note.length, max: NOTE_MAX }}
       >
-        <Textarea rows={3} {...register('note')} />
+        <Textarea rows={3} controlSize="md" {...register('note')} />
       </Field>
       <Button type="submit" block disabled={registration.isPending}>
         {registration.isPending ? 'Enregistrement…' : event.is_registered ? 'Mettre à jour' : 'M’inscrire'}
       </Button>
       {error && (
-        <p role="alert" className="m-0 text-sm text-err">
+        <p role="alert" className="m-0 text-14 text-err">
           {error}
         </p>
       )}
@@ -114,11 +118,11 @@ const Registered = ({ event }: { event: ParishEvent }) => {
       {event.registrations_open && (editing ? <RegistrationForm event={event} onDone={() => setEditing(false)} /> : null)}
       <div className="mt-3 flex flex-wrap gap-3">
         {event.registrations_open && !editing && (
-          <Button variant="secondary" onClick={() => setEditing(true)}>
+          <Button variant="outline" onClick={() => setEditing(true)}>
             Modifier mon inscription
           </Button>
         )}
-        <Button variant="tertiary" disabled={registration.isPending} onClick={() => registration.mutate(null)}>
+        <Button variant="ghost" disabled={registration.isPending} onClick={() => registration.mutate(null)}>
           Me désinscrire
         </Button>
       </div>
@@ -138,11 +142,11 @@ export const EventRegistration = ({ event }: { event: ParishEvent }) => {
       </Notice>
     );
   } else if (ended) {
-    body = <p className="m-0 mt-4 text-base text-ink-2">Cet événement est terminé.</p>;
+    body = <p className="m-0 mt-4 text-14 text-ink-2">Cet événement est terminé.</p>;
   } else if (event.is_registered) {
     body = <Registered event={event} />;
   } else if (!event.registrations_open) {
-    body = <p className="m-0 mt-4 text-base text-ink-2">Les inscriptions sont closes.</p>;
+    body = <p className="m-0 mt-4 text-14 text-ink-2">Les inscriptions sont closes.</p>;
   } else if (event.is_full) {
     body = (
       <Button block className="mt-5" disabled>
@@ -154,17 +158,15 @@ export const EventRegistration = ({ event }: { event: ParishEvent }) => {
   }
 
   return (
-    <section aria-labelledby="ev-inscr" className="border border-line bg-surface p-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p id="ev-inscr" className="m-0 font-serif text-h4 text-ink">
-          Mon inscription
-        </p>
-        {event.registration_closes_at && !event.is_cancelled && (
-          <p className="tnum m-0 text-meta text-ink-3">{closingLabel(event.registration_closes_at)}</p>
-        )}
-      </div>
+    <Card as="section" aria-labelledby="ev-inscr">
+      <h2 id="ev-inscr" className="m-0 text-18 font-semibold text-ink">
+        Mon inscription
+      </h2>
+      {event.registration_closes_at && !event.is_cancelled && (
+        <p className="tnum m-0 mt-1 text-13 text-ink-3">{closingLabel(event.registration_closes_at)}</p>
+      )}
       <Capacity event={event} />
       <div aria-live="polite">{body}</div>
-    </section>
+    </Card>
   );
 };

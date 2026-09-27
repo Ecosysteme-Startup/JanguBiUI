@@ -3,14 +3,16 @@
 import NextLink from 'next/link';
 import { useEffect, useRef } from 'react';
 
+import { TopbarContent } from '@/components/layouts/shell-slots';
 import { Avatar } from '@/components/ui/avatar';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { buttonVariants } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
-import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { ApiError } from '@/lib/api-client';
+import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
 import { parishLabel } from '@/utils/parish-name';
@@ -19,44 +21,54 @@ import { useAnnouncement, useMarkAnnouncementRead } from '../api/get-announcemen
 import { useAnnouncements } from '../api/get-announcements';
 import { readingMinutes } from '../utils/article-content';
 
-import { announcementKicker } from './announcements-section';
+import { announcementKicker } from './announcement-row';
 import { ArticleBody } from './article-body';
+import { BackLink } from './back-link';
+import { SecretariatQuestion } from './secretariat-question';
+import { ShareButton, ShareIconButton } from './share-button';
 
-const BackLink = () => (
-  <NextLink href={paths.app.paroisse.root.getHref('annonces')} className="inline-flex min-h-11 items-center gap-2 text-sm text-ink-2 hover:text-primary">
-    <Icon name="fleche-gauche" size={16} />
-    Retour · Ma paroisse
-  </NextLink>
+const ALL = paths.app.paroisse.root.getHref('annonces');
+
+const Crumbs = ({ title }: { title?: string }) => (
+  <TopbarContent
+    start={
+      <Breadcrumbs
+        items={[
+          { label: 'Ma paroisse', href: paths.app.paroisse.root.getHref() },
+          { label: 'Annonces', href: ALL },
+          ...(title ? [{ label: title }] : []),
+        ]}
+      />
+    }
+  />
 );
 
+/** Annonces liées : les trois dernières autres annonces de la même paroisse. */
 const Related = ({ nodeId, currentId }: { nodeId: string; currentId: string }) => {
   const { data } = useAnnouncements(nodeId);
   const others = (data?.results ?? []).filter((a) => a.id !== currentId).slice(0, 3);
   if (others.length === 0) return null;
   return (
     <section aria-labelledby="an-liees">
-      <SectionHeading
-        id="an-liees"
-        title="À lire aussi"
-        aside={<NextLink href={paths.app.paroisse.root.getHref('annonces')}>Toutes</NextLink>}
-      />
-      {others.map((a, i) => (
-        <article key={a.id} className="border-b border-line py-4">
-          <p className="tnum m-0 text-meta text-ink-3">
-            <span className="text-primary">{String(i + 1).padStart(2, '0')}</span> — {announcementKicker(a)}
-          </p>
-          <h3 className="m-0 mt-1 font-serif text-h4 font-normal">
-            <NextLink href={paths.app.paroisse.annonce.getHref(a.id)} className="text-ink hover:text-primary">
-              {frenchTypo(a.title)}
+      <h2 id="an-liees" className="m-0 text-18 font-semibold text-ink">
+        Annonces liées
+      </h2>
+      <ul className="m-0 mt-3 list-none overflow-hidden rounded-16 border border-line bg-paper p-0 shadow-card">
+        {others.map((a, i) => (
+          <li key={a.id} className={cn(i < others.length - 1 && 'border-b border-line')}>
+            <NextLink href={paths.app.paroisse.annonce.getHref(a.id)} className="block px-4 py-3.5 text-ink hover:bg-surface hover:text-ink hover:no-underline">
+              <span className="tnum block text-13 text-ink-3">{announcementKicker(a)}</span>
+              <span className="mt-0.5 block text-15 font-semibold">{frenchTypo(a.title)}</span>
+              {a.excerpt && <span className="mt-0.5 line-clamp-2 block text-14 text-ink-2">{frenchTypo(a.excerpt)}</span>}
             </NextLink>
-          </h3>
-        </article>
-      ))}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };
 
-/** Annonce (FID-Annonce) : contenu riche nettoyé, auteur, partage, annonces liées. */
+/** Annonce (FID-Annonce) : contenu riche nettoyé, auteur, partage, annonces liées, question au secrétariat. */
 export const AnnouncementView = ({ id }: { id: string }) => {
   const { data: article, isPending, isError, error } = useAnnouncement(id);
   const { mutate: markRead } = useMarkAnnouncementRead();
@@ -69,12 +81,19 @@ export const AnnouncementView = ({ id }: { id: string }) => {
     }
   }, [article, markRead]);
 
-  if (isPending) return <LoadingBlock label="Chargement de l’annonce…" lines={6} />;
+  if (isPending)
+    return (
+      <>
+        <Crumbs />
+        <LoadingBlock label="Chargement de l’annonce…" lines={6} />
+      </>
+    );
   if (isError) {
     const missing = error instanceof ApiError && error.status === 404;
     return (
       <div className="flex flex-col gap-6">
-        <BackLink />
+        <Crumbs />
+        <BackLink href={ALL}>Toutes les annonces</BackLink>
         <EmptyState tone="err" title={missing ? 'Cette annonce n’existe plus.' : 'L’annonce n’a pas pu être chargée.'}>
           {missing ? 'Elle a peut-être été retirée par la paroisse.' : 'Vérifiez votre connexion puis réessayez.'}
         </EmptyState>
@@ -83,52 +102,67 @@ export const AnnouncementView = ({ id }: { id: string }) => {
   }
 
   const where = article.scope.place_name ?? article.scope.node_name;
-  const share = `https://wa.me/?text=${encodeURIComponent([article.title, article.excerpt, where ? parishLabel(where) : ''].filter(Boolean).join('\n'))}`;
+  const whatsapp = `https://wa.me/?text=${encodeURIComponent([article.title, article.excerpt, where ? parishLabel(where) : ''].filter(Boolean).join('\n'))}`;
+  const published = article.published_at ? `Publiée le ${dayjs(article.published_at).format('dddd D MMMM YYYY')}` : null;
 
   return (
-    <div className="mx-auto max-w-[1180px]">
-      <BackLink />
-      <div className="mt-6 grid gap-12 lg:grid-cols-12 lg:gap-6">
-        <article aria-labelledby="an-titre" className="lg:col-span-8">
-          <p className="tnum m-0 flex flex-wrap justify-between gap-2 text-meta text-ink-3">
-            <span>
+    <div>
+      <Crumbs title={article.title} />
+      <BackLink href={ALL}>Toutes les annonces</BackLink>
+      <div className="mt-6 grid items-start gap-10 lg:grid-cols-[minmax(0,680px)_minmax(0,1fr)]">
+        <article aria-labelledby="an-titre" className="min-w-0">
+          <p className="m-0 flex flex-wrap items-center gap-3">
+            <span className="inline-flex h-[26px] items-center rounded-full bg-tint-50 px-2.5 text-13 font-medium text-tint-800">
               {article.category?.name ?? 'Annonce'}
-              {where && ` — ${parishLabel(where)}`}
             </span>
-            {article.published_at && <span>Publiée le {dayjs(article.published_at).format('dddd DD.MM')}</span>}
+            {article.is_sunday_notice && (
+              <span className="inline-flex items-center gap-1 text-13 text-ink-3">
+                <Icon name="calendrier" size={14} />
+                Annonce du dimanche{article.sunday_date ? ` ${dayjs(article.sunday_date).format('D MMMM')}` : ''}
+              </span>
+            )}
           </p>
-          <h1 id="an-titre" className="m-0 mt-4 font-serif text-title font-normal text-ink lg:text-h2">
+          <h1 id="an-titre" className="m-0 mt-3 text-28 font-semibold text-ink sm:text-36">
             {frenchTypo(article.title)}
           </h1>
-          {article.excerpt && <p className="m-0 mt-4 max-w-reading text-lead text-ink-2">{frenchTypo(article.excerpt)}</p>}
-          <div className="mt-6 flex items-center justify-between gap-4 border-y border-line py-4">
-            <span className="flex items-center gap-3">
-              <Avatar name={article.author_name} size={40} />
-              <span className="text-base text-ink">{article.author_name}</span>
+          <div className="mt-5 flex items-center justify-between gap-4 border-b border-line pb-5">
+            <span className="flex min-w-0 items-center gap-3">
+              <Avatar name={article.author_name} size={40} className="text-14" />
+              <span className="flex min-w-0 flex-col">
+                <span className="text-15 font-semibold text-ink">{article.author_name}</span>
+                <span className="tnum text-13 text-ink-3">
+                  {[published, where ? parishLabel(where) : null, `${readingMinutes(article.content)} min de lecture`].filter(Boolean).join(' · ')}
+                </span>
+              </span>
             </span>
-            <span className="tnum text-meta text-ink-3">Lecture · {readingMinutes(article.content)} min</span>
+            <ShareIconButton title={article.title} label="Partager l’annonce" />
           </div>
           {article.cover_image_url && (
             <figure className="m-0 mt-6">
               {/* URL signée du stockage (MinIO/S3) : pas d'optimisation next/image. */}
-              <img src={article.cover_image_url} alt={article.cover_image_decorative ? '' : article.cover_image_alt} className="aspect-[4/1] w-full border border-line object-cover" />
+              <img
+                src={article.cover_image_url}
+                alt={article.cover_image_decorative ? '' : article.cover_image_alt}
+                className="aspect-[2/1] w-full rounded-16 object-cover"
+              />
             </figure>
           )}
-          <div className="mt-4">
+          <div className="mt-6">
             <ArticleBody content={article.content} format={article.content_format} />
           </div>
-        </article>
-        <aside className="flex flex-col gap-10 lg:col-span-4">
-          <section aria-labelledby="an-partage" className="border border-line bg-surface p-6">
-            <p id="an-partage" className="m-0 font-serif text-h4 text-ink">
-              Faire connaître cette annonce
-            </p>
-            <p className="m-0 mt-2 text-sm text-ink-2">Envoyez-en le titre et le résumé à vos proches.</p>
-            <a href={share} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: 'secondary', block: true, className: 'mt-4' })}>
-              Partager sur WhatsApp
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <ShareButton title={article.title} label="Partager l’annonce" />
+            <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: 'outline' }), 'h-11 hover:no-underline')}>
+              <Icon name="message" size={18} />
+              WhatsApp
+              <span className="sr-only"> (nouvel onglet)</span>
             </a>
-          </section>
+            {article.is_sunday_notice && <span className="text-14 text-ink-3">Elle sera aussi lue à la fin des messes de ce week-end.</span>}
+          </div>
+        </article>
+        <aside aria-label="Autour de cette annonce" className="flex min-w-0 flex-col gap-6">
           {article.scope.node_id && <Related nodeId={article.scope.node_id} currentId={article.id} />}
+          {article.scope.node_id && <SecretariatQuestion nodeId={article.scope.node_id} title="Une question sur cette annonce ?" />}
         </aside>
       </div>
     </div>

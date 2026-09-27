@@ -1,64 +1,41 @@
 'use client';
 
-import NextLink from 'next/link';
-
-import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
-import { paths } from '@/config/paths';
+import { useGospelOfDay } from '@/features/bible/api/get-gospel-of-day';
 import { useTestaments } from '@/features/bible/api/get-testaments';
-import { BibleSearch } from '@/features/bible/components/bible-search';
-import { BookNav } from '@/features/bible/components/book-nav';
-import { ApiError } from '@/lib/api-client';
+import { BibleShell } from '@/features/bible/components/bible-shell';
+import { BookPanel } from '@/features/bible/components/book-panel';
+import { ChapterReader } from '@/features/bible/components/chapter-reader';
 
-/** Choix du livre (FID-Bible, sans chapitre ouvert) et recherche. */
+/**
+ * /app/bible (FID-Bible) : la Bible s'ouvre sur l'Évangile du jour (son passage d'abord, le chapitre
+ * sur demande) ; sans Évangile disponible, on choisit un livre.
+ */
 export const BibleHome = () => {
+  const gospel = useGospelOfDay();
   const testaments = useTestaments();
-  const empty = testaments.data?.every((t) => t.books.length === 0) ?? false;
-  return (
-    <div className="mx-auto max-w-[1200px]">
-      <NextLink
-        href={paths.app.parole.getHref()}
-        className="mb-6 inline-flex h-11 items-center gap-2 text-sm font-medium text-primary hover:text-primary-strong"
-      >
-        <Icon name="fleche-gauche" size={16} />
-        Retour · Lectures du jour
-      </NextLink>
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="tnum m-0 text-meta text-ink-2">
-            <span className="text-primary">01</span> — La Bible
-          </p>
-          <h1 className="m-0 mt-3 font-serif text-[2.25rem] font-normal leading-none tracking-[-0.015em] text-ink lg:text-[3.125rem]">
-            Ouvrir la <em className="italic text-primary">Bible</em>
-          </h1>
-        </div>
-        <BibleSearch className="w-full lg:w-[360px]" />
-      </div>
-      <div className="mt-8 max-w-[720px]">
-        {testaments.isPending ? (
-          <LoadingBlock label="Chargement de la Bible…" lines={6} />
-        ) : testaments.isError ? (
-          <EmptyState
-            tone="err"
-            title="Impossible d’ouvrir la Bible."
-            action={
-              <Button variant="secondary" onClick={() => testaments.refetch()}>
-                Réessayer
-              </Button>
-            }
-          >
-            <p className="m-0">
-              {testaments.error instanceof ApiError ? testaments.error.message : 'Le service ne répond pas. Réessayez dans un instant.'}
-            </p>
-          </EmptyState>
-        ) : empty ? (
-          <EmptyState icon="bible" title="La Bible n’est pas encore disponible." />
-        ) : (
-          <BookNav testaments={testaments.data} />
-        )}
-      </div>
-    </div>
+
+  if (gospel.data) {
+    const { book, chapter, from, to } = gospel.data;
+    const label = `Ouvert au passage de l’Évangile du jour, ${from === to ? `verset ${from}` : `versets ${from} à ${to}`}.`;
+    return <ChapterReader livre={book} chapitre={chapter} passage={{ from, to, label }} />;
+  }
+  if (gospel.isPending) {
+    return (
+      <BibleShell panel={null}>
+        <LoadingBlock label="Chargement de la Bible…" lines={6} />
+      </BibleShell>
+    );
+  }
+  // Pas d'Évangile du jour (ou service liturgique indisponible) : choix du livre.
+  return testaments.data ? (
+    <BibleShell panel={<BookPanel testaments={testaments.data} />}>
+      <EmptyState icon="bible" title="Choisissez un livre">
+        <p className="m-0">Ouvrez un livre dans la liste, ou cherchez un mot dans le texte.</p>
+      </EmptyState>
+    </BibleShell>
+  ) : (
+    <ChapterReader livre="" chapitre={0} />
   );
 };

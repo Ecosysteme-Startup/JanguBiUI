@@ -23,7 +23,7 @@ describe('Annonce (/app/paroisse/annonces/[id])', () => {
     expect(await screen.findByRole('heading', { level: 1, name: /messe d.action de grâce/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: /un accueil pour les nouveaux bacheliers/i })).toBeInTheDocument();
     expect(screen.getByText('Abbé Augustin Ndiaye')).toBeInTheDocument();
-    expect(await screen.findByRole('region', { name: /à lire aussi/i })).toBeInTheDocument();
+    expect(await screen.findByRole('region', { name: 'Annonces liées' })).toBeInTheDocument();
     await vi.waitFor(() => expect(f5bState.readArticles).toEqual([f5bIds.annonceRentree]));
   });
 
@@ -87,6 +87,6 @@ describe('Annonce (/app/paroisse/annonces/[id])', () => {
     renderApp(<AnnouncementView id="00000000-0000-4000-8000-000000000000" />);
 
     expect(await screen.findByText('Cette annonce n’existe plus.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /retour · ma paroisse/i })).toHaveAttribute('href', '/app/paroisse#annonces');
+    expect(screen.getByRole('link', { name: 'Toutes les annonces' })).toHaveAttribute('href', '/app/paroisse#annonces');
   });
 });
