@@ -29,6 +29,8 @@ import { dayMonthAtTime } from './period';
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 /** « Dim. 20 sept. » */
 const massDay = (date: string) => capitalize(dayjs(date).format('ddd D MMM'));
+/** « 18 h 30 (étudiants) » : le libellé sans « Messe de ». */
+const shortMass = (label: string) => label.replace(/^messe (de|d’|d')\s*/i, '');
 /** « Messe du 20 septembre, Messe de 18 h 30 » (noms accessibles des actions). */
 const describe = (c: CashCollection) => `${c.mass_label}, ${dayjs(c.mass_date).format('D MMMM')}`;
 
@@ -173,8 +175,7 @@ export const CashCollectionsHistory = ({ nodeId }: { nodeId: string }) => {
                   <span className="flex flex-col">
                     <span className="tnum whitespace-nowrap font-semibold">{massDay(c.mass_date)}</span>
                     <span className="text-13 text-ink-3">
-                      {c.mass_label}
-                      {c.place ? ` · ${c.place}` : ''}
+                      {shortMass(c.mass_label)}
                     </span>
                   </span>
                 </DTd>

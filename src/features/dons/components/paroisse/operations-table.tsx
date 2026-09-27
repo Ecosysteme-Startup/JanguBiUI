@@ -3,12 +3,13 @@
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field } from '@/components/ui/field';
 import { Icon } from '@/components/ui/icon';
+import { iconButtonClasses } from '@/components/ui/icon-button';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@/components/ui/menu';
 import { Pagination } from '@/components/ui/pagination';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
@@ -140,8 +141,8 @@ export const OperationsTable = ({
         <DataTable label="Dernières opérations">
           <thead>
             <tr>
-              <DTh className="w-[120px]">Date</DTh>
-              <DTh className="w-[150px]">Référence</DTh>
+              <DTh className="w-[112px]">Date</DTh>
+              <DTh className="w-[144px]">Référence</DTh>
               <DTh>Fonds</DTh>
               <DTh align="right" className="w-[124px]">
                 Montant
@@ -150,7 +151,7 @@ export const OperationsTable = ({
               <DTh className="w-[124px]">Statut</DTh>
               <DTh className="w-[176px]">Donateur</DTh>
               {canRefund && (
-                <DTh className="w-[120px]">
+                <DTh className="w-[56px]">
                   <span className="sr-only">Action</span>
                 </DTh>
               )}
@@ -184,14 +185,16 @@ export const OperationsTable = ({
                 {canRefund && (
                   <DTd align="right">
                     {refundable(op) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setTarget(op)}
-                      >
-                        Rembourser
-                        <span className="sr-only"> le don {op.reference}</span>
-                      </Button>
+                      <Menu>
+                        <MenuTrigger className={iconButtonClasses({ size: 'sm' })} aria-label={`Actions sur le don ${op.reference}`}>
+                          <Icon name="plus-horizontal" size={18} />
+                        </MenuTrigger>
+                        <MenuContent align="end">
+                          <MenuItem icon="rembourser" tone="danger" onSelect={() => setTarget(op)}>
+                            Rembourser le don
+                          </MenuItem>
+                        </MenuContent>
+                      </Menu>
                     )}
                   </DTd>
                 )}

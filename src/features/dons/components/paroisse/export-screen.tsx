@@ -244,7 +244,7 @@ const PayoutsPanel = ({ nodeId, query }: { nodeId: string; query: ReturnType<typ
                   {fcfa(p.net_amount)}
                 </DTd>
                 <DTd>
-                  <span className="flex flex-wrap items-center gap-2">
+                  <span className="flex items-center gap-2 whitespace-nowrap">
                     <Badge tone={s.tone} dot>
                       {s.label}
                     </Badge>

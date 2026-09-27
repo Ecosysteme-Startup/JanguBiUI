@@ -123,13 +123,14 @@ describe('Dons et quêtes, paroisse (WEB-PAR-Dons)', () => {
       name: 'Dernières opérations',
     });
     const buttons = await within(ops).findAllByRole('button', {
-      name: /^Rembourser le don/,
+      name: /^Actions sur le don/,
     });
     // Seuls les dons en ligne confirmés sont remboursables (ni espèces, ni en attente, ni échoué).
     expect(buttons).toHaveLength(3);
     await user.click(
-      within(ops).getByRole('button', { name: /Rembourser le don 5102/ }),
+      within(ops).getByRole('button', { name: /Actions sur le don 5102/ }),
     );
+    await user.click(await screen.findByRole('menuitem', { name: 'Rembourser le don' }));
 
     const dialog = await screen.findByRole('dialog', {
       name: 'Rembourser ce don ?',
@@ -169,7 +170,7 @@ describe('Dons et quêtes, paroisse (WEB-PAR-Dons)', () => {
       screen.queryByRole('link', { name: /Exporter et rapprocher/ }),
     ).not.toBeInTheDocument();
     expect(
-      within(ops).queryByRole('button', { name: /Rembourser/ }),
+      within(ops).queryByRole('button', { name: /Actions sur le don/ }),
     ).not.toBeInTheDocument();
   });
 

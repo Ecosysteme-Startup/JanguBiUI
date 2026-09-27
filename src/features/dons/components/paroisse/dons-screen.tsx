@@ -49,7 +49,7 @@ const MonthSelect = ({
       <Icon
         name="calendrier"
         size={18}
-        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-2"
+        className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-ink-2"
       />
       <select
         id="dons-mois"
@@ -66,7 +66,7 @@ const MonthSelect = ({
       <Icon
         name="chevron-bas"
         size={16}
-        className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink-3"
+        className="pointer-events-none absolute right-4 top-1/2 z-10 -translate-y-1/2 text-ink-3"
       />
     </div>
   );

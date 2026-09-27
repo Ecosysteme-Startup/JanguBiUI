@@ -240,7 +240,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
           <div className="grid gap-4 sm:grid-cols-2">
             <Field
               id="quete-date"
-              label="Date de la messe"
+              label={<Req>Date de la messe</Req>}
               required
               error={errors.mass_date?.message}
             >
@@ -256,7 +256,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
             {hasSchedule ? (
               <Field
                 id="quete-messe"
-                label="Messe"
+                label={<Req>Messe</Req>}
                 required
                 error={errors.mass_choice?.message}
               >
@@ -273,7 +273,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
             ) : (
               <Field
                 id="quete-messe-libre"
-                label="Messe"
+                label={<Req>Messe</Req>}
                 required
                 error={
                   errors.mass_other?.message ?? errors.mass_choice?.message
@@ -296,7 +296,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
           {hasSchedule && massChoice === OTHER && (
             <Field
               id="quete-messe-autre"
-              label="Libellé de la messe"
+              label={<Req>Libellé de la messe</Req>}
               required
               error={errors.mass_other?.message}
             >
@@ -378,7 +378,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
             </Field>
             <Field
               id="quete-montant"
-              label="Montant compté"
+              label={<Req>Montant compté</Req>}
               required
               hint="Billets et pièces, après double comptage."
               error={errors.amount?.message}
@@ -398,7 +398,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
             <div className="grid items-start gap-4 sm:grid-cols-2">
               <Field
                 id="quete-compteur-1"
-                label="Premier compteur"
+                label={<Req>Premier compteur</Req>}
                 required
                 error={errors.counter_one?.message}
               >
@@ -412,7 +412,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
               </Field>
               <Field
                 id="quete-compteur-2"
-                label="Second compteur"
+                label={<Req>Second compteur</Req>}
                 required
                 error={errors.counter_two?.message}
               >
