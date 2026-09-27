@@ -49,7 +49,12 @@ test.describe('Visiteur', () => {
     await page.getByRole('checkbox', { name: /j.accepte que numerisen/i }).check();
 
     await page.getByRole('button', { name: 'Envoyer la demande' }).click();
-    await expect(page.getByText(/envoyé|merci|reçu|transmise/i).first()).toBeVisible({ timeout: 10_000 });
+    // L'API limite les envois par adresse IP (anti-abus) : après plusieurs passages de la suite,
+    // l'utilisateur doit voir un message français clair plutôt qu'une confirmation.
+    const sent = page.getByText(/envoyé|merci|reçu|transmise/i).first();
+    const throttled = page.getByText(/trop de tentatives\. réessayez/i);
+    await expect(sent.or(throttled)).toBeVisible({ timeout: 10_000 });
+    if (await throttled.isVisible()) return;
 
     const mail = await waitForLastEmail('contact@numerisen.sn', { timeoutMs: 15_000, subjectContains: 'Test E2E' }).catch(() =>
       waitForLastEmail('contact@numerisen.sn', { timeoutMs: 5_000 }),

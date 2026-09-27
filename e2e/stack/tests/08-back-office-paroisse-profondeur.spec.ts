@@ -14,7 +14,7 @@ test.describe('Back-office paroisse (secretaire@) en profondeur', () => {
     await page.screenshot({ path: `docs/v1/recette/captures/01/annonce-editeur-vide-${testInfo.project.name}.png`, fullPage: true });
 
     await page.getByLabel(/titre/i).first().fill(`Quête recette E2E ${stamp}`);
-    await page.getByRole('group', { name: /catégorie/i }).getByRole('radio').nth(1).check({ force: true });
+    await page.getByRole('group', { name: /catégorie/i }).getByRole('radio').first().check({ force: true });
     const body = page.getByRole('textbox', { name: /corps de l.annonce/i });
     await body.click();
     await body.type('Chers frères et sœurs, ceci est un test de recette automatisée.');

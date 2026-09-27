@@ -42,7 +42,16 @@ const buildUrl = (path: string, params?: Params) => {
  * Formats d'erreur de l'API : enveloppe V1 `{error: {code, message}}` (SRS §7), ancien `{detail}`
  * ou `{message}`, ou dictionnaire de champs DRF. On garde un message lisible et sûr.
  */
+/** 429 : DRF répond en anglais (« Expected available in 879 seconds ») ; on reformule en français. */
+const throttledMessage = (body: unknown): string => {
+  const seconds = Number(/available in (\d+) second/i.exec(JSON.stringify(body ?? ''))?.[1]);
+  if (!seconds) return 'Trop de tentatives. Réessayez un peu plus tard.';
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  return `Trop de tentatives. Réessayez dans ${minutes} minute${minutes > 1 ? 's' : ''}.`;
+};
+
 export const errorMessageOf = (body: unknown, status: number): string => {
+  if (status === 429) return throttledMessage(body);
   if (body && typeof body === 'object') {
     const outer = body as Record<string, unknown>;
     const record = outer.error && typeof outer.error === 'object' ? (outer.error as Record<string, unknown>) : outer;
