@@ -1,6 +1,9 @@
 'use client';
 
 import { Info, CircleAlert, CircleX, CircleCheck } from 'lucide-react';
+import { motion } from 'motion/react';
+
+import { durations, easings } from '@/lib/motion/tokens';
 
 const icons = {
   info: <Info className="size-6 text-info" aria-hidden="true" />,
@@ -25,7 +28,14 @@ export const Notification = ({
 }: NotificationProps) => {
   return (
     <div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-      <div className="pointer-events-auto w-full max-w-sm animate-fade-in-up overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-soft-lg">
+      {/* Toast : fondu + 8 px, 180 ms (entrée et sortie), comme le mobile. */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 8 }}
+        transition={{ duration: durations.toast, ease: easings.outCubic }}
+        className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-soft-lg"
+      >
         <div className="p-4" role="alert" aria-label={title}>
           <div className="flex items-start">
             <div className="shrink-0">{icons[type]}</div>
@@ -48,7 +58,7 @@ export const Notification = ({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

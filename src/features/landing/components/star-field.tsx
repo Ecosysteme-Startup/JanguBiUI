@@ -1,9 +1,21 @@
 'use client';
 
+import { motion, useScroll, useTransform } from 'motion/react';
 import { useEffect, useRef } from 'react';
 
+import { useMotionOK } from '@/lib/motion/use-motion-ok';
+
+/**
+ * Champ d'étoiles du hero (thème sombre). Parallaxe très légère au
+ * défilement : les étoiles descendent à 12 % de la vitesse du contenu, ce qui
+ * les fait paraître plus lointaines. `transform` seul ; figé en reduced motion.
+ */
 export function StarField() {
   const ref = useRef<HTMLDivElement>(null);
+  const ok = useMotionOK();
+  const { scrollY } = useScroll();
+  // Toujours lié (pas d'écart d'hydratation) ; vaut 0 en reduced motion.
+  const y = useTransform(scrollY, (v) => (ok ? Math.min(v * 0.12, 120) : 0));
 
   useEffect(() => {
     const container = ref.current;
@@ -23,9 +35,12 @@ export function StarField() {
   // Motif nocturne : visible uniquement en thème sombre. En clair le héros
   // s'appuie sur le dégradé papier + le halo bleu (pas d'étoiles sur fond clair).
   return (
-    <div
-      ref={ref}
+    <motion.div
+      aria-hidden
+      style={{ y }}
       className="pointer-events-none absolute inset-0 hidden dark:block"
-    />
+    >
+      <div ref={ref} className="absolute inset-0" />
+    </motion.div>
   );
 }

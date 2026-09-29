@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ContentContainer } from '@/components/layouts/content-container';
 import { FideleSummarySection } from '@/features/dashboard/components/fidele-summary-section';
 import { PastoralReflectionWidget } from '@/features/reflexion-pastorale/components/pastoral-reflection-widget';
+import { Stagger, StaggerItem } from '@/lib/motion/reveal';
 import { cn } from '@/utils/cn';
 
 import { MyIntentionsSection } from './my-intentions-section';
@@ -37,11 +38,14 @@ const QUICK_ACTIONS = [
 export function FideleDashboard() {
   return (
     <ContentContainer width="wide">
-      <div className="flex flex-col gap-6">
-        <WelcomeBanner />
+      {/* Cartes révélées en cascade douce (450 ms, +8 px, 70 ms d'écart). */}
+      <Stagger appear className="flex flex-col gap-6">
+        <StaggerItem>
+          <WelcomeBanner />
+        </StaggerItem>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-2">
+        <StaggerItem className="grid grid-cols-2 gap-2">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
@@ -64,23 +68,25 @@ export function FideleDashboard() {
               </Link>
             );
           })}
-        </div>
+        </StaggerItem>
 
         {/* Résumé (stats) — pleine largeur */}
-        <FideleSummarySection />
+        <StaggerItem>
+          <FideleSummarySection />
+        </StaggerItem>
 
         {/* Bento : contenu principal (2/3) + colonne latérale (1/3) en desktop */}
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="flex flex-col gap-6 lg:col-span-2">
+          <StaggerItem className="flex flex-col gap-6 lg:col-span-2">
             <ParishNewsSection />
             <ParishEventsSection />
-          </div>
-          <div className="flex flex-col gap-6">
+          </StaggerItem>
+          <StaggerItem className="flex flex-col gap-6">
             <PastoralReflectionWidget />
             <MyIntentionsSection />
-          </div>
+          </StaggerItem>
         </div>
-      </div>
+      </Stagger>
     </ContentContainer>
   );
 }

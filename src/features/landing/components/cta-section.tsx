@@ -1,5 +1,8 @@
 import { Ban, Heart, Lock, ShieldCheck } from 'lucide-react';
 
+import { PressScale } from '@/lib/motion/press-scale';
+import { Reveal } from '@/lib/motion/reveal';
+
 const AppleIcon = () => (
   <svg
     className="size-[26px] shrink-0"
@@ -37,7 +40,7 @@ export function CtaSection() {
       {/* Glow */}
       <div className="pointer-events-none absolute -top-1/3 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 blur-[80px]" />
 
-      <div className="relative mx-auto max-w-[1180px] px-5 sm:px-10">
+      <Reveal className="relative mx-auto max-w-[1180px] px-5 sm:px-10">
         <h2 className="mb-4 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground lg:text-5xl">
           Rejoignez la communauté
           <br />
@@ -49,34 +52,38 @@ export function CtaSection() {
         </p>
 
         <div className="mb-8 flex flex-wrap justify-center gap-3.5">
-          <a
-            href="#"
-            className="flex min-w-[168px] items-center gap-3 rounded-[14px] border border-foreground/20 bg-white px-6 py-3.5 transition-all hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(20,40,80,.12)] dark:hover:shadow-[0_16px_40px_rgba(255,255,255,.12)]"
-          >
-            <AppleIcon />
-            <div className="flex flex-col text-left">
-              <span className="text-[0.625rem] font-medium leading-none text-gray-500">
-                Download on the
-              </span>
-              <span className="text-[0.9375rem] font-bold leading-none text-gray-900">
-                App Store
-              </span>
-            </div>
-          </a>
-          <a
-            href="#"
-            className="flex min-w-[168px] items-center gap-3 rounded-[14px] border border-foreground/20 bg-white px-6 py-3.5 transition-all hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(20,40,80,.12)] dark:hover:shadow-[0_16px_40px_rgba(255,255,255,.12)]"
-          >
-            <GoogleIcon />
-            <div className="flex flex-col text-left">
-              <span className="text-[0.625rem] font-medium leading-none text-gray-500">
-                Get it on
-              </span>
-              <span className="text-[0.9375rem] font-bold leading-none text-gray-900">
-                Google Play
-              </span>
-            </div>
-          </a>
+          <PressScale lift className="rounded-[14px]">
+            <a
+              href="#"
+              className="flex min-w-[168px] items-center gap-3 rounded-[14px] border border-foreground/20 bg-white px-6 py-3.5 transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(20,40,80,.12)] dark:hover:shadow-[0_16px_40px_rgba(255,255,255,.12)]"
+            >
+              <AppleIcon />
+              <div className="flex flex-col text-left">
+                <span className="text-[0.625rem] font-medium leading-none text-gray-500">
+                  Download on the
+                </span>
+                <span className="text-[0.9375rem] font-bold leading-none text-gray-900">
+                  App Store
+                </span>
+              </div>
+            </a>
+          </PressScale>
+          <PressScale lift className="rounded-[14px]">
+            <a
+              href="#"
+              className="flex min-w-[168px] items-center gap-3 rounded-[14px] border border-foreground/20 bg-white px-6 py-3.5 transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(20,40,80,.12)] dark:hover:shadow-[0_16px_40px_rgba(255,255,255,.12)]"
+            >
+              <GoogleIcon />
+              <div className="flex flex-col text-left">
+                <span className="text-[0.625rem] font-medium leading-none text-gray-500">
+                  Get it on
+                </span>
+                <span className="text-[0.9375rem] font-bold leading-none text-gray-900">
+                  Google Play
+                </span>
+              </div>
+            </a>
+          </PressScale>
         </div>
 
         <div className="flex flex-wrap justify-center gap-8">
@@ -95,7 +102,7 @@ export function CtaSection() {
             </span>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
