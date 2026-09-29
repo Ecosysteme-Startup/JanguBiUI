@@ -3,18 +3,20 @@
 import { ArrowLeft, ArrowRightLeft } from 'lucide-react';
 import Link from 'next/link';
 
+import { FeatureGate } from '@/components/feature-gate';
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { useNotifications } from '@/components/ui/notifications';
 import { SkeletonCard } from '@/components/ui/skeleton';
+import { FEATURES } from '@/config/features';
 import { paths } from '@/config/paths';
 import { useMyTransfer } from '@/features/transfert-paroissial/api/get-my-transfer';
 import { TransferRequestForm } from '@/features/transfert-paroissial/components/transfer-request-form';
 import { TransferStatusCard } from '@/features/transfert-paroissial/components/transfer-status-card';
 
-export default function TransfertPage() {
+function TransfertPageContent() {
   const { addNotification } = useNotifications();
   const { data: transfer, isLoading, isError, refetch } = useMyTransfer();
 
@@ -79,5 +81,18 @@ export default function TransfertPage() {
         )}
       </ContentContainer>
     </div>
+  );
+}
+
+/** Route manquante côté backend : écran derrière l'indicateur `transfert`. */
+export default function TransfertPage() {
+  return (
+    <FeatureGate
+      feature={FEATURES.transfert}
+      title="Transfert paroissial"
+      back={{ href: '/app/profil', label: 'Gérer mes paroisses' }}
+    >
+      <TransfertPageContent />
+    </FeatureGate>
   );
 }

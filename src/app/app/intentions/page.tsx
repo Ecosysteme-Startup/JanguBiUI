@@ -3,6 +3,7 @@
 import { HandHeart, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 
+import { FeatureGate } from '@/components/feature-gate';
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
 import { Card } from '@/components/ui/card/card';
@@ -10,11 +11,12 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { SectionHeader } from '@/components/ui/section-header';
 import { SkeletonList } from '@/components/ui/skeleton';
+import { FEATURES } from '@/config/features';
 import { useMyIntentions } from '@/features/intentions/api/get-my-intentions';
 import { IntentionStatusBadge } from '@/features/intentions/components/intention-status-badge';
 import { SubmitIntentionForm } from '@/features/intentions/components/submit-intention-form';
 
-export default function IntentionsPage() {
+function IntentionsPageContent() {
   const [showForm, setShowForm] = useState(false);
   const { data, isLoading, isError, refetch } = useMyIntentions();
 
@@ -98,5 +100,18 @@ export default function IntentionsPage() {
           ))}
       </ContentContainer>
     </div>
+  );
+}
+
+/** Route manquante côté backend : écran derrière l'indicateur `intentions`. */
+export default function IntentionsPage() {
+  return (
+    <FeatureGate
+      feature={FEATURES.intentions}
+      title="Intentions de messe"
+      back={{ href: '/app', label: 'Revenir à l’accueil' }}
+    >
+      <IntentionsPageContent />
+    </FeatureGate>
   );
 }

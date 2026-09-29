@@ -18,15 +18,15 @@ export const FEATURES = {
   transfert: 'transfert',
   /** Assistant de questions : aucune route `/rag/`. */
   assistant: 'assistant',
-  /** Liturgie des Heures : offices synchronisés mais non exposés (`/liturgy/…`). */
+  /** Liturgie des Heures : `/liturgy/v1/<office>/` gelée en V1 (« liturgy.heures »), clergé seulement. */
   heures: 'heures',
-  /** Lectio divina : aucune route `/bible/lectio/`. */
+  /** Lectio divina : `/bible/lectio/` gelée en V1 (« bible.avance »). */
   lectio: 'lectio',
-  /** Parcours de lecture : aucune route `/bible/reading-plans/`. */
+  /** Parcours de lecture : `/bible/reading-plans/` gelée en V1 (« bible.avance »). */
   parcours: 'parcours',
-  /** Notes d'homélie : aucune route `/bible/homily-notes/`. */
+  /** Notes d'homélie : `/bible/homilenotes/` gelée en V1 (« bible.avance »). */
   notesHomelie: 'notes-homelie',
-  /** Chapelet communautaire : modèle présent, aucune route `/rosary/community/`. */
+  /** Chapelet communautaire : `/rosary/community/` gelée en V1 (« rosary.communautaire »). */
   chapeletCommunautaire: 'chapelet-communautaire',
   /** Pièces jointes envoyées dans la messagerie : aucune route d'envoi. */
   piecesJointesMessagerie: 'pj-messagerie',

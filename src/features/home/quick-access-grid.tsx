@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { FEATURES, isFeatureEnabled } from '@/config/features';
 import { cn } from '@/lib/utils';
 
 const regularLinks = [
@@ -80,29 +81,32 @@ export function QuickAccessGrid() {
         })}
       </div>
 
-      {/* Featured card — Assistant spirituel */}
-      <Link
-        href="/app/assistant"
-        className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-gold/5 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg"
-      >
-        <div className="pointer-events-none absolute -right-6 -top-6 size-28 rounded-full bg-primary/5" />
-        <div className="pointer-events-none absolute bottom-0 right-8 size-14 rounded-full bg-gold/5" />
+      {/* Assistant : route `/v1/rag/` manquante → derrière l'indicateur. */}
+      {isFeatureEnabled(FEATURES.assistant) && (
+        <Link
+          href="/app/assistant"
+          className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-gold/5 p-5 transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg"
+        >
+          <div className="pointer-events-none absolute -right-6 -top-6 size-28 rounded-full bg-primary/5" />
+          <div className="pointer-events-none absolute bottom-0 right-8 size-14 rounded-full bg-gold/5" />
 
-        <div className="relative flex items-center gap-4">
-          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 ring-1 ring-primary/20 transition-transform group-hover:scale-105">
-            <MessageCircle className="size-6 text-primary" />
+          <div className="relative flex items-center gap-4">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 ring-1 ring-primary/20 transition-transform group-hover:scale-105">
+              <MessageCircle className="size-6 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-sm font-bold text-foreground">
+                Assistant spirituel
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                Posez vos questions sur la Bible, le chapelet ou trouvez un
+                prêtre
+              </span>
+            </div>
+            <ArrowRight className="size-4 shrink-0 text-muted-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
           </div>
-          <div className="min-w-0 flex-1">
-            <span className="block text-sm font-bold text-foreground">
-              Assistant spirituel
-            </span>
-            <span className="mt-0.5 block text-xs text-muted-foreground">
-              Posez vos questions sur la Bible, le chapelet ou trouvez un prêtre
-            </span>
-          </div>
-          <ArrowRight className="size-4 shrink-0 text-muted-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
-        </div>
-      </Link>
+        </Link>
+      )}
     </section>
   );
 }

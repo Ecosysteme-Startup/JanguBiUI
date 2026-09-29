@@ -4,6 +4,7 @@ import { BookOpen, ScrollText } from 'lucide-react';
 import Link from 'next/link';
 
 import { ContentContainer } from '@/components/layouts/content-container';
+import { FEATURES, isFeatureEnabled } from '@/config/features';
 import { FideleSummarySection } from '@/features/dashboard/components/fidele-summary-section';
 import { PastoralReflectionWidget } from '@/features/reflexion-pastorale/components/pastoral-reflection-widget';
 import { Stagger, StaggerItem } from '@/lib/motion/reveal';
@@ -26,6 +27,7 @@ const QUICK_ACTIONS = [
     href: '/app/intentions',
     icon: ScrollText,
     className: 'bg-accent/15 text-accent',
+    feature: FEATURES.intentions,
   },
   //{
   //  label: 'Assistant',
@@ -35,7 +37,15 @@ const QUICK_ACTIONS = [
   //},
 ] as const;
 
+// Sections sans route backend V1 (config/features.ts) : masquées tant que
+// l'indicateur est coupé — jamais de données fictives en mode réel.
+const actif = (feature?: (typeof FEATURES)[keyof typeof FEATURES]) =>
+  !feature || isFeatureEnabled(feature);
+
 export function FideleDashboard() {
+  const actions = QUICK_ACTIONS.filter((a) =>
+    actif('feature' in a ? a.feature : undefined),
+  );
   return (
     <ContentContainer width="wide">
       {/* Cartes révélées en cascade douce (450 ms, +8 px, 70 ms d'écart). */}
@@ -46,7 +56,7 @@ export function FideleDashboard() {
 
         {/* Quick actions */}
         <StaggerItem className="grid grid-cols-2 gap-2">
-          {QUICK_ACTIONS.map((action) => {
+          {actions.map((action) => {
             const Icon = action.icon;
             return (
               <Link
@@ -71,9 +81,11 @@ export function FideleDashboard() {
         </StaggerItem>
 
         {/* Résumé (stats) — pleine largeur */}
-        <StaggerItem>
-          <FideleSummarySection />
-        </StaggerItem>
+        {actif(FEATURES.resumeFidele) && (
+          <StaggerItem>
+            <FideleSummarySection />
+          </StaggerItem>
+        )}
 
         {/* Bento : contenu principal (2/3) + colonne latérale (1/3) en desktop */}
         <div className="grid gap-6 lg:grid-cols-3">
@@ -82,8 +94,8 @@ export function FideleDashboard() {
             <ParishEventsSection />
           </StaggerItem>
           <StaggerItem className="flex flex-col gap-6">
-            <PastoralReflectionWidget />
-            <MyIntentionsSection />
+            {actif(FEATURES.reflexionPastorale) && <PastoralReflectionWidget />}
+            {actif(FEATURES.intentions) && <MyIntentionsSection />}
           </StaggerItem>
         </div>
       </Stagger>

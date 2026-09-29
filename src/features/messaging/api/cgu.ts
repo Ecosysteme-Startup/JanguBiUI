@@ -18,12 +18,14 @@ export type MessagingCgu = z.infer<typeof cguSchema>;
 
 const cguKey = ['messaging', 'cgu'] as const;
 
+const getMessagingCgu = async (): Promise<MessagingCgu> =>
+  cguSchema.parse(await api.get<unknown>('/v1/messaging/cgu/'));
+
 export const useMessagingCgu = () =>
   useQuery(
     queryOptions({
-      queryKey: cguKey,
-      queryFn: () =>
-        api.get<unknown>('/v1/messaging/cgu/').then((d) => cguSchema.parse(d)),
+      queryKey: [...cguKey],
+      queryFn: getMessagingCgu,
       staleTime: 5 * 60_000,
     }),
   );

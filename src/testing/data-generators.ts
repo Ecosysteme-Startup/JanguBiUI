@@ -22,6 +22,17 @@ const randParagraph = () => _paragraph();
 
 const randText = (_options?: { charCount?: number }) => _text();
 
+import {
+  type LiturgyDay,
+  type LiturgyReading,
+  toIsoDay,
+} from '@/features/bible/api/get-liturgy-today';
+import type {
+  Mystery,
+  Prayer,
+  RosaryGroup,
+  TodayRosary,
+} from '@/features/chapelet/api/schemas';
 import type { DocumentRequest } from '@/features/documents/types';
 import type { Conversation, Message } from '@/features/messaging/types';
 import type {
@@ -137,6 +148,8 @@ export const createConversation = (
   },
   last_message_at: randPastDate().toISOString(),
   unread_count: 0,
+  is_archived: false,
+  confession_notice: '',
   ...overrides,
 });
 
@@ -212,65 +225,73 @@ export const createArticleDetail = (
 // Liturgy
 // ----------------------------------------------------------------
 
-export interface LiturgyReading {
-  id: string;
-  type: string;
-  citation: string;
-  text: string;
-}
-
-export interface LiturgyDay {
-  date: string;
-  season?: string;
-  mystery?: string;
-  readings: LiturgyReading[];
-  offices: unknown[];
-}
+// Format V1 : apps/liturgy/selectors.py → liturgy_day (voir
+// features/bible/api/get-liturgy-today.ts).
+export type { LiturgyDay, LiturgyReading };
 
 export const createLiturgyReading = (
   overrides?: Partial<LiturgyReading>,
 ): LiturgyReading => ({
-  id: randUuid(),
-  type: 'Première Lecture',
+  type: 'lecture_1',
   citation: `Is ${randNumber({ min: 1, max: 66 })}, ${randNumber({ min: 1, max: 20 })}`,
   text: `<p>${randParagraph()}</p>`,
+  verses: [],
   ...overrides,
 });
 
 export const createLiturgyDay = (
   overrides?: Partial<LiturgyDay>,
-): LiturgyDay => ({
-  date: new Date().toISOString().split('T')[0],
-  season: 'Temps ordinaire',
-  mystery: undefined,
-  readings: [
-    createLiturgyReading({ type: 'Première Lecture' }),
-    createLiturgyReading({ type: 'Psaume' }),
-    createLiturgyReading({ type: 'Évangile' }),
-  ],
-  offices: [],
-  ...overrides,
-});
+): LiturgyDay => {
+  const date = overrides?.date ?? toIsoDay(new Date());
+  return {
+    date,
+    calendar: {
+      date,
+      liturgical_year: 2026,
+      season: 'ordinaire',
+      season_label: 'Temps ordinaire',
+      week: 26,
+      celebration: '26e dimanche du temps ordinaire',
+      rank: 'dimanche',
+      color: 'vert',
+      sunday_cycle: 'A',
+      weekday_cycle: '2',
+    },
+    source: 'aelf',
+    edition: null,
+    notice: 'Textes liturgiques © AELF, reproduits avec son autorisation.',
+    readings_available: true,
+    readings: [
+      createLiturgyReading({ type: 'lecture_1' }),
+      createLiturgyReading({ type: 'psaume' }),
+      createLiturgyReading({ type: 'evangile' }),
+    ],
+    audio_url: null,
+    meditation: null,
+    ...overrides,
+  };
+};
 
 // ----------------------------------------------------------------
 // Rosary / Chapelet
 // ----------------------------------------------------------------
 
-export interface RosaryGroup {
-  readonly id: number;
-  name: string;
-  slug: string;
-  readonly audio_file: string;
-  readonly mysteries: string;
-}
+// Format V1 : features/chapelet/api/schemas.ts (apps/rosary/serializers.py).
+export type { RosaryGroup, TodayRosary as RosaryDay };
 
-export interface RosaryDay {
-  day: {
-    id: number;
-    weekday_display: string;
-    group: RosaryGroup;
-  };
-}
+/** Mystères d'un groupe à partir de leurs titres (ordre 1 à 5). */
+export const createMysteries = (titres: string[]): Mystery[] =>
+  titres.map((title, i) => ({
+    id: 100 + i,
+    order: i + 1,
+    title,
+    meditation: null,
+    meditation_source: null,
+    fruit: null,
+    audio_file: null,
+    audio_duration: null,
+    prayers: [],
+  }));
 
 export const createRosaryGroup = (
   overrides?: Partial<RosaryGroup>,
@@ -278,17 +299,40 @@ export const createRosaryGroup = (
   id: randNumber({ min: 1, max: 4 }),
   name: 'Joyeux',
   slug: 'joyeux',
-  mysteries:
-    "L'Annonciation\nLa Visitation\nLa Nativité\nLa Présentation\nLe Recouvrement",
-  audio_file: '',
+  mysteries: createMysteries([
+    "L'Annonciation",
+    'La Visitation',
+    'La Nativité',
+    'La Présentation',
+    'Le Recouvrement',
+  ]),
+  audio_file: null,
   ...overrides,
 });
 
-export const createRosaryDay = (overrides?: Partial<RosaryDay>): RosaryDay => ({
+const PRIERES_SEULES: Prayer[] = [
+  { type: 'CREED', label: 'Je crois en Dieu' },
+  { type: 'OUR_FATHER', label: 'Notre Père' },
+  { type: 'HAIL_MARY', label: 'Je vous salue Marie' },
+  { type: 'GLORY_BE', label: 'Gloire au Père' },
+].map(({ type, label }, i) => ({
+  id: i + 1,
+  type,
+  type_display: label,
+  language: 'FR',
+  text: `${label}…`,
+  source: '',
+}));
+
+export const createRosaryDay = (
+  overrides?: Partial<TodayRosary>,
+): TodayRosary => ({
   day: {
     id: 1,
+    weekday: 0,
     weekday_display: 'Lundi',
     group: createRosaryGroup(),
   },
+  standalone_prayers: PRIERES_SEULES,
   ...overrides,
 });
