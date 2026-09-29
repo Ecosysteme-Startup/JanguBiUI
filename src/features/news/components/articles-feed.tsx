@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Newspaper } from 'lucide-react';
+import { Clock, Newspaper, Pin } from 'lucide-react';
 import { useState } from 'react';
 
 import { ContentContainer } from '@/components/layouts/content-container';
@@ -52,6 +52,12 @@ function articleMeta(article: FeedArticle) {
 function articleOverline(article: FeedArticle) {
   return (
     <>
+      {article.is_pinned && (
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
+          <Pin className="size-3" aria-hidden="true" />
+          Épinglée
+        </span>
+      )}
       <ArticleTypeBadge contentType={article.content_type ?? undefined} />
       {article.scope?.node_name && (
         <span className="text-[11px] font-semibold text-foreground">

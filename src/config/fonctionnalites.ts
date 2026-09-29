@@ -8,17 +8,6 @@
 // n'ont pas de mocks alignés sur un contrat qui n'existe pas.
 
 export const ROUTES_MANQUANTES = {
-  /** Invitations du clergé (création, liste, révocation, acceptation). */
-  invitationsClerge: [
-    'POST/GET /v1/clergy-accounts/invitations/',
-    'POST /v1/clergy-accounts/invitations/{id}/revoke/',
-    'POST /v1/clergy-accounts/invitations/validate/ et accept/',
-  ],
-  /** Intentions de messe côté clergé (file, accepter, célébrer, refuser). */
-  intentionsMesse: [
-    'GET /v1/mass-intentions/parish/',
-    'POST /v1/mass-intentions/{id}/accept|decline|celebrate|propose-date/',
-  ],
   /** Transferts paroissiaux (file et décisions). */
   transferts: [
     'GET /v1/transfers/admin/',
@@ -30,7 +19,10 @@ export const ROUTES_MANQUANTES = {
     'POST /v1/messaging/clerical/',
   ],
   /** JanguBi TV (vidéos et catégories). */
-  jangubiTv: ['GET/POST/PATCH/DELETE /v1/tv/videos/', 'GET/POST /v1/tv/categories/'],
+  jangubiTv: [
+    'GET/POST/PATCH/DELETE /v1/tv/videos/',
+    'GET/POST /v1/tv/categories/',
+  ],
   /** Réflexion pastorale du prêtre (partagée aux fidèles). */
   reflexionPastorale: [
     'GET/POST /v1/spiritual/reflections/',

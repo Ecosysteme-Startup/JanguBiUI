@@ -3,7 +3,6 @@
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { SansRoute } from '@/components/staff/sans-route';
 import { Spinner } from '@/components/ui/spinner';
 
 import { AcceptInvitationContent } from './accept-invitation-content';
@@ -45,9 +44,5 @@ function PageContenu() {
 }
 
 export default function Page() {
-  return (
-    <SansRoute cle="invitationsClerge" titre="Invitation">
-      <PageContenu />
-    </SansRoute>
-  );
+  return <PageContenu />;
 }

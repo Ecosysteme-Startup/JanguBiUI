@@ -27,7 +27,6 @@ const QUICK_ACTIONS = [
     href: '/app/intentions',
     icon: ScrollText,
     className: 'bg-accent/15 text-accent',
-    feature: FEATURES.intentions,
   },
   //{
   //  label: 'Assistant',
@@ -43,9 +42,7 @@ const actif = (feature?: (typeof FEATURES)[keyof typeof FEATURES]) =>
   !feature || isFeatureEnabled(feature);
 
 export function FideleDashboard() {
-  const actions = QUICK_ACTIONS.filter((a) =>
-    actif('feature' in a ? a.feature : undefined),
-  );
+  const actions = QUICK_ACTIONS;
   return (
     <ContentContainer width="wide">
       {/* Cartes révélées en cascade douce (450 ms, +8 px, 70 ms d'écart). */}
@@ -95,7 +92,7 @@ export function FideleDashboard() {
           </StaggerItem>
           <StaggerItem className="flex flex-col gap-6">
             {actif(FEATURES.reflexionPastorale) && <PastoralReflectionWidget />}
-            {actif(FEATURES.intentions) && <MyIntentionsSection />}
+            <MyIntentionsSection />
           </StaggerItem>
         </div>
       </Stagger>

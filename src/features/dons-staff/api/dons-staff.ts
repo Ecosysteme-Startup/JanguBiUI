@@ -470,3 +470,69 @@ export const useReversements = (node: string | undefined, offset: number) =>
     placeholderData: keepPreviousData,
     enabled: !!node,
   });
+
+// --- Équipe des compteurs (API-V1-COMPLEMENTS §2.2) ---------------------------------
+// `dons.saisir_quete` sur la paroisse même. La saisie d'une quête garde des noms
+// libres : l'équipe ne sert qu'à proposer les noms habituels.
+
+export const compteurSchema = z.object({
+  id: z.number(),
+  nom: z.string(),
+  actif: z.boolean(),
+  ajoute_le: z.string().nullish(),
+});
+export type Compteur = z.infer<typeof compteurSchema>;
+
+const equipeSchema = z.object({
+  compteurs: z.array(compteurSchema),
+  noms_recents: z.array(z.string()).default([]),
+});
+
+export const useEquipeCompteurs = (node: string | undefined) =>
+  useQuery({
+    queryKey: ['staff-dons', 'compteurs', node],
+    queryFn: async () =>
+      equipeSchema.parse(
+        await api.get<unknown>('/v1/staff/dons/compteurs/', {
+          params: { node },
+          quiet: true,
+        }),
+      ),
+    enabled: !!node,
+  });
+
+const useInvaliderCompteurs = () => {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: ['staff-dons', 'compteurs'] });
+};
+
+export const useAjouterCompteur = () => {
+  const invalider = useInvaliderCompteurs();
+  return useMutation({
+    mutationFn: async (data: { node: string; nom: string }) =>
+      compteurSchema.parse(
+        await api.post<unknown>('/v1/staff/dons/compteurs/', data),
+      ),
+    onSuccess: invalider,
+  });
+};
+
+export const useRenommerCompteur = () => {
+  const invalider = useInvaliderCompteurs();
+  return useMutation({
+    mutationFn: async ({ id, nom }: { id: number; nom: string }) =>
+      compteurSchema.parse(
+        await api.patch<unknown>(`/v1/staff/dons/compteurs/${id}/`, { nom }),
+      ),
+    onSuccess: invalider,
+  });
+};
+
+export const useRetirerCompteur = () => {
+  const invalider = useInvaliderCompteurs();
+  return useMutation({
+    mutationFn: (id: number) =>
+      api.delete<null>(`/v1/staff/dons/compteurs/${id}/`),
+    onSuccess: invalider,
+  });
+};

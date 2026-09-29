@@ -5,11 +5,12 @@ import Link from 'next/link';
 
 import { Card } from '@/components/ui/card/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useMyIntentions } from '@/features/intentions/api/get-my-intentions';
+import { useMesIntentions } from '@/features/intentions/api/intentions';
 import { IntentionStatusBadge } from '@/features/intentions/components/intention-status-badge';
+import { ligneSuivi } from '@/features/intentions/utils/format';
 
 export function MyIntentionsSection() {
-  const { data, isLoading } = useMyIntentions();
+  const { data, isLoading } = useMesIntentions(3);
 
   const recentIntentions = (data?.results ?? []).slice(0, 3);
 
@@ -52,20 +53,11 @@ export function MyIntentionsSection() {
           >
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 text-sm text-foreground">
-                {intention.intention_text}
+                {intention.intention}
               </p>
-              {intention.proposed_date && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Date proposée :{' '}
-                  {new Date(intention.proposed_date).toLocaleDateString(
-                    'fr-FR',
-                    {
-                      day: 'numeric',
-                      month: 'long',
-                    },
-                  )}
-                </p>
-              )}
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {ligneSuivi(intention)}
+              </p>
             </div>
             <IntentionStatusBadge status={intention.status} />
           </Card>

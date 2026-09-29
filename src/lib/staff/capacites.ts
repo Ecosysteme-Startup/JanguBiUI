@@ -29,7 +29,9 @@ export type Capacite =
   | 'dons.voir_agregats'
   | 'audio.publier'
   | 'audio.moderer'
-  | 'paroissiens.gerer';
+  | 'paroissiens.gerer'
+  | 'comptes.valider'
+  | 'intentions.gerer';
 
 export type NoeudStaff = { id: string; name: string; type: string };
 

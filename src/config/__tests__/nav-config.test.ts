@@ -20,6 +20,9 @@ describe('buildNavItems', () => {
   test('fidèle laïc : nav fidèle, ni Clergé ni Administration', () => {
     const items = labels(buildNavItems(createUser()));
     expect(items).toContain('Documents');
+    // Compléments V1 : recherche transverse et intentions de messe branchées.
+    expect(items).toContain('Recherche');
+    expect(items).toContain('Intentions de messe');
     expect(items).not.toContain('Clergé');
     expect(items).not.toContain('Administration');
   });

@@ -74,18 +74,34 @@ directe affiche « Bientôt disponible ».
 | `notes-homelie` | notes d'homélie sous une lecture | route gelée (`bible.avance`) |
 | `chapelet-communautaire` | `/app/chapelet/communautaire` | route gelée (`rosary.communautaire`) |
 | `tv` | `/app/tv`, entrée Spiritualité | route manquante |
-| `intentions` | `/app/intentions`, raccourci et section de l'accueil | route manquante |
 | `transfert` | `/app/transfert`, navigation | remplacé par les paroisses multiples |
 | `assistant` | `/app/assistant`, carte de l'accueil | route manquante |
 | `pj-messagerie` | réservé : aucun bouton d’envoi de pièce jointe n’est affiché | route manquante (les pièces jointes reçues sont affichées) |
 | `resume-fidele` | résumé chiffré de l'accueil fidèle | route manquante |
 | `reflexion-pastorale` | réflexion pastorale du jour (accueil fidèle) | route manquante |
 
+## Compléments V1 (lot V1C, backend `docs/API-V1-COMPLEMENTS.md`)
+
+Branchés et actifs par défaut (plus d'indicateur) :
+
+| Écran | Route web | Routes |
+| --- | --- | --- |
+| Intentions de messe (demande et suivi) | `/app/intentions`, section et raccourci de l'accueil, navigation | `POST /mass-intentions/`, `GET /mass-intentions/mine/`, `POST /mass-intentions/{id}/cancel/` (`GET …/notice/` disponible) |
+| Recherche transverse | `/app/recherche?q=`, navigation | `GET /search/?q=&types=&limit=` (Bible, paroisses, lieux, annonces, prêtres, écoute) |
+| Annonces épinglées | fil des actualités (mention « Épinglée ») | champs `is_pinned`, `pinned_until` de `news/`, `me/feed/` |
+
+Règles tenues : aucun montant ni paiement pour les intentions ; la phrase des maquettes sur
+l'offrande (« Il est d'usage d'accompagner une intention d'une offrande… elle ne passe pas par
+l'application ») est affichée près du formulaire. Choix retenus : la date souhaitée est
+obligatoire (le contrat n'a pas de « pas de date précise ») ; la messe se saisit en texte libre
+(pas de route des messes d'un jour avec leur remplissage) ; « Choisir une autre messe » reprend
+l'intention refusée dans le formulaire. Recherche : les versets ne sont pas cliquables (la
+sortie donne `book_slug`, pas l'identifiant de livre attendu par l'onglet Bible) ; un prêtre
+renvoie à la messagerie.
+
 ## Routes manquantes (pour le lot backend)
 
 - route manquante : `GET /v1/tv/…` (vidéos, catégories, direct) — module supprimé (ADR-016).
-- route manquante : intentions de messe (`/v1/mass-intentions/…` : soumettre, mes intentions)
-  — module supprimé ; l'offrande de messe est explicitement hors des dons (H2).
 - route manquante : questions à l'assistant (`/v1/rag/query/`) — module supprimé.
 - route manquante : résumé du fidèle pour l'accueil (`/v1/dashboards/me/`) — seuls
   `dashboards/nodes/<id>/` et `dashboards/platform/` existent.

@@ -50,8 +50,11 @@ import {
   useOperations,
   useQuetes,
   useRembourser,
+  useEquipeCompteurs,
   useSaisirQuete,
 } from '../api/dons-staff';
+
+import { EquipeCompteurs, nomsProposes } from './equipe-compteurs';
 
 const champ =
   'w-full rounded-md border border-input bg-background px-3 py-2 text-sm';
@@ -379,6 +382,8 @@ function SaisieQuete({
   const [compteur1, setCompteur1] = useState('');
   const [compteur2, setCompteur2] = useState('');
   const { data: proposes = [] } = useFondsProposes(noeud.id, date);
+  const { data: equipe } = useEquipeCompteurs(noeud.id);
+  const noms = nomsProposes(equipe);
   const saisir = useSaisirQuete();
   const fondsId = fonds || proposes[0]?.id || '';
 
@@ -480,6 +485,7 @@ function SaisieQuete({
               </label>
               <input
                 id={`${id}-c1`}
+                list={`${id}-equipe`}
                 required
                 className={champ}
                 value={compteur1}
@@ -492,6 +498,7 @@ function SaisieQuete({
               </label>
               <input
                 id={`${id}-c2`}
+                list={`${id}-equipe`}
                 required
                 className={champ}
                 value={compteur2}
@@ -499,6 +506,11 @@ function SaisieQuete({
               />
             </div>
           </div>
+          <datalist id={`${id}-equipe`}>
+            {noms.map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
           {saisir.isError && (
             <p role="alert" className="text-sm text-destructive">
               {messageErreur(saisir.error)}
@@ -526,6 +538,7 @@ function OngletQuetes({ noeud }: { noeud: NoeudStaff }) {
   const [statut, setStatut] = useState('saisie');
   const [offset, setOffset] = useState(0);
   const [saisie, setSaisie] = useState(false);
+  const [equipe, setEquipe] = useState(false);
   const [aRejeter, setARejeter] = useState<Quete | null>(null);
   const { data, isLoading, isError, refetch } = useQuetes(
     noeud.id,
@@ -610,10 +623,15 @@ function OngletQuetes({ noeud }: { noeud: NoeudStaff }) {
           }}
           ariaLabel="Filtrer par statut"
         />
-        <Button size="sm" onClick={() => setSaisie(true)}>
-          <Plus className="size-4" aria-hidden="true" />
-          Saisir une quête
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setEquipe(true)}>
+            Équipe des compteurs
+          </Button>
+          <Button size="sm" onClick={() => setSaisie(true)}>
+            <Plus className="size-4" aria-hidden="true" />
+            Saisir une quête
+          </Button>
+        </div>
       </div>
       {decision.isError && !aRejeter && (
         <p role="alert" className="text-sm text-destructive">
@@ -649,6 +667,9 @@ function OngletQuetes({ noeud }: { noeud: NoeudStaff }) {
         />
       )}
       {saisie && <SaisieQuete noeud={noeud} onClose={() => setSaisie(false)} />}
+      {equipe && (
+        <EquipeCompteurs noeud={noeud} onClose={() => setEquipe(false)} />
+      )}
       {aRejeter && (
         <MotifDialog
           titre="Rejeter la saisie"

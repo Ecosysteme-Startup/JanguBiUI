@@ -33,9 +33,10 @@ const PATH_LABELS: Record<string, string> = {
   '/app/ecouter/recherche': 'Recherche',
   '/app/ecouter/bibliotheque': 'Ma bibliothèque',
   '/app/paroisse/sonotheque': 'Sonothèque',
+  '/app/paroisse/intentions': 'Intentions de messe',
+  '/app/recherche': 'Recherche',
   '/app/paroisse/sonotheque/ajouter': 'Ajouter des enregistrements',
   '/app/clerge': 'Clergé',
-  '/app/clerge/intentions': 'Intentions reçues',
   '/app/clerge/messages': 'Messagerie inter-clergé',
   '/app/clerge/transferts': 'Transferts',
   '/app/admin': 'Administration',
@@ -46,8 +47,7 @@ const PATH_LABELS: Record<string, string> = {
   '/app/admin/tv': 'TV',
   '/app/admin/org': 'Structure',
   '/app/admin/users': 'Utilisateurs',
-  '/app/admin/users/invite': 'Inviter',
-  '/app/admin/users/invitations': 'Invitations',
+  '/app/admin/users/clerge': 'Validation du clergé',
   '/app/admin/users/validation': 'Validation',
 };
 

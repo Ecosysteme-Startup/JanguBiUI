@@ -4,6 +4,7 @@ import { AdminPageLayout } from '@/components/layouts/admin-page-layout';
 import { EspacesStaff } from '@/features/dashboard/components/espaces-staff';
 import { TableauNoeudSection } from '@/features/dashboard/components/tableau-noeud';
 import { TableauPlateformeSection } from '@/features/dashboard/components/tableau-plateforme';
+import { TachesDuJourSection } from '@/features/dashboard/components/taches-du-jour';
 import { useUser } from '@/lib/auth';
 import { aCapacite } from '@/lib/staff/capacites';
 
@@ -17,6 +18,7 @@ export default function AdminDashboardPage() {
       allow={(u) => (u?.capabilities?.length ?? 0) > 0}
     >
       <div className="space-y-8">
+        <TachesDuJourSection />
         <EspacesStaff />
         {aCapacite(user, 'tableau_bord.voir') && <TableauNoeudSection />}
         {aCapacite(user, 'plateforme.admin') && <TableauPlateformeSection />}

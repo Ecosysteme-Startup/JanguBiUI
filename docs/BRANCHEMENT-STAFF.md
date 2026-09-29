@@ -87,6 +87,27 @@ quasi-paroisse seulement (le back refuse un autre nœud : `not_a_parish`) :
 | Comptes | `/app/admin/users` | `GET /platform/accounts/?q=&role=` (paginé), `GET …/{id}/`, `POST …/{id}/lock\|unlock\|logout-sessions\|require-mfa/` (503 si Keycloak injoignable) | `plateforme.admin` |
 | Paiements | `/app/plateforme/paiements` | lot dons-analyse | `plateforme.admin` |
 
+## Compléments V1 (lot V1C, backend `docs/API-V1-COMPLEMENTS.md`)
+
+Branchés et actifs par défaut : les indicateurs `invitationsClerge` et `intentionsMesse` sont
+retirés de `src/config/fonctionnalites.ts`.
+
+| Écran | Route web | Routes | Capacité |
+| --- | --- | --- | --- |
+| Intentions de messe (file, planifier ou déplacer, refuser avec motif, célébrer) | `/app/paroisse/intentions` (ancienne `/app/clerge/intentions` redirigée), tuile « Intentions de messe », Espace clergé | `GET /mass-intentions/parish/?node=&status=`, `POST /mass-intentions/{id}/accept\|decline\|celebrate/` | `intentions.gerer` |
+| Validation du clergé (comptes en attente, valider, refuser avec motif, activer ; invitations : envoyer, lien montré une fois, révoquer) | `/app/admin/users/clerge` (anciennes `…/invitations` et `…/invite` redirigées), tuile « Comptes du clergé » | `GET /clergy-accounts/pending/`, `POST /clergy-accounts/{person_id}/validate\|refuse\|activate\|deactivate/`, `GET/POST /clergy-accounts/invitations/`, `POST …/{id}/revoke/` | `comptes.valider` (diocèse ou plateforme, même écran) |
+| Acceptation d'une invitation | `/accept-invitation?token=` (publique) | `POST /clergy-accounts/invitations/validate/ {token}`, `POST …/accept/ {token}` (403 `invitation_email_mismatch` expliqué) | connecté avec l'adresse invitée |
+| Épinglage d'une annonce | éditeur `/app/admin/articles/{id}/edit` (bloc « Épingler en tête, jusqu'au… »), mention dans la liste | `POST/DELETE /staff/news/{id}/pin/` (`until` = fin de journée locale, 60 jours au plus) | `annonces.publier` |
+| Tâches du jour | tableau de bord `/app/admin` (« Reste à faire aujourd'hui », nœuds paroissiaux) | `GET /staff/taches-du-jour/?node=` | une des capacités de la rubrique |
+| Équipe des compteurs | onglet Quêtes de `/app/paroisse/dons` (bouton « Équipe des compteurs » ; noms proposés dans la saisie) | `GET/POST /staff/dons/compteurs/`, `PATCH/DELETE …/{id}/` | `dons.saisir_quete` sur la paroisse |
+
+Choix retenus : l'anonymat est visible du secrétariat (badge « Anonyme à la messe ») ; `accept`
+couvre aussi le déplacement (plus de `propose-date`) ; « Célébrée » n'est proposée qu'une fois
+la date passée. Non faits faute de route : « Feuille des intentions » (impression), messes de la
+semaine avec remplissage, pièce jointe d'un compte du clergé, « Relancer » une invitation
+(révoquer puis réinviter), filtre diocèse/rôle des comptes en attente, liste des comptes déjà
+validés.
+
 ## Routes manquantes (écrans masqués)
 
 Aucune route V1 n'existe côté backend pour ces écrans hérités. Ils ne sont pas
@@ -97,8 +118,6 @@ démonstration : `NEXT_PUBLIC_FEATURES=cle1,cle2`.
 
 | Indicateur | Écran | Route attendue (lot backend) |
 | --- | --- | --- |
-| `invitationsClerge` | `/app/admin/users/invitations`, `/app/admin/users/invite`, `/accept-invitation` | `POST/GET /clergy-accounts/invitations/`, `POST …/{id}/revoke/`, `POST …/validate/`, `POST …/accept/` |
-| `intentionsMesse` | `/app/clerge/intentions` | `GET /mass-intentions/parish/`, `POST /mass-intentions/{id}/accept\|decline\|celebrate\|propose-date/` |
 | `transferts` | `/app/clerge/transferts` | `GET /transfers/admin/`, `POST /transfers/{id}/approve\|reject\|acknowledge/` |
 | `messagerieClericale` | `/app/clerge/messages` | `GET /messaging/clerical/inbox/`, `POST /messaging/clerical/` |
 | `jangubiTv` | `/app/admin/tv` | `GET/POST/PATCH/DELETE /tv/videos/`, `GET/POST /tv/categories/` |

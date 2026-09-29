@@ -35,6 +35,11 @@ export const paths = {
 
   app: {
     root: { getHref: () => '/app' },
+    intentions: { getHref: () => '/app/intentions' },
+    recherche: {
+      getHref: (q?: string) =>
+        q ? `/app/recherche?q=${encodeURIComponent(q)}` : '/app/recherche',
+    },
     actus: { getHref: () => '/app/actus' },
     article: { getHref: (id: string) => `/app/actus/${id}` },
     spirituel: { getHref: () => '/app/spirituel' },
@@ -82,6 +87,11 @@ export const paths = {
           vue ? `/app/paroisse/dons?vue=${vue}` : '/app/paroisse/dons',
       },
       sonotheque: { getHref: () => '/app/paroisse/sonotheque' },
+      intentions: { getHref: () => '/app/paroisse/intentions' },
+      intentionsFeuille: {
+        getHref: (node: string, date: string) =>
+          `/app/paroisse/intentions/feuille?${new URLSearchParams({ node, date }).toString()}`,
+      },
       sonothequeAjouter: {
         getHref: (album?: string) =>
           album
@@ -102,7 +112,6 @@ export const paths = {
     clerge: {
       root: { getHref: () => '/app/clerge' },
       analytique: { getHref: () => '/app/clerge/analytique' },
-      intentions: { getHref: () => '/app/clerge/intentions' },
       messages: { getHref: () => '/app/clerge/messages' },
       transferts: { getHref: () => '/app/clerge/transferts' },
     },
@@ -125,9 +134,8 @@ export const paths = {
       audit: { getHref: () => '/app/admin/audit' },
       users: {
         list: { getHref: () => '/app/admin/users' },
-        invitations: { getHref: () => '/app/admin/users/invitations' },
-        invite: { getHref: () => '/app/admin/users/invite' },
         validation: { getHref: () => '/app/admin/users/validation' },
+        clerge: { getHref: () => '/app/admin/users/clerge' },
       },
     },
   },
