@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # =================================================================
 # STAGE 1 : deps
 # Installe UNIQUEMENT les dépendances de production
@@ -38,23 +39,40 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Variables nécessaires au BUILD (pas seulement au runtime)
 # NEXT_PUBLIC_* sont intégrées dans le bundle JS au moment du build
-# → elles doivent exister ICI, pas seulement sur le serveur
+# → d'où DEUX images par commit en livraison : sha-<commit>-staging et
+#   sha-<commit>-prod (contrat Infrastructure §6). Aucune n'est un secret.
 ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-
+ARG NEXT_PUBLIC_URL
+ARG NEXT_PUBLIC_WS_URL
+ARG NEXT_PUBLIC_KEYCLOAK_URL
+ARG NEXT_PUBLIC_KEYCLOAK_REALM
+ARG NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+ARG NEXT_PUBLIC_FEATURES
 ARG NEXT_PUBLIC_SENTRY_DSN
-ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
-
-# Sentry upload les source maps pendant le build
-# Sans ce token → le build plante si Sentry est activé
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+# Jamais de mocks dans une image livrée.
+ARG NEXT_PUBLIC_API_MOCKING=false
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+    NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL \
+    NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL \
+    NEXT_PUBLIC_KEYCLOAK_URL=$NEXT_PUBLIC_KEYCLOAK_URL \
+    NEXT_PUBLIC_KEYCLOAK_REALM=$NEXT_PUBLIC_KEYCLOAK_REALM \
+    NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=$NEXT_PUBLIC_KEYCLOAK_CLIENT_ID \
+    NEXT_PUBLIC_FEATURES=$NEXT_PUBLIC_FEATURES \
+    NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN \
+    NEXT_PUBLIC_API_MOCKING=$NEXT_PUBLIC_API_MOCKING
 
 # Le build Next.js :
 # → Compile TypeScript
 # → Optimise les images, CSS, JS
 # → Génère le dossier .next/standalone (grâce à output: 'standalone')
-RUN yarn build
+# SENTRY_AUTH_TOKEN (envoi des source maps) arrive par un SECRET BuildKit
+# (`--secret id=sentry_auth_token`), jamais par ARG/ENV : il ne reste ainsi
+# dans aucune couche ni dans l'historique de l'image. Absent → pas d'envoi.
+RUN --mount=type=secret,id=sentry_auth_token \
+    if [ -s /run/secrets/sentry_auth_token ]; then \
+      export SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token)"; \
+    fi; \
+    yarn build
 
 # =================================================================
 # STAGE 3 : runner
@@ -95,4 +113,8 @@ ENV HOSTNAME="0.0.0.0"
 
 # server.js = le mini-serveur Node.js généré par output: 'standalone'
 # C'est lui qui remplace 'next start'
+# Sonde : la page d'accueil répond (outil présent dans l'image : node, pas curl).
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
+  CMD ["node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+
 CMD ["node", "server.js"]
