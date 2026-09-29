@@ -14,7 +14,7 @@ const personOptionSchema = z.object({
   etat_de_vie: z.string(),
   degre_ordre: z.string(),
   statut_verification: z.enum(['declare', 'verifie', 'rejete', 'complement']),
-  incardination_node: z.object({ id: z.string(), name: z.string(), code: z.string(), type: z.string() }).nullable(),
+  incardination_node: z.object({ id: z.string(), name: z.string() }).nullable(),
 });
 export type PersonOption = z.infer<typeof personOptionSchema>;
 

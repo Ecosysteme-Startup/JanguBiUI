@@ -102,7 +102,7 @@ describe('WEB-FID-Donner', () => {
 
     await vi.waitFor(() => expect(navigation.push).toHaveBeenCalledWith(paths.app.dons.redirection.getHref(donsIds.donConfirme)));
     expect(donsState.checkouts).toHaveLength(1);
-    expect(donsState.checkouts[0].body).toEqual({ fund_id: donsIds.quete, amount: 5000, fees_covered: false, anonymous: true, email: '' });
+    expect(donsState.checkouts[0].body).toEqual({ fund_id: donsIds.quete, amount: 5000, fees_covered: false, anonymous: true, email: '', source: 'web' });
     const key = donsState.checkouts[0].idempotencyKey;
     expect(key).toBeTruthy();
 
@@ -135,7 +135,7 @@ describe('WEB-FID-Donner', () => {
     await user.click(screen.getByRole('button', { name: 'Continuer vers le paiement' }));
 
     await vi.waitFor(() => expect(donsState.checkouts).toHaveLength(1));
-    expect(donsState.checkouts[0].body).toEqual({ fund_id: donsIds.toiture, amount: 5000, fees_covered: true, anonymous: false, email: '' });
+    expect(donsState.checkouts[0].body).toEqual({ fund_id: donsIds.toiture, amount: 5000, fees_covered: true, anonymous: false, email: '', source: 'web' });
   });
 
   it('affiche l’erreur du serveur sans quitter la page', async () => {

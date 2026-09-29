@@ -14,7 +14,7 @@ export const assignmentSchema = z.object({
   /** Titre du titulaire : « Curé », « Administrateur paroissial », « Vicaire paroissial »… */
   office_label: z.string(),
   quality: z.string().default(''),
-  node: z.object({ id: z.string(), name: z.string(), code: z.string(), type: z.string() }),
+  node: z.object({ id: z.string(), name: z.string() }),
   start_date: z.string(),
   end_date: z.string().nullable().optional(),
   status: z.enum(ASSIGNMENT_STATUSES).optional(),

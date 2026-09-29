@@ -19,7 +19,7 @@ import {
   newIdempotencyKey,
   useCreateCheckout,
 } from '../../api/create-checkout';
-import type { PublicParish } from '../../types/schemas';
+import type { DonationSource, PublicParish } from '../../types/schemas';
 import { amount, breakdown, fcfa } from '../../utils/format';
 
 import { saveCheckout } from './checkout-storage';
@@ -128,6 +128,8 @@ export const DonationForm = ({
   parishCode,
   initialFundId,
   redirectHref,
+  source = 'web',
+  placeId = null,
 }: {
   variant: DonationFormVariant;
   data: PublicParish;
@@ -135,6 +137,10 @@ export const DonationForm = ({
   parishCode?: string;
   initialFundId?: string | null;
   redirectHref: (donationId: string) => string;
+  /** Canal d'entrée (`?src=` relayé par l'app ou un QR code) ; « web » par défaut. */
+  source?: DonationSource;
+  /** Lieu de culte (`?lieu=` d'un QR code) ; sinon le serveur retient le lieu du fonds. */
+  placeId?: number | null;
 }) => {
   const router = useRouter();
   const formId = useId();
@@ -199,6 +205,8 @@ export const DonationForm = ({
       fees_covered: v.fees_covered,
       anonymous: v.anonymous,
       email: variant === 'public' ? v.email.trim() : '',
+      source,
+      ...(placeId !== null && { place_id: placeId }),
     };
     const signature = JSON.stringify(body);
     if (intent.current?.signature !== signature)

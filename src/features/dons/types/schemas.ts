@@ -24,6 +24,13 @@ const method = z.enum(PAYMENT_METHODS);
 const channel = z.enum(['en_ligne', 'especes']);
 
 export const nodeBriefSchema = z.object({ id: z.string(), name: z.string(), city: z.string() });
+/** Lieu de célébration (église, chapelle) rattaché à une collecte ou à une opération. */
+export const donationPlaceSchema = z.object({ id: z.number(), name: z.string() });
+export type DonationPlace = z.infer<typeof donationPlaceSchema>;
+
+export const DONATION_SOURCES = ['app_ios', 'app_android', 'web', 'qr', 'inconnu'] as const;
+export type DonationSource = (typeof DONATION_SOURCES)[number];
+
 export const fundBriefSchema = z.object({ id: z.string(), title: z.string(), kind: z.string() });
 
 export const authorizationSchema = z.object({ reference: z.string(), date: z.string().nullable(), text: z.string() });
@@ -41,6 +48,9 @@ export const publicFundSchema = z.object({
   raised: z.number(),
   status: fundStatus.optional(),
   image_url: z.string().nullable(),
+  place: donationPlaceSchema.nullable(),
+  /** La messe anticipée du samedi soir compte dans la collecte du dimanche. */
+  messe_anticipee_incluse: z.boolean().optional(),
 });
 export type PublicFund = z.infer<typeof publicFundSchema>;
 
@@ -146,12 +156,21 @@ export const parishSummarySchema = z.object({
   online: z.number(),
   cash: z.number(),
   fees: z.number(),
+  /** Obsolète côté serveur : dons en ligne + quêtes. Préférer `online_count` et `cash_collections_count`. */
   count: z.number(),
+  online_count: z.number(),
+  cash_collections_count: z.number(),
   pending_count: z.number(),
+  pending_oldest_at: z.string().nullable(),
   cash_to_validate: z.number(),
-  by_fund: z.array(z.object({ fund_id: z.string(), title: z.string(), kind: z.string(), total: z.number(), count: z.number() })),
+  closed: z.boolean(),
+  closed_at: z.string().nullable(),
+  by_destination: z.object({ paroisse: z.number(), curie: z.number() }),
+  by_fund: z.array(
+    z.object({ fund_id: z.string(), title: z.string(), kind: z.string(), destination: z.string(), total: z.number(), count: z.number() }),
+  ),
   by_method: z.array(z.object({ method: z.string(), total: z.number(), count: z.number() })),
-  daily: z.array(z.object({ date: z.string(), total: z.number() })),
+  daily: z.array(z.object({ date: z.string(), online: z.number(), cash: z.number(), total: z.number() })),
 });
 export type ParishSummary = z.infer<typeof parishSummarySchema>;
 
@@ -162,13 +181,18 @@ export const operationSchema = z.object({
   fund: fundBriefSchema,
   amount: z.number(),
   fee_amount: z.number().optional(),
+  fee_is_actual: z.boolean().optional(),
   charged_amount: z.number(),
   net_amount: z.number(),
   channel: channel.optional(),
+  source: z.union([z.enum(DONATION_SOURCES), z.literal('')]).nullable().optional(),
   payment_method: method.optional(),
+  place: donationPlaceSchema.nullable(),
   status: donationStatus.optional(),
   created_at: z.string().optional(),
   confirmed_at: z.string().nullable().optional(),
+  value_date: z.string().nullable().optional(),
+  anonymous: z.boolean().optional(),
   /** Nom, « Anonyme », « Donateur sans compte », « Quête en espèces » ou « Donateur » (sans dons.voir_donateurs). */
   donor: z.string(),
 });
@@ -192,6 +216,7 @@ export const cashCollectionSchema = z.object({
   validated_at: z.string().nullable().optional(),
   rejection_reason: z.string().optional(),
   created_at: z.string().optional(),
+  deposit_id: z.number().nullable(),
 });
 export type CashCollection = z.infer<typeof cashCollectionSchema>;
 export const cashCollectionPageSchema = page(cashCollectionSchema);
@@ -239,6 +264,8 @@ export const impereeSchema = z.object({
   ends_on: z.string().nullable().optional(),
   status: fundStatus.optional(),
   authorization_ref: z.string().optional(),
+  remit_by: z.string().nullable().optional(),
+  messe_anticipee_incluse: z.boolean().optional(),
   decided_by_office: z.string().optional(),
   raised: z.number(),
   parishes_count: z.number(),

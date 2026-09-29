@@ -179,6 +179,9 @@ describe('Quêtes impérées (diocèse)', () => {
       within(panel).getByLabelText(/fin de collecte/i),
       '2026-11-29',
     );
+    await user.click(
+      within(panel).getByRole('checkbox', { name: 'Inclure la messe anticipée' }),
+    );
     await user.click(within(panel).getByRole('button', { name: 'Publier' }));
 
     await waitFor(() => expect(bodies).toHaveLength(1));
@@ -189,6 +192,7 @@ describe('Quêtes impérées (diocèse)', () => {
       starts_on: '2026-11-22',
       ends_on: '2026-11-29',
       authorization_ref: 'ARCH-DAK-2026-052',
+      messe_anticipee_incluse: true,
     };
     expect(bodies[0]).toEqual(expected);
     await waitFor(() =>

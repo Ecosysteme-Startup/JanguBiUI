@@ -16,6 +16,7 @@ import { apiErrorMessage, apiFieldErrors } from '@/utils/api-errors';
 
 import { type ImpereeCreateBody, useCreateImperee } from '../../api/imperees';
 import type { Imperee } from '../../types/schemas';
+import { OptionCheckbox } from '../donner/donation-controls';
 
 const schema = z
   .object({
@@ -31,6 +32,7 @@ const schema = z
       .trim()
       .min(1, 'Indiquez la référence de la décision.')
       .max(120, '120 caractères au plus.'),
+    messe_anticipee_incluse: z.boolean(),
   })
   .refine((v) => !v.ends_on || !v.starts_on || v.ends_on >= v.starts_on, {
     path: ['ends_on'],
@@ -43,6 +45,7 @@ const EMPTY: Values = {
   starts_on: '',
   ends_on: '',
   authorization_ref: '',
+  messe_anticipee_incluse: false,
 };
 
 /** Champs du panneau (maquette : 44 px, fond surface, 15 px). */
@@ -78,6 +81,7 @@ export const ImpereePanel = ({
       starts_on: v.starts_on,
       ends_on: v.ends_on || null,
       authorization_ref: v.authorization_ref.trim(),
+      messe_anticipee_incluse: v.messe_anticipee_incluse,
     };
     try {
       const imperee = await create.mutateAsync(body);
@@ -164,6 +168,12 @@ export const ImpereePanel = ({
             Les dons en ligne restent ouverts jusqu’à la fin de collecte.
           </p>
         </div>
+        <OptionCheckbox
+          id="qi-anticipee"
+          label="Inclure la messe anticipée"
+          description="La quête de la messe anticipée de la veille au soir fait partie de la quête impérée."
+          {...register('messe_anticipee_incluse')}
+        />
         <div className="flex flex-col gap-2">
           <p className="m-0 text-14 font-medium">Paroisses concernées</p>
           <div className="flex gap-2.5 rounded-12 border-2 border-primary bg-tint-50 px-3.5 py-3">

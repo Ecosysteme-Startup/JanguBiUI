@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { PublicGiveScreen } from '@/features/dons/components/donner/public-give-screen';
+import { donationPlaceId, donationSource } from '@/features/dons/utils/source';
 
 export const metadata: Metadata = {
   title: 'Faire un don',
@@ -12,11 +13,23 @@ type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-/** Don sans compte à une paroisse (WEB-Don-Paroisse) ; `?fonds=` présélectionne un fonds. */
+const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? null;
+
+/**
+ * Don sans compte à une paroisse (WEB-Don-Paroisse) ; `?fonds=` présélectionne un fonds, `?src=`
+ * (application, QR code) et `?lieu=` (lieu de culte du QR code) sont relayés au checkout.
+ */
 const DonParoissePage = async ({ params, searchParams }: Props) => {
   const code = decodeURIComponent((await params).code);
-  const fonds = (await searchParams).fonds;
-  return <PublicGiveScreen code={code} fundId={(Array.isArray(fonds) ? fonds[0] : fonds) ?? null} />;
+  const query = await searchParams;
+  return (
+    <PublicGiveScreen
+      code={code}
+      fundId={first(query.fonds)}
+      source={donationSource(first(query.src))}
+      placeId={donationPlaceId(first(query.lieu))}
+    />
+  );
 };
 
 export default DonParoissePage;

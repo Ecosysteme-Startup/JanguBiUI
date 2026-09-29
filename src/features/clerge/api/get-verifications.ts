@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { api } from '@/lib/api-client';
 import type { Expect, Matches, ResponseBody } from '@/types/api-contract';
 
-const nodeRefSchema = z.object({ id: z.string(), name: z.string(), code: z.string(), type: z.string() });
+const nodeRefSchema = z.object({ id: z.string(), name: z.string() });
 
 const attachmentSchema = z.object({
   id: z.number(),

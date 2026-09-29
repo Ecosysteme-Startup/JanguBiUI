@@ -68,6 +68,8 @@ const fund = (f: FundRow) => ({
   goal_amount: null,
   status: 'ouvert' as const,
   image_url: null as string | null,
+  place: null as { id: number; name: string } | null,
+  messe_anticipee_incluse: f.kind === 'quete_imperee',
   ...f,
 });
 
@@ -230,14 +232,20 @@ export const parishSummary = () => ({
   cash: 858_500,
   fees: 7120,
   count: 47,
+  online_count: 38,
+  cash_collections_count: 9,
   pending_count: 3,
+  pending_oldest_at: '2026-09-27T12:40:00+00:00',
   cash_to_validate: 1,
+  closed: false,
+  closed_at: null,
+  by_destination: { paroisse: 540_305, curie: 674_525 },
   by_fund: [
-    { fund_id: donsIds.brin, title: 'Quête impérée pour le Grand Séminaire de Brin', kind: 'quete_imperee', total: 674_525, count: 5 },
-    { fund_id: donsIds.toiture, title: 'Toiture de la chapelle de la Cité universitaire', kind: 'campagne', total: 236_400, count: 21 },
-    { fund_id: 'd0000000-0000-4000-8000-000000000010', title: 'Quêtes des dimanches 6, 13 et 20 septembre', kind: 'quete_dominicale', total: 221_405, count: 12 },
-    { fund_id: donsIds.contribution, title: 'Contribution annuelle 2026', kind: 'contribution_annuelle', total: 44_000, count: 6 },
-    { fund_id: donsIds.quete, title: 'Quête du dimanche 27 septembre', kind: 'quete_dominicale', total: 38_500, count: 8 },
+    { fund_id: donsIds.brin, title: 'Quête impérée pour le Grand Séminaire de Brin', kind: 'quete_imperee', destination: 'curie', total: 674_525, count: 5 },
+    { fund_id: donsIds.toiture, title: 'Toiture de la chapelle de la Cité universitaire', kind: 'campagne', destination: 'paroisse', total: 236_400, count: 21 },
+    { fund_id: 'd0000000-0000-4000-8000-000000000010', title: 'Quêtes des dimanches 6, 13 et 20 septembre', kind: 'quete_dominicale', destination: 'paroisse', total: 221_405, count: 12 },
+    { fund_id: donsIds.contribution, title: 'Contribution annuelle 2026', kind: 'contribution_annuelle', destination: 'paroisse', total: 44_000, count: 6 },
+    { fund_id: donsIds.quete, title: 'Quête du dimanche 27 septembre', kind: 'quete_dominicale', destination: 'paroisse', total: 38_500, count: 8 },
   ],
   by_method: [
     { method: 'especes', total: 858_500, count: 9 },
@@ -246,10 +254,10 @@ export const parishSummary = () => ({
     { method: 'carte', total: 56_000, count: 7 },
   ],
   daily: [
-    { date: '2026-09-06', total: 212_300 },
-    { date: '2026-09-13', total: 198_750 },
-    { date: '2026-09-20', total: 186_255 },
-    { date: '2026-09-27', total: 617_525 },
+    { date: '2026-09-06', online: 120_300, cash: 92_000, total: 212_300 },
+    { date: '2026-09-13', online: 110_250, cash: 88_500, total: 198_750 },
+    { date: '2026-09-20', online: 97_630, cash: 88_625, total: 186_255 },
+    { date: '2026-09-27', online: 28_150, cash: 589_375, total: 617_525 },
   ],
 });
 
@@ -262,11 +270,16 @@ const op = (n: number, fundId: string, value: number, method: string, status: st
   fee_amount: method === 'especes' ? 0 : Math.ceil(value * 0.02),
   charged_amount: value,
   net_amount: method === 'especes' ? value : value - Math.ceil(value * 0.02),
+  fee_is_actual: method !== 'especes' && status === 'confirme',
   channel: method === 'especes' ? 'especes' : 'en_ligne',
+  source: method === 'especes' ? null : 'app_android',
   payment_method: method,
+  place: method === 'especes' ? { id: 1, name: 'Église Saint-Dominique' } : null,
   status,
   created_at: date,
   confirmed_at: status === 'confirme' ? date : null,
+  value_date: date.slice(0, 10),
+  anonymous: donor === 'Anonyme',
   donor,
 });
 
@@ -299,6 +312,7 @@ const cash = (id: number, label: string, date: string, value: number, one: strin
   validated_at: status === 'validee' ? `${date}T20:00:00+00:00` : null,
   rejection_reason: '',
   created_at: `${date}T19:00:00+00:00`,
+  deposit_id: null as number | null,
   ...extra,
 });
 
@@ -338,7 +352,7 @@ export const payouts = () => [
 // --- Diocèse et plateforme -----------------------------------------------------------------
 
 export const imperees = () => [
-  { id: donsIds.brinDiocese, title: 'Quête impérée pour le Grand Séminaire de Brin', description: 'Formation des futurs prêtres du diocèse.', starts_on: '2026-09-27', ends_on: '2026-10-04', status: 'ouvert', authorization_ref: 'ARCH-DAK-2026-052', decided_by_office: 'eveque_diocesain', raised: 674_525, parishes_count: 1, created_at: '2026-09-10T09:00:00+00:00' },
+  { id: donsIds.brinDiocese, title: 'Quête impérée pour le Grand Séminaire de Brin', description: 'Formation des futurs prêtres du diocèse.', starts_on: '2026-09-27', ends_on: '2026-10-04', status: 'ouvert', authorization_ref: 'ARCH-DAK-2026-052', remit_by: '2026-10-11', messe_anticipee_incluse: true, decided_by_office: 'eveque_diocesain', raised: 674_525, parishes_count: 1, created_at: '2026-09-10T09:00:00+00:00' },
   { id: donsIds.missions, title: 'Journée mondiale des Missions', description: 'Œuvres pontificales missionnaires.', starts_on: '2026-10-18', ends_on: '2026-10-25', status: 'brouillon', authorization_ref: 'ARCH-DAK-2026-060', decided_by_office: 'eveque_diocesain', raised: 0, parishes_count: 1, created_at: '2026-09-20T09:00:00+00:00' },
   { id: donsIds.careme, title: 'Carême de partage 2026', description: 'Solidarité diocésaine.', starts_on: '2026-03-29', ends_on: '2026-04-05', status: 'clos', authorization_ref: 'ARCH-DAK-2026-011', decided_by_office: 'eveque_diocesain', raised: 0, parishes_count: 1, created_at: '2026-03-01T09:00:00+00:00' },
 ];

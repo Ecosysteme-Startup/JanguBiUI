@@ -51,7 +51,7 @@ describe('WEB-Don-Paroisse', () => {
 
   it('vérifie l’e-mail puis crée le paiement sans compte', async () => {
     const user = userEvent.setup();
-    renderApp(<PublicGiveScreen code={CODE} fundId={donsIds.contribution} />);
+    renderApp(<PublicGiveScreen code={CODE} fundId={donsIds.contribution} source="app_android" placeId={3} />);
     await screen.findByRole('heading', { level: 1 });
 
     expect(screen.getByRole('radio', { name: /Contribution annuelle 2026/ })).toBeChecked();
@@ -72,6 +72,8 @@ describe('WEB-Don-Paroisse', () => {
       fees_covered: false,
       anonymous: false,
       email: 'awa.faye@example.sn',
+      source: 'app_android',
+      place_id: 3,
     });
     expect(donsState.checkouts[0].idempotencyKey).toBeTruthy();
     expect(JSON.parse(window.sessionStorage.getItem(`jb-dons-checkout-${donsIds.donConfirme}`) ?? '{}')).toMatchObject({ parish_code: CODE });

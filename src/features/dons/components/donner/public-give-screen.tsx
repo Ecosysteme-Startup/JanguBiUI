@@ -11,6 +11,7 @@ import { paths } from '@/config/paths';
 
 import { type NodeByCode, useNodeByCode } from '../../api/get-node-by-code';
 import { usePublicParish } from '../../api/get-public-parish';
+import type { DonationSource } from '../../types/schemas';
 import { AuthorizationNote } from '../shared/authorization-note';
 
 import { DonationForm } from './donation-form';
@@ -41,9 +42,13 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
 export const PublicGiveScreen = ({
   code,
   fundId,
+  source,
+  placeId,
 }: {
   code: string;
   fundId?: string | null;
+  source?: DonationSource;
+  placeId?: number | null;
 }) => {
   const node = useNodeByCode(code);
   const parish = usePublicParish(node.data?.id);
@@ -133,6 +138,8 @@ export const PublicGiveScreen = ({
             data={data}
             parishCode={code}
             initialFundId={fundId}
+            source={source}
+            placeId={placeId}
             redirectHref={paths.dons.redirection.getHref}
           />
           <p className="m-0 mt-5 text-center text-15 text-ink-2">
