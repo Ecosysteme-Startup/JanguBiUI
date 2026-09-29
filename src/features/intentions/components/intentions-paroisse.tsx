@@ -566,7 +566,7 @@ function MesseLigne({
               )
             }
           >
-            Revenir au plafond de la paroisse
+            Retirer ce plafond
           </Button>
         )}
       </div>
@@ -654,6 +654,11 @@ function MesseLigne({
             Enregistrer ce plafond
           </Button>
         </form>
+      )}
+      {retirer.isSuccess && (
+        <p role="status" className="text-xs text-muted-foreground">
+          {`Plafond retiré. S’applique maintenant : ${LIBELLES_SOURCE_PLAFOND[m.cap_source].toLowerCase()}${m.max_intentions === null ? ' (sans plafond)' : ` (${m.max_intentions})`}.`}
+        </p>
       )}
       {erreur && (
         <p role="alert" className="text-sm text-destructive">

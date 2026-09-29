@@ -325,7 +325,7 @@ describe('Intentions de messe — plafond dynamique', () => {
     expect(within(messes).queryByText(/\/ 5/)).not.toBeInTheDocument();
   });
 
-  test('plafond propre chaque semaine, puis retour au plafond de la paroisse', async () => {
+  test('plafond propre chaque semaine, puis retrait du plafond', async () => {
     let corps: Record<string, unknown> = {};
     server.use(
       http.put(
@@ -376,8 +376,11 @@ describe('Intentions de messe — plafond dynamique', () => {
     expect(within(messes).getByText('0 / 2 intentions')).toBeInTheDocument();
     await user.click(
       within(messes).getByRole('button', {
-        name: 'Revenir au plafond de la paroisse',
+        name: 'Retirer ce plafond',
       }),
+    );
+    expect(await within(messes).findByRole('status')).toHaveTextContent(
+      'Plafond retiré. S’applique maintenant : plafond de la paroisse (5).',
     );
     await vi.waitFor(() =>
       expect(
