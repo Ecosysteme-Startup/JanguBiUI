@@ -288,3 +288,21 @@ describe('Éditeur d’annonce (PAR-Annonce-Editeur)', () => {
     expect(screen.queryByRole('button', { name: /publier/i })).not.toBeInTheDocument();
   });
 });
+
+describe('Épingler en tête (compléments V1)', () => {
+  it('épingle une annonce publiée jusqu’à une date, puis la désépingle', async () => {
+    const user = userEvent.setup();
+    await renderExisting('a0000000-0000-4000-8000-000000000003');
+    const panneau = await screen.findByRole('region', { name: 'Épingler en tête' });
+    await user.click(within(panneau).getByRole('button', { name: 'Épingler' }));
+    expect(await within(panneau).findByText(/Épinglée jusqu’au/)).toBeInTheDocument();
+    await user.click(within(panneau).getByRole('button', { name: 'Désépingler' }));
+    expect(await within(panneau).findByRole('button', { name: 'Épingler' })).toBeInTheDocument();
+  });
+
+  it('un brouillon ne propose pas l’épinglage', async () => {
+    await renderExisting('a0000000-0000-4000-8000-000000000001');
+    expect(await screen.findByRole('heading', { name: 'Publication' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Épingler en tête' })).toBeNull();
+  });
+});

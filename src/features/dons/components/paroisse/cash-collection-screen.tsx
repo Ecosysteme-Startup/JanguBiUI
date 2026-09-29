@@ -12,6 +12,7 @@ import { fcfa } from '../../utils/format';
 import { CashCollectionForm, lastSunday } from './cash-collection-form';
 import { CashCollectionsHistory } from './cash-collections-history';
 import { DonsTopbar } from './dons-topbar';
+import { EquipeCompteurs } from './equipe-compteurs';
 import { panelClasses, QueryFailure } from './parts';
 
 const CASH_KINDS = ['quete_dominicale', 'quete_imperee'];
@@ -87,6 +88,7 @@ export const CashCollectionScreen = ({ nodeId }: { nodeId: string }) => {
         )}
         <aside aria-label="Week-end et rappel" className="flex flex-col gap-6">
           <WeekendCard nodeId={nodeId} />
+          <EquipeCompteurs nodeId={nodeId} />
           <section aria-labelledby="quete-t-rappel" className={`${panelClasses} p-6 pt-5`}>
             <h2 id="quete-t-rappel" className="m-0 text-18 font-semibold text-ink">
               Rappel

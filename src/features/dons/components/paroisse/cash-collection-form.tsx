@@ -22,6 +22,7 @@ import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 
 import { useCreateCashCollection } from '../../api/cash-collections';
+import { nomsProposes, useEquipeCompteurs } from '../../api/compteurs';
 import { type MassTime, usePlaceMasses } from '../../api/get-place-masses';
 import type { StaffFund } from '../../types/schemas';
 import { fundKindLabel } from '../../utils/format';
@@ -129,6 +130,8 @@ type Props = { nodeId: string; funds: StaffFund[] };
 /** « Nouvelle saisie » (WEB-PAR-Quete-Saisie) : deux compteurs, une autre personne valide. */
 export const CashCollectionForm = ({ nodeId, funds }: Props) => {
   const places = useBackofficePlaces(nodeId);
+  // Noms de l'équipe des compteurs et noms récents, proposés sans être imposés.
+  const noms = nomsProposes(useEquipeCompteurs(nodeId).data);
   const create = useCreateCashCollection(nodeId);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -407,6 +410,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
                   icon="utilisateurs"
                   placeholder="Nom et prénom"
                   autoComplete="off"
+                  list="quete-compteurs-proposes"
                   {...register('counter_one')}
                 />
               </Field>
@@ -421,11 +425,17 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
                   icon="utilisateurs"
                   placeholder="Une autre personne"
                   autoComplete="off"
+                  list="quete-compteurs-proposes"
                   {...register('counter_two')}
                 />
               </Field>
             </div>
             <p className="m-0 text-13 text-ink-3">{counterHint}</p>
+            <datalist id="quete-compteurs-proposes">
+              {noms.map((nom) => (
+                <option key={nom} value={nom} />
+              ))}
+            </datalist>
           </div>
 
           <Field

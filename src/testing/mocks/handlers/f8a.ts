@@ -94,6 +94,23 @@ const articleHandlers = [
     f8aState.articles = f8aState.articles.map((a) => (a.id === found.id ? updated : a));
     return HttpResponse.json(updated);
   }),
+  // Épinglage en tête du fil (compléments V1, §2.1), repris de main.
+  http.post(apiUrl('/staff/news/:id/pin/'), async ({ params, request }) => {
+    const found = f8aState.articles.find((a) => a.id === params.id);
+    if (!found) return v1Error(404, 'not_found', 'Article introuvable.');
+    if (found.status !== 'published' && found.status !== 'scheduled') return v1Error(400, 'not_published', 'Seul un contenu publié ou programmé s’épingle.');
+    const { until } = (await request.json()) as { until: string };
+    const updated = { ...found, is_pinned: true, pinned_until: until };
+    f8aState.articles = f8aState.articles.map((a) => (a.id === found.id ? updated : a));
+    return HttpResponse.json(updated);
+  }),
+  http.delete(apiUrl('/staff/news/:id/pin/'), ({ params }) => {
+    const found = f8aState.articles.find((a) => a.id === params.id);
+    if (!found) return v1Error(404, 'not_found', 'Article introuvable.');
+    const updated = { ...found, is_pinned: false, pinned_until: null };
+    f8aState.articles = f8aState.articles.map((a) => (a.id === found.id ? updated : a));
+    return HttpResponse.json(updated);
+  }),
   http.delete(apiUrl('/staff/news/:id/'), ({ params }) => {
     f8aState.articles = f8aState.articles.filter((a) => a.id !== params.id);
     return new HttpResponse(null, { status: 204 });

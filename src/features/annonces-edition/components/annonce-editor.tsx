@@ -34,6 +34,7 @@ import { AppPreview } from './app-preview';
 import { stamp, statusLabel } from './article-status';
 import { ContentFields } from './content-fields';
 import { type EditorValues, editorSchema } from './editor-schema';
+import { EpinglagePanel } from './epinglage-panel';
 import { PublicationPanel } from './publication-panel';
 
 const STATUS_TONE: Record<ArticleStatus, BadgeTone> = { draft: 'neutral', scheduled: 'info', published: 'ok', unpublished: 'muted' };
@@ -286,6 +287,7 @@ const EditorForm = ({ nodeId, article }: EditorFormProps) => {
         <aside aria-label="Aperçu et publication" className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-6">
           <AppPreview form={form} nodeName={nodeName ?? ''} />
           <PublicationPanel form={form} article={article} />
+          {article && <EpinglagePanel articleId={article.id} />}
         </aside>
       </div>
 
