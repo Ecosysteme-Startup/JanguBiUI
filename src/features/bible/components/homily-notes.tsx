@@ -33,7 +33,7 @@ export function HomilyNotes({ passageId }: HomilyNotesProps) {
   }, [existingNote, reset]);
 
   const onSubmit = (values: FormValues) => {
-    mutate({ passage_id: passageId, content: values.content });
+    mutate({ passage_start_id: passageId, content: values.content });
   };
 
   return (

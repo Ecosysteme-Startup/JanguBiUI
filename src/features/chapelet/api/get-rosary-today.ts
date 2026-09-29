@@ -1,12 +1,18 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
-import { components } from '@/types/api';
 
-export type TodayRosary = components['schemas']['TodayRosaryOutput'];
+import { type TodayRosary, todayRosarySchema } from './schemas';
 
-export const getRosaryToday = (): Promise<TodayRosary> => {
-  return api.get('/v1/rosary/today/');
+export type { TodayRosary };
+
+/**
+ * GET /v1/rosary/today/ — public. 404 `{"error": "…"}` tant que les jours
+ * du chapelet ne sont pas configurés côté backend.
+ */
+export const getRosaryToday = async (): Promise<TodayRosary> => {
+  const res = await api.get<unknown>('/v1/rosary/today/');
+  return todayRosarySchema.parse(res);
 };
 
 export const getRosaryTodayQueryOptions = () => {

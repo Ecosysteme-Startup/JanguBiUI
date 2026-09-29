@@ -70,10 +70,12 @@ export function TodayTab() {
       {/* Rosary mystery card */}
       <DailyMysteryCard />
 
-      {/* Season / mystery label */}
-      {(data?.season || data?.mystery) && (
+      {/* Temps liturgique et célébration du jour */}
+      {data?.calendar && (
         <p className="px-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          {[data.season, data.mystery].filter(Boolean).join(' — ')}
+          {[data.calendar.season_label, data.calendar.celebration]
+            .filter(Boolean)
+            .join(' — ')}
         </p>
       )}
 
@@ -94,6 +96,11 @@ export function TodayTab() {
 
       {/* Swipeable readings */}
       <ReadingsSwiper readings={readings} fontSize={fontSize} />
+
+      {/* Mention des droits des textes (ADR-008) : toujours avec les lectures. */}
+      {readings.length > 0 && data?.notice && (
+        <p className="px-1 text-xs text-muted-foreground">{data.notice}</p>
+      )}
     </div>
   );
 }

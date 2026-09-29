@@ -11,28 +11,21 @@ import {
   normalizeReadingLabel,
 } from '../utils/reading-labels';
 
-interface ReadingMeta {
-  titre?: string;
-  introLue?: string;
-  refrain?: string;
-  versetEvangile?: string;
-}
+const escapeHtml = (texte: string) =>
+  texte.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-function extractMeta(reading: LiturgyReading): ReadingMeta {
-  const meta = reading.raw_metadata as Record<string, unknown> | null;
-  if (!meta) return {};
-  return {
-    titre: typeof meta.titre === 'string' ? meta.titre : undefined,
-    introLue: typeof meta.intro_lue === 'string' ? meta.intro_lue : undefined,
-    refrain:
-      typeof meta.refrain_psalmique === 'string'
-        ? meta.refrain_psalmique
-        : undefined,
-    versetEvangile:
-      typeof meta.verset_evangile === 'string'
-        ? meta.verset_evangile
-        : undefined,
-  };
+/**
+ * Texte d'une lecture : HTML AELF (`text`, source `aelf`) ou versets de la
+ * Bible locale (`verses`, source `crampon_refs`), numérotés.
+ */
+export function readingHtml(reading: LiturgyReading): string {
+  if (reading.text) return reading.text;
+  return reading.verses
+    .map(
+      (v) =>
+        `<p><sup class="text-muted-foreground">${v.number}</sup> ${escapeHtml(v.text)}</p>`,
+    )
+    .join('');
 }
 
 interface ReadingPanelProps {
@@ -43,7 +36,6 @@ interface ReadingPanelProps {
 function ReadingPanel({ reading, fontSize }: ReadingPanelProps) {
   const label = normalizeReadingLabel(reading.type ?? '');
   const accentClass = getReadingAccentClass(label);
-  const { titre, introLue, refrain, versetEvangile } = extractMeta(reading);
 
   return (
     <div className="px-4 py-6 md:px-6 lg:px-8">
@@ -51,11 +43,6 @@ function ReadingPanel({ reading, fontSize }: ReadingPanelProps) {
         <h2 className={cn('font-serif text-xl font-bold', accentClass)}>
           {label}
         </h2>
-        {titre && (
-          <p className="mt-1.5 text-sm font-semibold italic text-foreground/90">
-            {titre}
-          </p>
-        )}
         {reading.citation && (
           <p className="mt-0.5 text-sm text-muted-foreground">
             {reading.citation}
@@ -63,40 +50,12 @@ function ReadingPanel({ reading, fontSize }: ReadingPanelProps) {
         )}
       </header>
 
-      {/* Alléluia verse before the gospel (HTML) */}
-      {versetEvangile && (
-        <div
-          className="reading-content mb-5 rounded-xl border border-accent/30 bg-accent/5 px-4 py-3"
-          dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(versetEvangile),
-          }}
-        />
-      )}
-
-      {/* Intro lue — italic line before main text */}
-      {introLue && (
-        <p className="mb-4 text-sm italic text-muted-foreground">{introLue}</p>
-      )}
-
-      {/* Refrain psalmique (HTML) */}
-      {refrain && (
-        <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3.5">
-          <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-primary/70">
-            Refrain
-          </p>
-          <div
-            className="reading-content text-sm font-medium leading-relaxed text-foreground"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(refrain) }}
-          />
-        </div>
-      )}
-
       {/* Main text — mesure et interligne unifiés (cf. ReadingSurface) */}
       <div
         className="reading-content prose prose-slate max-w-reading pb-8 dark:prose-invert prose-p:text-foreground/80 prose-strong:text-foreground"
         style={{ fontSize: `${fontSize}px`, lineHeight: 1.8 }}
         dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(reading.text ?? ''),
+          __html: DOMPurify.sanitize(readingHtml(reading)),
         }}
       />
     </div>
@@ -191,7 +150,7 @@ export function ReadingsSwiper({ readings, fontSize }: ReadingsSwiperProps) {
           const isActive = i === activeIndex;
           return (
             <button
-              key={r.id}
+              key={`${r.type}-${i}`}
               type="button"
               role="tab"
               id={`reading-tab-${i}`}
@@ -221,7 +180,7 @@ export function ReadingsSwiper({ readings, fontSize }: ReadingsSwiperProps) {
       >
         {readings.map((r, i) => (
           <div
-            key={r.id}
+            key={`${r.type}-${i}`}
             data-panel-index={i}
             role="tabpanel"
             id={`reading-panel-${i}`}

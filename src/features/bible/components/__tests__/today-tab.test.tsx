@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 
@@ -23,16 +23,16 @@ describe('TodayTab', () => {
     const liturgyDay = createLiturgyDay({
       readings: [
         {
-          id: 'r1',
-          type: 'Première Lecture',
+          type: 'lecture_1',
           citation: 'Is 55, 10-11',
           text: '<p>Comme la pluie...</p>',
+          verses: [],
         },
         {
-          id: 'r2',
-          type: 'Évangile',
+          type: 'evangile',
           citation: 'Mt 6, 7-15',
           text: '<p>Notre Père...</p>',
+          verses: [],
         },
       ],
     });
@@ -69,20 +69,56 @@ describe('TodayTab', () => {
     await screen.findByText(/aucune lecture disponible/i);
   });
 
+  test('affiche le temps liturgique et la mention des droits', async () => {
+    server.use(
+      http.get(`${env.API_URL}/v1/liturgy/today/`, () =>
+        HttpResponse.json(createLiturgyDay()),
+      ),
+      http.get(`${env.API_URL}/v1/rosary/today/`, () =>
+        HttpResponse.json(createRosaryDay()),
+      ),
+    );
+
+    renderApp(<TodayTab />);
+
+    await screen.findByText(/Temps ordinaire — 26e dimanche/);
+    expect(screen.getByText(/Textes liturgiques © AELF/)).toBeInTheDocument();
+  });
+
+  test('un autre jour appelle GET /v1/liturgy/<date>/', async () => {
+    let appele = '';
+    server.use(
+      http.get(`${env.API_URL}/v1/liturgy/:day/`, ({ params }) => {
+        appele = String(params.day);
+        if (appele === 'today') return;
+        return HttpResponse.json(createLiturgyDay({ date: appele }));
+      }),
+    );
+
+    renderApp(<TodayTab />);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Jour suivant' }),
+    );
+    await waitFor(() => expect(appele).toMatch(/^\d{4}-\d{2}-\d{2}$/));
+  });
+
   test('shows swipeable tab buttons for each reading', async () => {
     const liturgyDay = createLiturgyDay({
       readings: [
         {
-          id: 'r1',
           type: 'lecture1',
           citation: 'Is 6, 1-8',
-          text: '<p>Contenu première lecture.</p>',
+          text: null,
+          verses: [
+            { book: 'Isaïe', chapter: 6, number: 1, text: 'Contenu local.' },
+          ],
         },
         {
-          id: 'r2',
           type: 'gospel',
           citation: 'Lc 5, 1-11',
           text: '<p>Contenu évangile.</p>',
+          verses: [],
         },
       ],
     });

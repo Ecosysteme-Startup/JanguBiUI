@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FEATURES, isFeatureEnabled } from '@/config/features';
 
 import { lireLienBible } from '../utils/liens';
 
@@ -24,8 +25,27 @@ const VALID_TABS = [
 ] as const;
 type TabValue = (typeof VALID_TABS)[number];
 
+// Onglets adossés à des sous-modules gelés en V1 (ADR-006) : masqués tant que
+// l'indicateur n'est pas activé (config/features.ts).
+const TAB_FEATURES: Partial<
+  Record<TabValue, (typeof FEATURES)[keyof typeof FEATURES]>
+> = {
+  heures: FEATURES.heures,
+  lectio: FEATURES.lectio,
+  parcours: FEATURES.parcours,
+};
+
+const isTabVisible = (tab: TabValue): boolean => {
+  const feature = TAB_FEATURES[tab];
+  return !feature || isFeatureEnabled(feature);
+};
+
 function resolveTab(tab: string | null): TabValue {
-  if (tab && (VALID_TABS as readonly string[]).includes(tab)) {
+  if (
+    tab &&
+    (VALID_TABS as readonly string[]).includes(tab) &&
+    isTabVisible(tab as TabValue)
+  ) {
     return tab as TabValue;
   }
   return 'aujourdhui';
@@ -66,9 +86,15 @@ export function BibleContent() {
             <TabsTrigger value="aujourdhui">Aujourd&apos;hui</TabsTrigger>
             <TabsTrigger value="bible">Bible</TabsTrigger>
             <TabsTrigger value="messe">Messe</TabsTrigger>
-            <TabsTrigger value="heures">Heures</TabsTrigger>
-            <TabsTrigger value="lectio">Lectio</TabsTrigger>
-            <TabsTrigger value="parcours">Parcours</TabsTrigger>
+            {isTabVisible('heures') && (
+              <TabsTrigger value="heures">Heures</TabsTrigger>
+            )}
+            {isTabVisible('lectio') && (
+              <TabsTrigger value="lectio">Lectio</TabsTrigger>
+            )}
+            {isTabVisible('parcours') && (
+              <TabsTrigger value="parcours">Parcours</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="aujourdhui">

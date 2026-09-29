@@ -14,15 +14,34 @@ export type GetBooksOptions = {
   offset?: number;
 };
 
+// GET /v1/bible/books/?testament=<slug>&search=… — LimitOffsetPagination
+// plafonnée à 50 par page (apps/api/pagination.py) : la Bible compte
+// 73 livres, on suit donc les pages jusqu'au bout.
+const PAGE_MAX = 50;
+
+type BooksPage = { count: number; next: string | null; results: BookList };
+
 export const getBooks = async (
-  options?: GetBooksOptions,
+  options: GetBooksOptions = {},
 ): Promise<BookList> => {
-  const params = { limit: 100, offset: 0, ...options };
-  const res = (await api.get<{ results: BookList } | BookList>(
-    '/v1/bible/books/',
-    { params },
-  )) as { results: BookList } | BookList;
-  return Array.isArray(res) ? res : res.results;
+  const { limit = PAGE_MAX, offset = 0, testament, search } = options;
+  const livres: BookList = [];
+  let courant = offset;
+  for (;;) {
+    const res = await api.get<BooksPage | BookList>('/v1/bible/books/', {
+      params: {
+        testament: testament || undefined,
+        search: search || undefined,
+        limit,
+        offset: courant,
+      },
+    });
+    if (Array.isArray(res)) return res;
+    livres.push(...res.results);
+    if (!res.next || res.results.length === 0 || livres.length >= res.count)
+      return livres;
+    courant += res.results.length;
+  }
 };
 
 export const getBooksQueryOptions = (options?: GetBooksOptions) => {

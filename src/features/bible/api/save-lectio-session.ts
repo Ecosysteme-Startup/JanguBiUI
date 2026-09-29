@@ -9,7 +9,7 @@ import type { LectioDivinaSession } from './get-lectio-sessions';
 export { lectioDivinaSchema };
 
 export type SaveLectioInput = {
-  passage_id: number;
+  passage_id: number | null;
   lectio?: string;
   meditatio?: string;
   oratio?: string;

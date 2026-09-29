@@ -132,7 +132,8 @@ export function LectioDivina({ passageId, initial }: LectioDivinaProps) {
   const allStepsCompleted = completedSteps.size === STEPS.length;
 
   const onSubmit = (data: FormValues) => {
-    mutate({ passage_id: passageId, ...data });
+    // passage_id nul = session libre (pas de passage précis).
+    mutate({ passage_id: passageId > 0 ? passageId : null, ...data });
   };
 
   if (isSuccess) {

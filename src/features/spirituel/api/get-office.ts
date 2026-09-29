@@ -3,34 +3,54 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-const hymnSchema = z.object({
-  text: z.string(),
-  type: z.string().optional(),
-});
+// Liturgie des Heures — backend apps/liturgy (OfficeSerializer) :
+//   GET /v1/liturgy/v1/<office>/?date=AAAA-MM-JJ&zone=afrique
+// Sous-module « liturgy.heures » GELÉ en V1 (ADR-006, pas d'accord AELF) et
+// réservé aux clercs et consacrés : l'écran reste derrière l'indicateur
+// `heures` (config/features.ts).
 
-const psalmSchema = z.object({
-  id: z.number().optional(),
-  citation: z.string().optional(),
-  title: z.string().optional(),
-  text: z.string(),
-});
+const psaumeSchema = z
+  .object({
+    number: z.number().optional(),
+    antienne: z.string().optional().default(''),
+    // Bloc AELF brut : { reference?, titre?, texte? } ou texte seul.
+    psaume: z
+      .union([
+        z.string(),
+        z
+          .object({
+            reference: z.string().optional(),
+            titre: z.string().optional(),
+            texte: z.string().optional(),
+          })
+          .passthrough(),
+      ])
+      .optional(),
+  })
+  .passthrough();
 
-const intercessionSchema = z.object({
-  text: z.string(),
-});
+const lectureBreveSchema = z
+  .object({
+    titre: z.string().optional(),
+    reference: z.string().optional(),
+    texte: z.string().optional(),
+    repons: z.string().nullable().optional(),
+  })
+  .passthrough();
 
 export const officeSchema = z.object({
   id: z.number(),
   office_type: z.string(),
-  date: z.string().optional(),
-  hymns: z.array(hymnSchema).optional(),
-  psalms: z.array(psalmSchema).optional(),
-  intercessions: z.array(intercessionSchema).optional(),
-  intro: z.string().optional(),
-  conclusion: z.string().optional(),
+  hymn: z.string().default(''),
+  psalms: z.array(psaumeSchema).default([]),
+  canticle: z.string().default(''),
+  readings: z.array(lectureBreveSchema).default([]),
+  intercessions: z.string().default(''),
+  raw_metadata: z.record(z.string(), z.unknown()).default({}),
 });
 
 export type Office = z.infer<typeof officeSchema>;
+export type OfficePsaume = z.infer<typeof psaumeSchema>;
 
 export type OfficeKey =
   | 'laudes'
@@ -46,7 +66,9 @@ export const getOffice = (
   date?: string,
 ): Promise<Office> =>
   api
-    .get<unknown>(`/v1/liturgy/v1/${officeKey}/${date ? `?date=${date}` : ''}`)
+    .get<unknown>(`/v1/liturgy/v1/${officeKey}/`, {
+      params: date ? { date } : undefined,
+    })
     .then((data) => officeSchema.parse(data));
 
 export const getOfficeQueryOptions = (officeKey: OfficeKey, date?: string) =>

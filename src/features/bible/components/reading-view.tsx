@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button/button';
 import { FontSizeStepper } from '@/components/ui/font-size-stepper';
 import { ReadingSurface } from '@/components/ui/reading-surface';
+import { FEATURES, isFeatureEnabled } from '@/config/features';
 
 import { HomilyNotes } from './homily-notes';
 
@@ -80,11 +81,14 @@ export function ReadingView({
         )}
       </article>
 
-      {showHomilyNotes && passageId !== undefined && (
-        <div className="mx-auto w-full max-w-reading">
-          <HomilyNotes passageId={passageId} />
-        </div>
-      )}
+      {/* Notes d'homélie : sous-module gelé en V1 (indicateur notes-homelie). */}
+      {showHomilyNotes &&
+        passageId !== undefined &&
+        isFeatureEnabled(FEATURES.notesHomelie) && (
+          <div className="mx-auto w-full max-w-reading">
+            <HomilyNotes passageId={passageId} />
+          </div>
+        )}
     </div>
   );
 }
