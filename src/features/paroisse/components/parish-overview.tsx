@@ -1,6 +1,7 @@
 'use client';
 
 import NextLink from 'next/link';
+import type { ReactNode } from 'react';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { LoadingBlock } from '@/components/ui/skeleton';
@@ -62,8 +63,8 @@ const Overview = ({ nodeId, onSelectTab }: { nodeId: string; onSelectTab: (tab: 
   );
 };
 
-/** Colonne de droite : confessions, clergé, contact, demande d'extrait d'acte. */
-const Aside = ({ nodeId }: { nodeId: string }) => {
+/** Colonne de droite : confessions, clergé, contact, demande d'extrait d'acte (+ bloc injecté par la page). */
+const Aside = ({ nodeId, extra }: { nodeId: string; extra?: ReactNode }) => {
   const { data: parish } = useParish(nodeId);
   const { data: sheet } = useParishSheet(parish?.code);
   const { data: week } = useParishWeek(nodeId);
@@ -74,12 +75,18 @@ const Aside = ({ nodeId }: { nodeId: string }) => {
       <ClergySection nodeId={nodeId} sheet={sheet} />
       <ContactCard secretariat={sheet?.secretariat} address={address} />
       <ActsCard />
+      {extra}
     </aside>
   );
 };
 
 /** Ma paroisse (FID-Ma-Paroisse) : la paroisse suivie, onglets Aperçu, Horaires, Annonces, Agenda (#ancre). */
-export const ParishOverview = () => {
+export const ParishOverview = ({
+  renderAsideExtra,
+}: {
+  /** Bloc ajouté en fin de colonne droite par la page (ex. « Soutenir la paroisse », feature dons). */
+  renderAsideExtra?: (nodeId: string) => ReactNode;
+} = {}) => {
   const { data: me, isPending, isError } = useMe();
   const [tab, setTab] = useHashTab(TABS, 'apercu');
   const paroisse = me?.paroisse_suivie ?? null;
@@ -140,7 +147,7 @@ export const ParishOverview = () => {
               <AgendaSection nodeId={paroisse.id} />
             </TabsContent>
           </div>
-          <Aside nodeId={paroisse.id} />
+          <Aside nodeId={paroisse.id} extra={renderAsideExtra?.(paroisse.id)} />
         </div>
       </Tabs>
     </div>

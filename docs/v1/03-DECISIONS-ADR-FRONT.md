@@ -52,3 +52,11 @@
 - **Statut** : Verrouillée (25/09/2026) — tranche ADR-F04
 - **Contexte** : le canvas de maquettes validé (lien partagé le 25/09/2026) est rendu en palette Ciel (bleu #0A6BA3 sur fond blanc, nuancier « Ciel »).
 - **Décision** : `NEXT_PUBLIC_PALETTE` vaut `ciel` par défaut ; les 3 autres palettes restent disponibles. Les maquettes du dépôt (`docs/v1/maquettes/`) sont remplacées par celles du canvas.
+
+## ADR-F12 — Dégel de la feature `dons` (Dons et quêtes)
+- **Statut** : Verrouillée (27/09/2026) — amende ADR-F07 ; suit l'ADR-017 du backend
+- **Contexte** : le backend réintègre les dons (app `donations`, PR #33) : collecte activée paroisse par paroisse sur autorisation écrite de l'Ordinaire, paiement uniquement chez un agrégateur agréé BCEAO (PayDunya), confirmation par le serveur seulement. Les maquettes « Ciel produit » des 12 écrans web (clair et sombre) sont publiées le 27/09/2026.
+- **Décision** : la feature `dons` est **dégelée** et reconstruite sur le contrat V1 (`src/features/dons`) : fidèle (`/app/dons`, redirection, confirmation, historique, campagne), public sans compte (`/paroisses/[code]/don`, retour `/dons/retour`), paroisse (`/espace/[nodeId]/dons` : synthèse, campagne, saisie des quêtes, export et rapprochement), diocèse (`/espace/[nodeId]/quetes-imperees`) et plateforme (`/plateforme/paiements`). Six capacités : `dons.voir_fonds`, `dons.gerer_fonds`, `dons.saisir_quete`, `dons.voir_donateurs`, `dons.exporter`, `dons.definir_quete_imperee`.
+- **Règles** : aucun formulaire de carte ni numéro de téléphone Wave/OM dans Jàngu Bi (redirection vers l'agrégateur) ; un don n'est « Confirmé » que sur la réponse du serveur ; aucun appel au don dans les demandes d'actes, la messagerie ou la confession (c. 848) ; aucun classement ni liste publique de donateurs ; noms des donateurs visibles du curé et de l'économe seulement ; au-dessus de la paroisse, des agrégats. Reçu simple, jamais fiscal. Frais affichés, « Je couvre les frais » décoché par défaut.
+- **Conséquences** : `yarn generate-api` sur le `schema.yml` de la PR #33 ; entrées de navigation « Dons » (fidèle, en dernier), « Dons et quêtes » (paroisse, après Agenda), « Quêtes impérées » (diocèse, après Clergé), « Paiements » (plateforme, après Comptes). Les autres features gelées le restent.
+

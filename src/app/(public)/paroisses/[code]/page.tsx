@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
+import { paths } from '@/config/paths';
+import { publicParishQueryOptions } from '@/features/dons/api/get-public-parish';
+import { SupportParishCard } from '@/features/dons/components/soutenir/support-parish-card';
 import type { DirectoryNode } from '@/features/public-annuaire/api/get-directory';
 import { nodeWeekQueryOptions } from '@/features/public-annuaire/api/get-node-week';
 import { getParishByCode, parishByCodeQueryOptions } from '@/features/public-annuaire/api/get-parish-by-code';
@@ -49,11 +52,15 @@ const FicheParoissePage = async ({ params }: Props) => {
         nodeAncestorsQueryOptions(parish.id),
         publicAnnouncementsQueryOptions({ nodeId: parish.id, limit: 4 }),
         publicEventsQueryOptions(parish.id, 4),
+        publicParishQueryOptions(parish.id),
       )
     : undefined;
   return (
     <HydrationBoundary state={state}>
-      <ParishSheet code={code} />
+      <ParishSheet
+        code={code}
+        support={parish ? <SupportParishCard nodeId={parish.id} href={paths.dons.paroisse.getHref(code)} variant="public" /> : undefined}
+      />
     </HydrationBoundary>
   );
 };

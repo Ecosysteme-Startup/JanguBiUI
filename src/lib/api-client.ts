@@ -26,7 +26,15 @@ export const configureApiAuth = (options: { accessToken: AccessTokenProvider; on
 };
 
 type Params = Record<string, string | number | boolean | null | undefined>;
-type RequestOptions = { params?: Params; signal?: AbortSignal; body?: unknown };
+type RequestOptions = {
+  params?: Params;
+  signal?: AbortSignal;
+  body?: unknown;
+  /** En-têtes propres à l'appel (ex. `Idempotency-Key` du paiement d'un don). */
+  headers?: Record<string, string>;
+  /** `blob` : fichier binaire (reçu PDF, export XLSX) au lieu de JSON. */
+  responseType?: 'json' | 'blob';
+};
 
 const GENERIC_ERROR = 'Le service ne répond pas. Réessayez dans un instant.';
 
@@ -66,10 +74,10 @@ export const errorMessageOf = (body: unknown, status: number): string => {
 };
 
 async function request<T>(method: string, path: string, options: RequestOptions = {}, retried = false): Promise<T> {
-  const { params, signal, body } = options;
+  const { params, signal, body, responseType = 'json' } = options;
   const token = await accessToken();
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = { Accept: responseType === 'blob' ? '*/*' : 'application/json', ...options.headers };
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
 
@@ -87,6 +95,7 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   }
 
   if (response.status === 204) return undefined as T;
+  if (responseType === 'blob' && response.ok) return (await response.blob()) as T;
   const text = await response.text();
   let data: unknown = null;
   if (text) {
@@ -113,6 +122,21 @@ export const api = {
   patch: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PATCH', path, { ...options, body }),
   put: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PUT', path, { ...options, body }),
   delete: <T>(path: string, options?: RequestOptions) => request<T>('DELETE', path, options),
+  /** Fichier binaire authentifié (le jeton ne peut pas passer par un simple lien). */
+  blob: (path: string, options?: Omit<RequestOptions, 'body' | 'responseType'>) =>
+    request<Blob>('GET', path, { ...options, responseType: 'blob' }),
+};
+
+/** Enregistre un fichier construit dans le navigateur (reçu, export). */
+export const saveBlob = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 };
 
 /** Réponse paginée DRF (LimitOffsetPagination). */

@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 
 import { a11yViolations } from '@/testing/a11y';
+import { resetDonsState } from '@/testing/mocks/db-dons';
 import { server } from '@/testing/mocks/server';
 import { navigation } from '@/testing/navigation';
 
@@ -16,6 +17,7 @@ afterEach(async () => {
   } finally {
     cleanup();
     server.resetHandlers();
+    resetDonsState();
     navigation.pathname = '/';
     navigation.search = '';
   }

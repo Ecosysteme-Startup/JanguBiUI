@@ -41,6 +41,15 @@ export const FIDELE_NAV: (NavLeaf & { children?: NavLeaf[] })[] = [
       { label: 'Rendez-vous de confession', href: paths.app.confession.getHref() },
     ],
   },
+  {
+    label: 'Dons',
+    href: paths.app.dons.root.getHref(),
+    icon: 'don',
+    children: [
+      { label: 'Donner', href: paths.app.dons.root.getHref(), match: 'exact' },
+      { label: 'Mes dons', href: paths.app.dons.historique.getHref() },
+    ],
+  },
 ];
 
 /** Rubriques de la barre latérale actives aussi sur ces chemins (Bible et Chapelet sont « La Parole »). */
@@ -72,6 +81,8 @@ export const MOBILE_MENU: { title: string; items: NavLeaf[] }[] = [
     items: [
       { label: 'Agenda paroissial', href: paths.app.paroisse.root.getHref('agenda') },
       { label: 'Mes rendez-vous', href: paths.app.confession.getHref() },
+      { label: 'Donner', href: paths.app.dons.root.getHref() },
+      { label: 'Mes dons', href: paths.app.dons.historique.getHref() },
     ],
   },
   {
@@ -115,6 +126,7 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
           { label: 'Tableau de bord', href: paths.plateforme.root.getHref(), icon: 'tableau-de-bord', match: 'exact', capacites: ['plateforme.admin'] },
           { label: 'Référentiels', href: paths.plateforme.referentiels.getHref(), icon: 'structure', capacites: ['plateforme.admin'] },
           { label: 'Comptes', href: paths.plateforme.comptes.getHref(), icon: 'utilisateurs', capacites: ['plateforme.admin'] },
+          { label: 'Paiements', href: paths.plateforme.paiements.getHref(), icon: 'carte-bancaire', capacites: ['plateforme.admin'] },
           { label: 'Journal d’audit', href: paths.plateforme.audit.getHref(), icon: 'historique', capacites: ['plateforme.admin', 'audit.voir'] },
         ],
       },
@@ -130,6 +142,7 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
           { label: 'Structure', href: e.structure.getHref(nodeId), icon: 'structure', capacites: ['structure.gerer'] },
           { label: 'Nominations', href: e.nominations.getHref(nodeId), icon: 'utilisateur-ok', capacites: ['offices.nommer'] },
           { label: 'Clergé', href: e.clerge.getHref(nodeId), icon: 'utilisateurs', capacites: ['personnes.verifier'] },
+          { label: 'Quêtes impérées', href: e.quetesImperees.getHref(nodeId), icon: 'don', capacites: ['dons.definir_quete_imperee'] },
         ],
       },
       {
@@ -149,6 +162,12 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
         { label: 'Annonces', href: e.annonces.list.getHref(nodeId), icon: 'annonce', capacites: ['annonces.publier'] },
         { label: 'Horaires et lieux', href: e.horaires.getHref(nodeId), icon: 'horloge', capacites: ['horaires.gerer'] },
         { label: 'Agenda', href: e.agenda.getHref(nodeId), icon: 'calendrier', capacites: ['evenements.gerer'] },
+        {
+          label: 'Dons et quêtes',
+          href: e.dons.root.getHref(nodeId),
+          icon: 'don',
+          capacites: ['dons.voir_fonds', 'dons.gerer_fonds', 'dons.saisir_quete', 'dons.exporter'],
+        },
       ],
     },
     {
