@@ -37,6 +37,18 @@ export const TRACK_STATUSES = [
 export const trackStatusSchema = z.enum(TRACK_STATUSES);
 export type TrackStatus = z.infer<typeof trackStatusSchema>;
 
+export const ENCODING_STEPS = [
+  '',
+  'analyse',
+  'normalisation',
+  'qualites',
+  'forme_onde',
+  'termine',
+] as const;
+/** Valeur inconnue ou absente → `""` (le suivi reste lisible). */
+export const encodingStepSchema = z.enum(ENCODING_STEPS).catch('');
+export type EncodingStep = (typeof ENCODING_STEPS)[number];
+
 export const sourceRefSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -79,17 +91,15 @@ export const staffTrackSchema = trackSchema.extend({
   hidden_at: z.string().nullable().default(null),
   created_at: z.string().nullable().default(null),
   updated_at: z.string().nullable().optional(),
+  /** Étape de l'encodage (contrat B3b §2) ; `""` : pas encore commencé. */
+  encoding_step: encodingStepSchema,
+  /** Avancement de l'encodage, 0 à 100. */
+  encoding_percent: z.number().min(0).max(100).nullable().default(null),
   /**
-   * Hors contrat B3 (facultatif) : étape d'encodage 1 à 4 et pourcentage, si le
-   * backend les expose un jour. Sans eux, l'écran montre les étapes sans %.
+   * Débuts d'écoute des 30 derniers jours (staff seulement, listes d'une
+   * source ou d'un album) ; `null` ailleurs. Jamais comparés entre sources.
    */
-  encoding_step: z.number().int().min(1).max(4).nullable().optional(),
-  encoding_percent: z.number().min(0).max(100).nullable().optional(),
-  /**
-   * Hors contrat B3 (facultatif) : écoutes des 30 derniers jours, internes à
-   * la paroisse, visibles du staff seulement. Absent → « — ».
-   */
-  plays_30d: z.number().int().nullable().optional(),
+  plays_30d: z.number().int().nullable().default(null),
 });
 export type StaffTrack = z.infer<typeof staffTrackSchema>;
 
@@ -209,3 +219,52 @@ export const uploadInitSchema = z.object({
   expires_in: z.number(),
 });
 export type UploadInit = z.infer<typeof uploadInitSchema>;
+
+// ------------------------------------------------------------ B3b : staff
+
+/** Album vu du staff : brouillons (`published_at: null`) et retraits compris. */
+export const staffAlbumSchema = albumSchema.extend({
+  track_count: z.number().int().default(0),
+  hidden_at: z.string().nullable().default(null),
+  created_at: z.string().nullable().default(null),
+  updated_at: z.string().nullable().default(null),
+});
+export type StaffAlbum = z.infer<typeof staffAlbumSchema>;
+
+export const staffAlbumDetailSchema = z.object({
+  album: staffAlbumSchema,
+  tracks: z.array(staffTrackSchema).default([]),
+});
+export type StaffAlbumDetail = z.infer<typeof staffAlbumDetailSchema>;
+
+/** POST présigné de la pochette (`audio-covers/<album_id>/…`). */
+export const pochetteInitSchema = z.object({
+  file_id: z.union([z.number(), z.string()]),
+  method: z.string().default('POST'),
+  url: z.string(),
+  fields: z.record(z.string()).default({}),
+  max_size: z.number(),
+  expires_in: z.number(),
+});
+export type PochetteInit = z.infer<typeof pochetteInitSchema>;
+
+// ------------------------------------------------------------ B3b : accueil
+
+export const accueilSchema = z.object({
+  paroisse: z.object({ id: z.string(), name: z.string() }).nullable(),
+  reprendre: z.array(recentSchema).default([]),
+  nouveautes_ma_paroisse: z.array(trackSchema).default([]),
+  pour_vous: z
+    .array(z.object({ track: trackSchema, reason: z.string() }))
+    .default([]),
+  playlists_paroisse: z.array(playlistSchema).default([]),
+  temps_liturgique: z
+    .object({
+      code: z.string(),
+      label: z.string(),
+      tracks: z.array(trackSchema).default([]),
+    })
+    .nullable()
+    .default(null),
+});
+export type Accueil = z.infer<typeof accueilSchema>;

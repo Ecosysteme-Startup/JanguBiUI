@@ -1,35 +1,78 @@
-import { Check, Circle, Loader2 } from 'lucide-react';
+import { AlertCircle, Check, Circle, Loader2 } from 'lucide-react';
 
 import { cn } from '@/utils/cn';
 
-import type { StaffTrack } from '../../types/schemas';
+import type { EncodingStep, StaffTrack } from '../../types/schemas';
 import { formatDuree } from '../../utils/format';
 
-const ETAPES = [
+type EtatEtape = 'fait' | 'en_cours' | 'a_venir' | 'echec';
+
+/**
+ * Qualités produites pendant l'étape `qualites` : l'avancement passe par
+ * 30, 41, 52 puis 63 % au début de chaque encodage (contrat B3b §2).
+ */
+const QUALITES = [
+  { libelle: 'bas 32 kb/s', debut: 30 },
+  { libelle: 'moyen 64 kb/s', debut: 41 },
+  { libelle: 'haut 128 kb/s', debut: 52 },
+];
+
+function detailQualites(t: StaffTrack | undefined, etat: EtatEtape): string {
+  if (etat !== 'en_cours' || t?.encoding_percent == null)
+    return 'Bas 32 kb/s · moyen 64 kb/s · haut 128 kb/s';
+  const pc = t.encoding_percent;
+  const texte = QUALITES.map((q, i) => {
+    const fin = QUALITES[i + 1]?.debut ?? 63;
+    const etatQ = pc >= fin ? ' prêt' : pc >= q.debut ? ' en cours' : '';
+    return `${q.libelle}${etatQ}`;
+  }).join(' · ');
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
+const ETAPES: {
+  code: Exclude<EncodingStep, '' | 'termine'>;
+  titre: string;
+  detail: (t: StaffTrack | undefined, etat: EtatEtape) => string;
+}[] = [
   {
+    code: 'analyse',
     titre: 'Analyse du fichier',
-    detail: (t?: StaffTrack) =>
+    detail: (t) =>
       t?.duration_seconds
         ? `Durée ${formatDuree(t.duration_seconds)}`
         : 'Durée, format et étiquettes',
   },
-  { titre: 'Normalisation du volume', detail: () => 'Ramené à −16 LUFS' },
   {
-    titre: 'Encodage en 3 qualités',
-    detail: () => 'Bas 32 kb/s · moyen 64 kb/s · haut 128 kb/s',
+    code: 'normalisation',
+    titre: 'Normalisation du volume',
+    detail: () => 'Ramené à −16 LUFS',
   },
+  { code: 'qualites', titre: 'Encodage en 3 qualités', detail: detailQualites },
   {
+    code: 'forme_onde',
     titre: 'Forme d’onde et version hors ligne',
     detail: () => '200 points pour le lecteur, MP3 128 kb/s',
   },
 ];
 
-type EtatEtape = 'fait' | 'en_cours' | 'a_venir' | 'inconnu';
+/** Index de l'étape courante (0 à 3), 4 si terminé, -1 si pas commencé. */
+export function indexEtape(step: EncodingStep | null | undefined): number {
+  if (step === 'termine') return ETAPES.length;
+  return ETAPES.findIndex((e) => e.code === step);
+}
+
+/** Libellé de l'étape en cours (tableau du staff), ou null. */
+export function libelleEtape(
+  step: EncodingStep | null | undefined,
+): string | null {
+  const i = indexEtape(step);
+  return i >= 0 && i < ETAPES.length ? ETAPES[i].titre : null;
+}
 
 /**
- * Les 4 étapes de l'encodage (plan §5.2). Le contrat B3 ne donne que l'état de
- * la piste ; si le backend expose `encoding_step`, l'étape courante est
- * marquée, sinon les étapes restent neutres pendant l'encodage.
+ * Les 4 étapes de l'encodage (plan §5.2) et l'avancement réel, lus dans
+ * `encoding_step` et `encoding_percent` (suivi `GET audio/uploads/<id>/`).
+ * En échec, l'étape atteinte reste marquée.
  */
 export function EtapesEncodage({
   track,
@@ -38,66 +81,94 @@ export function EtapesEncodage({
   track?: StaffTrack;
   termine?: boolean;
 }) {
-  const pas = track?.encoding_step ?? null;
+  const statut = track?.status;
+  const courant = indexEtape(track?.encoding_step);
   const etat = (i: number): EtatEtape => {
-    if (termine || track?.status === 'pret') return 'fait';
-    if (track?.status !== 'encodage') return 'a_venir';
-    if (pas == null) return 'inconnu';
-    return i + 1 < pas ? 'fait' : i + 1 === pas ? 'en_cours' : 'a_venir';
+    if (termine || statut === 'pret') return 'fait';
+    if (statut === 'echec') {
+      const atteint = Math.max(courant, 0);
+      return i < atteint ? 'fait' : i === atteint ? 'echec' : 'a_venir';
+    }
+    if (statut !== 'encodage' || courant < 0) return 'a_venir';
+    return i < courant ? 'fait' : i === courant ? 'en_cours' : 'a_venir';
   };
+  const enCours = statut === 'encodage' || statut === 'en_file';
+  const pourcent = Math.round(track?.encoding_percent ?? 0);
+
   return (
-    <ol className="mt-3 space-y-2" aria-label="Étapes de l’encodage">
-      {ETAPES.map((e, i) => {
-        const s = etat(i);
-        return (
-          <li
-            key={e.titre}
-            data-etape={s}
-            className="flex items-start gap-2.5 text-sm"
-          >
-            <span
-              className={cn(
-                'mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full',
-                s === 'fait' && 'bg-success/15 text-success',
-                s === 'en_cours' && 'bg-primary/10 text-primary',
-                (s === 'a_venir' || s === 'inconnu') &&
-                  'bg-muted text-muted-foreground',
-              )}
-              aria-hidden
+    <div>
+      {enCours && (
+        <div
+          role="progressbar"
+          aria-label="Avancement de l’encodage"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={pourcent}
+          className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted"
+        >
+          <div
+            className="size-full origin-left rounded-full bg-primary transition-transform duration-300 ease-out motion-reduce:transition-none"
+            style={{ transform: `scaleX(${pourcent / 100})` }}
+          />
+        </div>
+      )}
+      <ol className="mt-3 space-y-2" aria-label="Étapes de l’encodage">
+        {ETAPES.map((e, i) => {
+          const s = etat(i);
+          return (
+            <li
+              key={e.code}
+              data-etape={s}
+              className="flex items-start gap-2.5 text-sm"
             >
-              {s === 'fait' ? (
-                <Check className="size-3.5" />
-              ) : s === 'en_cours' ? (
-                <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" />
-              ) : (
-                <Circle className="size-2.5" />
-              )}
-            </span>
-            <span className="min-w-0">
               <span
                 className={cn(
-                  'block font-medium',
-                  s === 'a_venir' ? 'text-muted-foreground' : 'text-foreground',
+                  'mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full',
+                  s === 'fait' && 'bg-success/15 text-success',
+                  s === 'en_cours' && 'bg-primary/10 text-primary',
+                  s === 'echec' && 'bg-destructive/10 text-destructive',
+                  s === 'a_venir' && 'bg-muted text-muted-foreground',
                 )}
+                aria-hidden
               >
-                {e.titre}
-                <span className="sr-only">
-                  {s === 'fait'
-                    ? ' (terminé)'
-                    : s === 'en_cours'
-                      ? ' (en cours)'
-                      : s === 'a_venir'
-                        ? ' (à venir)'
-                        : ''}
+                {s === 'fait' ? (
+                  <Check className="size-3.5" />
+                ) : s === 'en_cours' ? (
+                  <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" />
+                ) : s === 'echec' ? (
+                  <AlertCircle className="size-3.5" />
+                ) : (
+                  <Circle className="size-2.5" />
+                )}
+              </span>
+              <span className="min-w-0">
+                <span
+                  className={cn(
+                    'block font-medium',
+                    s === 'a_venir'
+                      ? 'text-muted-foreground'
+                      : 'text-foreground',
+                  )}
+                >
+                  {e.titre}
+                  <span className="sr-only">
+                    {s === 'fait'
+                      ? ' (terminé)'
+                      : s === 'en_cours'
+                        ? ' (en cours)'
+                        : s === 'echec'
+                          ? ' (interrompu)'
+                          : ' (à venir)'}
+                  </span>
+                </span>
+                <span className="block text-muted-foreground">
+                  {e.detail(track, s)}
                 </span>
               </span>
-              <span className="block text-muted-foreground">
-                {e.detail(track)}
-              </span>
-            </span>
-          </li>
-        );
-      })}
-    </ol>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }

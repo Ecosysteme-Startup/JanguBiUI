@@ -22,9 +22,9 @@ export const getStaffTracksQueryOptions = (sourceId: string) =>
   queryOptions({
     queryKey: sonoKeys.staffTracks(sourceId),
     queryFn: () => getStaffTracks(sourceId),
-    // Tant qu'une piste s'encode, on rafraîchit doucement (30 s).
+    // Tant qu’une piste s’encode, on suit sa progression (étape et %).
     refetchInterval: (q) =>
-      q.state.data?.some((t) => EN_COURS.has(t.status)) ? 30_000 : false,
+      q.state.data?.some((t) => EN_COURS.has(t.status)) ? 3_000 : false,
   });
 
 /** Pistes de toutes les sources du staff, fusionnées. */

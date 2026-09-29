@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
@@ -20,9 +21,19 @@ export const getPourVousQueryOptions = () =>
 
 export const usePourVous = () => useQuery(getPourVousQueryOptions());
 
+const reglagesSchema = z.object({ recommendations_enabled: z.boolean() });
+export type Reglages = z.infer<typeof reglagesSchema>;
+
+// GET /audio/reglages/ — suggestions personnalisées ou non.
+export const getReglages = async (): Promise<Reglages> =>
+  reglagesSchema.parse(await api.get<unknown>(`${AUDIO}/reglages/`));
+
+export const useReglages = ({ enabled = true } = {}) =>
+  useQuery({ queryKey: sonoKeys.reglages, queryFn: getReglages, enabled });
+
 // PUT /audio/reglages/ — désactiver efface les recommandations calculées.
 export const setRecommandations = (enabled: boolean) =>
-  api.put<{ recommendations_enabled: boolean }>(`${AUDIO}/reglages/`, {
+  api.put<Reglages>(`${AUDIO}/reglages/`, {
     recommendations_enabled: enabled,
   });
 
@@ -30,6 +41,12 @@ export const useSetRecommandations = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: setRecommandations,
-    onSuccess: () => qc.invalidateQueries({ queryKey: sonoKeys.pourVous }),
+    onSuccess: (_d, enabled) => {
+      qc.setQueryData<Reglages>(sonoKeys.reglages, {
+        recommendations_enabled: enabled,
+      });
+      void qc.invalidateQueries({ queryKey: sonoKeys.pourVous });
+      void qc.invalidateQueries({ queryKey: sonoKeys.accueil });
+    },
   });
 };

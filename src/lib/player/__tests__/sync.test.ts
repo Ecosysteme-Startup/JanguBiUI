@@ -12,6 +12,9 @@ import { server } from '@/testing/mocks/server';
 
 import { getDeviceId, resetDeviceIdForTests } from '../device';
 import {
+  DEFAULT_RETRY_AFTER_S,
+  flushListenEvents,
+  listenEventsThrottled,
   pendingListenEvents,
   resetListenEventsForTests,
 } from '../listen-events';
@@ -142,6 +145,67 @@ describe('événements d’écoute en lot', () => {
     renderHook(() => usePlayerSync(false));
     await vi.advanceTimersByTimeAsync(EVENTS_INTERVAL_MS);
     expect(pendingListenEvents()).toHaveLength(1);
+  });
+
+  it('sur 429, renvoie le même lot après Retry-After, pas avant', async () => {
+    const recus: { events: { client_event_id: string }[] }[] = [];
+    let limite = true;
+    server.use(
+      http.post(`${API}/evenements/`, async ({ request }) => {
+        recus.push((await request.json()) as never);
+        if (limite) {
+          limite = false;
+          return HttpResponse.json(
+            { error: { code: 'throttled', message: 'Trop de requêtes.' } },
+            { status: 429, headers: { 'Retry-After': '20' } },
+          );
+        }
+        return HttpResponse.json(
+          { recus: 1, enregistres: 1, doublons: 0, rejetes: 0 },
+          { status: 202 },
+        );
+      }),
+    );
+    await store().playTracks(messeTracks, 2);
+    vi.useFakeTimers();
+    await flushListenEvents();
+    expect(recus).toHaveLength(1);
+    expect(listenEventsThrottled()).toBe(true);
+    expect(pendingListenEvents()).toHaveLength(1);
+
+    // Aucun envoi pendant l'attente, même au retour du réseau.
+    await flushListenEvents();
+    await vi.advanceTimersByTimeAsync(19_000);
+    expect(recus).toHaveLength(1);
+
+    await vi.advanceTimersByTimeAsync(1_500);
+    await vi.waitFor(() => expect(recus).toHaveLength(2));
+    expect(recus[1].events.map((e) => e.client_event_id)).toEqual(
+      recus[0].events.map((e) => e.client_event_id),
+    );
+    await vi.waitFor(() => expect(pendingListenEvents()).toHaveLength(0));
+    expect(listenEventsThrottled()).toBe(false);
+  });
+
+  it('sur 429 sans Retry-After, attend 60 s', async () => {
+    let appels = 0;
+    server.use(
+      http.post(`${API}/evenements/`, () => {
+        appels += 1;
+        return HttpResponse.json(
+          { error: { code: 'throttled' } },
+          { status: 429 },
+        );
+      }),
+    );
+    await store().playTracks(messeTracks, 2);
+    vi.useFakeTimers();
+    await flushListenEvents();
+    expect(appels).toBe(1);
+    await vi.advanceTimersByTimeAsync(DEFAULT_RETRY_AFTER_S * 1000 - 1_000);
+    expect(appels).toBe(1);
+    await vi.advanceTimersByTimeAsync(1_500);
+    await vi.waitFor(() => expect(appels).toBe(2));
   });
 });
 

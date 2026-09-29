@@ -16,6 +16,12 @@ export const sonoKeys = {
   staffTracks: (sourceId: string) =>
     ['sonotheque', 'staff', 'pistes', sourceId] as const,
   upload: (id: string) => ['sonotheque', 'upload', id] as const,
+  accueil: ['sonotheque', 'accueil'] as const,
+  reglages: ['sonotheque', 'reglages'] as const,
+  staffAlbumsAll: ['sonotheque', 'staff', 'albums'] as const,
+  staffAlbums: (params: { source?: string; kind?: string }) =>
+    ['sonotheque', 'staff', 'albums', params] as const,
+  staffAlbum: (id: string) => ['sonotheque', 'staff', 'album', id] as const,
 };
 
 export const AUDIO = '/v1/audio';

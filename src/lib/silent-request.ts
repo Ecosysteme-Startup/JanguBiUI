@@ -9,9 +9,26 @@ import { getAccessToken, tryRefreshAccess } from '@/lib/api-client';
  */
 
 export class SilentHttpError extends Error {
-  constructor(public readonly status: number) {
+  constructor(
+    public readonly status: number,
+    /** En-tête `Retry-After` en secondes (429, 503), si le serveur le donne. */
+    public readonly retryAfter: number | null = null,
+  ) {
     super(`HTTP ${status}`);
   }
+}
+
+/** `Retry-After` : un nombre de secondes ou une date HTTP. */
+export function parseRetryAfter(
+  value: string | null,
+  now: number = Date.now(),
+): number | null {
+  if (!value) return null;
+  const n = Number(value.trim());
+  if (Number.isFinite(n)) return Math.max(0, n);
+  const date = Date.parse(value);
+  if (Number.isNaN(date)) return null;
+  return Math.max(0, Math.ceil((date - now) / 1000));
 }
 
 interface SilentOptions {
@@ -50,7 +67,11 @@ export async function silent<T = unknown>(
       throw new SilentHttpError(401);
     }
   }
-  if (!res.ok) throw new SilentHttpError(res.status);
+  if (!res.ok)
+    throw new SilentHttpError(
+      res.status,
+      parseRetryAfter(res.headers.get('Retry-After')),
+    );
   if (res.status === 204) return { status: 204, data: null };
   const text = await res.text();
   return { status: res.status, data: text ? (JSON.parse(text) as T) : null };

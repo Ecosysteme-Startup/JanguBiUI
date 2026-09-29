@@ -1,7 +1,16 @@
 'use client';
 
 import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Plus, RotateCcw, Search } from 'lucide-react';
+import {
+  AlertTriangle,
+  FileEdit,
+  FolderPlus,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Search,
+  ShieldOff,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -10,6 +19,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import { FilterPills } from '@/components/ui/filter-pills';
 import { Link } from '@/components/ui/link';
 import { SkeletonList } from '@/components/ui/skeleton';
+import { StatusBadge } from '@/components/ui/status-badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { paths } from '@/config/paths';
 import { Reveal } from '@/lib/motion/reveal';
@@ -17,11 +27,11 @@ import { Reveal } from '@/lib/motion/reveal';
 import { getSourceQueryOptions } from '../../api/get-source';
 import { useStaffSources } from '../../api/get-staff-sources';
 import { useStaffTracksForSources } from '../../api/get-staff-tracks';
+import { usePublishAlbum, useStaffAlbums } from '../../api/staff-albums';
 import { reencodeTrack } from '../../api/uploads';
-import type { StaffTrack, Visibilite } from '../../types/schemas';
+import type { StaffAlbum, StaffTrack, Visibilite } from '../../types/schemas';
 import {
   codeLangue,
-  compareFr,
   formatDuree,
   formatMisAJour,
   LIBELLES_ALBUM,
@@ -29,8 +39,11 @@ import {
   LIBELLES_VISIBILITE,
   pluriel,
 } from '../../utils/format';
+import { Pochette } from '../pochette';
 import { VisibiliteBadge } from '../visibilite-badge';
 
+import { AlbumDialog, TYPES_ALBUM } from './album-dialog';
+import { libelleEtape } from './etapes-encodage';
 import { EtatPiste } from './etat-piste';
 
 const PAR_PAGE = 12;
@@ -65,6 +78,11 @@ export function SonothequeStaff() {
   const [visibilite, setVisibilite] = useState<'' | Visibilite>('');
   const [texte, setTexte] = useState('');
   const [page, setPage] = useState(0);
+  const [dialogue, setDialogue] = useState<{ album: StaffAlbum | null } | null>(
+    null,
+  );
+  const staffAlbums = useStaffAlbums({}, { enabled: ids.length > 0 });
+  const publierAlbum = usePublishAlbum();
 
   const relancer = useMutation({
     mutationFn: reencodeTrack,
@@ -97,14 +115,14 @@ export function SonothequeStaff() {
     (pageCourante + 1) * PAR_PAGE,
   );
   const echecs = toutes.filter((t) => t.status === 'echec');
-  const albums = details.flatMap((d) => d.data?.albums ?? []);
+  // Tous les albums gérés, brouillons et retraits compris (plus récents d'abord).
+  const albums = staffAlbums.data ?? [];
   const playlists = details.flatMap((d) => d.data?.playlists ?? []);
   const paroisse =
     sources.data?.find((s) => s.node)?.node?.name ?? 'la paroisse';
 
-  // Écoutes internes à la paroisse (30 jours), jamais comparées à d'autres
-  // paroisses. Le contrat B3 n'expose pas encore ce compteur (`plays_30d`
-  // facultatif) : sans lui, on n'affiche pas de classement.
+  // Écoutes internes à la paroisse (30 jours, `plays_30d`), jamais comparées à
+  // d'autres paroisses.
   const avecEcoutes = toutes.filter((t) => (t.plays_30d ?? 0) > 0);
   const plusEcoutes = [...avecEcoutes]
     .sort((a, b) => (b.plays_30d ?? 0) - (a.plays_30d ?? 0))
@@ -144,13 +162,29 @@ export function SonothequeStaff() {
             {sources.data.map((s) => s.name).join(', ')}.
           </p>
         </div>
-        <Button asChild>
-          <Link href={paths.app.paroisse.sonothequeAjouter.getHref()}>
-            <Plus className="size-4" aria-hidden />
-            Ajouter des enregistrements
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setDialogue({ album: null })}
+            icon={<FolderPlus className="size-4" aria-hidden />}
+          >
+            Nouvel album
+          </Button>
+          <Button asChild>
+            <Link href={paths.app.paroisse.sonothequeAjouter.getHref()}>
+              <Plus className="size-4" aria-hidden />
+              Ajouter des enregistrements
+            </Link>
+          </Button>
+        </div>
       </div>
+
+      <AlbumDialog
+        open={dialogue !== null}
+        onOpenChange={(o) => !o && setDialogue(null)}
+        album={dialogue?.album}
+        sources={sources.data}
+      />
 
       {echecs.length > 0 && (
         <div
@@ -340,10 +374,19 @@ export function SonothequeStaff() {
                                   : null
                               }
                             />
+                            {(t.status === 'encodage' ||
+                              t.status === 'echec') &&
+                              libelleEtape(t.encoding_step) && (
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  {t.status === 'echec'
+                                    ? `Arrêté à : ${libelleEtape(t.encoding_step)?.toLowerCase()}`
+                                    : libelleEtape(t.encoding_step)}
+                                </p>
+                              )}
                           </td>
                           <td className="py-3 pr-3 text-right tabular-nums text-muted-foreground">
-                            {t.plays_30d != null && t.status === 'pret'
-                              ? t.plays_30d
+                            {t.plays_30d != null && t.published_at
+                              ? t.plays_30d.toLocaleString('fr-FR')
                               : '—'}
                           </td>
                           <td className="whitespace-nowrap py-3 pr-4 text-muted-foreground">
@@ -383,22 +426,72 @@ export function SonothequeStaff() {
           </TabsContent>
 
           <TabsContent value="albums" className="mt-5">
-            <ul className="divide-y divide-border rounded-2xl border border-border bg-card">
-              {[...albums]
-                .sort((a, b) => compareFr(a.title, b.title))
-                .map((a) => (
+            {staffAlbums.isLoading ? (
+              <SkeletonList count={4} />
+            ) : (
+              <ul
+                aria-label="Albums de la sonothèque"
+                className="divide-y divide-border rounded-2xl border border-border bg-card"
+              >
+                {albums.map((a) => (
                   <li
                     key={a.id}
-                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                    data-album={a.id}
+                    className="flex flex-wrap items-center gap-3 px-4 py-3"
                   >
-                    <div>
-                      <p className="font-medium">{a.title}</p>
+                    <Pochette
+                      titre={a.title}
+                      genre={a.kind}
+                      temps={a.liturgical_season}
+                      imageUrl={a.cover_url}
+                      className="size-12 rounded-lg"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{a.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {LIBELLES_ALBUM[a.kind]} · {a.source.name}
+                        {TYPES_ALBUM[a.kind] ?? LIBELLES_ALBUM[a.kind]} ·{' '}
+                        {a.source.name} ·{' '}
+                        {pluriel(a.track_count, 'piste', 'pistes')}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {a.hidden_at ? (
+                        <StatusBadge
+                          label="Retiré par la modération"
+                          tone="danger"
+                          icon={<ShieldOff aria-hidden />}
+                        />
+                      ) : !a.published_at ? (
+                        <StatusBadge
+                          label="Brouillon"
+                          tone="neutral"
+                          icon={<FileEdit aria-hidden />}
+                        />
+                      ) : null}
                       <VisibiliteBadge visibilite={a.visibility} />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setDialogue({ album: a })}
+                        icon={<Pencil className="size-3.5" aria-hidden />}
+                        aria-label={`Modifier ${a.title}`}
+                      >
+                        Modifier
+                      </Button>
+                      {!a.published_at && !a.hidden_at && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          isLoading={
+                            publierAlbum.isPending &&
+                            publierAlbum.variables === a.id
+                          }
+                          onClick={() => publierAlbum.mutate(a.id)}
+                          aria-label={`Publier ${a.title}`}
+                        >
+                          Publier
+                        </Button>
+                      )}
                       <Link
                         href={paths.app.paroisse.sonothequeAjouter.getHref(
                           a.id,
@@ -410,12 +503,15 @@ export function SonothequeStaff() {
                     </div>
                   </li>
                 ))}
-              {!albums.length && (
-                <li className="px-4 py-6 text-sm text-muted-foreground">
-                  Aucun album publié.
-                </li>
-              )}
-            </ul>
+                {!albums.length && (
+                  <li className="px-4 py-6 text-sm text-muted-foreground">
+                    Aucun album pour l’instant. Créez-en un pour regrouper les
+                    enregistrements d’une messe, d’une série d’homélies ou d’une
+                    retraite.
+                  </li>
+                )}
+              </ul>
+            )}
           </TabsContent>
 
           <TabsContent value="playlists" className="mt-5">

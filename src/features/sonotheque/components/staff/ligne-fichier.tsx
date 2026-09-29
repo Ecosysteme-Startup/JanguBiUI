@@ -128,6 +128,10 @@ export function LigneFichier({
               <p className="text-foreground">{f.erreur}</p>
             </div>
           )}
+
+          {f.etape === 'echec' &&
+            f.phaseEchec === 'encodage' &&
+            f.track?.status === 'echec' && <EtapesEncodage track={f.track} />}
         </div>
       </div>
 

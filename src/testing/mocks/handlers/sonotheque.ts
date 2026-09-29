@@ -5,6 +5,7 @@ import type {
   Album,
   Playlist,
   Source,
+  StaffAlbum,
   StaffTrack,
   Track,
 } from '@/features/sonotheque/types/schemas';
@@ -351,6 +352,8 @@ const staff = (t: Track, extra: Partial<StaffTrack> = {}): StaffTrack => ({
   hidden_at: null,
   created_at: t.published_at,
   updated_at: t.published_at,
+  encoding_step: 'termine',
+  encoding_percent: 100,
   plays_30d: null,
   ...extra,
 });
@@ -362,6 +365,8 @@ const staffTracks: StaffTrack[] = [
     }),
     {
       status: 'echec',
+      encoding_step: 'analyse',
+      encoding_percent: 5,
       failure_reason:
         'Le fichier s’arrête à 3 min 12 s alors que son en-tête annonce 3 min 48 s : il est incomplet ou endommagé.',
       duration_seconds: null,
@@ -376,7 +381,7 @@ const staffTracks: StaffTrack[] = [
     }),
     {
       status: 'encodage',
-      encoding_step: 3,
+      encoding_step: 'qualites',
       encoding_percent: 62,
       encoded_version: null,
       updated_at: '2026-09-27T10:52:00Z',
@@ -396,6 +401,9 @@ const staffTracks: StaffTrack[] = [
     }),
     {
       status: 'brouillon',
+      encoding_step: '',
+      encoding_percent: 0,
+      encoded_version: null,
       updated_at: '2026-09-24T19:00:00Z',
     },
   ),
@@ -406,6 +414,9 @@ const staffTracks: StaffTrack[] = [
     }),
     {
       status: 'en_file',
+      encoding_step: '',
+      encoding_percent: 0,
+      encoded_version: null,
       updated_at: '2026-09-24T19:05:00Z',
     },
   ),
@@ -441,6 +452,18 @@ const envois = new Map<
   { track: StaffTrack; consultations: number; tronque: boolean }
 >();
 
+/**
+ * Progression de l'encodage du serveur de mocks, une étape par consultation
+ * du suivi (valeurs du contrat B3b §2 : analyse 5, normalisation 15,
+ * qualités 30 à 63, forme d'onde 80 puis 90, terminé 100).
+ */
+const PROGRESSION: Pick<StaffTrack, 'encoding_step' | 'encoding_percent'>[] = [
+  { encoding_step: 'analyse', encoding_percent: 5 },
+  { encoding_step: 'normalisation', encoding_percent: 15 },
+  { encoding_step: 'qualites', encoding_percent: 41 },
+  { encoding_step: 'forme_onde', encoding_percent: 80 },
+];
+
 const avancer = (e: {
   track: StaffTrack;
   consultations: number;
@@ -452,6 +475,8 @@ const avancer = (e: {
     e.track = {
       ...e.track,
       status: 'echec',
+      encoding_step: 'analyse',
+      encoding_percent: 5,
       failure_reason:
         'Le fichier s’arrête avant la fin annoncée par son en-tête : il est incomplet ou endommagé. Trois tentatives automatiques ont été faites.',
     };
@@ -459,21 +484,85 @@ const avancer = (e: {
     e.track = {
       ...e.track,
       status: 'pret',
-      encoding_step: null,
-      encoding_percent: null,
+      encoding_step: 'termine',
+      encoding_percent: 100,
+      duration_seconds: e.track.duration_seconds ?? 245,
       encoded_version: e.track.version,
     };
   } else if (c >= 2) {
-    const pas = Math.min(4, c - 1);
-    e.track = {
-      ...e.track,
-      status: 'encodage',
-      encoding_step: pas,
-      encoding_percent: pas * 25 - 10,
-    };
+    e.track = { ...e.track, status: 'encodage', ...PROGRESSION[c - 2] };
   }
   return e.track;
 };
+
+// ------------------------------------------------------------ albums staff
+const albumsGeres = new Set([SC.id, SCOUTS.id, SD.id]);
+const compterPistes = (albumId: string) =>
+  (PISTES_PAR_ALBUM[albumId]?.length ?? 0) +
+  staffTracks.filter(
+    (t) => t.album?.id === albumId && !TOUTES.some((x) => x.id === t.id),
+  ).length;
+
+const versStaff = (a: Album, extra: Partial<StaffAlbum> = {}): StaffAlbum => ({
+  ...a,
+  track_count: compterPistes(a.id),
+  hidden_at: null,
+  created_at: a.published_at,
+  updated_at: a.published_at,
+  ...extra,
+});
+
+/** Album brouillon de la maquette WEB-PAR-Sonotheque (pas encore publié). */
+export const ALBUM_BROUILLON_ID = 'a7c2e9f4-3b1d-4e6a-8f2c-9d4b1e7a5c90';
+
+export const STAFF_ALBUMS: StaffAlbum[] = [
+  versStaff(
+    {
+      id: ALBUM_BROUILLON_ID,
+      source: src(SD),
+      kind: 'album',
+      title: 'Veillée de prière de la rentrée',
+      description: 'Louange et méditation du jeudi 24 septembre.',
+      visibility: 'prive',
+      cover_url: null,
+      recorded_on: '2026-09-24',
+      liturgical_season: 'ordinaire',
+      published_at: null,
+    },
+    {
+      track_count: 2,
+      created_at: '2026-09-24T18:40:00Z',
+      updated_at: '2026-09-24T19:05:00Z',
+    },
+  ),
+  ...ALBUMS.filter((a) => albumsGeres.has(a.source.id))
+    .sort((a, b) => (b.published_at ?? '').localeCompare(a.published_at ?? ''))
+    .map((a) => versStaff(a)),
+];
+const staffAlbums: StaffAlbum[] = STAFF_ALBUMS.map((a) => ({ ...a }));
+
+/** Pochettes en cours d'envoi : file_id → album. */
+const pochettes = new Map<number, string>();
+let prochainFichier = 1289;
+
+/** Signalements reçus (tests). */
+export const signalements: {
+  cible: 'piste' | 'album';
+  id: string;
+  motif: string;
+  comment: string;
+}[] = [];
+
+/** Remet l'état staff du serveur de mocks à zéro (tests). */
+export function resetSonothequeMocks() {
+  staffAlbums.splice(
+    0,
+    staffAlbums.length,
+    ...STAFF_ALBUMS.map((a) => ({ ...a })),
+  );
+  pochettes.clear();
+  signalements.length = 0;
+}
 
 export const sonothequeHandlers = [
   // -------------------------------------------------------- catalogue
@@ -561,9 +650,35 @@ export const sonothequeHandlers = [
     return HttpResponse.json({ liked: false });
   }),
 
-  http.post(`${A}/pistes/:id/signaler/`, () =>
-    HttpResponse.json({ id: 'r1', status: 'ouvert' }, { status: 201 }),
-  ),
+  http.post(`${A}/pistes/:id/signaler/`, async ({ params, request }) => {
+    const body = (await request.json()) as { motif: string; comment: string };
+    signalements.push({ cible: 'piste', id: params.id as string, ...body });
+    return HttpResponse.json(
+      { id: signalements.length, cible: 'piste', status: 'ouvert' },
+      { status: 201 },
+    );
+  }),
+
+  http.post(`${A}/albums/:id/signaler/`, async ({ params, request }) => {
+    const a = ALBUMS.find((x) => x.id === params.id);
+    if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    const body = (await request.json()) as { motif: string; comment: string };
+    signalements.push({ cible: 'album', id: a.id, ...body });
+    return HttpResponse.json(
+      {
+        id: signalements.length,
+        cible: 'album',
+        track: null,
+        album: a,
+        motif: body.motif,
+        comment: body.comment,
+        status: 'ouvert',
+        created_at: new Date().toISOString(),
+        handled_at: null,
+      },
+      { status: 201 },
+    );
+  }),
 
   // -------------------------------------------------------- recherche
   http.get(`${A}/recherche/`, async ({ request }) => {
@@ -645,7 +760,76 @@ export const sonothequeHandlers = [
     return HttpResponse.json(p, { status: 201 });
   }),
 
+  // -------------------------------------------------------- accueil
+  http.get(`${A}/accueil/`, async () => {
+    await networkDelay();
+    const deMaParoisse = new Set(
+      SOURCES.filter((x) => x.node?.id === NOEUD_SD.id).map((x) => x.id),
+    );
+    const nouveautes = TOUTES.filter((t) => deMaParoisse.has(t.source.id))
+      .filter((t) => t.published_at)
+      .sort((a, b) =>
+        (b.published_at ?? '').localeCompare(a.published_at ?? ''),
+      )
+      .slice(0, 10);
+    return HttpResponse.json({
+      paroisse: NOEUD_SD,
+      reprendre: [
+        {
+          track: PISTES_RETRAITE[2],
+          position_seconds: 947,
+          updated_at: '2026-09-25T19:10:00Z',
+          device_id: 'web-mt-diouf',
+        },
+        {
+          track: PISTES_HOMELIES[1],
+          position_seconds: 472,
+          updated_at: '2026-09-26T21:40:00Z',
+          device_id: 'ios-mt-diouf',
+        },
+      ],
+      nouveautes_ma_paroisse: nouveautes,
+      pour_vous: recommandations
+        ? [
+            {
+              track: PISTES_VISITATION[9],
+              reason: 'Parce que vous avez écouté Magnificat',
+            },
+            {
+              track: PISTES_MEDINA[0],
+              reason: 'Pour le mois du Rosaire, qui commence jeudi',
+            },
+            {
+              track: PISTES_HOMELIES[0],
+              reason: 'Suite de la série que vous écoutez',
+            },
+            {
+              track: PISTES_VEILLEE[0],
+              reason: 'Aimé par des fidèles qui aiment vos chants',
+            },
+          ]
+        : [
+            {
+              track: PISTES_MESSE[3],
+              reason: 'Nouveauté de Paroisse Saint-Dominique',
+            },
+            { track: PISTES_HOMELIES[2], reason: 'Pour le temps ordinaire' },
+          ],
+      playlists_paroisse: PLAYLISTS.filter(
+        (p) => p.is_editorial && p.source && deMaParoisse.has(p.source.id),
+      ),
+      temps_liturgique: {
+        code: 'ordinaire',
+        label: 'Temps ordinaire',
+        tracks: [PISTES_HOMELIES[2], PISTES_MESSE[1], PISTES_HOMELIES[1]],
+      },
+    });
+  }),
+
   // -------------------------------------------------------- recommandations
+  http.get(`${A}/reglages/`, () =>
+    HttpResponse.json({ recommendations_enabled: recommandations }),
+  ),
   http.get(`${A}/pour-vous/`, async () => {
     await networkDelay();
     return HttpResponse.json({
@@ -710,7 +894,7 @@ export const sonothequeHandlers = [
       );
     }
     const s = SOURCES.find((x) => x.id === body.source_id) ?? SD;
-    const alb = ALBUMS.find((a) => a.id === body.album_id);
+    const alb = staffAlbums.find((a) => a.id === body.album_id);
     const id = crypto.randomUUID();
     const track: StaffTrack = staff(
       {
@@ -811,4 +995,144 @@ export const sonothequeHandlers = [
     if (e) e.track = { ...e.track, ...body };
     return HttpResponse.json(e?.track ?? { ...staffTracks[0], ...body });
   }),
+
+  // -------------------------------------------------------- albums staff
+  http.get(`${A}/staff/albums/`, async ({ request }) => {
+    await networkDelay();
+    const q = new URL(request.url).searchParams;
+    const source = q.get('source');
+    const kind = q.get('kind');
+    if (source && !albumsGeres.has(source))
+      return erreur(403, 'audio_forbidden', 'Vous ne gérez pas cette source.');
+    return HttpResponse.json(
+      staffAlbums.filter(
+        (a) =>
+          (!source || a.source.id === source) && (!kind || a.kind === kind),
+      ),
+    );
+  }),
+
+  http.post(`${A}/staff/albums/`, async ({ request }) => {
+    await networkDelay();
+    const body = (await request.json()) as {
+      source_id: string;
+      kind: StaffAlbum['kind'];
+      title: string;
+      visibility: StaffAlbum['visibility'];
+      description?: string;
+      recorded_on?: string | null;
+      liturgical_season?: string;
+    };
+    const s = SOURCES.find((x) => x.id === body.source_id);
+    if (!s || !albumsGeres.has(s.id))
+      return erreur(403, 'audio_forbidden', 'Vous ne gérez pas cette source.');
+    if (!body.title?.trim())
+      return erreur(400, 'titre_requis', 'Donnez un titre à l’album.');
+    const maintenant = new Date().toISOString();
+    const a: StaffAlbum = {
+      id: crypto.randomUUID(),
+      source: src(s),
+      kind: body.kind,
+      title: body.title.trim(),
+      description: body.description ?? '',
+      visibility: body.visibility,
+      cover_url: null,
+      recorded_on: body.recorded_on ?? null,
+      liturgical_season: body.liturgical_season ?? '',
+      published_at: null,
+      track_count: 0,
+      hidden_at: null,
+      created_at: maintenant,
+      updated_at: maintenant,
+    };
+    staffAlbums.unshift(a);
+    return HttpResponse.json(a, { status: 201 });
+  }),
+
+  http.get(`${A}/staff/albums/:id/`, async ({ params }) => {
+    await networkDelay();
+    const a = staffAlbums.find((x) => x.id === params.id);
+    if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    const publiees = (PISTES_PAR_ALBUM[a.id] ?? []).map((t) => {
+      const connue = staffTracks.find((x) => x.id === t.id);
+      return connue ?? staff(t, { plays_30d: 0 });
+    });
+    const autres = staffTracks.filter(
+      (t) => t.album?.id === a.id && !publiees.some((p) => p.id === t.id),
+    );
+    return HttpResponse.json({ album: a, tracks: [...publiees, ...autres] });
+  }),
+
+  http.patch(`${A}/staff/albums/:id/`, async ({ params, request }) => {
+    await networkDelay();
+    const a = staffAlbums.find((x) => x.id === params.id);
+    if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    const body = (await request.json()) as Partial<StaffAlbum>;
+    Object.assign(a, body, { updated_at: new Date().toISOString() });
+    return HttpResponse.json(a);
+  }),
+
+  http.post(`${A}/albums/:id/publier/`, async ({ params }) => {
+    await networkDelay();
+    const a = staffAlbums.find((x) => x.id === params.id);
+    if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    a.published_at = a.published_at ?? new Date().toISOString();
+    return HttpResponse.json(a);
+  }),
+
+  http.post(`${A}/staff/albums/:id/pochette/`, async ({ params, request }) => {
+    await networkDelay();
+    const a = staffAlbums.find((x) => x.id === params.id);
+    if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    const body = (await request.json()) as {
+      file_name: string;
+      file_type: string;
+      file_size: number;
+    };
+    if (!/\.(jpe?g|png|webp)$/i.test(body.file_name))
+      return erreur(
+        400,
+        'format_image',
+        'La pochette doit être une image JPG, PNG ou WebP.',
+      );
+    if (body.file_size > 5 * 1024 * 1024)
+      return erreur(400, 'image_trop_grosse', 'L’image dépasse 5 Mo.');
+    const fileId = prochainFichier++;
+    pochettes.set(fileId, a.id);
+    return HttpResponse.json(
+      {
+        file_id: fileId,
+        method: 'POST',
+        // Stockage local (développement) : champ `file` seul, jeton requis.
+        url: `${A}/staff/albums/${a.id}/pochette/${fileId}/local/`,
+        fields: {},
+        max_size: 5242880,
+        expires_in: 3600,
+      },
+      { status: 201 },
+    );
+  }),
+
+  http.post(
+    `${A}/staff/albums/:id/pochette/:fileId/local/`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
+  http.post(
+    `${A}/staff/albums/:id/pochette/terminer/`,
+    async ({ params, request }) => {
+      await networkDelay();
+      const body = (await request.json()) as { file_id: number };
+      const a = staffAlbums.find((x) => x.id === params.id);
+      if (!a || pochettes.get(Number(body.file_id)) !== a.id)
+        return erreur(
+          404,
+          'pochette_introuvable',
+          'Cette pochette n’appartient pas à l’album.',
+        );
+      a.cover_url = `https://stockage.jangubi.sn/audio-covers/${a.id}/${body.file_id}.jpg`;
+      a.updated_at = new Date().toISOString();
+      return HttpResponse.json(a);
+    },
+  ),
 ];

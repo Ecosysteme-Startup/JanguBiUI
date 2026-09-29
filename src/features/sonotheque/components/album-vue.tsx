@@ -230,7 +230,7 @@ export function AlbumVue({ albumId }: { albumId: string }) {
               </div>
             </dl>
             <div className="mt-4 border-t border-border pt-4">
-              <SignalerDialog pistes={tracks} />
+              <SignalerDialog pistes={tracks} album={album} />
             </div>
           </section>
 

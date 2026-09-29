@@ -16,6 +16,7 @@ import {
 import { useNotifications } from '@/components/ui/notifications';
 import { Textarea } from '@/components/ui/textarea';
 
+import { useReportAlbum } from '../api/report-album';
 import {
   MOTIFS_SIGNALEMENT,
   useReportTrack,
@@ -23,17 +24,36 @@ import {
 } from '../api/report-track';
 import type { Track } from '../types/schemas';
 
+/** Valeur du choix « tout l'album » dans la liste des cibles. */
+const ALBUM_ENTIER = '__album__';
+
 const champ =
   'h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
 
-/** « Signaler un contenu » (règles de l'Église, spec C2 §1). */
-export function SignalerDialog({ pistes }: { pistes: Track[] }) {
+/**
+ * « Signaler un contenu » (règles de l'Église, spec C2 §1). Sur la page d'un
+ * album, on peut signaler l'album entier (pochette, présentation, ensemble
+ * des pistes : `POST audio/albums/<id>/signaler/`) ou une seule piste.
+ */
+export function SignalerDialog({
+  pistes,
+  album,
+}: {
+  pistes: Track[];
+  album?: { id: string; title: string } | null;
+}) {
   const [ouvert, setOuvert] = useState(false);
-  const [pisteId, setPisteId] = useState(pistes[0]?.id ?? '');
+  const [cible, setCible] = useState(
+    album ? ALBUM_ENTIER : (pistes[0]?.id ?? ''),
+  );
   const [motif, setMotif] = useState<MotifSignalement>('droits');
   const [commentaire, setCommentaire] = useState('');
-  const report = useReportTrack();
-  if (!pistes.length) return null;
+  const reportPiste = useReportTrack();
+  const reportAlbum = useReportAlbum();
+  if (!pistes.length && !album) return null;
+  const surAlbum = !!album && (cible === ALBUM_ENTIER || !pistes.length);
+  const enCours = reportPiste.isPending || reportAlbum.isPending;
+  const choixCible = pistes.length > 1 || (!!album && pistes.length > 0);
   return (
     <Dialog open={ouvert} onOpenChange={setOuvert}>
       <DialogTrigger asChild>
@@ -58,34 +78,40 @@ export function SignalerDialog({ pistes }: { pistes: Track[] }) {
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            report.mutate(
-              {
-                trackId: pisteId || pistes[0].id,
-                motif,
-                comment: commentaire.trim(),
+            const suite = {
+              onSuccess: () => {
+                setOuvert(false);
+                setCommentaire('');
+                useNotifications.getState().addNotification({
+                  type: 'success',
+                  title: 'Signalement envoyé',
+                  message: 'Merci. La paroisse en sera informée.',
+                });
               },
-              {
-                onSuccess: () => {
-                  setOuvert(false);
-                  setCommentaire('');
-                  useNotifications.getState().addNotification({
-                    type: 'success',
-                    title: 'Signalement envoyé',
-                    message: 'Merci. La paroisse en sera informée.',
-                  });
-                },
-              },
-            );
+            };
+            const corps = { motif, comment: commentaire.trim() };
+            if (surAlbum && album) {
+              reportAlbum.mutate({ albumId: album.id, ...corps }, suite);
+            } else {
+              const trackId =
+                cible && cible !== ALBUM_ENTIER ? cible : pistes[0].id;
+              reportPiste.mutate({ trackId, ...corps }, suite);
+            }
           }}
         >
-          {pistes.length > 1 && (
+          {choixCible && (
             <label className="block space-y-1.5 text-sm font-medium">
-              <span>Enregistrement concerné</span>
+              <span>Contenu concerné</span>
               <select
                 className={champ}
-                value={pisteId}
-                onChange={(e) => setPisteId(e.target.value)}
+                value={cible}
+                onChange={(e) => setCible(e.target.value)}
               >
+                {album && (
+                  <option value={ALBUM_ENTIER}>
+                    {`Tout l’album « ${album.title} »`}
+                  </option>
+                )}
                 {pistes.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.title}
@@ -121,7 +147,7 @@ export function SignalerDialog({ pistes }: { pistes: Track[] }) {
           </div>
         </form>
         <DialogFooter>
-          <Button type="submit" form="signaler" isLoading={report.isPending}>
+          <Button type="submit" form="signaler" isLoading={enCours}>
             Envoyer le signalement
           </Button>
         </DialogFooter>

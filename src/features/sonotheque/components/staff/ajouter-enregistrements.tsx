@@ -2,8 +2,8 @@
 
 import {
   EyeOff,
+  FolderPlus,
   Globe,
-  ImagePlus,
   Lock,
   Send,
   UploadCloud,
@@ -19,8 +19,8 @@ import { paths } from '@/config/paths';
 import { Reveal } from '@/lib/motion/reveal';
 import { cn } from '@/utils/cn';
 
-import { useAlbums } from '../../api/get-albums';
 import { useStaffSources } from '../../api/get-staff-sources';
+import { useStaffAlbums } from '../../api/staff-albums';
 import type { StorageUploader } from '../../api/upload-to-storage';
 import { useFileEnvoi } from '../../hooks/use-file-envoi';
 import type { Visibilite } from '../../types/schemas';
@@ -31,9 +31,10 @@ import {
   LIBELLES_TEMPS,
   pluriel,
 } from '../../utils/format';
-import { Pochette } from '../pochette';
 
+import { AlbumDialog } from './album-dialog';
 import { LigneFichier } from './ligne-fichier';
+import { PochetteAlbum } from './pochette-album';
 
 const champ =
   'h-10 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
@@ -56,23 +57,20 @@ export function AjouterEnregistrements({ uploader, intervalleSuivi }: Props) {
   const [droits, setDroits] = useState(false);
   const [tentative, setTentative] = useState(false);
   const [survol, setSurvol] = useState(false);
-  const [pochette, setPochette] = useState<string | null>(null);
+  const [nouvelAlbum, setNouvelAlbum] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const idDroits = useId();
 
   const envoi = useFileEnvoi({ uploader, intervalleSuivi });
-  const albums = useAlbums(sourceId ? { source: sourceId } : {});
+  // Albums de la source, brouillons compris (espace staff).
+  const albums = useStaffAlbums(
+    { source: sourceId || undefined },
+    { enabled: !!sourceId },
+  );
 
   useEffect(() => {
     if (!sourceId && sources.data?.length) setSourceId(sources.data[0].id);
   }, [sources.data, sourceId]);
-
-  useEffect(
-    () => () => {
-      if (pochette) URL.revokeObjectURL(pochette);
-    },
-    [pochette],
-  );
 
   const source = sources.data?.find((s) => s.id === sourceId);
   const album = albums.data?.find((a) => a.id === albumId);
@@ -276,33 +274,7 @@ export function AjouterEnregistrements({ uploader, intervalleSuivi }: Props) {
             Informations de l’album
           </h2>
 
-          <div className="flex items-center gap-4">
-            <Pochette
-              titre={album?.title ?? source?.name ?? 'Album'}
-              genre={album?.kind ?? source?.kind ?? 'album'}
-              imageUrl={pochette}
-              className="size-20 rounded-xl"
-            />
-            <div className="text-sm">
-              <p className="font-medium">Pochette</p>
-              <p className="text-muted-foreground">
-                JPG ou PNG carré, 1 400 px conseillés
-              </p>
-              <label className="mt-1 inline-flex cursor-pointer items-center gap-1.5 font-medium text-primary hover:underline">
-                <ImagePlus className="size-4" aria-hidden />
-                {pochette ? 'Remplacer l’image' : 'Choisir une image'}
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  className="sr-only"
-                  onChange={(e) => {
-                    const img = e.target.files?.[0];
-                    if (img) setPochette(URL.createObjectURL(img));
-                  }}
-                />
-              </label>
-            </div>
-          </div>
+          <PochetteAlbum album={album} uploader={uploader} />
 
           <label className="block space-y-1.5 text-sm font-medium">
             <span>Source</span>
@@ -322,21 +294,42 @@ export function AjouterEnregistrements({ uploader, intervalleSuivi }: Props) {
             </select>
           </label>
 
-          <label className="block space-y-1.5 text-sm font-medium">
-            <span>Album</span>
-            <select
-              className={champ}
-              value={albumId}
-              onChange={(e) => setAlbumId(e.target.value)}
+          <div className="space-y-1.5">
+            <label className="block space-y-1.5 text-sm font-medium">
+              <span>Album</span>
+              <select
+                className={champ}
+                value={albumId}
+                onChange={(e) => setAlbumId(e.target.value)}
+              >
+                <option value="">Sans album</option>
+                {(albums.data ?? []).map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.published_at ? a.title : `${a.title} (brouillon)`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => setNouvelAlbum(true)}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
-              <option value="">Sans album</option>
-              {(albums.data ?? []).map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.title}
-                </option>
-              ))}
-            </select>
-          </label>
+              <FolderPlus className="size-4" aria-hidden />
+              Nouvel album
+            </button>
+          </div>
+          <AlbumDialog
+            open={nouvelAlbum}
+            onOpenChange={setNouvelAlbum}
+            sources={sources.data ?? []}
+            sourceParDefaut={sourceId}
+            uploader={uploader}
+            onEnregistre={(a) => {
+              setSourceId(a.source.id);
+              setAlbumId(a.id);
+            }}
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <label className="block space-y-1.5 text-sm font-medium">
