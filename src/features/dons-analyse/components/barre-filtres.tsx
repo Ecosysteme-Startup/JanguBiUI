@@ -1,8 +1,8 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
+import { Icon } from '@/components/ui/icon';
 import { cn } from '@/utils/cn';
 
 import { capitaliser, formatMois } from '../utils/format';
@@ -90,7 +90,7 @@ export function BarreFiltres<G extends string>({
           onClick={() => onMois(decalerMois(mois, -1))}
           className="flex size-8 items-center justify-center rounded-lg text-ink hover:bg-surface-2"
         >
-          <ChevronLeft className="size-4" aria-hidden="true" />
+          <Icon name="chevron-gauche" className="size-4" aria-hidden="true" />
         </button>
         <span
           aria-live="polite"
@@ -105,7 +105,7 @@ export function BarreFiltres<G extends string>({
           onClick={() => onMois(decalerMois(mois, 1))}
           className="flex size-8 items-center justify-center rounded-lg text-ink hover:bg-surface-2 disabled:opacity-40 disabled:hover:bg-transparent"
         >
-          <ChevronRight className="size-4" aria-hidden="true" />
+          <Icon name="chevron-droite" className="size-4" aria-hidden="true" />
         </button>
       </div>
       {filtres.map((f) => (
@@ -122,7 +122,7 @@ export function BarreFiltres<G extends string>({
               </option>
             ))}
           </select>
-          <ChevronRight
+          <Icon name="chevron-droite"
             aria-hidden="true"
             className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 rotate-90 text-ink-3"
           />

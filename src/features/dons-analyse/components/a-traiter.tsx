@@ -1,6 +1,6 @@
-import { ChevronRight } from 'lucide-react';
 
 import { Badge, type BadgeTone } from '@/components/ui/badge';
+import { Icon } from '@/components/ui/icon';
 
 import type { ElementATraiter } from '../api/get-analyse-dons';
 import { formatFcfa, formatHeure, formatJourMois } from '../utils/format';
@@ -104,7 +104,7 @@ export function ATraiter({ elements, className }: ATraiterProps) {
                     </p>
                   )}
                 </div>
-                <ChevronRight
+                <Icon name="chevron-droite"
                   aria-hidden="true"
                   className="size-4 shrink-0 text-ink-3"
                 />

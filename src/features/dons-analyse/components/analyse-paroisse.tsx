@@ -1,10 +1,10 @@
 'use client';
 
-import { Download } from 'lucide-react';
 import NextLink from 'next/link';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 import { ApiError } from '@/lib/api-client';
 
@@ -35,7 +35,7 @@ import {
   ORDRE_FONDS,
   STATUTS_PAIEMENT,
 } from '../utils/palette';
-import { codePeriode, enPeriode, periodeEnCours } from '../utils/periode';
+import { codePeriode, enPeriode, periodeEnCours, moisCourant } from '../utils/periode';
 import {
   type LigneRepartition,
   lignesCanal,
@@ -61,8 +61,6 @@ import {
   TableauSimple,
 } from './graphiques/tableau-repartition';
 import { Onglets } from './onglets-dons';
-
-const MOIS_COURANT = '2026-09';
 
 const PERIODES: { valeur: Periode; libelle: string }[] = [
   { valeur: 'semaine', libelle: 'Semaine' },
@@ -658,7 +656,9 @@ const exporter = (data: AnalyseDons) => {
 
 export function AnalyseParoisseVue({ nodeId }: { nodeId: string }) {
   const [periode, setPeriode] = React.useState<Periode>('mois');
-  const [mois, setMois] = React.useState(MOIS_COURANT);
+  // Mois du jour à Dakar, figé au montage : mois par défaut et borne haute du sélecteur.
+  const [moisDuJour] = React.useState(moisCourant);
+  const [mois, setMois] = React.useState(moisDuJour);
   const { noeud, isLoading: chargementNoeud } = useNoeudAnalyse(
     'paroisse',
     nodeId,
@@ -668,7 +668,7 @@ export function AnalyseParoisseVue({ nodeId }: { nodeId: string }) {
     niveau: 'paroisse',
     noeud: noeud?.id,
     periode,
-    date: codePeriode(periode, mois, MOIS_COURANT),
+    date: codePeriode(periode, mois, moisDuJour),
   });
   const flux = useFluxDons({ niveau: 'paroisse', noeud: noeud?.id });
 
@@ -715,7 +715,7 @@ export function AnalyseParoisseVue({ nodeId }: { nodeId: string }) {
         onGranularite={setPeriode}
         mois={mois}
         onMois={setMois}
-        moisMax={MOIS_COURANT}
+        moisMax={moisDuJour}
         filtres={[]}
         fin={
           <button
@@ -724,7 +724,7 @@ export function AnalyseParoisseVue({ nodeId }: { nodeId: string }) {
             onClick={() => data && exporter(data)}
             className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-3.5 text-14 font-semibold text-ink hover:bg-surface-2 disabled:opacity-50"
           >
-            <Download className="size-4" aria-hidden="true" />
+            <Icon name="import" className="size-4" aria-hidden="true" />
             Exporter
           </button>
         }

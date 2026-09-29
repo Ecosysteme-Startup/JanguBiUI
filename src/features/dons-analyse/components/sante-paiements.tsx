@@ -23,7 +23,7 @@ import {
   partPourcent,
 } from '../utils/format';
 import { STATUTS_PAIEMENT } from '../utils/palette';
-import { codePeriode } from '../utils/periode';
+import { codePeriode, moisCourant } from '../utils/periode';
 
 import { BarreFiltres } from './barre-filtres';
 import { BarreDeFlux } from './graphiques/barre-de-flux';
@@ -46,7 +46,6 @@ import {
 // Cette vue n'affiche que des nombres, des taux et des délais ; le contrat
 // d'API n'en transporte pas (schéma strict).
 
-const MOIS_COURANT = '2026-09';
 const nombre = (n: number) => String(n);
 const TIRET = '—';
 
@@ -633,10 +632,12 @@ function Incidents({ data }: { data: ActivitePlateforme }) {
 
 export function SantePaiementsVue() {
   const [periode, setPeriode] = React.useState<Periode>('mois');
-  const [mois, setMois] = React.useState(MOIS_COURANT);
+  // Mois du jour à Dakar, figé au montage : mois par défaut et borne haute du sélecteur.
+  const [moisDuJour] = React.useState(moisCourant);
+  const [mois, setMois] = React.useState(moisDuJour);
   const { data, isLoading, error } = useActivitePlateforme({
     periode,
-    date: codePeriode(periode, mois, MOIS_COURANT),
+    date: codePeriode(periode, mois, moisDuJour),
   });
 
   return (
@@ -650,7 +651,7 @@ export function SantePaiementsVue() {
         onGranularite={setPeriode}
         mois={mois}
         onMois={setMois}
-        moisMax={MOIS_COURANT}
+        moisMax={moisDuJour}
         filtres={[]}
         fin={
           data && (

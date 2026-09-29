@@ -1,9 +1,10 @@
 'use client';
 
-import { ArrowDownAZ, ArrowUpZA, Download, Info, Lock } from 'lucide-react';
+import { ArrowDownAZ, ArrowUpZA } from 'lucide-react';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import { Icon } from '@/components/ui/icon';
 import { ApiError } from '@/lib/api-client';
 
 import {
@@ -28,7 +29,7 @@ import {
 } from '../utils/format';
 import { trierAlphabetique } from '../utils/ordre';
 import { COULEUR_FONDS, LIBELLE_FONDS, ORDRE_FONDS } from '../utils/palette';
-import { codePeriode, enPeriode, periodeEnCours } from '../utils/periode';
+import { codePeriode, enPeriode, periodeEnCours, moisCourant } from '../utils/periode';
 
 import { ATraiter } from './a-traiter';
 import { BarreFiltres } from './barre-filtres';
@@ -47,7 +48,6 @@ import {
   TableauSimple,
 } from './graphiques/tableau-repartition';
 
-const MOIS_COURANT = '2026-09';
 const TIRET = '—';
 
 // Pas de semaine au-dessus de la paroisse (400 `period_not_allowed`).
@@ -594,7 +594,9 @@ const exporter = (data: AnalyseDons) => {
 
 export function AnalyseDioceseVue({ nodeId }: { nodeId: string }) {
   const [periode, setPeriode] = React.useState<Periode>('mois');
-  const [mois, setMois] = React.useState(MOIS_COURANT);
+  // Mois du jour à Dakar, figé au montage : mois par défaut et borne haute du sélecteur.
+  const [moisDuJour] = React.useState(moisCourant);
+  const [mois, setMois] = React.useState(moisDuJour);
   const { noeud, isLoading: chargementNoeud } = useNoeudAnalyse(
     'diocese',
     nodeId,
@@ -607,7 +609,7 @@ export function AnalyseDioceseVue({ nodeId }: { nodeId: string }) {
     niveau: 'diocese',
     noeud: noeud?.id,
     periode,
-    date: codePeriode(periode, mois, MOIS_COURANT),
+    date: codePeriode(periode, mois, moisDuJour),
   });
   useFluxDons({ niveau: 'diocese', noeud: noeud?.id });
   const data = React.useMemo(
@@ -620,7 +622,7 @@ export function AnalyseDioceseVue({ nodeId }: { nodeId: string }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <p className="inline-flex items-center gap-1.5 text-15 text-ink-3">
-          <Lock className="size-4" aria-hidden="true" />
+          <Icon name="cadenas" className="size-4" aria-hidden="true" />
           Agrégats seulement · montants arrondis au millier · ordre alphabétique
         </p>
         <button
@@ -629,7 +631,7 @@ export function AnalyseDioceseVue({ nodeId }: { nodeId: string }) {
           onClick={() => data && exporter(data)}
           className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-3.5 text-14 font-semibold text-ink hover:bg-surface-2 disabled:opacity-50"
         >
-          <Download className="size-4" aria-hidden="true" />
+          <Icon name="import" className="size-4" aria-hidden="true" />
           Exporter les agrégats
         </button>
       </div>
@@ -640,7 +642,7 @@ export function AnalyseDioceseVue({ nodeId }: { nodeId: string }) {
         onGranularite={setPeriode}
         mois={mois}
         onMois={setMois}
-        moisMax={MOIS_COURANT}
+        moisMax={moisDuJour}
         filtres={[]}
       />
 
@@ -671,7 +673,7 @@ export function AnalyseDioceseVue({ nodeId }: { nodeId: string }) {
             <QueteImpereeCarte key={q.fonds_id} q={q} />
           ))}
           <p className="flex items-start gap-2 rounded-xl bg-surface-2 px-4 py-3 text-14 text-ink-2">
-            <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <Icon name="info" className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             Agrégats seulement. Les montants sont arrondis au millier, sauf la
             quête impérée, tenue au franc près pour le rapprochement avec les
             remises.

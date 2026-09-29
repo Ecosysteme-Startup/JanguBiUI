@@ -72,3 +72,18 @@ export const periodeEnCours = (
   const jour = genereLe.slice(0, 10);
   return periode.debut <= jour && jour <= periode.fin;
 };
+
+/**
+ * Mois courant `AAAA-MM` à Dakar (Africa/Dakar, UTC+0 toute l'année) : le mois de référence par
+ * défaut des écrans d'analyse et la borne haute du sélecteur de mois.
+ */
+export const moisCourant = (maintenant: Date = new Date()): string => {
+  const parties = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Dakar',
+    year: 'numeric',
+    month: '2-digit',
+  }).formatToParts(maintenant);
+  const valeur = (type: 'year' | 'month') =>
+    parties.find((p) => p.type === type)?.value ?? '';
+  return `${valeur('year')}-${valeur('month')}`;
+};
