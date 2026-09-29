@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import { SansRoute } from '@/components/staff/sans-route';
 import { ErrorState } from '@/components/ui/error-state';
 import { SectionHeader } from '@/components/ui/section-header';
 import { paths } from '@/config/paths';
@@ -12,7 +13,7 @@ import { AdminTransferList } from '@/features/transfert-paroissial/components/ad
 import { useUser } from '@/lib/auth';
 import { isClergy } from '@/lib/authorization';
 
-export default function ClergeTransfertsPage() {
+function ClergeTransfertsPageContenu() {
   const router = useRouter();
   const { data: user, isLoading: userLoading } = useUser();
   const authorized = !userLoading && isClergy(user);
@@ -61,5 +62,13 @@ export default function ClergeTransfertsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ClergeTransfertsPage() {
+  return (
+    <SansRoute cle="transferts" titre="Transferts paroissiaux">
+      <ClergeTransfertsPageContenu />
+    </SansRoute>
   );
 }

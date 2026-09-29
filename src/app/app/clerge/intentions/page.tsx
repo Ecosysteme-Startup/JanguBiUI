@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import { SansRoute } from '@/components/staff/sans-route';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card/card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -24,7 +25,7 @@ import { IntentionStatusBadge } from '@/features/intentions/components/intention
 import { useUser } from '@/lib/auth';
 import { isClergy } from '@/lib/authorization';
 
-export default function ClergeIntentionsPage() {
+function ClergeIntentionsPageContenu() {
   const router = useRouter();
   const { data: user, isLoading: userLoading } = useUser();
   const { data, isLoading, isError, refetch } = useParishIntentions();
@@ -181,5 +182,13 @@ export default function ClergeIntentionsPage() {
           ))}
       </ContentContainer>
     </div>
+  );
+}
+
+export default function ClergeIntentionsPage() {
+  return (
+    <SansRoute cle="intentionsMesse" titre="Intentions de messe">
+      <ClergeIntentionsPageContenu />
+    </SansRoute>
   );
 }

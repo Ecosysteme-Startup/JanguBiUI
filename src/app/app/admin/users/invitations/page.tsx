@@ -3,13 +3,14 @@
 import Link from 'next/link';
 
 import { AdminPageLayout } from '@/components/layouts/admin-page-layout';
+import { SansRoute } from '@/components/staff/sans-route';
 import { Button } from '@/components/ui/button/button';
 import { paths } from '@/config/paths';
 import { useInvitations } from '@/features/clergy-accounts/api/get-invitations';
 import { InvitationList } from '@/features/clergy-accounts/components/invitation-list';
 import { canManageClergy } from '@/lib/authorization';
 
-export default function InvitationsPage() {
+function InvitationsPageContenu() {
   const { data, isLoading } = useInvitations();
 
   return (
@@ -37,5 +38,13 @@ export default function InvitationsPage() {
         isLoading={isLoading}
       />
     </AdminPageLayout>
+  );
+}
+
+export default function InvitationsPage() {
+  return (
+    <SansRoute cle="invitationsClerge" titre="Invitations du clergé">
+      <InvitationsPageContenu />
+    </SansRoute>
   );
 }

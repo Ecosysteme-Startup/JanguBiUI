@@ -108,11 +108,10 @@ const ITEM_CLERGE: NavItem = {
   icon: Church,
   clergyOnly: true,
 };
-// Tableau de bord analytique (dons + fidèles) scopé au périmètre du responsable.
-// Affiché pour tout le clergé ; la page gère le 403 (clergé sans périmètre) par un
-// état vide — le back est la source de vérité de l'autorité territoriale.
+// Tableau de bord du nœud (/v1/dashboards/nodes/{id}/), agrégé, sans donnée
+// nominative : capacité `tableau_bord.voir`.
 const ITEM_ANALYTIQUE: NavItem = {
-  label: 'Analytique',
+  label: 'Tableau de bord',
   href: '/app/clerge/analytique',
   icon: BarChart3,
   clergyOnly: true,
@@ -195,7 +194,10 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_ACTUS,
       ITEM_SPIRITUEL,
       ITEM_CLERGE,
-      ITEM_ANALYTIQUE,
+      // Tableau de bord du nœud : seulement avec `tableau_bord.voir`.
+      ...(user?.capabilities?.includes('tableau_bord.voir')
+        ? [ITEM_ANALYTIQUE]
+        : []),
       ITEM_ECOUTER,
       ...donsStaffItems(user),
       ...sonothequeStaffItems(user),

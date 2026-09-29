@@ -27,6 +27,13 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     description: 'Économe, paroisse Saint-Dominique',
   },
   {
+    email: 'emmanuel.tine@saint-dominique.sn',
+    first_name: 'Emmanuel',
+    last_name: 'Tine',
+    title: 'Père',
+    description: 'Curé, paroisse Saint-Dominique',
+  },
+  {
     email: 'germaine.faye@saint-dominique.sn',
     first_name: 'Germaine',
     last_name: 'Faye',

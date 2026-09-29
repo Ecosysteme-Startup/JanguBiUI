@@ -1,80 +1,85 @@
 'use client';
 
 import { PlusCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { useRegisterPageMeta } from '@/components/layouts/page-meta';
-import { Button } from '@/components/ui/button/button';
+import { AdminPageLayout } from '@/components/layouts/admin-page-layout';
+import { NoeudSelect, useNoeudActif } from '@/components/staff/noeud-actif';
+import { FilterPills } from '@/components/ui/filter-pills';
+import { Link } from '@/components/ui/link/link';
 import { paths } from '@/config/paths';
-import { useAdminArticles } from '@/features/news/api/get-admin-articles';
+import {
+  CONTENUS_PAR_PAGE,
+  LIBELLES_STATUT_CONTENU,
+  useContenusStaff,
+} from '@/features/news/api/staff-articles';
 import { AdminArticleList } from '@/features/news/components/admin-article-list';
-import { ArticleStatus } from '@/features/news/types';
-import { useUser } from '@/lib/auth';
-import { canCreateArticle } from '@/lib/authorization';
+import { peut } from '@/lib/staff/capacites';
 
-const STATUS_FILTERS: { label: string; value: ArticleStatus | '' }[] = [
-  { label: 'Tous', value: '' },
-  { label: 'Brouillons', value: 'draft' },
-  { label: 'Publiés', value: 'published' },
-  { label: 'Dépubliés', value: 'unpublished' },
-];
+const STATUTS = ['', 'draft', 'scheduled', 'published', 'unpublished'];
 
 export default function AdminArticlesPage() {
-  const router = useRouter();
-  const { data: user, isLoading } = useUser();
-  const [statusFilter, setStatusFilter] = useState<ArticleStatus | ''>('');
-
-  useEffect(() => {
-    if (!isLoading && !canCreateArticle(user)) {
-      router.replace('/app');
-    }
-  }, [user, isLoading, router]);
-
-  const { data, isLoading: articlesLoading } = useAdminArticles(
-    statusFilter ? { status: statusFilter } : undefined,
+  const { noeud, noeuds, choisir } = useNoeudActif('annonces.publier');
+  const [statut, setStatut] = useState('');
+  const [offset, setOffset] = useState(0);
+  const { data, isLoading } = useContenusStaff(
+    { node: noeud?.id, status: statut, offset },
+    !!noeud,
   );
 
-  useRegisterPageMeta({
-    title: 'Gestion des articles',
-    subtitle: 'Créer, modifier et publier des articles',
-  });
-
-  if (isLoading || !canCreateArticle(user)) return null;
-
   return (
-    <div className="flex flex-col">
-      <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <div className="flex gap-2">
-            {STATUS_FILTERS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setStatusFilter(f.value)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  statusFilter === f.value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          <Link href={paths.app.admin.articleNew.getHref()}>
-            <Button size="sm">
-              <PlusCircle className="mr-2 size-4" />
-              Nouvel article
-            </Button>
-          </Link>
+    <AdminPageLayout
+      title="Annonces et articles"
+      subtitle="Rédiger, publier et retirer les contenus de la communauté"
+      allow={peut('annonces.publier')}
+      headerAction={
+        <Link
+          href={paths.app.admin.articleNew.getHref()}
+          className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground no-underline hover:bg-primary/90 hover:no-underline"
+        >
+          <PlusCircle className="size-4" aria-hidden="true" />
+          Nouvelle annonce
+        </Link>
+      }
+      toolbar={
+        <div className="space-y-3">
+          <NoeudSelect
+            noeuds={noeuds}
+            valeur={noeud?.id}
+            onChange={(id) => {
+              choisir(id);
+              setOffset(0);
+            }}
+          />
+          <FilterPills
+            options={STATUTS.map((s) => ({
+              value: s,
+              label: s ? LIBELLES_STATUT_CONTENU[s] : 'Tous',
+            }))}
+            value={statut}
+            onChange={(v) => {
+              setStatut(v);
+              setOffset(0);
+            }}
+            ariaLabel="Filtrer par statut"
+          />
         </div>
-
-        <AdminArticleList
-          articles={data?.results ?? []}
-          isLoading={articlesLoading}
-        />
-      </div>
-    </div>
+      }
+    >
+      <AdminArticleList
+        articles={data?.results}
+        isLoading={isLoading}
+        pagination={
+          data
+            ? {
+                count: data.count,
+                limit: CONTENUS_PAR_PAGE,
+                offset,
+                onOffsetChange: setOffset,
+              }
+            : undefined
+        }
+      />
+    </AdminPageLayout>
   );
 }

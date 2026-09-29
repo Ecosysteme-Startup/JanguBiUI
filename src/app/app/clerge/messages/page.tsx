@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import { SansRoute } from '@/components/staff/sans-route';
 import { Button } from '@/components/ui/button/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { RelativeTime } from '@/components/ui/relative-time';
@@ -27,7 +28,7 @@ const TAB_LABELS: Record<Tab, string> = {
 
 const TABS: Tab[] = ['inbox', 'compose'];
 
-export default function ClergeMessagesPage() {
+function ClergeMessagesPageContenu() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
   const [activeTab, setActiveTab] = useState<Tab>('inbox');
@@ -181,5 +182,13 @@ export default function ClergeMessagesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ClergeMessagesPage() {
+  return (
+    <SansRoute cle="messagerieClericale" titre="Messages du clergé">
+      <ClergeMessagesPageContenu />
+    </SansRoute>
   );
 }

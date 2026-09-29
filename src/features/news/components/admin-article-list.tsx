@@ -1,11 +1,11 @@
 'use client';
 
-import { Eye, Pencil, Send, Trash2, X } from 'lucide-react';
-import Link from 'next/link';
+import { Newspaper, Pencil, Send, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge/badge';
 import { Button } from '@/components/ui/button/button';
+import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
 import {
   Dialog,
   DialogContent,
@@ -14,254 +14,239 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog/dialog';
-import { Spinner } from '@/components/ui/spinner';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Link } from '@/components/ui/link/link';
 import { paths } from '@/config/paths';
 
-import { useDeleteArticle } from '../api/delete-article';
-import { usePublishArticle } from '../api/publish-article';
-import { useUnpublishArticle } from '../api/unpublish-article';
-import { Article } from '../types';
+import {
+  type ContenuStaff,
+  LIBELLES_STATUT_CONTENU,
+  LIBELLES_TYPE,
+  useDepublierContenu,
+  usePublierContenu,
+  useSupprimerContenu,
+} from '../api/staff-articles';
 
-import { ArticleTypeBadge } from './article-type-badge';
-
-const STATUS_CONFIG: Record<
+const VARIANTES: Record<
   string,
-  {
-    label: string;
-    variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success';
-  }
+  'default' | 'secondary' | 'destructive' | 'outline' | 'success'
 > = {
-  draft: { label: 'Brouillon', variant: 'outline' },
-  published: { label: 'Publié', variant: 'success' },
-  unpublished: { label: 'Dépublié', variant: 'destructive' },
+  draft: 'outline',
+  scheduled: 'secondary',
+  published: 'success',
+  unpublished: 'destructive',
 };
 
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
+const dateCourte = (iso: string | null | undefined): string =>
+  iso
+    ? new Date(iso).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : '—';
 
 interface AdminArticleListProps {
-  articles: Article[];
+  articles: ContenuStaff[] | undefined;
   isLoading?: boolean;
+  pagination?: React.ComponentProps<typeof DataTable>['pagination'];
 }
 
+/** Contenus à gérer (`/v1/staff/news/`), tous statuts, avec les lectures. */
 export function AdminArticleList({
   articles,
   isLoading,
+  pagination,
 }: AdminArticleListProps) {
-  const [deleteTarget, setDeleteTarget] = useState<Article | null>(null);
-  const [unpublishTarget, setUnpublishTarget] = useState<Article | null>(null);
+  const [aSupprimer, setASupprimer] = useState<ContenuStaff | null>(null);
+  const [aRetirer, setARetirer] = useState<ContenuStaff | null>(null);
+  const [motif, setMotif] = useState('');
 
-  const publishMutation = usePublishArticle();
-  const unpublishMutation = useUnpublishArticle();
-  const deleteMutation = useDeleteArticle({
-    onSuccess: () => setDeleteTarget(null),
-  });
+  const publier = usePublierContenu();
+  const depublier = useDepublierContenu();
+  const supprimer = useSupprimerContenu();
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (articles.length === 0) {
-    return (
-      <div className="py-12 text-center text-sm text-muted-foreground">
-        Aucun article trouvé.
-      </div>
-    );
-  }
+  const colonnes: DataTableColumn<ContenuStaff>[] = [
+    {
+      header: 'Titre',
+      cell: (a) => (
+        <div>
+          <span className="line-clamp-1 font-medium text-foreground">
+            {a.title}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {a.scope?.node_name ?? 'Toute la plateforme'}
+            {a.author_name ? ` · ${a.author_name}` : ''}
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'Type',
+      cell: (a) => LIBELLES_TYPE[a.content_type] ?? a.content_type,
+    },
+    {
+      header: 'Statut',
+      cell: (a) => (
+        <Badge variant={VARIANTES[a.status] ?? 'outline'}>
+          {LIBELLES_STATUT_CONTENU[a.status] ?? a.status}
+        </Badge>
+      ),
+    },
+    {
+      header: 'Publié le',
+      cell: (a) => dateCourte(a.published_at ?? a.publish_at),
+    },
+    {
+      header: 'Lectures',
+      cell: (a) => a.reads_count.toLocaleString('fr-FR'),
+      hideOnMobile: true,
+    },
+    {
+      header: 'Actions',
+      isAction: true,
+      cell: (a) => (
+        <div className="flex items-center justify-end gap-1">
+          {a.status !== 'unpublished' && (
+            <Link
+              href={paths.app.admin.articleEdit.getHref(a.id)}
+              aria-label={`Modifier « ${a.title} »`}
+              className="inline-flex size-9 items-center justify-center rounded-md hover:bg-muted"
+            >
+              <Pencil className="size-4" aria-hidden="true" />
+            </Link>
+          )}
+          {(a.status === 'draft' || a.status === 'unpublished') && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Publier « ${a.title} »`}
+              onClick={() => publier.mutate({ id: a.id })}
+              disabled={publier.isPending}
+            >
+              <Send className="size-4" />
+            </Button>
+          )}
+          {(a.status === 'published' || a.status === 'scheduled') && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Retirer « ${a.title} »`}
+              onClick={() => setARetirer(a)}
+            >
+              <X className="size-4" />
+            </Button>
+          )}
+          {a.status !== 'published' && a.status !== 'scheduled' && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Supprimer « ${a.title} »`}
+              className="text-destructive hover:text-destructive"
+              onClick={() => setASupprimer(a)}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Titre
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Type
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Statut
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Catégorie
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                Publié le
-              </th>
-              <th className="px-4 py-3 text-right font-medium text-muted-foreground">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {articles.map((article) => {
-              const statusConfig =
-                STATUS_CONFIG[article.status] ?? STATUS_CONFIG.draft;
-              return (
-                <tr key={article.id} className="bg-card hover:bg-muted/30">
-                  <td className="px-4 py-3">
-                    <span className="line-clamp-1 font-medium text-foreground">
-                      {article.title}
-                    </span>
-                    {article.author_name && (
-                      <span className="text-xs text-muted-foreground">
-                        par {article.author_name}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <ArticleTypeBadge contentType={article.content_type} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={statusConfig.variant}>
-                      {statusConfig.label}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {article.category?.name ?? '—'}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {formatDate(article.published_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link
-                        href={paths.app.article.getHref(article.id)}
-                        target="_blank"
-                      >
-                        <Button variant="ghost" size="icon" title="Voir">
-                          <Eye className="size-4" />
-                        </Button>
-                      </Link>
-                      {article.status !== 'unpublished' && (
-                        <Link
-                          href={paths.app.admin.articleEdit.getHref(article.id)}
-                        >
-                          <Button variant="ghost" size="icon" title="Modifier">
-                            <Pencil className="size-4" />
-                          </Button>
-                        </Link>
-                      )}
-                      {article.status === 'draft' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Publier"
-                          onClick={() => publishMutation.mutate(article.id)}
-                          disabled={publishMutation.isPending}
-                        >
-                          <Send className="size-4" />
-                        </Button>
-                      )}
-                      {article.status === 'published' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Dépublier"
-                          onClick={() => setUnpublishTarget(article)}
-                        >
-                          <X className="size-4" />
-                        </Button>
-                      )}
-                      {article.status !== 'published' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          title="Supprimer"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => setDeleteTarget(article)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        data={articles}
+        columns={colonnes}
+        rowKey={(a) => a.id}
+        isLoading={isLoading}
+        caption="Annonces et articles"
+        pagination={pagination}
+        emptyState={
+          <EmptyState
+            icon={<Newspaper />}
+            title="Aucun contenu"
+            description="Rédigez une annonce : elle reste en brouillon jusqu’à sa publication."
+          />
+        }
+      />
 
-      {/* Delete dialog */}
       <Dialog
-        open={!!deleteTarget}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        open={!!aSupprimer}
+        onOpenChange={(open) => !open && setASupprimer(null)}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Supprimer l&apos;article</DialogTitle>
+            <DialogTitle>Supprimer ce contenu ?</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir supprimer &quot;{deleteTarget?.title}
-              &quot; ? Cette action est irréversible.
+              « {aSupprimer?.title} » sera supprimé définitivement.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+            <Button variant="outline" onClick={() => setASupprimer(null)}>
               Annuler
             </Button>
             <Button
               variant="destructive"
+              isLoading={supprimer.isPending}
               onClick={() =>
-                deleteTarget && deleteMutation.mutate(deleteTarget.id)
+                aSupprimer &&
+                supprimer.mutate(aSupprimer.id, {
+                  onSuccess: () => setASupprimer(null),
+                })
               }
-              disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? (
-                <Spinner className="size-4" />
-              ) : (
-                'Supprimer'
-              )}
+              Supprimer
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Unpublish dialog */}
       <Dialog
-        open={!!unpublishTarget}
-        onOpenChange={(open) => !open && setUnpublishTarget(null)}
+        open={!!aRetirer}
+        onOpenChange={(open) => {
+          if (!open) {
+            setARetirer(null);
+            setMotif('');
+          }
+        }}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Dépublier l&apos;article</DialogTitle>
+            <DialogTitle>Retirer de la publication ?</DialogTitle>
             <DialogDescription>
-              L&apos;article &quot;{unpublishTarget?.title}&quot; sera retiré de
-              la publication.
+              « {aRetirer?.title} » ne sera plus visible des fidèles.
             </DialogDescription>
           </DialogHeader>
+          <label htmlFor="motif-retrait" className="text-sm font-medium">
+            Motif (facultatif)
+          </label>
+          <input
+            id="motif-retrait"
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setUnpublishTarget(null)}>
+            <Button variant="outline" onClick={() => setARetirer(null)}>
               Annuler
             </Button>
             <Button
-              onClick={() => {
-                if (unpublishTarget) {
-                  unpublishMutation.mutate(
-                    { id: unpublishTarget.id },
-                    { onSuccess: () => setUnpublishTarget(null) },
-                  );
-                }
-              }}
-              disabled={unpublishMutation.isPending}
+              isLoading={depublier.isPending}
+              onClick={() =>
+                aRetirer &&
+                depublier.mutate(
+                  { id: aRetirer.id, reason: motif },
+                  {
+                    onSuccess: () => {
+                      setARetirer(null);
+                      setMotif('');
+                    },
+                  },
+                )
+              }
             >
-              {unpublishMutation.isPending ? (
-                <Spinner className="size-4" />
-              ) : (
-                'Dépublier'
-              )}
+              Retirer
             </Button>
           </DialogFooter>
         </DialogContent>

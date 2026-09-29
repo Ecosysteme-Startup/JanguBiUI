@@ -4,6 +4,7 @@ import { Radio } from 'lucide-react';
 import { useState } from 'react';
 
 import { AdminPageLayout } from '@/components/layouts/admin-page-layout';
+import { SansRoute } from '@/components/staff/sans-route';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -222,7 +223,7 @@ function VideosSection() {
   );
 }
 
-export default function AdminTvPage() {
+function AdminTvPageContenu() {
   return (
     <AdminPageLayout
       title="JanguBi TV"
@@ -234,5 +235,13 @@ export default function AdminTvPage() {
         <VideosSection />
       </div>
     </AdminPageLayout>
+  );
+}
+
+export default function AdminTvPage() {
+  return (
+    <SansRoute cle="jangubiTv" titre="JanguBi TV">
+      <AdminTvPageContenu />
+    </SansRoute>
   );
 }
