@@ -10,13 +10,14 @@ import { parishLabel } from '@/utils/parish-name';
 
 import { AppearanceSection } from './appearance-section';
 import { DeclarationComplementNotice } from './declaration-complement-notice';
-import { FollowedParishSection } from './followed-parish-section';
 import { IdentitySection } from './identity-section';
 import { LifeStateSection } from './life-state-section';
+import { MesParoisses } from './mes-paroisses';
 import { NotificationSettingsSection } from './notification-settings-section';
 import { DeleteAccountSection, PrivacySection } from './privacy-section';
 import { ProfileNav } from './profile-nav';
 import { SecuritySection } from './security-section';
+import { SettingsCard } from './settings-card';
 
 /** Après suppression : fin de session Auth.js puis Keycloak (comme « Se déconnecter »). */
 const leaveAfterDeletion = async () => {
@@ -60,7 +61,15 @@ export const ProfilePage = ({ accountUrl, onAccountDeleted = leaveAfterDeletion 
         <ProfileNav />
         <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
           <IdentitySection me={me} accountUrl={accountUrl} />
-          <FollowedParishSection me={me} />
+          <SettingsCard
+            id="paroisse"
+            title="Mes paroisses"
+            description="Vous pouvez être membre de plusieurs paroisses. L’une d’elles est votre paroisse principale."
+          >
+            <div className="mt-5">
+              <MesParoisses />
+            </div>
+          </SettingsCard>
           <NotificationSettingsSection />
           <AppearanceSection />
           <SecuritySection accountUrl={accountUrl} />

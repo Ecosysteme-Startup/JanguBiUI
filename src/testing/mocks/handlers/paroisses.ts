@@ -392,3 +392,25 @@ export const paroissesHandlers = [
     return HttpResponse.json(mesParoissesJson());
   }),
 ];
+
+/**
+ * Annuaire public des paroisses de ces données (`GET /public/nodes/?q=`), pour les tests de
+ * « Mes paroisses » : l'annuaire de develop (f4-public) a ses propres identifiants.
+ */
+export const annuaireParoissesHandler = http.get(`${API}/public/nodes/`, ({ request }) => {
+  const q = sansAccents(new URL(request.url).searchParams.get('q') ?? '');
+  const trouves = ANNUAIRE.filter(
+    (n) => !q || [n.name, n.city, n.code].map(sansAccents).some((s) => s.includes(q)),
+  ).map((n) => ({
+    id: n.id,
+    type: { code: 'paroisse', label: 'Paroisse' },
+    name: n.name,
+    code: n.code,
+    city: n.city,
+    parent_name: n.deanery_name,
+    deanery_name: n.deanery_name,
+    diocese_name: 'Archidiocèse de Dakar',
+    sunday_masses: [],
+  }));
+  return HttpResponse.json(pagine(request, trouves));
+});

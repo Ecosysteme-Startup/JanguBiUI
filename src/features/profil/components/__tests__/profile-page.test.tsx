@@ -39,14 +39,14 @@ describe('Profil (/app/profil)', () => {
     expect(screen.queryByText('Complément demandé pour votre déclaration')).not.toBeInTheDocument();
   });
 
-  it('présente le compte, la paroisse suivie, la sécurité (Keycloak), la confidentialité et les onglets de réglages', async () => {
+  it('présente le compte, mes paroisses, la sécurité (Keycloak), la confidentialité et les onglets de réglages', async () => {
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Marie-Thérèse Diouf' })).toBeInTheDocument();
     const compte = screen.getByRole('region', { name: 'Compte' });
     expect(within(compte).getByLabelText('E-mail')).toHaveValue('marie-therese.diouf@example.sn');
     expect(within(compte).getByRole('link', { name: /changer le mot de passe/i })).toHaveAttribute('href', ACCOUNT_URL);
-    expect(within(screen.getByRole('region', { name: /paroisse suivie/i })).getByText('Saint-Dominique')).toBeInTheDocument();
+    expect(await within(screen.getByRole('region', { name: 'Mes paroisses' })).findByText('Saint-Dominique')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /gérer sur l.espace de connexion/i })).toHaveAttribute('href', ACCOUNT_URL);
     const nav = screen.getByRole('navigation', { name: 'Réglages' });
     expect(within(nav).getByRole('link', { name: 'Mon état de vie' })).toHaveAttribute('href', '#etat-de-vie');
@@ -84,16 +84,14 @@ describe('Profil (/app/profil)', () => {
     expect(await within(identite).findByText('Toutes vos informations sont enregistrées')).toBeInTheDocument();
   });
 
-  it('change de paroisse suivie', async () => {
+  it('définit une autre paroisse comme principale (paroisses multiples)', async () => {
     const user = userEvent.setup();
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
-    const section = await screen.findByRole('region', { name: /paroisse suivie/i });
+    const section = await screen.findByRole('region', { name: 'Mes paroisses' });
 
-    await user.click(within(section).getByRole('button', { name: /changer de paroisse/i }));
-    await user.type(within(section).getByLabelText(/nom, quartier ou ville/i), 'Dakar');
-    await user.click(await within(section).findByRole('button', { name: /suivre cathédrale/i }));
-
-    await vi.waitFor(() => expect(onboardingState.paroisse).toBe('b1000000-0000-4000-8000-000000000010'));
+    await user.click(await within(section).findByRole('button', { name: /définir cathédrale notre-dame-des-victoires comme principale/i }));
+    const autres = await within(section).findByRole('list', { name: 'Autres paroisses' });
+    expect(await within(autres).findByText('Saint-Dominique')).toBeInTheDocument();
   });
 
   it('enregistre les préférences de notification', async () => {
