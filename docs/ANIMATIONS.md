@@ -49,6 +49,13 @@ parallaxe légère.
 | `springs.indicator` | damping 18, mass 0,7, stiffness 190 | barre d'onglets |
 | `tiltSpring` | damping 22, mass 0,8, stiffness 120 | inclinaison 3D (web) |
 | `staggerStep` | 70 ms | cascade (web) |
+| `playerMotion.iconMorph` | 160 ms, inOut sine | lecture ⇄ pause (icone.morph) |
+| `playerMotion.backdrop` | 240 ms, out-cubic | fond du lecteur (fond.apparition) |
+| `playerMotion.coverCrossfade` | 280 ms, inOut sine | changement de piste (pochette.fondu) |
+| `playerMotion.controlsDelay` / `controlsStep` / `controlsDuration` | 200 ms / 40 ms / 240 ms | décalage titre, onde, commandes (commandes.decalage) |
+| `playerMotion.waveStep` | 1 s, linéaire | curseur de l'onde entre deux relevés (onde.pas) |
+| `playerMotion.reduced` | 120 ms, linéaire | seul fondu gardé en mouvement réduit (mouvement.reduit) |
+| `playerMotion.coverPausedScale` | 0,94 | pochette en pause (ressort `springs.indicator`) |
 
 Équivalents CSS : `cubic-bezier(0.33, 1, 0.68, 1)` (out-cubic) et
 `cubic-bezier(0.37, 0, 0.63, 1)` (inOut sine) dans Tailwind et `globals.css`.
@@ -90,6 +97,10 @@ après `useUser`) ; le masquage a lieu avant la première peinture.
   d'indicateur ; toasts en `AnimatePresence` (fondu + 8 px, 180 ms) ; dialogues
   180 ms out-cubic, zoom 0,97 ; drawer 240 ms ; squelettes (`animate-pulse`
   redéfini : 700 ms, 1 ↔ 0,55) ; lecteur audio avec `Equalizer`.
+- **Lecteur audio global** (`src/components/player/`, voir `docs/LECTEUR-AUDIO.md`) :
+  pochette partagée barre → panneau (`layoutId`, `springs.indicator`), `KenBurns`
+  sur le fond flouté, `Equalizer` dans la barre et la file, décalage des commandes,
+  onde en `transform`.
 - Disponibles mais pas encore branchés : `KenBurns`, `Pulse`, `GrowBar` (pas de
   pochette, de grain de chapelet ni de barre de segment sur le web aujourd'hui ;
   destinés au lecteur plein écran C1 et aux tableaux de bord des dons A4).

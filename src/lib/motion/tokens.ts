@@ -59,6 +59,31 @@ export const springs = {
   indicator: { type: 'spring', damping: 18, mass: 0.7, stiffness: 190 },
 } as const;
 
+/**
+ * Jetons ajoutés par le lecteur audio (planche APP-H03-DS-Mouvement, §01).
+ * Même nom, même valeur sur iOS, Android et le web. Secondes.
+ */
+export const playerMotion = {
+  /** icone.morph : lecture ⇄ pause, in-out-sine. */
+  iconMorph: 0.16,
+  /** fond.apparition : pochette floutée + voile, out-cubic. */
+  backdrop: 0.24,
+  /** pochette.fondu : changement de piste, fondu enchaîné, in-out-sine. */
+  coverCrossfade: 0.28,
+  /** commandes.decalage : écart entre titre, onde, commandes, options. */
+  controlsStep: 0.04,
+  /** Durée de chaque élément décalé (out-cubic, montée de 8 px). */
+  controlsDuration: 0.24,
+  /** Premier élément décalé après l'ouverture (200 ms). */
+  controlsDelay: 0.2,
+  /** onde.pas : glissement linéaire entre deux relevés de position. */
+  waveStep: 1,
+  /** mouvement.reduit : seul effet gardé en mouvement réduit (fondu). */
+  reduced: 0.12,
+  /** Pochette en pause (0,94) → en lecture (1), avec `springs.indicator`. */
+  coverPausedScale: 0.94,
+} as const;
+
 /** Inclinaison 3D au pointeur (options de `useSpring`) : ressort doux, sans rebond visible. */
 export const tiltSpring = { damping: 22, mass: 0.8, stiffness: 120 };
 
