@@ -4,20 +4,13 @@ import { api } from '@/lib/api-client';
 
 import { requesterRequestSchema } from '../types';
 
-export type SubmitSupplementInput = {
-  additional_info?: string;
-  document_details?: Record<string, string>;
-  /** Pièce jointe déjà téléversée (`POST /v1/files/upload/standard/`). */
-  attachment_file_id?: number | null;
-};
-
-/** `POST /v1/documents/requests/<uuid>/supplement/` → la demande à jour. */
-export const useSubmitSupplement = (id: string) => {
+/** `POST /v1/documents/requests/<uuid>/cancel/` (soumise ou complément demandé). */
+export const useCancelDocument = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: SubmitSupplementInput) =>
+    mutationFn: () =>
       api
-        .post<unknown>(`/v1/documents/requests/${id}/supplement/`, data)
+        .post<unknown>(`/v1/documents/requests/${id}/cancel/`)
         .then((d) => requesterRequestSchema.parse(d)),
     onSuccess: (data) => {
       queryClient.setQueryData(['documents', 'requests', 'detail', id], data);

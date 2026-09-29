@@ -2,142 +2,81 @@ import { screen } from '@testing-library/react';
 import { delay, http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
-import { createDocumentRequest } from '@/testing/data-generators';
+import { page } from '@/lib/pagination';
+import { createRequesterRequest } from '@/testing/mocks/handlers/documents';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
 import { DocumentsList } from '../documents-list';
 
-describe('DocumentsList', () => {
-  test('shows loading skeleton while fetching data', async () => {
+const URL_LISTE = `${env.API_URL}/v1/documents/requests/`;
+
+describe('DocumentsList (GET /v1/documents/requests/)', () => {
+  test('squelette pendant le chargement', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, async () => {
+      http.get(URL_LISTE, async () => {
         await delay(Infinity);
-        return HttpResponse.json({ count: 0, results: [] });
+        return HttpResponse.json(page([]));
       }),
     );
-
     renderApp(<DocumentsList />);
-
-    const skeletonItems = document.querySelectorAll('.animate-pulse');
-    expect(skeletonItems.length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('.animate-pulse').length).toBeGreaterThan(
+      0,
+    );
   });
 
-  test('shows document list after loading', async () => {
-    const mockDocs = [
-      createDocumentRequest({
-        id: '1',
-        document_type: 'Baptême',
-        status: 'submitted',
-      }),
-      createDocumentRequest({
-        id: '2',
-        document_type: 'Confirmation',
-        status: 'validated',
-      }),
-    ];
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, () =>
-        HttpResponse.json({ count: mockDocs.length, results: mockDocs }),
-      ),
-    );
-
+  test('affiche le libellé du type, la paroisse et le statut', async () => {
     renderApp(<DocumentsList />);
 
-    await screen.findByText('Baptême');
-    expect(screen.getByText('Confirmation')).toBeInTheDocument();
-  });
-
-  test('shows status badge for each document', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, () =>
-        HttpResponse.json({
-          count: 1,
-          results: [
-            createDocumentRequest({
-              id: '1',
-              document_type: 'Mariage',
-              status: 'info_requested',
-            }),
-          ],
-        }),
-      ),
-    );
-
-    renderApp(<DocumentsList />);
-
-    await screen.findByText('Infos requises');
-  });
-
-  test('shows empty state message when no documents', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, () =>
-        HttpResponse.json({ count: 0, results: [] }),
-      ),
-    );
-
-    renderApp(<DocumentsList />);
-
-    await screen.findByText(/aucune demande/i);
     expect(
-      screen.getByText(/vos demandes de documents apparaîtront ici/i),
+      await screen.findByText('Certificat de baptême'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Attestation de confirmation')).toBeInTheDocument();
+    expect(screen.getByText('Prêt à retirer')).toBeInTheDocument();
+    expect(screen.getByText('Complément demandé')).toBeInTheDocument();
+    expect(screen.getAllByText(/Saint-Dominique/).length).toBeGreaterThan(0);
+  });
+
+  test('« Autre document » affiche la précision saisie', async () => {
+    server.use(
+      http.get(URL_LISTE, () =>
+        HttpResponse.json(
+          page([
+            createRequesterRequest({
+              document_type: 'other',
+              document_type_label: 'Autre document',
+              document_type_free: 'Certificat de catholicité',
+            }),
+          ]),
+        ),
+      ),
+    );
+    renderApp(<DocumentsList />);
+    expect(
+      await screen.findByText('Certificat de catholicité'),
     ).toBeInTheDocument();
   });
 
-  test('shows error message when API request fails', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, () =>
-        HttpResponse.error(),
-      ),
-    );
-
+  test('état vide', async () => {
+    server.use(http.get(URL_LISTE, () => HttpResponse.json(page([]))));
     renderApp(<DocumentsList />);
+    await screen.findByText(/aucune demande/i);
+  });
 
+  test('erreur réseau', async () => {
+    server.use(http.get(URL_LISTE, () => HttpResponse.error()));
+    renderApp(<DocumentsList />);
     await screen.findByText(/impossible de charger vos demandes/i);
   });
 
-  test('each document links to its detail page', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, () =>
-        HttpResponse.json({
-          count: 1,
-          results: [
-            createDocumentRequest({
-              id: '42',
-              document_type: 'Baptême',
-              status: 'submitted',
-            }),
-          ],
-        }),
-      ),
-    );
-
+  test('chaque demande mène à son détail (UUID)', async () => {
     renderApp(<DocumentsList />);
-
-    const link = await screen.findByRole('link', { name: /baptême/i });
-    expect(link).toHaveAttribute('href', '/app/documents/42');
-  });
-
-  test('renders safely when optional fields notes and parish_name are null', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/`, () =>
-        HttpResponse.json({
-          count: 1,
-          results: [
-            createDocumentRequest({
-              id: '1',
-              document_type: 'Extrait de registre',
-              status: 'submitted',
-              notes: null,
-              parish_name: null,
-            }),
-          ],
-        }),
-      ),
+    const link = await screen.findByRole('link', {
+      name: /certificat de baptême/i,
+    });
+    expect(link).toHaveAttribute(
+      'href',
+      '/app/documents/0f1e2d3c-4b5a-4968-8778-695a4b3c2d1e',
     );
-
-    renderApp(<DocumentsList />);
-
-    await screen.findByText('Extrait de registre');
   });
 });

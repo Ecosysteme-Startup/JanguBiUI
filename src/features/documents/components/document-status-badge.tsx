@@ -1,16 +1,15 @@
 import {
+  Ban,
   CheckCircle2,
   FileCheck2,
   Info,
+  PackageCheck,
   Search,
   Send,
   XCircle,
 } from 'lucide-react';
 
-import {
-  StatusBadge,
-  type StatusConfig,
-} from '@/components/ui/status-badge';
+import { StatusBadge, type StatusConfig } from '@/components/ui/status-badge';
 
 import { DocumentStatus } from '../types';
 
@@ -19,7 +18,7 @@ import { DocumentStatus } from '../types';
  * de carte (documents-list) et la timeline d'historique (document-detail).
  */
 export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatus, StatusConfig> = {
-  submitted: { label: 'Soumis', tone: 'info', icon: <Send /> },
+  submitted: { label: 'Soumise', tone: 'info', icon: <Send /> },
   under_verification: {
     label: 'En vérification',
     tone: 'warning',
@@ -31,8 +30,19 @@ export const DOCUMENT_STATUS_CONFIG: Record<DocumentStatus, StatusConfig> = {
     tone: 'progress',
     icon: <FileCheck2 />,
   },
-  info_requested: { label: 'Infos requises', tone: 'accent', icon: <Info /> },
-  rejected: { label: 'Refusé', tone: 'danger', icon: <XCircle /> },
+  info_requested: {
+    label: 'Complément demandé',
+    tone: 'accent',
+    icon: <Info />,
+  },
+  ready_for_pickup: {
+    label: 'Prêt à retirer',
+    tone: 'success',
+    icon: <CheckCircle2 />,
+  },
+  collected: { label: 'Retiré', tone: 'progress', icon: <PackageCheck /> },
+  rejected: { label: 'Refusée', tone: 'danger', icon: <XCircle /> },
+  cancelled: { label: 'Annulée', tone: 'neutral', icon: <Ban /> },
 };
 
 interface DocumentStatusBadgeProps {

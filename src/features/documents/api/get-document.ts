@@ -2,18 +2,17 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
 
-import { DocumentRequestDetail, documentRequestDetailSchema } from '../types';
+import { type RequesterRequest, requesterRequestSchema } from '../types';
 
-export const getDocumentRequest = (
-  id: string,
-): Promise<DocumentRequestDetail> =>
+/** `GET /v1/documents/requests/<uuid>/` (avec l'historique). */
+export const getDocumentRequest = (id: string): Promise<RequesterRequest> =>
   api
     .get<unknown>(`/v1/documents/requests/${id}/`)
-    .then((data) => documentRequestDetailSchema.parse(data));
+    .then((data) => requesterRequestSchema.parse(data));
 
 export const getDocumentRequestQueryOptions = (id: string) =>
   queryOptions({
-    queryKey: ['documents', 'requests', id],
+    queryKey: ['documents', 'requests', 'detail', id],
     queryFn: () => getDocumentRequest(id),
     enabled: !!id,
   });

@@ -13,7 +13,6 @@ import { cn } from '@/utils/cn';
 
 import { useDocumentRequests } from '../api/get-documents';
 import { DocumentStatus } from '../types';
-import { formatDocumentType } from '../utils/format-document-type';
 
 import { DocumentStatusBadge } from './document-status-badge';
 
@@ -32,7 +31,10 @@ const statusStripe: Record<DocumentStatus, string> = {
   validated: 'bg-success',
   document_deposited: 'bg-primary',
   info_requested: 'bg-accent',
+  ready_for_pickup: 'bg-success',
+  collected: 'bg-primary',
   rejected: 'bg-destructive',
+  cancelled: 'bg-muted-foreground/40',
 };
 
 function DocumentsSkeleton() {
@@ -106,10 +108,11 @@ export function DocumentsList() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-foreground">
-                      {formatDocumentType(doc.document_type)}
+                      {doc.document_type_free || doc.document_type_label}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="truncate text-xs text-muted-foreground">
                       {formatDate(doc.created_at)}
+                      {doc.target_node ? ` · ${doc.target_node.name}` : ''}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">

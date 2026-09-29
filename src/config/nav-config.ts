@@ -1,5 +1,6 @@
 import {
   ArrowLeftRight,
+  CalendarClock,
   BarChart3,
   BookOpen,
   Calendar,
@@ -19,6 +20,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 
+import { FEATURES, isFeatureEnabled } from '@/config/features';
 import { User as UserType } from '@/lib/auth';
 import {
   canViewDioceseDonsAggregates,
@@ -76,6 +78,15 @@ const ITEM_TRANSFERT: NavItem = {
   href: '/app/transfert',
   icon: ArrowLeftRight,
 };
+const ITEM_CONFESSIONS: NavItem = {
+  label: 'Confession',
+  href: '/app/confessions',
+  icon: CalendarClock,
+};
+// Transfert paroissial : aucune route backend (remplacé par les paroisses
+// multiples) → seulement si l'indicateur `transfert` est actif.
+const transfertItems = (): NavItem[] =>
+  isFeatureEnabled(FEATURES.transfert) ? [ITEM_TRANSFERT] : [];
 const ITEM_MESSAGES: NavItem = {
   label: 'Messages',
   href: '/app/messages',
@@ -204,7 +215,8 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
     ITEM_DOCUMENTS,
     ITEM_DONS,
     ITEM_AGENDA,
-    ITEM_TRANSFERT,
+    ITEM_CONFESSIONS,
+    ...transfertItems(),
     ITEM_MESSAGES,
     ITEM_PROFIL,
   ];

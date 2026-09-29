@@ -33,7 +33,7 @@ export default function AdminAgendaPage() {
 
   const canManage = canManageAgenda(user);
   const { data, isLoading: eventsLoading } = useEvents(
-    selectedType ? { event_type: selectedType } : undefined,
+    selectedType ? { type: selectedType } : undefined,
     canManage,
   );
 

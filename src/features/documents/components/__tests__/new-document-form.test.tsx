@@ -4,7 +4,8 @@ import { http, HttpResponse } from 'msw';
 import { useRouter } from 'next/navigation';
 
 import { env } from '@/config/env';
-import { createDocumentRequest, createUser } from '@/testing/data-generators';
+import { createUser } from '@/testing/data-generators';
+import { createRequesterRequest } from '@/testing/mocks/handlers/documents';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
@@ -22,22 +23,9 @@ vi.mocked(useRouter).mockReturnValue({
   prefetch: vi.fn(),
 } as never);
 
-// Paroisses d'appartenance du fidèle — proposées en tête par le picker (C7c).
-const MEMBERSHIPS = [
-  {
-    id: 1,
-    church: { id: 111, name: 'Église A' },
-    parish: { id: 11, name: 'Saint-Pierre' },
-    diocese: { id: 1, name: 'Diocèse de Dakar' },
-    is_primary: true,
-  },
-];
-
 function mockMe() {
   server.use(
-    http.get(`${env.API_URL}/v1/me/`, () =>
-      HttpResponse.json(createUser({ memberships: MEMBERSHIPS })),
-    ),
+    http.get(`${env.API_URL}/v1/me/`, () => HttpResponse.json(createUser())),
   );
 }
 
@@ -47,7 +35,9 @@ function mockMe() {
  */
 async function navigateToSearch(user: ReturnType<typeof userEvent.setup>) {
   // Step 1 — document type + reason
-  await user.click(screen.getByRole('button', { name: 'Certificat de baptême' }));
+  await user.click(
+    screen.getByRole('button', { name: 'Certificat de baptême' }),
+  );
   await user.click(screen.getByRole('button', { name: 'Usage personnel' }));
   await user.click(screen.getByRole('button', { name: /continuer/i }));
 
@@ -70,7 +60,9 @@ async function navigateToConsent(user: ReturnType<typeof userEvent.setup>) {
   // Step 3 — sacrament search (parents + paroisse via picker)
   await user.type(screen.getByLabelText(/nom du père/i), 'Dupont');
   await user.type(screen.getByLabelText(/nom de la mère/i), 'Martin');
-  await user.click(await screen.findByRole('button', { name: /Saint-Pierre/ }));
+  await user.click(
+    await screen.findByRole('button', { name: /^Saint-Dominique/ }),
+  );
   await user.type(screen.getByLabelText(/date approx/i), '2000');
   await user.type(screen.getByLabelText(/^lieu/i), 'Dakar');
   await user.click(screen.getByRole('button', { name: /continuer/i }));
@@ -126,7 +118,9 @@ describe('NewDocumentForm', () => {
     });
 
     // After selecting both, clicking Continuer should advance to step 2
-    await user.click(screen.getByRole('button', { name: 'Certificat de baptême' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Certificat de baptême' }),
+    );
     await user.click(screen.getByRole('button', { name: 'Usage personnel' }));
     await user.click(screen.getByRole('button', { name: /continuer/i }));
 
@@ -144,7 +138,7 @@ describe('NewDocumentForm', () => {
     // Raccourci "Mes paroisses" présent…
     expect(await screen.findByText('Mes paroisses')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /Saint-Pierre/ }),
+      screen.getByRole('button', { name: /^Saint-Dominique/ }),
     ).toBeInTheDocument();
     // …et plus aucun champ texte libre "Diocèse".
     expect(
@@ -154,15 +148,14 @@ describe('NewDocumentForm', () => {
 
   test('permet la recherche libre d’une autre paroisse du registre', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/org/parishes/`, () =>
+      http.get(`${env.API_URL}/v1/public/nodes/`, () =>
         HttpResponse.json({
+          count: 1,
           results: [
             {
-              id: 99,
-              name: 'Cathédrale',
+              id: '7d1c9a52-0b3e-4f6a-9c21-5e8b4d2a1f00',
+              name: 'Cathédrale Saint-Théophile',
               city: 'Kaolack',
-              address: '',
-              diocese: 9,
               diocese_name: 'Diocèse de Kaolack',
             },
           ],
@@ -174,14 +167,13 @@ describe('NewDocumentForm', () => {
     renderApp(<NewDocumentForm />);
     await navigateToSearch(user);
 
-    await user.type(
-      screen.getByLabelText(/rechercher une paroisse/i),
-      'Cath',
+    await user.type(screen.getByLabelText(/rechercher une paroisse/i), 'Cath');
+    await user.click(
+      await screen.findByRole('button', { name: /Cathédrale Saint-Théophile/ }),
     );
-    await user.click(await screen.findByRole('button', { name: /Cathédrale/ }));
 
     // État sélectionné : paroisse affichée + bouton "Changer".
-    expect(screen.getByText('Cathédrale')).toBeInTheDocument();
+    expect(screen.getByText('Cathédrale Saint-Théophile')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /changer/i }),
     ).toBeInTheDocument();
@@ -192,7 +184,9 @@ describe('NewDocumentForm', () => {
     renderApp(<NewDocumentForm />);
     await navigateToConsent(user);
 
-    const submitBtn = screen.getByRole('button', { name: /envoyer la demande/i });
+    const submitBtn = screen.getByRole('button', {
+      name: /envoyer la demande/i,
+    });
     expect(submitBtn).toBeInTheDocument();
     expect(submitBtn).toBeDisabled();
   });
@@ -209,7 +203,7 @@ describe('NewDocumentForm', () => {
     ).toBeEnabled();
   });
 
-  test('envoie UNIQUEMENT parish_id (FK), sans texte libre parish_name/diocese', async () => {
+  test('envoie target_node_id (UUID du nœud), sans parish_id ni texte libre', async () => {
     const capturedBodies: Array<Record<string, unknown>> = [];
     server.use(
       http.post(
@@ -218,10 +212,7 @@ describe('NewDocumentForm', () => {
           capturedBodies.push(
             (await request.json()) as Record<string, unknown>,
           );
-          return HttpResponse.json(
-            createDocumentRequest({ document_type: 'baptism', status: 'submitted' }),
-            { status: 201 },
-          );
+          return HttpResponse.json(createRequesterRequest(), { status: 201 });
         },
       ),
     );
@@ -238,14 +229,15 @@ describe('NewDocumentForm', () => {
     expect(capturedBodies[0]).toMatchObject({
       document_type: 'baptism',
       consent_given: true,
-      parish_id: 11,
+      reason: 'personal',
+      target_node_id: '5b7d2c1e-8a41-4f0b-9d7e-2c3f1a6b9e01',
     });
-    // B5c : plus de texte libre parish_name/diocese dans le payload (FK seule).
+    expect(capturedBodies[0]).not.toHaveProperty('parish_id');
     expect(capturedBodies[0]).not.toHaveProperty('parish_name');
     expect(capturedBodies[0]).not.toHaveProperty('diocese');
   });
 
-  test('redirects to /app/documents after successful submission', async () => {
+  test('mène au détail de la demande créée', async () => {
     const user = userEvent.setup();
     renderApp(<NewDocumentForm />);
     await navigateToConsent(user);
@@ -255,7 +247,9 @@ describe('NewDocumentForm', () => {
     );
 
     await waitFor(() =>
-      expect(mockRouterPush).toHaveBeenCalledWith('/app/documents'),
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/app/documents/9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a',
+      ),
     );
   });
 
@@ -268,13 +262,7 @@ describe('NewDocumentForm', () => {
           new Promise<Response>((resolve) => {
             resolveRequest = () =>
               resolve(
-                HttpResponse.json(
-                  createDocumentRequest({
-                    document_type: 'baptism',
-                    status: 'submitted',
-                  }),
-                  { status: 201 },
-                ),
+                HttpResponse.json(createRequesterRequest(), { status: 201 }),
               );
           }),
       ),
@@ -294,5 +282,50 @@ describe('NewDocumentForm', () => {
     ).toBeDisabled();
 
     resolveRequest();
+  });
+
+  test('un refus V1 (reason_not_allowed) est affiché', async () => {
+    server.use(
+      http.post(`${env.API_URL}/v1/documents/requests/`, () =>
+        HttpResponse.json(
+          {
+            error: {
+              code: 'reason_not_allowed',
+              message:
+                'Le motif « Usage personnel » ne correspond pas au document demandé.',
+              details: {},
+            },
+          },
+          { status: 400 },
+        ),
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp(<NewDocumentForm />);
+    await navigateToConsent(user);
+    await user.click(screen.getByRole('button', { name: /je certifie/i }));
+    await user.click(
+      screen.getByRole('button', { name: /envoyer la demande/i }),
+    );
+
+    expect(
+      await screen.findByText(/ne correspond pas au document demandé/),
+    ).toBeInTheDocument();
+  });
+
+  test('les motifs proposés suivent le type (options du backend)', async () => {
+    const user = userEvent.setup();
+    renderApp(<NewDocumentForm />);
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'Attestation de mariage religieux',
+      }),
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Inscription catéchèse' }),
+    ).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Usage personnel' }),
+    ).toBeInTheDocument();
   });
 });

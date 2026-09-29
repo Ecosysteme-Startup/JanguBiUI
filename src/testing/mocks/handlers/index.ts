@@ -1,6 +1,8 @@
+import { agendaHandlers } from './agenda';
 import { audioLecteurHandlers } from './audio-lecteur';
 import { authHandlers } from './auth';
 import { bibleHandlers } from './bible';
+import { confessionsHandlers } from './confessions';
 import { documentsHandlers } from './documents';
 import { donsAnalyseHandlers } from './dons-analyse';
 import { messagingHandlers } from './messaging';
@@ -20,4 +22,6 @@ export const handlers = [
   ...audioLecteurHandlers,
   ...sonothequeHandlers,
   ...paroissesHandlers,
+  ...agendaHandlers,
+  ...confessionsHandlers,
 ];

@@ -3,150 +3,100 @@ import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
-import { createDocumentRequest } from '@/testing/data-generators';
+import { mockDocuments } from '@/testing/mocks/handlers/documents';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
 import { DocumentDetail } from '../document-detail';
 
-describe('DocumentDetail', () => {
-  test('shows loading spinner while fetching', async () => {
+const [soumise, prete, complement] = mockDocuments;
+const url = (id: string) => `${env.API_URL}/v1/documents/requests/${id}/`;
+
+describe('DocumentDetail (GET /v1/documents/requests/<uuid>/)', () => {
+  test('spinner pendant le chargement', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/1/`, async () => {
+      http.get(url(soumise.id), async () => {
         await delay(Infinity);
+        return HttpResponse.json(soumise);
+      }),
+    );
+    renderApp(<DocumentDetail documentId={soumise.id} />);
+    expect(document.querySelector('.animate-spin')).not.toBeNull();
+  });
+
+  test('type, référence, paroisse du registre, délai indicatif', async () => {
+    renderApp(<DocumentDetail documentId={soumise.id} />);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Certificat de baptême' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(`Réf. ${soumise.reference}`)).toBeInTheDocument();
+    expect(screen.getByText('Saint-Dominique')).toBeInTheDocument();
+    expect(screen.getByText(/Vers le 30 septembre 2026/)).toBeInTheDocument();
+  });
+
+  test('acte prêt : lieu et horaires de retrait', async () => {
+    renderApp(<DocumentDetail documentId={prete.id} />);
+
+    expect(await screen.findByText('Votre acte est prêt')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Secrétariat de Saint-Dominique/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Du mardi au samedi, 9 h – 12 h'),
+    ).toBeInTheDocument();
+    // Pas d'annulation possible une fois l'acte prêt.
+    expect(
+      screen.queryByRole('button', { name: 'Annuler la demande' }),
+    ).toBeNull();
+  });
+
+  test('complément demandé : le commentaire du secrétariat et l’envoi', async () => {
+    let body: unknown = null;
+    server.use(
+      http.post(`${url(complement.id)}supplement/`, async ({ request }) => {
+        body = await request.json();
         return HttpResponse.json({
-          ...createDocumentRequest({
-            id: '1',
-            status: 'submitted',
-            document_type: 'Baptême',
-          }),
-          status_logs: [],
+          ...complement,
+          status: 'under_verification',
         });
       }),
     );
+    renderApp(<DocumentDetail documentId={complement.id} />);
 
-    renderApp(<DocumentDetail documentId="1" />);
-
-    const spinner = document.querySelector('.animate-spin');
-    expect(spinner).not.toBeNull();
-  });
-
-  test('shows document type and status after loading', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/1/`, () =>
-        HttpResponse.json({
-          ...createDocumentRequest({
-            id: '1',
-            status: 'submitted',
-            document_type: 'Baptême',
-          }),
-          status_logs: [],
-        }),
-      ),
-    );
-
-    renderApp(<DocumentDetail documentId="1" />);
-
-    await screen.findByText('Baptême');
-    expect(screen.getByText('Soumis')).toBeInTheDocument();
-  });
-
-  test('shows supplement form when status is info_requested', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/3/`, () =>
-        HttpResponse.json({
-          ...createDocumentRequest({
-            id: '3',
-            status: 'info_requested',
-            document_type: 'Mariage',
-          }),
-          status_logs: [],
-        }),
-      ),
-    );
-
-    renderApp(<DocumentDetail documentId="3" />);
-
-    await screen.findByText(/informations complémentaires demandées/i);
     expect(
-      screen.getByPlaceholderText(/apportez les précisions demandées/i),
+      await screen.findByText('Merci de préciser l’année du mariage.'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /envoyer le complément/i }),
-    ).toBeInTheDocument();
-  });
-
-  test('does not show supplement form for non-info_requested statuses', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/2/`, () =>
-        HttpResponse.json({
-          ...createDocumentRequest({
-            id: '2',
-            status: 'validated',
-            document_type: 'Confirmation',
-          }),
-          status_logs: [],
-        }),
-      ),
+    await userEvent.type(
+      screen.getByLabelText('Précisions'),
+      'Mariés en 2012.',
     );
-
-    renderApp(<DocumentDetail documentId="2" />);
-
-    await screen.findByText('Confirmation');
-    expect(
-      screen.queryByText(/informations complémentaires demandées/i),
-    ).not.toBeInTheDocument();
-  });
-
-  test('submits supplement and shows confirmation on success', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/3/`, () =>
-        HttpResponse.json({
-          ...createDocumentRequest({
-            id: '3',
-            status: 'info_requested',
-            document_type: 'Mariage',
-          }),
-          status_logs: [],
-        }),
-      ),
-      http.post(
-        `${env.API_URL}/v1/documents/requests/3/supplement/`,
-        async ({ request }) => {
-          const body = (await request.json()) as { notes: string };
-          return HttpResponse.json({
-            detail: 'Informations envoyées.',
-            notes: body.notes,
-          });
-        },
-      ),
-    );
-
-    renderApp(<DocumentDetail documentId="3" />);
-
-    const textarea = await screen.findByPlaceholderText(
-      /apportez les précisions demandées/i,
-    );
-    await userEvent.type(textarea, 'Voici les informations demandées.');
     await userEvent.click(
-      screen.getByRole('button', { name: /envoyer le complément/i }),
+      screen.getByRole('button', { name: 'Envoyer le complément' }),
     );
 
-    await screen.findByText(/vos informations ont été envoyées à la paroisse/i);
+    await waitFor(() =>
+      expect(body).toEqual({ additional_info: 'Mariés en 2012.' }),
+    );
+    expect(await screen.findByText('En vérification')).toBeInTheDocument();
   });
 
-  test('shows error message when document request fails', async () => {
-    server.use(
-      http.get(`${env.API_URL}/v1/documents/requests/999/`, () =>
-        HttpResponse.json(
-          { message: 'Document introuvable.' },
-          { status: 404 },
-        ),
-      ),
+  test('annuler une demande soumise', async () => {
+    renderApp(<DocumentDetail documentId={soumise.id} />);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Annuler la demande' }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Confirmer l’annulation' }),
     );
 
-    renderApp(<DocumentDetail documentId="999" />);
+    expect(await screen.findByText('Annulée')).toBeInTheDocument();
+  });
 
+  test('erreur de chargement', async () => {
+    server.use(http.get(url('inconnu'), () => HttpResponse.error()));
+    renderApp(<DocumentDetail documentId="inconnu" />);
     await screen.findByText(/impossible de charger cette demande/i);
   });
 });

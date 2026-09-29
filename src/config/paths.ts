@@ -43,6 +43,12 @@ export const paths = {
     bible: { getHref: () => '/app/bible' },
     chapelet: { getHref: () => '/app/chapelet' },
     dons: { getHref: () => '/app/dons' },
+    donsRetour: {
+      getHref: (donId?: string) =>
+        donId
+          ? `/dons/retour?don=${encodeURIComponent(donId)}`
+          : '/dons/retour',
+    },
     donsAnalyse: { getHref: () => '/app/dons/analyse' },
     diocese: {
       dons: { getHref: () => '/app/diocese/dons' },
@@ -80,6 +86,7 @@ export const paths = {
     newDocument: { getHref: () => '/app/documents/new' },
     document: { getHref: (id: string) => `/app/documents/${id}` },
     agenda: { getHref: () => '/app/agenda' },
+    confessions: { getHref: () => '/app/confessions' },
     agendaEvent: { getHref: (id: number | string) => `/app/agenda/${id}` },
     profil: { getHref: () => '/app/profil' },
     transfert: { getHref: () => '/app/transfert' },

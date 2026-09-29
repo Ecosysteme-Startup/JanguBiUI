@@ -1,6 +1,6 @@
 'use client';
 
-import { Archive, FileText, Plus } from 'lucide-react';
+import { FileText, PackageCheck, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ type Tab = 'requests' | 'vault';
 
 const TABS: { id: Tab; label: string; icon: typeof FileText }[] = [
   { id: 'requests', label: 'Mes demandes', icon: FileText },
-  { id: 'vault', label: 'Coffre-fort', icon: Archive },
+  { id: 'vault', label: 'À retirer', icon: PackageCheck },
 ];
 
 export default function DocumentsPage() {
@@ -34,7 +34,7 @@ export default function DocumentsPage() {
 
   useRegisterPageMeta({
     title: 'Documents',
-    subtitle: 'Vos demandes et documents officiels',
+    subtitle: 'Vos demandes d’actes auprès des paroisses',
   });
 
   if (isLoading) return null;
