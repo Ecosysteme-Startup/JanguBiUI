@@ -2,10 +2,11 @@ name: CI/CD JanguBi Frontend
 
 on:
   push:
+    # `stage` : .github/workflows/livraison-recette.yml (runner ceac, contrat
+    # de l'Infrastructure Ecosysteme-Startup).
     branches:
       - main
       - develop
-      - stage
     tags:
       - 'v*'
   pull_request:
