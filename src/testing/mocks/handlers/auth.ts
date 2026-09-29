@@ -105,6 +105,26 @@ export const CAPACITES_DEMO: Record<string, CapaciteMe[]> = {
     'dons.saisir_quete',
     'dons.exporter',
   ].map((c) => capacite(c, 'econome_paroissial', 'Économe', 'paroisse')),
+  // Curé (office `cure`) : toutes les capacités paroissiales.
+  'emmanuel.tine@saint-dominique.sn': [
+    'horaires.gerer',
+    'offices.nommer',
+    'annonces.publier',
+    'evenements.gerer',
+    'actes.traiter',
+    'messagerie.recevoir_fideles',
+    'confessions.gerer',
+    'confessions.voir_planning',
+    'tableau_bord.voir',
+    'audit.voir',
+    'dons.voir_fonds',
+    'dons.gerer_fonds',
+    'dons.saisir_quete',
+    'dons.voir_donateurs',
+    'dons.exporter',
+    'audio.publier',
+    'paroissiens.gerer',
+  ].map((c) => capacite(c, 'cure', 'Curé', 'paroisse')),
   'germaine.faye@saint-dominique.sn': [
     'annonces.publier',
     'audio.publier',
@@ -135,10 +155,18 @@ const meDuCompte = (email: string): Me => {
     profile: {
       first_name: compte.first_name,
       last_name: compte.last_name,
-      title: compte.title === 'M.' ? 'MR' : 'MRS',
+      // Le contrat n'a que MR / MRS (apps.users.enums.Title).
+      title: compte.title === 'Mme' ? 'MRS' : 'MR',
       date_of_birth: null,
       phone: null,
     },
+    ...(compte.title === 'Père'
+      ? {
+          etat_de_vie: 'clerc',
+          degre_ordre: 'pretre',
+          statut_verification: 'verifie',
+        }
+      : {}),
   });
 };
 

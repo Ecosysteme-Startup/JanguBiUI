@@ -3,11 +3,12 @@
 import { useRouter } from 'next/navigation';
 
 import { AdminPageLayout } from '@/components/layouts/admin-page-layout';
+import { SansRoute } from '@/components/staff/sans-route';
 import { paths } from '@/config/paths';
 import { InvitationForm } from '@/features/clergy-accounts/components/invitation-form';
 import { canManageClergy } from '@/lib/authorization';
 
-export default function InvitePage() {
+function InvitePageContenu() {
   const router = useRouter();
 
   return (
@@ -23,5 +24,13 @@ export default function InvitePage() {
         }
       />
     </AdminPageLayout>
+  );
+}
+
+export default function InvitePage() {
+  return (
+    <SansRoute cle="invitationsClerge" titre="Inviter du clergé">
+      <InvitePageContenu />
+    </SansRoute>
   );
 }

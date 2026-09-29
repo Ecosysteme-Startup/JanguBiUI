@@ -5,25 +5,24 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button/button';
 import { useNotifications } from '@/components/ui/notifications';
 
-import { CreateEventInput, useCreateEvent } from '../api/create-event';
-
-const EVENT_TYPES = [
-  { value: 'mass', label: 'Messe' },
-  { value: 'conference', label: 'Conférence' },
-  { value: 'retreat', label: 'Retraite' },
-  { value: 'ordination', label: 'Ordination' },
-  { value: 'other', label: 'Autre' },
-];
+import {
+  type EvenementInput,
+  TYPES_EVENEMENT as EVENT_TYPES,
+  useCreerEvenement,
+} from '../api/staff-events';
 
 const inputClass =
   'w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary';
 const labelClass = 'block text-xs font-medium text-muted-foreground mb-1';
 
 interface EventFormProps {
+  /** Nœud (paroisse, CEB…) de l'événement : `evenements.gerer` requis dessus. */
+  nodeId: string;
   onSuccess?: () => void;
 }
 
-export function EventForm({ onSuccess }: EventFormProps) {
+/** Création d'un événement (`POST /v1/staff/agenda/`). */
+export function EventForm({ nodeId, onSuccess }: EventFormProps) {
   const { addNotification } = useNotifications();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -34,7 +33,8 @@ export function EventForm({ onSuccess }: EventFormProps) {
   const [maxParticipants, setMaxParticipants] = useState('');
   const [dateError, setDateError] = useState('');
 
-  const { mutate: createEvent, isPending } = useCreateEvent({
+  const { mutate: createEvent, isPending } = useCreerEvenement();
+  const apresCreation = {
     onSuccess: () => {
       addNotification({
         type: 'success',
@@ -50,7 +50,7 @@ export function EventForm({ onSuccess }: EventFormProps) {
       setDateError('');
       onSuccess?.();
     },
-  });
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,7 +61,8 @@ export function EventForm({ onSuccess }: EventFormProps) {
     }
     setDateError('');
 
-    const payload: CreateEventInput = {
+    const payload: EvenementInput = {
+      node_id: nodeId,
       title: title.trim(),
       description: description.trim(),
       event_type: eventType,
@@ -70,7 +71,7 @@ export function EventForm({ onSuccess }: EventFormProps) {
       location: location.trim(),
       max_participants: maxParticipants ? parseInt(maxParticipants, 10) : null,
     };
-    createEvent(payload);
+    createEvent(payload, apresCreation);
   }
 
   return (

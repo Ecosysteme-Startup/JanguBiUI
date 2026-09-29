@@ -2,92 +2,107 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { ParishSelector } from '@/components/org/parish-selector';
 import { Button } from '@/components/ui/button/button';
-import { Spinner } from '@/components/ui/spinner';
 import { paths } from '@/config/paths';
-import { useDioceses } from '@/lib/org/get-dioceses';
+import { type NoeudStaff, libelleTypeNoeud } from '@/lib/staff/capacites';
 
-import { useCategories } from '../api/get-categories';
-import { ContentType } from '../types';
+import {
+  type ContenuInput,
+  LIBELLES_TYPE,
+  TYPES_CONTENU,
+  useCategoriesStaff,
+} from '../api/staff-articles';
 
-const CONTENT_TYPE_OPTIONS: { value: ContentType; label: string }[] = [
-  { value: 'article', label: 'Article' },
-  { value: 'announcement', label: 'Annonce' },
-  { value: 'pastoral_letter', label: 'Lettre Pastorale' },
-];
-
-const SCOPE_OPTIONS = [
-  { value: 'global', label: "Global (toute l'Église du Sénégal)" },
-  { value: 'diocese', label: 'Diocèse' },
-  { value: 'parish', label: 'Paroisse' },
-];
-
-const articleFormSchema = z.object({
-  title: z.string().min(1, 'Le titre est requis').max(200),
-  content: z.string().min(1, 'Le contenu est requis'),
-  excerpt: z.string().max(400).optional(),
-  category_id: z.coerce.number().min(1, 'La catégorie est requise'),
-  content_type: z.enum(['announcement', 'article', 'pastoral_letter']),
-  scope_type: z.enum(['global', 'diocese', 'parish']),
-  scope_parish_id: z.coerce.number().nullable().optional(),
-  scope_diocese_id: z.coerce.number().nullable().optional(),
-});
+const articleFormSchema = z
+  .object({
+    node_id: z.string().optional(),
+    title: z.string().min(1, 'Le titre est requis').max(200),
+    content: z.string().min(1, 'Le texte est requis'),
+    excerpt: z.string().max(400).optional(),
+    category_id: z.coerce.number().min(1, 'La catégorie est requise'),
+    content_type: z.enum(TYPES_CONTENU),
+    is_sunday_notice: z.boolean(),
+    sunday_date: z.string().optional(),
+    notify_followers: z.boolean(),
+  })
+  .refine((v) => !v.is_sunday_notice || !!v.sunday_date, {
+    path: ['sunday_date'],
+    message: 'Indiquez le dimanche concerné',
+  });
 
 export type ArticleFormValues = z.infer<typeof articleFormSchema>;
 
 interface ArticleFormProps {
   defaultValues?: Partial<ArticleFormValues>;
+  /** Communautés où la personne publie (création seulement). */
+  noeuds?: NoeudStaff[];
   onSubmit: (data: ArticleFormValues) => void;
   isSubmitting?: boolean;
   submitLabel?: string;
 }
 
+const champ =
+  'w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50';
+
+/** Éditeur d'annonce ou d'article (création et modification). */
 export function ArticleForm({
   defaultValues,
+  noeuds,
   onSubmit,
   isSubmitting,
   submitLabel = 'Enregistrer',
 }: ArticleFormProps) {
   const router = useRouter();
   const { data: categories = [], isLoading: categoriesLoading } =
-    useCategories();
-  const { data: dioceses = [], isLoading: diocesesLoading } = useDioceses();
+    useCategoriesStaff();
 
   const {
     register,
     handleSubmit,
     watch,
-    control,
     formState: { errors },
-  } = useForm<ArticleFormValues>({
+  } = useForm<z.input<typeof articleFormSchema>, unknown, ArticleFormValues>({
     resolver: zodResolver(articleFormSchema),
     defaultValues: {
-      content_type: 'article',
-      scope_type: 'global',
+      content_type: 'announcement',
+      is_sunday_notice: false,
+      notify_followers: true,
+      node_id: noeuds?.[0]?.id,
       ...defaultValues,
     },
   });
 
-  const scopeType = watch('scope_type');
+  const dominical = watch('is_sunday_notice');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {noeuds && noeuds.length > 1 && (
+        <div className="space-y-2">
+          <label htmlFor="form-node" className="block text-sm font-medium">
+            Communauté <span className="text-destructive">*</span>
+          </label>
+          <select id="form-node" {...register('node_id')} className={champ}>
+            {noeuds.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.name} ({libelleTypeNoeud(n.type)})
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="space-y-2">
-        <label
-          htmlFor="form-title"
-          className="block text-sm font-medium text-foreground"
-        >
+        <label htmlFor="form-title" className="block text-sm font-medium">
           Titre <span className="text-destructive">*</span>
         </label>
         <input
           id="form-title"
           {...register('title')}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          placeholder="Titre de l'article"
+          className={champ}
+          placeholder="Titre de l’annonce"
         />
         {errors.title && (
           <p className="text-xs text-destructive">{errors.title.message}</p>
@@ -98,35 +113,32 @@ export function ArticleForm({
         <div className="space-y-2">
           <label
             htmlFor="form-content-type"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium"
           >
             Type de contenu <span className="text-destructive">*</span>
           </label>
           <select
             id="form-content-type"
             {...register('content_type')}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            className={champ}
           >
-            {CONTENT_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
+            {TYPES_CONTENU.map((t) => (
+              <option key={t} value={t}>
+                {LIBELLES_TYPE[t]}
               </option>
             ))}
           </select>
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="form-category"
-            className="block text-sm font-medium text-foreground"
-          >
+          <label htmlFor="form-category" className="block text-sm font-medium">
             Catégorie <span className="text-destructive">*</span>
           </label>
           <select
             id="form-category"
             {...register('category_id')}
             disabled={categoriesLoading}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+            className={champ}
           >
             <option value="">Sélectionner une catégorie</option>
             {categories.map((cat) => (
@@ -144,93 +156,15 @@ export function ArticleForm({
       </div>
 
       <div className="space-y-2">
-        <label
-          htmlFor="form-scope"
-          className="block text-sm font-medium text-foreground"
-        >
-          Portée <span className="text-destructive">*</span>
-        </label>
-        <select
-          id="form-scope"
-          {...register('scope_type')}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
-        >
-          {SCOPE_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {scopeType === 'diocese' && (
-        <div className="space-y-2">
-          <label
-            htmlFor="form-diocese-id"
-            className="block text-sm font-medium text-foreground"
-          >
-            Diocèse <span className="text-destructive">*</span>
-          </label>
-          <select
-            id="form-diocese-id"
-            {...register('scope_diocese_id')}
-            disabled={diocesesLoading}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
-          >
-            <option value="">Sélectionner un diocèse</option>
-            {dioceses.map((diocese) => (
-              <option key={diocese.id} value={diocese.id}>
-                {diocese.name}
-              </option>
-            ))}
-          </select>
-          {errors.scope_diocese_id && (
-            <p className="text-xs text-destructive">
-              {errors.scope_diocese_id.message}
-            </p>
-          )}
-        </div>
-      )}
-
-      {scopeType === 'parish' && (
-        <div className="space-y-2">
-          <label
-            htmlFor="form-parish-id"
-            className="block text-sm font-medium text-foreground"
-          >
-            Paroisse <span className="text-destructive">*</span>
-          </label>
-          <Controller
-            control={control}
-            name="scope_parish_id"
-            render={({ field }) => (
-              <ParishSelector
-                value={field.value ?? null}
-                onChange={(parishId) => field.onChange(parishId)}
-              />
-            )}
-          />
-          {errors.scope_parish_id && (
-            <p className="text-xs text-destructive">
-              {errors.scope_parish_id.message}
-            </p>
-          )}
-        </div>
-      )}
-
-      <div className="space-y-2">
-        <label
-          htmlFor="form-excerpt"
-          className="block text-sm font-medium text-foreground"
-        >
-          Résumé court
+        <label htmlFor="form-excerpt" className="block text-sm font-medium">
+          Chapô
         </label>
         <textarea
           id="form-excerpt"
           {...register('excerpt')}
           rows={2}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          placeholder="Résumé court affiché dans la liste d'articles (max 400 caractères)"
+          className={champ}
+          placeholder="Deux lignes affichées dans le fil (400 caractères au plus)"
         />
         {errors.excerpt && (
           <p className="text-xs text-destructive">{errors.excerpt.message}</p>
@@ -238,23 +172,49 @@ export function ArticleForm({
       </div>
 
       <div className="space-y-2">
-        <label
-          htmlFor="form-content"
-          className="block text-sm font-medium text-foreground"
-        >
-          Contenu <span className="text-destructive">*</span>
+        <label htmlFor="form-content" className="block text-sm font-medium">
+          Texte <span className="text-destructive">*</span>
         </label>
         <textarea
           id="form-content"
           {...register('content')}
           rows={12}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          placeholder="Contenu de l'article..."
+          className={champ}
         />
         {errors.content && (
           <p className="text-xs text-destructive">{errors.content.message}</p>
         )}
       </div>
+
+      <fieldset className="space-y-3 rounded-lg border border-border p-4">
+        <legend className="px-1 text-sm font-medium">Diffusion</legend>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" {...register('is_sunday_notice')} />
+          Annonce du dimanche (feuille dominicale)
+        </label>
+        {dominical && (
+          <div className="space-y-1">
+            <label htmlFor="form-sunday" className="block text-sm">
+              Dimanche concerné
+            </label>
+            <input
+              id="form-sunday"
+              type="date"
+              {...register('sunday_date')}
+              className={champ}
+            />
+            {errors.sunday_date && (
+              <p className="text-xs text-destructive">
+                {errors.sunday_date.message}
+              </p>
+            )}
+          </div>
+        )}
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" {...register('notify_followers')} />
+          Prévenir les fidèles à la publication
+        </label>
+      </fieldset>
 
       <div className="flex justify-end gap-3 border-t border-border pt-4">
         <Button
@@ -264,10 +224,24 @@ export function ArticleForm({
         >
           Annuler
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <Spinner className="size-4" /> : submitLabel}
+        <Button type="submit" isLoading={isSubmitting}>
+          {submitLabel}
         </Button>
       </div>
     </form>
   );
 }
+
+/** Corps envoyé au back à partir des valeurs du formulaire. */
+export const versContenuInput = (
+  v: ArticleFormValues,
+): Omit<ContenuInput, 'node_id'> => ({
+  content_type: v.content_type,
+  title: v.title,
+  excerpt: v.excerpt ?? '',
+  content: v.content,
+  category_id: v.category_id,
+  is_sunday_notice: v.is_sunday_notice,
+  sunday_date: v.is_sunday_notice ? (v.sunday_date ?? null) : null,
+  notify_followers: v.notify_followers,
+});

@@ -7,13 +7,28 @@ import { useEffect } from 'react';
 
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import {
+  type Fonctionnalite,
+  fonctionnaliteActive,
+} from '@/config/fonctionnalites';
 import { paths } from '@/config/paths';
 import { useUser } from '@/lib/auth';
 import { isClergy } from '@/lib/authorization';
 import { cn } from '@/lib/utils';
 
-const CLERGE_SECTIONS = [
+type Section = {
+  href: string;
+  icon: typeof Cross;
+  label: string;
+  description: string;
+  color: string;
+  /** Écran sans route V1 : masqué tant que l'indicateur est éteint. */
+  sansRoute?: Fonctionnalite;
+};
+
+const CLERGE_SECTIONS: Section[] = [
   {
+    sansRoute: 'intentionsMesse',
     href: paths.app.clerge.intentions.getHref(),
     icon: Cross,
     label: 'Intentions de messe',
@@ -21,6 +36,7 @@ const CLERGE_SECTIONS = [
     color: 'bg-warning/10 text-warning',
   },
   {
+    sansRoute: 'messagerieClericale',
     href: paths.app.clerge.messages.getHref(),
     icon: MessageSquare,
     label: 'Messagerie inter-clergé',
@@ -28,6 +44,7 @@ const CLERGE_SECTIONS = [
     color: 'bg-info/10 text-info',
   },
   {
+    sansRoute: 'transferts',
     href: paths.app.clerge.transferts.getHref(),
     icon: MapPin,
     label: 'Transferts paroissiaux',
@@ -48,7 +65,7 @@ const CLERGE_SECTIONS = [
     description: 'Bible · Chapelet · Liturgie du jour',
     color: 'bg-primary/10 text-primary',
   },
-] as const;
+];
 
 export default function ClergePage() {
   const router = useRouter();
@@ -73,7 +90,9 @@ export default function ClergePage() {
     <div className="flex flex-col">
       <ContentContainer>
         <div className="flex flex-col gap-3">
-          {CLERGE_SECTIONS.map((section) => {
+          {CLERGE_SECTIONS.filter(
+            (s) => !s.sansRoute || fonctionnaliteActive(s.sansRoute),
+          ).map((section) => {
             const Icon = section.icon;
             return (
               <Link

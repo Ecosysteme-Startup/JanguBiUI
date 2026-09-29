@@ -292,3 +292,27 @@ export const createRosaryDay = (overrides?: Partial<RosaryDay>): RosaryDay => ({
   },
   ...overrides,
 });
+
+/** Membre du staff : capacités exercées sur un nœud (contrat /v1/me/capacites/). */
+export const createStaffUser = (
+  capacites: string[],
+  noeud: { id: string; name: string; type: string } = {
+    id: '5d000000-0000-4000-8000-00000000000d',
+    name: 'Saint-Dominique',
+    type: 'paroisse',
+  },
+  overrides?: Partial<User>,
+): User =>
+  createUser({
+    role: noeud.type === 'diocese' ? 'diocese_admin' : 'parish_admin',
+    is_admin: true,
+    is_staff: true,
+    capabilities: capacites,
+    capability_nodes: capacites.map((capacite) => ({
+      capacite,
+      node_id: capacite === 'plateforme.admin' ? null : noeud.id,
+      node_name: capacite === 'plateforme.admin' ? 'Plateforme' : noeud.name,
+      node_type: capacite === 'plateforme.admin' ? 'plateforme' : noeud.type,
+    })),
+    ...overrides,
+  });

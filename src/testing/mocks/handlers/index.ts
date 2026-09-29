@@ -8,6 +8,7 @@ import { newsHandlers } from './news';
 import { notificationsHandlers } from './notifications';
 import { paroissesHandlers } from './paroisses';
 import { sonothequeHandlers } from './sonotheque';
+import { staffHandlers } from './staff';
 
 export const handlers = [
   ...authHandlers,
@@ -20,4 +21,5 @@ export const handlers = [
   ...audioLecteurHandlers,
   ...sonothequeHandlers,
   ...paroissesHandlers,
+  ...staffHandlers,
 ];

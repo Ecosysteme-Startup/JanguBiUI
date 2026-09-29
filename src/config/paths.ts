@@ -46,9 +46,11 @@ export const paths = {
     donsAnalyse: { getHref: () => '/app/dons/analyse' },
     diocese: {
       dons: { getHref: () => '/app/diocese/dons' },
+      quetesImperees: { getHref: () => '/app/diocese/quetes-imperees' },
     },
     plateforme: {
       paiements: { getHref: () => '/app/plateforme/paiements' },
+      referentiels: { getHref: () => '/app/plateforme/referentiels' },
     },
     tv: { getHref: () => '/app/tv' },
     ecouter: {
@@ -66,6 +68,13 @@ export const paths = {
     },
     paroisse: {
       paroissiens: { getHref: () => '/app/paroisse/paroissiens' },
+      horaires: { getHref: () => '/app/paroisse/horaires' },
+      confessions: { getHref: () => '/app/paroisse/confessions' },
+      parametres: { getHref: () => '/app/paroisse/parametres' },
+      dons: {
+        getHref: (vue?: string) =>
+          vue ? `/app/paroisse/dons?vue=${vue}` : '/app/paroisse/dons',
+      },
       sonotheque: { getHref: () => '/app/paroisse/sonotheque' },
       sonothequeAjouter: {
         getHref: (album?: string) =>
@@ -99,8 +108,14 @@ export const paths = {
         getHref: (id: string) => `/app/admin/articles/${id}/edit`,
       },
       documents: { getHref: () => '/app/admin/documents' },
+      document: {
+        getHref: (id: string) =>
+          `/app/admin/documents/${encodeURIComponent(id)}`,
+      },
       tv: { getHref: () => '/app/admin/tv' },
       org: { getHref: () => '/app/admin/org' },
+      nominations: { getHref: () => '/app/admin/nominations' },
+      audit: { getHref: () => '/app/admin/audit' },
       users: {
         list: { getHref: () => '/app/admin/users' },
         invitations: { getHref: () => '/app/admin/users/invitations' },
