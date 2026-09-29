@@ -10,6 +10,25 @@ export class ApiError extends Error {
     super(message);
     this.name = 'ApiError';
   }
+
+  /** Enveloppe V1 `{error: {code, message, details}}` : code métier (`reserve_paroissiens`, `mfa_required`…). */
+  get code(): string | null {
+    const error = this.envelope();
+    if (typeof error?.code === 'string') return error.code;
+    const outer = this.body as Record<string, unknown> | null;
+    return outer && typeof outer === 'object' && typeof outer.code === 'string' ? outer.code : null;
+  }
+
+  /** Détails de l'enveloppe V1 (champs en erreur, paroisse à rejoindre…). */
+  get details(): unknown {
+    return this.envelope()?.details ?? null;
+  }
+
+  private envelope(): Record<string, unknown> | null {
+    const outer = this.body as Record<string, unknown> | null;
+    if (!outer || typeof outer !== 'object' || !outer.error || typeof outer.error !== 'object') return null;
+    return outer.error as Record<string, unknown>;
+  }
 }
 
 type AccessTokenProvider = () => Promise<string | null>;
@@ -19,6 +38,12 @@ type UnauthorizedHandler = () => Promise<string | null> | void;
 // Branchés par la couche d'authentification (F3) : aucun jeton n'est stocké ici.
 let accessToken: AccessTokenProvider = async () => null;
 let onUnauthorized: UnauthorizedHandler = () => undefined;
+
+/** Jeton d'accès courant, pour les requêtes hors `api` (requêtes de fond, flux SSE). */
+export const currentAccessToken = () => accessToken();
+
+/** Après un 401 reçu hors `api` : rafraîchit la session et renvoie le nouveau jeton (ou `null`). */
+export const renewAccessToken = async (): Promise<string | null> => (await onUnauthorized()) ?? null;
 
 export const configureApiAuth = (options: { accessToken: AccessTokenProvider; onUnauthorized: UnauthorizedHandler }) => {
   accessToken = options.accessToken;

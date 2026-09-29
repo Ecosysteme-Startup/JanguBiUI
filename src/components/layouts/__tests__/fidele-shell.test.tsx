@@ -21,7 +21,7 @@ describe('FideleShell', () => {
     renderApp(<FideleShell>contenu</FideleShell>);
 
     const nav = within(screen.getByRole('navigation', { name: 'Espace fidèle' }));
-    expect(nav.getAllByRole('link').map((l) => l.textContent)).toEqual(['Accueil', 'La Parole', 'Ma paroisse', 'Mes demandes', 'Parler à un prêtre', 'Dons']);
+    expect(nav.getAllByRole('link').map((l) => l.textContent)).toEqual(['Accueil', 'La Parole', 'Écouter', 'Ma paroisse', 'Mes demandes', 'Parler à un prêtre', 'Dons']);
     expect(nav.getByRole('link', { name: 'La Parole' })).toHaveAttribute('aria-current', 'page');
   });
 

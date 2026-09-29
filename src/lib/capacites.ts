@@ -3,7 +3,11 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-/** Catalogue fermé des capacités (backend, migrations 0004 et 0009 — RG-14, ADR-017). */
+/**
+ * Catalogue fermé des capacités (backend, migrations 0004, 0009 à 0011, 0014 et 0015 — RG-14,
+ * ADR-017) : sonothèque (`audio.*`), analyse des dons au-dessus de la paroisse
+ * (`dons.voir_agregats`), intentions de messe, paroissiens et comptes.
+ */
 export const CAPACITES = [
   'structure.gerer',
   'horaires.gerer',
@@ -24,6 +28,13 @@ export const CAPACITES = [
   'dons.voir_donateurs',
   'dons.exporter',
   'dons.definir_quete_imperee',
+  'dons.voir_agregats',
+  'audio.publier',
+  'audio.moderer',
+  'intentions.gerer',
+  'paroissiens.gerer',
+  'comptes.valider',
+  'comptes.gerer',
   'plateforme.admin',
 ] as const;
 export type Capacite = (typeof CAPACITES)[number];

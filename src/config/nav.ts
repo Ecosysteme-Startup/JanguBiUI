@@ -5,7 +5,7 @@ import type { Capacite } from '@/lib/capacites';
 export type NavLeaf = { label: string; href: string; icon?: IconName; match?: 'exact' | 'prefix' };
 
 /**
- * Espace fidèle (WEB-FID-*) : cinq rubriques de la barre latérale. Les sous-rubriques (Bible,
+ * Espace fidèle (WEB-FID-*) : rubriques de la barre latérale (dont « Écouter », la sonothèque). Les sous-rubriques (Bible,
  * Chapelet, Annonces…) vivent dans la page (contrôle segmenté, onglets), plus dans la barre ;
  * `children` reste la liste de référence de la recherche rapide et du menu mobile.
  */
@@ -21,6 +21,7 @@ export const FIDELE_NAV: (NavLeaf & { children?: NavLeaf[] })[] = [
       { label: 'Chapelet', href: paths.app.chapelet.getHref() },
     ],
   },
+  { label: 'Écouter', href: paths.app.ecouter.root.getHref(), icon: 'ecouter' },
   {
     label: 'Ma paroisse',
     href: paths.app.paroisse.root.getHref(),
@@ -74,6 +75,7 @@ export const MOBILE_MENU: { title: string; items: NavLeaf[] }[] = [
     items: [
       { label: 'Bible', href: paths.app.bible.root.getHref() },
       { label: 'Chapelet', href: paths.app.chapelet.getHref() },
+      { label: 'Écouter', href: paths.app.ecouter.root.getHref() },
     ],
   },
   {
@@ -162,6 +164,7 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
         { label: 'Annonces', href: e.annonces.list.getHref(nodeId), icon: 'annonce', capacites: ['annonces.publier'] },
         { label: 'Horaires et lieux', href: e.horaires.getHref(nodeId), icon: 'horloge', capacites: ['horaires.gerer'] },
         { label: 'Agenda', href: e.agenda.getHref(nodeId), icon: 'calendrier', capacites: ['evenements.gerer'] },
+        { label: 'Sonothèque', href: e.sonotheque.root.getHref(nodeId), icon: 'ecouter', capacites: ['audio.publier'] },
         {
           label: 'Dons et quêtes',
           href: e.dons.root.getHref(nodeId),

@@ -74,6 +74,15 @@ export const paths = {
       conversation: { getHref: (id: string) => `/app/pretres/conversations/${enc(id)}` },
     },
     confession: { getHref: () => '/app/confession' },
+    /** Sonothèque (écoute) : accueil, album, source, playlist, recherche, bibliothèque. */
+    ecouter: {
+      root: { getHref: () => '/app/ecouter' },
+      album: { getHref: (id: string) => `/app/ecouter/albums/${enc(id)}` },
+      source: { getHref: (id: string) => `/app/ecouter/sources/${enc(id)}` },
+      playlist: { getHref: (id: string) => `/app/ecouter/playlists/${enc(id)}` },
+      recherche: { getHref: (q?: string) => (q ? `/app/ecouter/recherche?q=${enc(q)}` : '/app/ecouter/recherche') },
+      bibliotheque: { getHref: () => '/app/ecouter/bibliotheque' },
+    },
     profil: { getHref: () => '/app/profil' },
     etatDeVie: { getHref: () => '/app/profil#etat-de-vie' },
     dons: {
@@ -119,6 +128,13 @@ export const paths = {
       quetes: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/quetes` },
       /** `section` : ancre de la page (« reversements »). */
       export: { getHref: (nodeId: string, section?: 'reversements') => `/espace/${enc(nodeId)}/dons/export${section ? `#${section}` : ''}` },
+    },
+    /** Sonothèque de la paroisse : albums, enregistrements, envoi (`album` : ajouter à cet album). */
+    sonotheque: {
+      root: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/sonotheque` },
+      ajouter: {
+        getHref: (nodeId: string, album?: string) => `/espace/${enc(nodeId)}/sonotheque/ajouter${album ? `?album=${enc(album)}` : ''}`,
+      },
     },
     quetesImperees: {
       getHref: (nodeId: string, queteId?: string) => `/espace/${enc(nodeId)}/quetes-imperees${queteId ? `?quete=${enc(queteId)}` : ''}`,

@@ -75,3 +75,23 @@ export const MenuSeparator = ({ className }: { className?: string }) => (
 export const MenuLabel = ({ className, ...props }: React.ComponentProps<typeof DropdownMenu.Label>) => (
   <DropdownMenu.Label className={cn('px-2.5 pb-1 pt-1.5 text-13 text-ink-3', className)} {...props} />
 );
+
+/** Choix exclusif dans un menu (vitesse, minuterie, qualité) : la valeur retenue porte une coche. */
+export const MenuRadioGroup = DropdownMenu.RadioGroup;
+
+export const MenuRadioItem = ({ className, children, ...props }: React.ComponentProps<typeof DropdownMenu.RadioItem>) => (
+  <DropdownMenu.RadioItem
+    className={cn(
+      'flex min-h-9 cursor-pointer select-none items-center gap-2.5 rounded-8 px-2.5 text-14 text-ink outline-none data-[disabled]:cursor-not-allowed data-[highlighted]:bg-surface-2 data-[disabled]:text-ink-4',
+      className,
+    )}
+    {...props}
+  >
+    <span className="inline-flex size-[18px] shrink-0 items-center justify-center">
+      <DropdownMenu.ItemIndicator>
+        <Icon name="check" size={16} className="text-primary" />
+      </DropdownMenu.ItemIndicator>
+    </span>
+    <span className="flex-1 whitespace-nowrap">{children}</span>
+  </DropdownMenu.RadioItem>
+);
