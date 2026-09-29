@@ -20,7 +20,16 @@ const normalize = (s: string) =>
  * Recherche rapide (WEB-Design-System, « Recherche rapide », Ctrl K) : champ de la barre latérale
  * qui ouvre un dialogue listant les rubriques de l'espace ; flèches pour choisir, Entrée pour ouvrir.
  */
-export const QuickSearch = ({ items, placeholder = 'Rechercher' }: { items: QuickSearchItem[]; placeholder?: string }) => {
+export const QuickSearch = ({
+  items,
+  placeholder = 'Rechercher',
+  searchAll,
+}: {
+  items: QuickSearchItem[];
+  placeholder?: string;
+  /** Lien « Rechercher partout » (recherche transverse) pour la saisie, en dernier résultat. */
+  searchAll?: (query: string) => string;
+}) => {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
   const [cursor, setCursor] = React.useState(0);
@@ -39,8 +48,12 @@ export const QuickSearch = ({ items, placeholder = 'Rechercher' }: { items: Quic
 
   const results = React.useMemo(() => {
     const q = normalize(query.trim());
-    return q ? items.filter((i) => normalize(`${i.label} ${i.hint ?? ''} ${i.group ?? ''}`).includes(q)) : items;
-  }, [items, query]);
+    const found = q ? items.filter((i) => normalize(`${i.label} ${i.hint ?? ''} ${i.group ?? ''}`).includes(q)) : items;
+    const text = query.trim();
+    return searchAll && text.length >= 2
+      ? [...found, { label: `Rechercher « ${text} » partout`, href: searchAll(text), icon: 'recherche' as const, hint: 'Bible, paroisses, annonces, prêtres, écoute' }]
+      : found;
+  }, [items, query, searchAll]);
 
   const onOpenChange = (next: boolean) => {
     setOpen(next);

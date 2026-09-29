@@ -74,6 +74,8 @@ export const paths = {
       conversation: { getHref: (id: string) => `/app/pretres/conversations/${enc(id)}` },
     },
     confession: { getHref: () => '/app/confession' },
+    /** Recherche transverse (Bible, paroisses, annonces, prêtres, écoute, lieux). */
+    recherche: { getHref: (q?: string) => (q ? `/app/recherche?q=${enc(q)}` : '/app/recherche') },
     /** Intentions de messe : demander qu'une messe soit célébrée à une intention, suivre ses demandes. */
     intentions: { getHref: () => '/app/intentions' },
     /** Sonothèque (écoute) : accueil, album, source, playlist, recherche, bibliothèque. */

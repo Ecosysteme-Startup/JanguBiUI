@@ -92,6 +92,7 @@ export const MOBILE_MENU: { title: string; items: NavLeaf[] }[] = [
   {
     title: 'Mon compte',
     items: [
+      { label: 'Rechercher', href: paths.app.recherche.getHref() },
       { label: 'Notifications', href: paths.app.notifications.getHref() },
       { label: 'Paramètres', href: paths.app.profil.getHref() },
       { label: 'Aide et contact', href: paths.contact.getHref() },

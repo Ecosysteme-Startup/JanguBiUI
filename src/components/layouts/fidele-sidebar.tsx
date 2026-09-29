@@ -36,7 +36,7 @@ export const FideleSidebar = () => {
     <SidebarFrame>
       <Brand href={paths.app.root.getHref()} label="Jàngu Bi, accueil de mon espace" size="sm" className="h-10 px-2" />
       <div className="mt-4">
-        <QuickSearch items={SEARCH_ITEMS} />
+        <QuickSearch items={SEARCH_ITEMS} searchAll={paths.app.recherche.getHref} />
       </div>
       <nav aria-label="Espace fidèle" className="mt-5 flex flex-col gap-0.5">
         {FIDELE_NAV.map((item) => (
