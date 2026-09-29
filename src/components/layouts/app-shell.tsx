@@ -4,6 +4,7 @@ import { LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
 import { usePathname, useRouter } from 'next/navigation';
 
+import { PlayerRoot, PlayerSpacer } from '@/components/player/player-root';
 import { Link } from '@/components/ui/link/link';
 import { buildNavItems, isNavActive } from '@/config/nav-config';
 import { useLogout, useUser } from '@/lib/auth';
@@ -143,6 +144,9 @@ function AppShellLayout({ children }: AppShellProps) {
       <div className="flex flex-1 flex-col min-w-0">
         <AppHeader />
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
+        {/* Lecteur audio global : survit à la navigation entre les pages. */}
+        <PlayerSpacer />
+        <PlayerRoot />
         <BottomNav messageBadge={totalUnread} />
       </div>
       {/* Cloche flottante mobile — uniquement pour les pages NON migrées : les

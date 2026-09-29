@@ -1,3 +1,4 @@
+import { audioLecteurHandlers } from './audio-lecteur';
 import { authHandlers } from './auth';
 import { bibleHandlers } from './bible';
 import { documentsHandlers } from './documents';
@@ -14,4 +15,5 @@ export const handlers = [
   ...newsHandlers,
   ...bibleHandlers,
   ...donsAnalyseHandlers,
+  ...audioLecteurHandlers,
 ];
