@@ -132,6 +132,19 @@ export const paths = {
       org: { getHref: () => '/app/admin/org' },
       nominations: { getHref: () => '/app/admin/nominations' },
       audit: { getHref: () => '/app/admin/audit' },
+      comptes: {
+        tableau: { getHref: () => '/app/admin/comptes' },
+        liste: { getHref: () => '/app/admin/comptes/utilisateurs' },
+        nouveau: { getHref: () => '/app/admin/comptes/utilisateurs/nouveau' },
+        fiche: {
+          getHref: (id: string) =>
+            `/app/admin/comptes/utilisateurs/${encodeURIComponent(id)}`,
+        },
+        synchronisation: {
+          getHref: () => '/app/admin/comptes/synchronisation',
+        },
+        journal: { getHref: () => '/app/admin/comptes/journal' },
+      },
       users: {
         list: { getHref: () => '/app/admin/users' },
         validation: { getHref: () => '/app/admin/users/validation' },

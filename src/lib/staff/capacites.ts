@@ -31,6 +31,7 @@ export type Capacite =
   | 'audio.moderer'
   | 'paroissiens.gerer'
   | 'comptes.valider'
+  | 'comptes.gerer'
   | 'intentions.gerer';
 
 export type NoeudStaff = { id: string; name: string; type: string };

@@ -49,6 +49,11 @@ const PATH_LABELS: Record<string, string> = {
   '/app/admin/users': 'Utilisateurs',
   '/app/admin/users/clerge': 'Validation du clergé',
   '/app/admin/users/validation': 'Validation',
+  '/app/admin/comptes': 'Comptes',
+  '/app/admin/comptes/utilisateurs': 'Tous les comptes',
+  '/app/admin/comptes/utilisateurs/nouveau': 'Nouveau compte',
+  '/app/admin/comptes/synchronisation': 'Synchronisation',
+  '/app/admin/comptes/journal': 'Journal d’audit',
 };
 
 /** Libellés par segment terminal (suffixes connus, ex. « edit »). */
