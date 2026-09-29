@@ -4,56 +4,53 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import {
-  ChurchCascadeSelector,
-  type SelectedChurch,
-} from '@/components/org/church-cascade-selector';
+  type PickedParish,
+  ParishPicker,
+} from '@/components/org/parish-picker';
 import { Button } from '@/components/ui/button/button';
 import { Card } from '@/components/ui/card/card';
+import { ApiError } from '@/lib/api-client';
 import { useLogout, useUser } from '@/lib/auth';
 import { getRoleHomePath } from '@/lib/get-role-home-path';
-import { useAddMemberships } from '@/lib/org/update-parish';
+import { useAjouterParoisse, useMesParoisses } from '@/lib/paroisses/api';
 
+/**
+ * Premier choix de paroisse (facultatif) : `POST /v1/me/paroisses/` avec
+ * `principale: true`. La recherche couvre l'annuaire public
+ * (`GET /v1/public/nodes/?q=&type=paroisse`). Une personne déjà membre d'une
+ * paroisse (`GET /v1/me/paroisses/`) est renvoyée vers son accueil.
+ */
 export default function OnboardingPage() {
   const router = useRouter();
   const { data: user } = useUser();
-  const [selected, setSelected] = useState<SelectedChurch[]>([]);
-  const [primaryChurchId, setPrimaryChurchId] = useState<number | null>(null);
-
-  const { mutate: addMemberships, isPending } = useAddMemberships({
-    onSuccess: () => {
-      router.replace(getRoleHomePath(user));
-    },
-  });
-
+  const { data: mesParoisses } = useMesParoisses();
+  const [choix, setChoix] = useState<PickedParish | null>(null);
+  const ajouter = useAjouterParoisse();
   const { mutate: logout } = useLogout();
 
-  // Onboarding déjà terminé → on redirige (effet, pas pendant le render).
-  const completed = user?.onboarding_state === 'completed';
+  const accueil = getRoleHomePath(user);
+  const dejaMembre = (mesParoisses?.length ?? 0) > 0;
+
   useEffect(() => {
-    if (completed && user) {
-      router.replace(getRoleHomePath(user));
-    }
-  }, [completed, user, router]);
+    if (dejaMembre) router.replace(accueil);
+  }, [dejaMembre, accueil, router]);
 
-  if (completed) return null;
+  if (dejaMembre) return null;
 
-  const handleSelectionChange = (
-    next: SelectedChurch[],
-    nextPrimary: number | null,
-  ) => {
-    setSelected(next);
-    setPrimaryChurchId(nextPrimary);
+  const valider = () => {
+    if (!choix) return;
+    ajouter.mutate(
+      { paroisseId: choix.id, principale: true },
+      { onSuccess: () => router.replace(accueil) },
+    );
   };
 
-  const handleSubmit = () => {
-    if (selected.length === 0) return;
-    // Église principale en tête : le back marque la 1re de church_ids comme is_primary.
-    const orderedIds = [
-      ...(primaryChurchId != null ? [primaryChurchId] : []),
-      ...selected.map((s) => s.churchId).filter((id) => id !== primaryChurchId),
-    ];
-    addMemberships({ churchIds: orderedIds });
-  };
+  const erreur =
+    ajouter.error instanceof ApiError
+      ? ajouter.error.message
+      : ajouter.error
+        ? 'L’enregistrement n’a pas abouti. Réessayez dans un instant.'
+        : null;
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-8">
@@ -74,25 +71,38 @@ export default function OnboardingPage() {
             Bienvenue sur Jàngu Bi
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Ajoutez la ou les églises que vous fréquentez, puis désignez votre
-            église principale.
+            Choisissez la paroisse que vous fréquentez. Vous pourrez en ajouter
+            d’autres depuis votre profil.
           </p>
         </div>
 
         <Card variant="elevated" className="p-6">
-          <ChurchCascadeSelector
-            selected={selected}
-            primaryChurchId={primaryChurchId}
-            onChange={handleSelectionChange}
-            disabled={isPending}
+          <ParishPicker
+            value={choix}
+            onChange={setChoix}
+            disabled={ajouter.isPending}
           />
+
+          {erreur && (
+            <p className="mt-3 text-sm text-destructive" role="alert">
+              {erreur}
+            </p>
+          )}
 
           <Button
             className="mt-6 w-full"
-            onClick={handleSubmit}
-            disabled={selected.length === 0 || isPending}
+            onClick={valider}
+            disabled={!choix || ajouter.isPending}
           >
-            {isPending ? 'Enregistrement…' : 'Commencer'}
+            {ajouter.isPending ? 'Enregistrement…' : 'Commencer'}
+          </Button>
+          <Button
+            variant="ghost"
+            className="mt-2 w-full"
+            onClick={() => router.replace(accueil)}
+            disabled={ajouter.isPending}
+          >
+            Plus tard
           </Button>
         </Card>
 

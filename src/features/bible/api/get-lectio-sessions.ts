@@ -5,7 +5,8 @@ import { api } from '@/lib/api-client';
 
 export const lectioDivinaSchema = z.object({
   id: z.number(),
-  passage_id: z.number(),
+  passage_id: z.number().nullable(),
+  session_date: z.string().optional(),
   lectio: z.string(),
   meditatio: z.string(),
   oratio: z.string(),

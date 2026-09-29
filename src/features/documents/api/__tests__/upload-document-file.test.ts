@@ -30,15 +30,10 @@ describe('uploadDocumentFile', () => {
     const capturedContentTypes: string[] = [];
 
     server.use(
-      http.post(
-        `${env.API_URL}/v1/files/upload/standard/`,
-        ({ request }) => {
-          capturedContentTypes.push(
-            request.headers.get('content-type') ?? '',
-          );
-          return HttpResponse.json({ id: 11 }, { status: 201 });
-        },
-      ),
+      http.post(`${env.API_URL}/v1/files/upload/standard/`, ({ request }) => {
+        capturedContentTypes.push(request.headers.get('content-type') ?? '');
+        return HttpResponse.json({ id: 11 }, { status: 201 });
+      }),
     );
 
     await uploadDocumentFile(makeFile('marriage.pdf'));
@@ -49,10 +44,7 @@ describe('uploadDocumentFile', () => {
   test('rejects when the API responds with an error', async () => {
     server.use(
       http.post(`${env.API_URL}/v1/files/upload/standard/`, () =>
-        HttpResponse.json(
-          { message: 'Fichier invalide.' },
-          { status: 400 },
-        ),
+        HttpResponse.json({ message: 'Fichier invalide.' }, { status: 400 }),
       ),
     );
 

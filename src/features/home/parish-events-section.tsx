@@ -8,11 +8,9 @@ import { useEvents } from '@/features/agenda/api/get-events';
 import { EventCard } from '@/features/agenda/components/event-card';
 
 export function ParishEventsSection() {
-  const { data, isLoading } = useEvents();
-
-  const upcomingEvents = (data?.results ?? [])
-    .filter((e) => new Date(e.start_at) >= new Date())
-    .slice(0, 3);
+  // Le fil agenda ne renvoie que les événements à venir, triés par date.
+  const { data, isLoading } = useEvents({ limit: 3 });
+  const upcomingEvents = data?.results ?? [];
 
   return (
     <section className="flex flex-col gap-3">
@@ -44,9 +42,10 @@ export function ParishEventsSection() {
         </p>
       )}
 
-      {!isLoading && upcomingEvents.map((event) => (
-        <EventCard key={event.id} event={event} />
-      ))}
+      {!isLoading &&
+        upcomingEvents.map((event) => (
+          <EventCard key={event.id} event={event} />
+        ))}
     </section>
   );
 }

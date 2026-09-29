@@ -35,9 +35,15 @@ export function EventCard({ event, canDelete = false }: EventCardProps) {
 
   const start = new Date(event.start_at);
   const end = new Date(event.end_at);
-  const isFull =
-    event.max_participants != null &&
-    event.registration_count >= event.max_participants;
+  const isFull = event.is_full;
+  const closed = event.is_cancelled || !event.registrations_open;
+
+  const onError = (err: Error) =>
+    addNotification({
+      type: 'error',
+      title: 'Inscription',
+      message: err.message,
+    });
 
   function handleRegistration() {
     if (event.is_registered) {
@@ -48,6 +54,7 @@ export function EventCard({ event, canDelete = false }: EventCardProps) {
             title: 'Désinscrit',
             message: 'Votre inscription a été annulée.',
           }),
+        onError,
       });
     } else {
       register(event.id, {
@@ -57,6 +64,7 @@ export function EventCard({ event, canDelete = false }: EventCardProps) {
             title: 'Inscrit',
             message: 'Votre inscription est confirmée.',
           }),
+        onError,
       });
     }
   }
@@ -163,7 +171,7 @@ export function EventCard({ event, canDelete = false }: EventCardProps) {
           <div className="flex items-center gap-1.5">
             <Users className="size-3.5 shrink-0" />
             <span>
-              {event.registration_count} / {event.max_participants} inscrits
+              {event.seats_taken} / {event.max_participants} places réservées
               {isFull && (
                 <span className="ml-1 text-destructive font-medium">
                   · Complet
@@ -177,7 +185,9 @@ export function EventCard({ event, canDelete = false }: EventCardProps) {
       <button
         type="button"
         onClick={handleRegistration}
-        disabled={isPendingAction || (isFull && !event.is_registered)}
+        disabled={
+          isPendingAction || ((isFull || closed) && !event.is_registered)
+        }
         className={cn(
           'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 motion-reduce:transition-none',
           event.is_registered
@@ -188,9 +198,13 @@ export function EventCard({ event, canDelete = false }: EventCardProps) {
         {isPendingAction && <Spinner className="size-4" />}
         {event.is_registered
           ? 'Annuler mon inscription'
-          : isFull
-            ? 'Complet'
-            : "S'inscrire"}
+          : event.is_cancelled
+            ? 'Événement annulé'
+            : isFull
+              ? 'Complet'
+              : closed
+                ? 'Inscriptions closes'
+                : "S'inscrire"}
       </button>
     </Card>
   );

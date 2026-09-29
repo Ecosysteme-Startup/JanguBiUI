@@ -56,7 +56,7 @@ describe('useNotificationsSocket', () => {
     });
     let lectures = 0;
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () => {
+      http.get(`${env.API_URL}/v1/notifications/`, () => {
         lectures += 1;
         return HttpResponse.json([]);
       }),

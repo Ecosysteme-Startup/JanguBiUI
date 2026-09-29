@@ -1,7 +1,10 @@
+import { agendaHandlers } from './agenda';
 import { audioLecteurHandlers } from './audio-lecteur';
 import { authHandlers } from './auth';
 import { bibleHandlers } from './bible';
+import { confessionsHandlers } from './confessions';
 import { documentsHandlers } from './documents';
+import { donsHandlers } from './dons';
 import { donsAnalyseHandlers } from './dons-analyse';
 import { messagingHandlers } from './messaging';
 import { newsHandlers } from './news';
@@ -16,8 +19,11 @@ export const handlers = [
   ...notificationsHandlers,
   ...newsHandlers,
   ...bibleHandlers,
+  ...donsHandlers,
   ...donsAnalyseHandlers,
   ...audioLecteurHandlers,
   ...sonothequeHandlers,
   ...paroissesHandlers,
+  ...agendaHandlers,
+  ...confessionsHandlers,
 ];

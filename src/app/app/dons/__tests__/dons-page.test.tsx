@@ -4,7 +4,12 @@ import { http, HttpResponse } from 'msw';
 import * as React from 'react';
 
 import { env } from '@/config/env';
-import { createUser } from '@/testing/data-generators';
+import { ouvrirPaiement } from '@/features/dons/utils/paiement';
+import { FONDS_CAMPAGNE, FONDS_QUETE } from '@/testing/mocks/handlers/dons';
+import {
+  PAROISSES,
+  resetParoissesMocks,
+} from '@/testing/mocks/handlers/paroisses';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
@@ -12,113 +17,127 @@ import { renderApp } from '@/testing/test-utils';
 vi.mock('@/components/layouts/app-shell', () => ({
   AppShell: ({ children }: { children: React.ReactNode }) => children,
 }));
+// La redirection vers l'agrégateur quitte l'application : simulée.
+vi.mock('@/features/dons/utils/paiement', () => ({ ouvrirPaiement: vi.fn() }));
 
 import DonsPage from '../page';
 
-const MEMBERSHIPS = [
-  {
-    id: 1,
-    church: { id: 111, name: 'Église A' },
-    parish: { id: 11, name: 'Saint-Pierre' },
-    diocese: { id: 1, name: 'Diocèse de Dakar' },
-    is_primary: true,
-  },
-  {
-    id: 2,
-    church: { id: 211, name: 'Église B' },
-    parish: { id: 21, name: 'Sainte-Anne' },
-    diocese: { id: 2, name: 'Diocèse de Thiès' },
-    is_primary: false,
-  },
-];
+describe('DonsPage — dons du fidèle sur les routes V1', () => {
+  beforeEach(() => resetParoissesMocks());
 
-function mockBackend() {
-  server.use(
-    http.get(`${env.API_URL}/v1/me/`, () =>
-      HttpResponse.json(createUser({ memberships: MEMBERSHIPS })),
-    ),
-    http.get(`${env.API_URL}/v1/donations/campaigns/`, () =>
-      HttpResponse.json({ count: 0, results: [] }),
-    ),
-  );
-}
-
-describe('DonsPage — bénéficiaire & paiement (C7c)', () => {
-  beforeEach(mockBackend);
-
-  test('le bénéficiaire par défaut est l’église principale', async () => {
+  test('page de don de la paroisse principale : fonds, montants, mention', async () => {
     renderApp(<DonsPage />);
 
-    const beneficiary = (await screen.findByLabelText(
-      'Bénéficiaire',
-    )) as HTMLSelectElement;
-    // Église principale = id 111 (is_primary).
-    expect(beneficiary.value).toBe('111');
+    expect(
+      await screen.findByRole('button', { name: /Réfection de la toiture/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Quête du dimanche 27 septembre/ }),
+    ).toBeInTheDocument();
+    // Montant réuni / objectif en FCFA (espaces insécables).
+    expect(
+      screen.getByText(/^1\s214\s830\sFCFA réunis sur 3\s000\s000\sFCFA$/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/ARCH-DK-2026-014/)).toBeInTheDocument();
+    // Aucun choix de moyen de paiement dans l'application.
+    expect(screen.queryByLabelText(/méthode de paiement/i)).toBeNull();
   });
 
-  test('le paiement en ligne est désactivé, les espèces actives par défaut', async () => {
-    renderApp(<DonsPage />);
-
-    const method = (await screen.findByLabelText(
-      'Méthode de paiement',
-    )) as HTMLSelectElement;
-    expect(method.value).toBe('cash');
-
-    expect(within(method).getByRole('option', { name: /wave/i })).toBeDisabled();
-    expect(
-      within(method).getByRole('option', { name: /orange money/i }),
-    ).toBeDisabled();
-    expect(
-      within(method).getByRole('option', { name: /free money/i }),
-    ).toBeDisabled();
-    expect(
-      within(method).getByRole('option', { name: /espèces/i }),
-    ).toBeEnabled();
-  });
-
-  test('le don envoie church_id (principale) + parish_id dérivé + cash', async () => {
-    let body: Record<string, unknown> | null = null;
+  test('checkout : fund_id, montant, frais, clé d’idempotence, puis paiement', async () => {
+    const captured: { body: unknown; cle: string | null } = {
+      body: null,
+      cle: null,
+    };
     server.use(
-      http.post(`${env.API_URL}/v1/donations/donate/`, async ({ request }) => {
-        body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({}, { status: 201 });
+      http.post(`${env.API_URL}/v1/dons/checkout/`, async ({ request }) => {
+        captured.body = await request.json();
+        captured.cle = request.headers.get('Idempotency-Key');
+        return HttpResponse.json(
+          {
+            donation_id: '9a3f6c10-5b2e-4d8a-8f41-3c7e2a1b0d99',
+            reference: 'DON-2026-000431',
+            status: 'initie',
+            checkout_url: 'https://paiement.exemple.sn/checkout/x',
+            amount: 5000,
+            fee_amount: 100,
+            charged_amount: 5100,
+            net_amount: 5000,
+          },
+          { status: 201 },
+        );
       }),
     );
 
     const user = userEvent.setup();
     renderApp(<DonsPage />);
-    await screen.findByLabelText('Bénéficiaire');
 
-    await user.type(screen.getByLabelText('Montant (XOF)'), '5000');
-    await user.click(screen.getByRole('button', { name: /confirmer le don/i }));
-
-    await waitFor(() => expect(body).not.toBeNull());
-    expect(body).toMatchObject({
-      church_id: 111,
-      parish_id: 11,
-      payment_provider: 'cash',
-      amount: 5000,
-    });
-  });
-
-  test('on peut choisir une autre église bénéficiaire', async () => {
-    let body: Record<string, unknown> | null = null;
-    server.use(
-      http.post(`${env.API_URL}/v1/donations/donate/`, async ({ request }) => {
-        body = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({}, { status: 201 });
-      }),
+    await user.click(
+      await screen.findByRole('button', { name: /Réfection de la toiture/ }),
+    );
+    await user.click(screen.getByRole('button', { name: /^5\s000/ }));
+    await user.click(screen.getByLabelText(/frais de paiement/i));
+    await user.click(
+      screen.getByRole('button', { name: /continuer vers le paiement/i }),
     );
 
+    await waitFor(() =>
+      expect(captured.body).toEqual({
+        fund_id: FONDS_CAMPAGNE,
+        amount: 5000,
+        fees_covered: true,
+        anonymous: false,
+        source: 'web',
+      }),
+    );
+    expect(captured.cle).toBeTruthy();
+    await waitFor(() =>
+      expect(ouvrirPaiement).toHaveBeenCalledWith(
+        'https://paiement.exemple.sn/checkout/x',
+      ),
+    );
+  });
+
+  test('montant hors bornes : message et bouton désactivé', async () => {
     const user = userEvent.setup();
     renderApp(<DonsPage />);
-    await screen.findByLabelText('Bénéficiaire');
 
-    await user.selectOptions(screen.getByLabelText('Bénéficiaire'), '211');
-    await user.type(screen.getByLabelText('Montant (XOF)'), '3000');
-    await user.click(screen.getByRole('button', { name: /confirmer le don/i }));
+    await user.click(
+      await screen.findByRole('button', { name: /Quête du dimanche/ }),
+    );
+    await user.type(screen.getByLabelText('Montant (FCFA)'), '100');
+    expect(await screen.findByRole('alert')).toHaveTextContent(/de 200\sFCFA/);
+    expect(
+      screen.getByRole('button', { name: /continuer vers le paiement/i }),
+    ).toBeDisabled();
+    expect(FONDS_QUETE).toBeTruthy();
+  });
 
-    await waitFor(() => expect(body).not.toBeNull());
-    expect(body).toMatchObject({ church_id: 211, parish_id: 21 });
+  test('paroisse sans collecte ouverte : message sobre', async () => {
+    const user = userEvent.setup();
+    renderApp(<DonsPage />);
+
+    const select = await screen.findByLabelText('Paroisse');
+    await user.selectOptions(select, PAROISSES.cathedrale.id);
+    expect(
+      await screen.findByText(/pas encore ouvert pour cette paroisse/i),
+    ).toBeInTheDocument();
+  });
+
+  test('mes dons : total de l’année, liste et reçu du don confirmé', async () => {
+    const user = userEvent.setup();
+    renderApp(<DonsPage />);
+
+    await user.click(await screen.findByRole('tab', { name: 'Mes dons' }));
+
+    expect(
+      await screen.findByText(/^10\s000\sFCFA$/, { selector: 'p' }),
+    ).toBeInTheDocument();
+    const liste = await screen.findByRole('list', { name: 'Mes dons' });
+    expect(within(liste).getAllByRole('listitem')).toHaveLength(2);
+    // Reçu seulement pour le don confirmé.
+    expect(
+      within(liste).getAllByRole('button', { name: /reçu/i }),
+    ).toHaveLength(1);
+    expect(within(liste).getByText('Non abouti')).toBeInTheDocument();
   });
 });

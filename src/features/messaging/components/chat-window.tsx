@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
+  Paperclip,
   Send,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -17,10 +18,15 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button/button';
 import { cn } from '@/lib/utils';
 
+import { useAcceptMessagingCgu, useMessagingCgu } from '../api/cgu';
 import { useGetMessages } from '../api/get-messages';
 import { usePresence } from '../api/get-presence';
 import { useMarkRead } from '../api/mark-read';
-import { OPTIMISTIC_ID_PREFIX, useSendMessage } from '../api/send-message';
+import {
+  OPTIMISTIC_ID_PREFIX,
+  useSendMessage,
+  withClientId,
+} from '../api/send-message';
 import { useChatSocket } from '../hooks/use-chat-socket';
 import type { Message } from '../types';
 import { libellePresence } from '../utils/format-presence';
@@ -203,8 +209,27 @@ function MessageBubble({
             isLong && !isExpanded && 'line-clamp-4',
           )}
         >
-          {message.content}
+          {message.is_deleted ? 'Message supprimé' : message.content}
         </p>
+
+        {/* Pièces jointes reçues (l'envoi n'a pas encore de route backend). */}
+        {message.attachments.length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {message.attachments.map((a) => (
+              <li key={a.id}>
+                <a
+                  href={a.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs underline underline-offset-2"
+                >
+                  <Paperclip className="size-3.5 shrink-0" />
+                  {a.file_name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* Expand / collapse for long messages */}
         {isLong && (
@@ -274,6 +299,8 @@ export function ChatWindow({
   const { data, isLoading } = useGetMessages(conversationId);
   const { mutate: send, isPending } = useSendMessage(conversationId);
   const { mutate: markRead } = useMarkRead(conversationId);
+  const cgu = useMessagingCgu();
+  const accepterCgu = useAcceptMessagingCgu();
   const { status: socketStatus } = useChatSocket(conversationId);
   const presences = usePresence(participantId ? [participantId] : []);
   const presence = libellePresence(
@@ -342,7 +369,7 @@ export function ChatWindow({
     const content = text.trim();
     if (!content || isPending) return;
     setText('');
-    send({ content });
+    send(withClientId({ content }));
   }
 
   function handleFormSubmit(e: React.FormEvent) {
@@ -441,6 +468,20 @@ export function ChatWindow({
       </div>
 
       {/* Input */}
+      {cgu.data && !cgu.data.accepted && (
+        <div className="flex shrink-0 flex-wrap items-center gap-2 border-t border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground">
+          Pour écrire, acceptez les conditions de la messagerie : elle ne
+          remplace pas la confession.
+          <Button
+            size="sm"
+            variant="outline"
+            isLoading={accepterCgu.isPending}
+            onClick={() => accepterCgu.mutate()}
+          >
+            J’accepte
+          </Button>
+        </div>
+      )}
       <form
         onSubmit={handleFormSubmit}
         className="flex shrink-0 items-end gap-2 border-t border-border bg-background px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))]"

@@ -85,8 +85,6 @@ function PlanCard({ plan }: { plan: ReadingPlan }) {
 type CreatePlanFormValues = {
   title: string;
   description: string;
-  duration_days: number;
-  is_published: boolean;
 };
 
 function CreatePlanForm({ onClose }: { onClose: () => void }) {
@@ -102,13 +100,13 @@ function CreatePlanForm({ onClose }: { onClose: () => void }) {
     defaultValues: {
       title: '',
       description: '',
-      duration_days: 30,
-      is_published: false,
     },
   });
 
   const onSubmit = (data: CreatePlanFormValues) => {
-    createPlan(data as CreateReadingPlanInput);
+    // ReadingPlanInput : titre et description ; la publication est une
+    // action distincte (POST /v1/bible/reading-plans/<id>/publish/).
+    createPlan(data satisfies CreateReadingPlanInput);
   };
 
   return (
@@ -152,33 +150,6 @@ function CreatePlanForm({ onClose }: { onClose: () => void }) {
           placeholder="Décrivez le parcours et ses objectifs…"
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
         />
-      </div>
-
-      <div className="flex gap-3">
-        <div className="flex-1 space-y-1">
-          <label
-            htmlFor="plan-duration"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            Durée (jours)
-          </label>
-          <input
-            id="plan-duration"
-            type="number"
-            min={1}
-            max={365}
-            {...register('duration_days', { valueAsNumber: true, min: 1 })}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-        </div>
-        <label className="flex items-center gap-2 cursor-pointer self-end pb-2">
-          <input
-            type="checkbox"
-            {...register('is_published')}
-            className="rounded"
-          />
-          <span className="text-xs text-muted-foreground">Publier</span>
-        </label>
       </div>
 
       <div className="flex gap-2">

@@ -1,7 +1,7 @@
 'use client';
 
-import { FileDown, Paperclip, Send } from 'lucide-react';
-import { useState } from 'react';
+import { Clock, MapPin, Paperclip, Send } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
@@ -13,9 +13,11 @@ import {
   type TimelineStep,
 } from '@/components/ui/status-timeline';
 
+import { useCancelDocument } from '../api/cancel-document';
 import { useDocumentRequest } from '../api/get-document';
 import { useSubmitSupplement } from '../api/submit-supplement';
-import { formatDocumentType } from '../utils/format-document-type';
+import { useUploadDocumentFile } from '../api/upload-document-file';
+import { type DocumentStatus, REQUESTER_STATUSES } from '../types';
 
 import {
   DOCUMENT_STATUS_CONFIG,
@@ -26,11 +28,14 @@ interface DocumentDetailProps {
   documentId: string;
 }
 
+const TZ = 'Africa/Dakar';
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: TZ,
   });
 }
 
@@ -41,29 +46,71 @@ function formatDateTime(iso: string): string {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: TZ,
   });
+}
+
+const isKnownStatus = (s: string): s is DocumentStatus =>
+  (REQUESTER_STATUSES as readonly string[]).includes(s);
+
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+      {children}
+    </p>
+  );
 }
 
 export function DocumentDetail({ documentId }: DocumentDetailProps) {
   const { data, isLoading, isError } = useDocumentRequest(documentId);
   const [supplement, setSupplement] = useState('');
-  const [submittedSupplement, setSubmittedSupplement] = useState(false);
+  const [fileId, setFileId] = useState<number | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { mutate: submitSupplement, isPending: isSubmitting } =
     useSubmitSupplement(documentId);
+  const { mutate: upload, isPending: isUploading } = useUploadDocumentFile();
+  const { mutate: cancel, isPending: isCancelling } =
+    useCancelDocument(documentId);
 
   useRegisterPageMeta({ title: 'Demande de document', showHeading: false });
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileError(null);
+    if (file.size > MAX_FILE_BYTES) {
+      setFileError('Le fichier dépasse 10 Mo.');
+      return;
+    }
+    upload(file, {
+      onSuccess: (res) => {
+        setFileId(res.id);
+        setFileName(file.name);
+      },
+      onError: () => setFileError('Le fichier n’a pas pu être envoyé.'),
+    });
+  }
 
   function handleSupplementSubmit(e: React.FormEvent) {
     e.preventDefault();
     const notes = supplement.trim();
-    if (!notes) return;
+    if (!notes && fileId == null) return;
     submitSupplement(
-      { additional_info: notes },
+      {
+        ...(notes ? { additional_info: notes } : {}),
+        ...(fileId != null ? { attachment_file_id: fileId } : {}),
+      },
       {
         onSuccess: () => {
           setSupplement('');
-          setSubmittedSupplement(true);
+          setFileId(null);
+          setFileName(null);
         },
       },
     );
@@ -88,17 +135,13 @@ export function DocumentDetail({ documentId }: DocumentDetailProps) {
           <div className="flex flex-col gap-6">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Type de document
-                </p>
+                <Label>Type de document</Label>
                 <h1 className="mt-1 text-xl font-semibold text-foreground">
-                  {formatDocumentType(data.document_type)}
+                  {data.document_type_free || data.document_type_label}
                 </h1>
-                {data.reference_number && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Réf. {data.reference_number}
-                  </p>
-                )}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Réf. {data.reference}
+                </p>
               </div>
               <DocumentStatusBadge status={data.status} />
             </div>
@@ -106,7 +149,7 @@ export function DocumentDetail({ documentId }: DocumentDetailProps) {
             {data.status === 'rejected' && data.rejection_reason && (
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-destructive">
-                  Motif du rejet
+                  Motif du refus
                 </p>
                 <p className="mt-1 text-sm text-destructive/80">
                   {data.rejection_reason}
@@ -114,62 +157,146 @@ export function DocumentDetail({ documentId }: DocumentDetailProps) {
               </div>
             )}
 
-            <Card variant="elevated" className="p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Date de la demande
-              </p>
-              <p className="mt-1 text-sm font-medium text-foreground">
-                {formatDate(data.created_at)}
-              </p>
-              {data.parish_name && (
-                <>
-                  <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Paroisse
+            {data.status === 'ready_for_pickup' && data.pickup && (
+              <Card
+                variant="elevated"
+                className="space-y-2 border-success/30 p-4"
+              >
+                <p className="text-sm font-semibold text-foreground">
+                  Votre acte est prêt
+                </p>
+                {data.pickup.place_name && (
+                  <p className="flex items-start gap-1.5 text-sm text-foreground">
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <span>
+                      {data.pickup.place_name}
+                      {data.pickup.place_address
+                        ? `, ${data.pickup.place_address}`
+                        : ''}
+                    </span>
                   </p>
+                )}
+                {data.pickup.hours && (
+                  <p className="flex items-center gap-1.5 text-sm text-foreground">
+                    <Clock className="size-4 shrink-0 text-muted-foreground" />
+                    {data.pickup.hours}
+                  </p>
+                )}
+                {data.pickup.message && (
+                  <p className="text-sm text-muted-foreground">
+                    {data.pickup.message}
+                  </p>
+                )}
+                {data.pickup.original_notice && (
+                  <p className="text-xs text-muted-foreground">
+                    {data.pickup.original_notice}
+                  </p>
+                )}
+              </Card>
+            )}
+
+            <Card variant="elevated" className="space-y-3 p-4">
+              <div>
+                <Label>Date de la demande</Label>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {formatDate(data.created_at)}
+                </p>
+              </div>
+              {data.target_node && (
+                <div>
+                  <Label>Paroisse du registre</Label>
                   <p className="mt-1 text-sm text-foreground">
-                    {data.parish_name}
+                    {data.target_node.name}
                   </p>
-                </>
+                </div>
               )}
-              {data.notes && (
-                <>
-                  <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Précisions
+              <div>
+                <Label>Motif</Label>
+                <p className="mt-1 text-sm text-foreground">
+                  {data.reason_free || data.reason_label}
+                </p>
+              </div>
+              {data.estimated_ready_on && (
+                <div>
+                  <Label>Délai indicatif</Label>
+                  <p className="mt-1 text-sm text-foreground">
+                    Vers le {formatDate(data.estimated_ready_on)} (environ{' '}
+                    {data.indicative_days} jours)
                   </p>
+                </div>
+              )}
+              {data.additional_info && (
+                <div>
+                  <Label>Précisions</Label>
                   <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
-                    {data.notes}
+                    {data.additional_info}
                   </p>
-                </>
+                </div>
               )}
             </Card>
 
-            {data.status === 'info_requested' && !submittedSupplement && (
+            {data.status === 'info_requested' && (
               <form
                 onSubmit={handleSupplementSubmit}
                 className="flex flex-col gap-3 rounded-xl border border-accent/30 bg-accent/5 p-4"
               >
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    Informations complémentaires demandées
+                    Complément demandé
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Votre paroisse demande des précisions pour traiter votre
-                    demande.
+                    Le secrétariat a besoin de précisions pour traiter votre
+                    demande (voir l’historique ci-dessous).
                   </p>
                 </div>
                 <textarea
+                  aria-label="Précisions"
                   value={supplement}
                   onChange={(e) => setSupplement(e.target.value)}
                   rows={4}
                   placeholder="Apportez les précisions demandées…"
                   className="w-full resize-none rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    ref={inputRef}
+                    type="file"
+                    accept="application/pdf,image/jpeg,image/png"
+                    className="hidden"
+                    onChange={handleFile}
+                    aria-label="Joindre un fichier"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    isLoading={isUploading}
+                    onClick={() => inputRef.current?.click()}
+                    icon={<Paperclip className="size-4" />}
+                  >
+                    {fileName
+                      ? 'Remplacer la pièce jointe'
+                      : 'Joindre un fichier'}
+                  </Button>
+                  {fileName && (
+                    <span className="truncate text-xs text-muted-foreground">
+                      {fileName}
+                    </span>
+                  )}
+                </div>
+                {fileError && (
+                  <p role="alert" className="text-xs text-destructive">
+                    {fileError}
+                  </p>
+                )}
                 <Button
                   type="submit"
                   size="lg"
                   fullWidth
                   isLoading={isSubmitting}
-                  disabled={!supplement.trim()}
+                  disabled={
+                    (!supplement.trim() && fileId == null) || isUploading
+                  }
                   icon={<Send className="size-4" />}
                 >
                   {isSubmitting ? 'Envoi en cours…' : 'Envoyer le complément'}
@@ -177,68 +304,60 @@ export function DocumentDetail({ documentId }: DocumentDetailProps) {
               </form>
             )}
 
-            {submittedSupplement && (
-              <div className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-                Vos informations ont été envoyées à la paroisse.
-              </div>
-            )}
-
-            {data.attachments && data.attachments.length > 0 && (
-              <div>
-                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <Paperclip className="size-4" />
-                  Pièces jointes
-                </h2>
-                <ul className="flex flex-col gap-2">
-                  {data.attachments.map((att) => (
-                    <li
-                      key={att.id}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-foreground">
-                          {att.label ?? att.file_name ?? 'Pièce jointe'}
-                        </p>
-                        {att.attachment_type_label && (
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {att.attachment_type_label}
-                          </p>
-                        )}
-                      </div>
-                      {att.file_url && (
-                        <a
-                          href={att.file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20"
-                        >
-                          <FileDown className="size-3.5" />
-                          Télécharger
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {data.status_logs && data.status_logs.length > 0 && (
+            {data.history.length > 0 && (
               <div>
                 <h2 className="mb-3 text-sm font-semibold text-foreground">
                   Historique
                 </h2>
                 <StatusTimeline
-                  steps={data.status_logs.map((log, idx, arr): TimelineStep => {
-                    const cfg = DOCUMENT_STATUS_CONFIG[log.to_status];
+                  steps={data.history.map((log, idx, arr): TimelineStep => {
+                    const cfg = isKnownStatus(log.to_status)
+                      ? DOCUMENT_STATUS_CONFIG[log.to_status]
+                      : { label: log.to_status, tone: 'neutral' as const };
                     return {
                       label: cfg.label,
                       tone: cfg.tone,
                       state: idx === arr.length - 1 ? 'current' : 'done',
-                      timestamp: formatDateTime(log.created_at),
+                      timestamp: log.created_at
+                        ? formatDateTime(log.created_at)
+                        : undefined,
                       description: log.comment || undefined,
                     };
                   })}
                 />
+              </div>
+            )}
+
+            {data.can_cancel && (
+              <div className="flex flex-wrap gap-2">
+                {confirmCancel ? (
+                  <>
+                    <Button
+                      variant="destructive"
+                      isLoading={isCancelling}
+                      onClick={() =>
+                        cancel(undefined, {
+                          onSuccess: () => setConfirmCancel(false),
+                        })
+                      }
+                    >
+                      Confirmer l’annulation
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setConfirmCancel(false)}
+                    >
+                      Garder ma demande
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => setConfirmCancel(true)}
+                  >
+                    Annuler la demande
+                  </Button>
+                )}
               </div>
             )}
           </div>

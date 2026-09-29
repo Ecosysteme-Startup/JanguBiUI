@@ -1,28 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
-import type { OfficeKey } from '@/features/spirituel/api/get-office';
-import { OfficeSelector } from '@/features/spirituel/components/liturgie-heures/office-selector';
-import { OfficeView } from '@/features/spirituel/components/liturgie-heures/office-view';
-
-function getCurrentOfficeKey(): OfficeKey {
-  const hour = new Date().getHours();
-  if (hour < 6) return 'lectures';
-  if (hour < 9) return 'laudes';
-  if (hour < 12) return 'tierce';
-  if (hour < 15) return 'sexte';
-  if (hour < 18) return 'none';
-  if (hour < 21) return 'vepres';
-  return 'complies';
-}
+import { HeuresTab } from '@/features/bible/components/heures-tab';
 
 export default function LiturgieHeuresPage() {
-  const [selectedOffice, setSelectedOffice] =
-    useState<OfficeKey>(getCurrentOfficeKey);
-
   useRegisterPageMeta({
     title: 'Liturgie des Heures',
     subtitle: 'Les 7 offices de la prière quotidienne',
@@ -31,13 +13,7 @@ export default function LiturgieHeuresPage() {
   return (
     <div className="flex flex-col">
       <ContentContainer>
-        <div className="mb-6">
-          <OfficeSelector
-            selected={selectedOffice}
-            onChange={setSelectedOffice}
-          />
-        </div>
-        <OfficeView officeKey={selectedOffice} />
+        <HeuresTab />
       </ContentContainer>
     </div>
   );

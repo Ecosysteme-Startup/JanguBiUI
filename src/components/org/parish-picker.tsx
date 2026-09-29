@@ -1,19 +1,13 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button/button';
-import { useUser } from '@/lib/auth';
-import { getParishesQueryOptions } from '@/lib/org/get-parishes';
+import { useMesParoisses, useRechercheParoisses } from '@/lib/paroisses/api';
 
-/**
- * Paroisse normalisée émise par le picker. `dioceseName` permet de satisfaire
- * la validation back (champ `diocese` requis) — le back la réécrit ensuite
- * depuis la FK `parish_id` (C4).
- */
+/** Paroisse choisie : nœud de la hiérarchie (UUID). */
 export interface PickedParish {
-  id: number;
+  id: string;
   name: string;
   dioceseName: string;
 }
@@ -27,39 +21,27 @@ interface ParishPickerProps {
 const MIN_SEARCH_LENGTH = 2;
 
 /**
- * Sélecteur de paroisse du registre (Chantier 7c, F3/F3b/F3c).
+ * Sélecteur de la paroisse du registre (demande d'acte, RG-02).
  *
- * Remplace la saisie texte libre parish_name/diocese. Les paroisses
- * d'appartenance du fidèle (memberships) sont proposées EN TÊTE comme
- * raccourci ; une recherche libre couvre TOUTES les paroisses
- * (GET /org/parishes/, nom + ville) car le registre peut être une autre
- * paroisse que celle d'appartenance.
+ * Les paroisses du fidèle (`GET /me/paroisses/`) sont proposées en tête ; la
+ * recherche couvre l'annuaire public (`GET /public/nodes/?q=&type=paroisse`),
+ * car le sacrement a pu être célébré ailleurs.
  */
 export function ParishPicker({ value, onChange, disabled }: ParishPickerProps) {
-  const { data: user } = useUser();
+  const { data: mes = [] } = useMesParoisses();
   const [search, setSearch] = useState('');
   const trimmed = search.trim();
 
-  // Paroisses d'appartenance dédupliquées (raccourci en tête).
-  const seen = new Set<number>();
-  const membershipParishes: PickedParish[] = [];
-  for (const m of user?.memberships ?? []) {
-    if (seen.has(m.parish.id)) continue;
-    seen.add(m.parish.id);
-    membershipParishes.push({
-      id: m.parish.id,
-      name: m.parish.name,
-      dioceseName: m.diocese.name,
-    });
-  }
+  const membershipParishes: PickedParish[] = mes.map((m) => ({
+    id: m.paroisse.id,
+    name: m.paroisse.name,
+    dioceseName: m.paroisse.deanery_name ?? '',
+  }));
 
-  const { data: results = [], isFetching } = useQuery({
-    ...getParishesQueryOptions({ search: trimmed }),
-    enabled: trimmed.length >= MIN_SEARCH_LENGTH,
-  });
+  const { data: results = [], isFetching } = useRechercheParoisses(trimmed);
 
   const handleSearchPick = (parish: {
-    id: number;
+    id: string;
     name: string;
     diocese_name: string;
   }) => {
@@ -117,9 +99,11 @@ export function ParishPicker({ value, onChange, disabled }: ParishPickerProps) {
                 <span className="text-sm font-medium text-foreground">
                   {p.name}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {p.dioceseName}
-                </span>
+                {p.dioceseName && (
+                  <span className="text-xs text-muted-foreground">
+                    {p.dioceseName}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -155,7 +139,7 @@ export function ParishPicker({ value, onChange, disabled }: ParishPickerProps) {
                     handleSearchPick({
                       id: p.id,
                       name: p.name,
-                      diocese_name: p.diocese_name,
+                      diocese_name: p.diocese_name ?? '',
                     })
                   }
                   disabled={disabled}

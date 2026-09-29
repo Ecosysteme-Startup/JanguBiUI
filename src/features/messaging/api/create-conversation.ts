@@ -18,6 +18,8 @@ export const useCreateConversation = ({
       const response = await api.post<unknown>(
         '/v1/messaging/conversations/create/',
         data,
+        // Refus (mineur, date de naissance, indisponible) expliqués par l'écran.
+        { quiet: true },
       );
       return conversationSchema.parse(response);
     },

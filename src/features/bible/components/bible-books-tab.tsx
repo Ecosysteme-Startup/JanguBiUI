@@ -104,7 +104,8 @@ function ChapterSelection({
   );
 }
 
-const VERSE_PAGE_SIZE = 50;
+// Le backend sert un chapitre entier en une page (200 versets par défaut et au plus).
+const VERSE_PAGE_SIZE = 200;
 
 function VerseReadingSection({
   book,

@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, LogOut, Trash2 } from 'lucide-react';
+import { Download, Loader2, LogOut, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,10 +13,12 @@ import { useNotifications } from '@/components/ui/notifications';
 import { useDeleteAccount, useLogout, useUser } from '@/lib/auth';
 import { accountConsoleUrl } from '@/lib/oidc';
 
+import { useExportMyData } from '../api/notification-preferences';
 import { UpdateProfileInput, useUpdateProfile } from '../api/update-profile';
 
 import { MesParoisses } from './mes-paroisses';
 import { Personnalisation } from './personnalisation';
+import { PreferencesNotifications } from './preferences-notifications';
 
 // ── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -24,6 +26,8 @@ const profileSchema = z.object({
   first_name: z.string().optional(),
   last_name: z.string().optional(),
   phone: z.string().optional(),
+  // Requise pour écrire à un prêtre (messagerie réservée aux majeurs).
+  date_of_birth: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -75,6 +79,7 @@ export function ProfilContent() {
       first_name: '',
       last_name: '',
       phone: '',
+      date_of_birth: '',
     },
   });
 
@@ -85,6 +90,7 @@ export function ProfilContent() {
         first_name: user.profile?.first_name ?? '',
         last_name: user.profile?.last_name ?? '',
         phone: user.profile?.phone ?? '',
+        date_of_birth: user.profile?.date_of_birth ?? '',
       });
     }
   }, [user, resetProfile]);
@@ -109,6 +115,7 @@ export function ProfilContent() {
     if (data.first_name) payload.first_name = data.first_name;
     if (data.last_name) payload.last_name = data.last_name;
     if (data.phone) payload.phone = data.phone;
+    if (data.date_of_birth) payload.date_of_birth = data.date_of_birth;
     updateProfile(payload);
   }
 
@@ -208,6 +215,20 @@ export function ProfilContent() {
                 </p>
               )}
             </div>
+            <div>
+              <label htmlFor="date_of_birth" className={labelClass}>
+                Date de naissance
+              </label>
+              <input
+                id="date_of_birth"
+                type="date"
+                className={inputClass}
+                {...registerProfile('date_of_birth')}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Nécessaire pour écrire à un prêtre par la messagerie.
+              </p>
+            </div>
             <Button
               type="submit"
               size="lg"
@@ -256,6 +277,14 @@ export function ProfilContent() {
             />
           </SectionCard>
         </div>
+
+        <SectionCard id="notifications" title="Notifications">
+          <PreferencesNotifications />
+        </SectionCard>
+
+        <SectionCard title="Mes données">
+          <MesDonnees />
+        </SectionCard>
 
         {/* Session section */}
         <SectionCard title="Session">
@@ -315,6 +344,32 @@ export function ProfilContent() {
           )}
         </SectionCard>
       </div>
+    </div>
+  );
+}
+
+function MesDonnees() {
+  const exporter = useExportMyData();
+  return (
+    <div className="space-y-2">
+      <p className="text-sm text-muted-foreground">
+        Téléchargez une copie des informations que Jàngu Bi conserve à votre
+        sujet.
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        isLoading={exporter.isPending}
+        onClick={() => exporter.mutate()}
+        icon={<Download className="size-4" />}
+      >
+        Télécharger mes données
+      </Button>
+      {exporter.isError && (
+        <p role="alert" className="text-xs text-destructive">
+          L’export n’a pas pu être préparé. Réessayez dans quelques instants.
+        </p>
+      )}
     </div>
   );
 }
