@@ -1,17 +1,9 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import { AdminPageLayout } from '@/components/layouts/admin-page-layout';
-import { ComptesPlateforme } from '@/features/users/components/comptes-plateforme';
-import { peut } from '@/lib/staff/capacites';
+import { paths } from '@/config/paths';
 
+// Ancienne liste « Comptes de la plateforme » : remplacée par
+// l'administration des comptes synchronisée avec Keycloak.
 export default function AdminUsersPage() {
-  return (
-    <AdminPageLayout
-      title="Comptes"
-      subtitle="Accès, MFA et sessions des comptes de la plateforme"
-      allow={peut('plateforme.admin')}
-    >
-      <ComptesPlateforme />
-    </AdminPageLayout>
-  );
+  redirect(paths.app.admin.comptes.liste.getHref());
 }

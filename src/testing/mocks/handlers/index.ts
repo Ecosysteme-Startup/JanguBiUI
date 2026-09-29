@@ -1,3 +1,4 @@
+import { adminComptesHandlers } from './admin-comptes';
 import { agendaHandlers } from './agenda';
 import { audioLecteurHandlers } from './audio-lecteur';
 import { authHandlers } from './auth';
@@ -34,4 +35,5 @@ export const handlers = [
   ...staffDonsHandlers,
   ...staffStructureHandlers,
   ...v1ComplementsHandlers,
+  ...adminComptesHandlers,
 ];

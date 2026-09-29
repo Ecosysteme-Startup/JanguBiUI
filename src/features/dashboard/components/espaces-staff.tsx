@@ -150,6 +150,13 @@ export const GROUPES_STAFF: Groupe[] = [
         capacites: ['personnes.verifier'],
       },
       {
+        label: 'Comptes',
+        description: 'Créer, gérer, sécuriser',
+        href: paths.app.admin.comptes.tableau.getHref(),
+        icon: ShieldCheck,
+        capacites: ['comptes.gerer'],
+      },
+      {
         label: 'Comptes du clergé',
         description: 'Inviter, valider, activer',
         href: paths.app.admin.users.clerge.getHref(),
@@ -184,8 +191,8 @@ export const GROUPES_STAFF: Groupe[] = [
     espaces: [
       {
         label: 'Comptes',
-        description: 'Accès et MFA',
-        href: paths.app.admin.users.list.getHref(),
+        description: 'Comptes, Keycloak et journal',
+        href: paths.app.admin.comptes.tableau.getHref(),
         icon: ShieldCheck,
         capacites: ['plateforme.admin'],
       },
