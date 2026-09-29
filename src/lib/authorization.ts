@@ -93,3 +93,43 @@ export const isPastoralRole = (user: User | null | undefined): boolean =>
 // Can invite clergy members (eveque, archeveque via pastoral_role, or super_admin)
 export const canManageClergy = (user: User | null | undefined): boolean =>
   isSuperAdmin(user) || isEvequeOrAbove(user);
+
+// Tableaux de bord des dons (décisions du 27/09). Si /me expose les capacités,
+// elles font foi ; sinon on se replie sur les rôles. Le back reste la source de
+// vérité (403 → état « vue non ouverte »).
+const capabilityOr = (
+  user: User | null | undefined,
+  capability: string,
+  fallback: (u: User | null | undefined) => boolean,
+): boolean => {
+  if (!user) return false;
+  if (Array.isArray(user.capabilities)) {
+    return user.capabilities.includes(capability);
+  }
+  return fallback(user);
+};
+
+/** Analyse des dons d'une paroisse : curé, économe (dons.voir_fonds). */
+export const canViewParishDonsAnalysis = (
+  user: User | null | undefined,
+): boolean =>
+  capabilityOr(
+    user,
+    'dons.voir_fonds',
+    (u) => isParishLevelAdmin(u) || isPretre(u) || isSuperAdmin(u),
+  );
+
+/** Agrégats diocésains des dons (dons.voir_agregats). */
+export const canViewDioceseDonsAggregates = (
+  user: User | null | undefined,
+): boolean =>
+  capabilityOr(
+    user,
+    'dons.voir_agregats',
+    (u) => isDioceseAdminOrAbove(u) || isEvequeOrAbove(u),
+  );
+
+/** Santé des paiements côté plateforme Numerisen (plateforme.admin). */
+export const canViewPlatformPayments = (
+  user: User | null | undefined,
+): boolean => capabilityOr(user, 'plateforme.admin', isSuperAdmin);

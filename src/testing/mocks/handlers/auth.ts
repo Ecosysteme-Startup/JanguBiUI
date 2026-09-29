@@ -1,7 +1,50 @@
 import { HttpResponse, http } from 'msw';
 
 import { env } from '@/config/env';
+import type { User } from '@/lib/auth';
 import { createUser } from '@/testing/data-generators';
+
+// Comptes de démonstration des tableaux de bord des dons (serveur de mocks et
+// captures) : la connexion avec l'un de ces e-mails renvoie un compte staff
+// doté des capacités correspondantes, que /me renvoie ensuite.
+const COMPTES_DEMO_DONS: Record<string, Partial<User>> = {
+  'cecile.coly@saint-dominique.sn': {
+    role: 'parish_admin',
+    is_admin: true,
+    capabilities: ['dons.voir_fonds', 'dons.saisir_quete', 'dons.exporter'],
+    profile: {
+      first_name: 'Cécile',
+      last_name: 'Coly',
+      title: 'Mme',
+      primary_parish: null,
+      avatar: null,
+    },
+  },
+  'bernard.coly@archidiocese-dakar.sn': {
+    role: 'diocese_admin',
+    is_admin: true,
+    capabilities: ['dons.voir_agregats'],
+    profile: {
+      first_name: 'Bernard',
+      last_name: 'Coly',
+      title: 'M.',
+      primary_parish: null,
+      avatar: null,
+    },
+  },
+  'moustoifa.ben@numerisen.sn': {
+    role: 'super_admin',
+    is_admin: true,
+    capabilities: ['plateforme.admin'],
+    profile: {
+      first_name: 'Moustoifa',
+      last_name: 'Ben',
+      primary_parish: null,
+      avatar: null,
+    },
+  },
+};
+let compteDemo: User | null = null;
 
 export const authHandlers = [
   http.post(`${env.API_URL}/v1/auth/jwt/login/`, async ({ request }) => {
@@ -14,7 +57,9 @@ export const authHandlers = [
       );
     }
 
-    const user = createUser({ email: body.email });
+    const demo = COMPTES_DEMO_DONS[body.email];
+    const user = createUser({ email: body.email, ...demo });
+    if (demo) compteDemo = user;
     return HttpResponse.json({
       access: 'fake-access-token',
       refresh: 'fake-refresh-token',
@@ -41,7 +86,7 @@ export const authHandlers = [
   }),
 
   http.get(`${env.API_URL}/v1/auth/me/`, () => {
-    return HttpResponse.json(createUser());
+    return HttpResponse.json(compteDemo ?? createUser());
   }),
 
   http.post(`${env.API_URL}/v1/users/register/`, async ({ request }) => {

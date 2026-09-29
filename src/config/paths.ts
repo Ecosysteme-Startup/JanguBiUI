@@ -43,6 +43,13 @@ export const paths = {
     bible: { getHref: () => '/app/bible' },
     chapelet: { getHref: () => '/app/chapelet' },
     dons: { getHref: () => '/app/dons' },
+    donsAnalyse: { getHref: () => '/app/dons/analyse' },
+    diocese: {
+      dons: { getHref: () => '/app/diocese/dons' },
+    },
+    plateforme: {
+      paiements: { getHref: () => '/app/plateforme/paiements' },
+    },
     tv: { getHref: () => '/app/tv' },
     messages: { getHref: () => '/app/messages' },
     conversation: { getHref: (id: string) => `/app/messages/${id}` },

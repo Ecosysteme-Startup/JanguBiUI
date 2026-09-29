@@ -6,9 +6,12 @@ import { useState } from 'react';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { paths } from '@/config/paths';
 import { useCampaigns } from '@/features/dons/api/get-campaigns';
 import { useMakeDonation } from '@/features/dons/api/make-donation';
+import { Onglets } from '@/features/dons-analyse/components/onglets-dons';
 import { useUser } from '@/lib/auth';
+import { canViewParishDonsAnalysis } from '@/lib/authorization';
 
 // Paiement en ligne désactivé tant que l'IPN (5b) n'est pas livré : le back
 // rejette ces providers (garde 5a). Seules les espèces sont actives.
@@ -83,6 +86,24 @@ export default function DonsPage() {
   return (
     <div className="flex flex-col">
       <div className="mx-auto w-full max-w-2xl flex-1 space-y-4 overflow-y-auto p-4 lg:max-w-3xl">
+        {/* Staff paroissial : bascule vers l'analyse des dons (décisions du 27/09). */}
+        {canViewParishDonsAnalysis(user) && (
+          <Onglets
+            actif="operations"
+            onglets={[
+              {
+                cle: 'operations',
+                libelle: 'Opérations',
+                href: paths.app.dons.getHref(),
+              },
+              {
+                cle: 'analyse',
+                libelle: 'Analyse',
+                href: paths.app.donsAnalyse.getHref(),
+              },
+            ]}
+          />
+        )}
         {isLoading && (
           <p className="py-6 text-center text-sm text-muted-foreground">
             Chargement…
