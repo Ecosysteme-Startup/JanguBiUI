@@ -101,12 +101,19 @@ describe('ProfilContent', () => {
     await screen.findByText('Jean Dupont');
 
     // Two sections share the label "Mot de passe actuel"; scope to the right one.
-    const heading = screen.getByRole('heading', { name: /changer le mot de passe/i });
+    const heading = screen.getByRole('heading', {
+      name: /changer le mot de passe/i,
+    });
     // eslint-disable-next-line testing-library/no-node-access
     const passwordSection = heading.closest('section')!;
-    const currentPasswordInput = within(passwordSection).getByLabelText(/mot de passe actuel/i);
-    const newPasswordInput = within(passwordSection).getByLabelText(/^nouveau mot de passe$/i);
-    const confirmPasswordInput = within(passwordSection).getByLabelText(/confirmer le nouveau mot de passe/i);
+    const currentPasswordInput =
+      within(passwordSection).getByLabelText(/mot de passe actuel/i);
+    const newPasswordInput = within(passwordSection).getByLabelText(
+      /^nouveau mot de passe$/i,
+    );
+    const confirmPasswordInput = within(passwordSection).getByLabelText(
+      /confirmer le nouveau mot de passe/i,
+    );
 
     await userEvent.type(currentPasswordInput, 'ancienmdp');
     await userEvent.type(newPasswordInput, 'nouveaumdp');
@@ -177,7 +184,13 @@ describe('ProfilContent', () => {
 
   test('renders safely when user has no profile fields', async () => {
     const emptyProfileUser = createUser({
-      profile: { first_name: '', last_name: '', phone: '', primary_parish: null, avatar: null },
+      profile: {
+        first_name: '',
+        last_name: '',
+        phone: '',
+        primary_parish: null,
+        avatar: null,
+      },
     });
     server.use(
       http.get(`${env.API_URL}/v1/auth/me/`, () =>
@@ -188,7 +201,9 @@ describe('ProfilContent', () => {
     renderApp(<ProfilContent />);
 
     await screen.findByRole('button', { name: /^enregistrer$/i });
-    expect(screen.getByRole('heading', { name: /informations personnelles/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /informations personnelles/i }),
+    ).toBeInTheDocument();
   });
 
   test('does not crash when profile is undefined (missing from API response)', async () => {
@@ -208,6 +223,8 @@ describe('ProfilContent', () => {
     // The component must render without crashing — email appears in both h1 and p when profile is absent
     const emailElements = await screen.findAllByText(userWithoutProfile.email);
     expect(emailElements.length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: /^enregistrer$/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^enregistrer$/i }),
+    ).toBeInTheDocument();
   });
 });

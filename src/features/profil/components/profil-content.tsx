@@ -21,6 +21,8 @@ import {
   useUpdateProfile,
 } from '../api/update-profile';
 
+import { Personnalisation } from './personnalisation';
+
 // ── Schemas ─────────────────────────────────────────────────────────────────
 
 const profileSchema = z.object({
@@ -48,14 +50,19 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function SectionCard({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-card p-4">
+    <section
+      id={id}
+      className="scroll-mt-20 space-y-4 rounded-2xl border border-border bg-card p-4"
+    >
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       {children}
     </section>
@@ -342,6 +349,11 @@ export function ProfilContent() {
             <MembershipManager />
           </SectionCard>
         )}
+
+        {/* Personnalisation : suggestions, présence, historique (lot C5) */}
+        <SectionCard id="personnalisation" title="Personnalisation">
+          <Personnalisation />
+        </SectionCard>
 
         {/* Apparence — bascule thème (parité mobile ; la sidebar la porte sur
             desktop). md:hidden : évite un 2e toggle sur le Profil desktop. */}

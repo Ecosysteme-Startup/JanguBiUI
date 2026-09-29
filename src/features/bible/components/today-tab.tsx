@@ -8,6 +8,7 @@ import { FontSizeStepper } from '@/components/ui/font-size-stepper';
 import { useLiturgyToday } from '@/features/bible/api/get-liturgy-today';
 import { DailyMysteryCard } from '@/features/chapelet/components/daily-mystery-card';
 
+import { PourVousAujourdhui } from './pour-vous';
 import { ReadingsSwiper } from './readings-swiper';
 
 export function TodayTab() {
@@ -34,6 +35,9 @@ export function TodayTab() {
   };
 
   const readings = data?.readings ?? [];
+  // « Pour vous aujourd'hui » ne concerne que le jour même.
+  const estAujourdhui =
+    currentDate.toDateString() === new Date().toDateString();
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,6 +76,9 @@ export function TodayTab() {
           {[data.season, data.mystery].filter(Boolean).join(' — ')}
         </p>
       )}
+
+      {/* Pour vous aujourd'hui : entre le jour liturgique et les lectures */}
+      {estAujourdhui && <PourVousAujourdhui />}
 
       {/* Font size controls */}
       {!isLoading && readings.length > 0 && (

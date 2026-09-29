@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { lireLienBible } from '../utils/liens';
+
 import { BibleBooksTab } from './bible-books-tab';
 import { HeuresTab } from './heures-tab';
 import { LectioDivina } from './lectio-divina';
@@ -34,10 +36,16 @@ export function BibleContent() {
   const router = useRouter();
 
   const activeTab = resolveTab(searchParams.get('tab'));
+  // Lien profond (« Reprendre », référence d'un verset) : livre, chapitre, verset.
+  const cible = lireLienBible((cle) => searchParams.get(cle));
+  const cleCible = cible
+    ? `${cible.livreId}-${cible.chapitre}-${cible.verset ?? ''}`
+    : 'aucune';
 
   function handleTabChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());
     params.set('tab', value);
+    ['livre', 'chapitre', 'verset'].forEach((cle) => params.delete(cle));
     router.replace(`/app/bible?${params.toString()}`);
   }
 
@@ -67,7 +75,7 @@ export function BibleContent() {
             <TodayTab />
           </TabsContent>
           <TabsContent value="bible">
-            <BibleBooksTab />
+            <BibleBooksTab key={cleCible} cible={cible} />
           </TabsContent>
           <TabsContent value="messe">
             <MasseTab />

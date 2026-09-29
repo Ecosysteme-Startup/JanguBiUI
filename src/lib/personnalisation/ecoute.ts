@@ -18,14 +18,16 @@ export type ReglagesEcoute = z.infer<typeof reglagesEcouteSchema>;
 
 const cle = ['audio', 'reglages'];
 
+export const getReglagesEcoute = (): Promise<ReglagesEcoute> =>
+  api
+    .get<unknown>('/v1/audio/reglages/')
+    .then((d) => reglagesEcouteSchema.parse(d));
+
 export const useReglagesEcoute = () =>
   useQuery(
     queryOptions({
       queryKey: cle,
-      queryFn: () =>
-        api
-          .get<unknown>('/v1/audio/reglages/')
-          .then((d) => reglagesEcouteSchema.parse(d)),
+      queryFn: getReglagesEcoute,
       retry: false,
     }),
   );

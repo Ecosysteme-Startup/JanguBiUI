@@ -127,7 +127,9 @@ export function ReadingsSwiper({ readings, fontSize }: ReadingsSwiperProps) {
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible) {
-          const idx = Number((visible.target as HTMLElement).dataset.panelIndex);
+          const idx = Number(
+            (visible.target as HTMLElement).dataset.panelIndex,
+          );
           if (!Number.isNaN(idx)) setActiveIndex(idx);
         }
       },

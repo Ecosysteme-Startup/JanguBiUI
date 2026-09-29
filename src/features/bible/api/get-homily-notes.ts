@@ -23,7 +23,9 @@ const parseNotes = (data: unknown): NotesResponse => {
 };
 
 export const getHomilyNotes = (passageId: number): Promise<NotesResponse> =>
-  api.get<unknown>(`/v1/bible/homily-notes/?passage_id=${passageId}`).then(parseNotes);
+  api
+    .get<unknown>(`/v1/bible/homily-notes/?passage_id=${passageId}`)
+    .then(parseNotes);
 
 export const getHomilyNotesQueryOptions = (passageId: number) =>
   queryOptions({
