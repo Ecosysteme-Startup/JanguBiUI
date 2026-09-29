@@ -7,43 +7,39 @@ import { StatusBadge } from '@/components/ui/status-badge';
 import { ApiError } from '@/lib/api-client';
 
 import {
-  type AnalyseDiocese,
-  type FiltresAnalyse,
-  type Granularite,
+  type AnalyseDons,
   type LigneParoisse,
-  type TypeFonds,
-  useAnalyseDiocese,
+  type Periode,
+  type QueteImperee,
+  useAnalyseDons,
 } from '../api/get-analyse-dons';
+import { useNoeudAnalyse } from '../api/get-mes-capacites';
+import { useFluxDons } from '../hooks/use-flux-dons';
 import { telechargerCsv, versCsv } from '../utils/export-csv';
 import {
   arrondiMillier,
-  capitaliser,
+  formatDateLongue,
   formatFcfa,
   formatHorodatage,
   formatJourMois,
-  formatMois,
   formatNombre,
   formatPourcent,
   NBSP,
 } from '../utils/format';
 import { trierAlphabetique } from '../utils/ordre';
-import {
-  COULEUR_FONDS,
-  LIBELLE_FONDS,
-  ORDRE_FONDS,
-  ordonnerParFonds,
-} from '../utils/palette';
-import { enPeriode } from '../utils/periode';
+import { COULEUR_FONDS, LIBELLE_FONDS, ORDRE_FONDS } from '../utils/palette';
+import { codePeriode, enPeriode, periodeEnCours } from '../utils/periode';
 
+import { ATraiter } from './a-traiter';
 import { BarreFiltres } from './barre-filtres';
 import { BarreDeFlux } from './graphiques/barre-de-flux';
-import { Carte, CarteGraphique } from './graphiques/carte-graphique';
+import { CarteGraphique } from './graphiques/carte-graphique';
 import { ChiffreTitre } from './graphiques/chiffre-titre';
 import { ColonnesEmpilees } from './graphiques/colonnes-empilees';
 import {
   EtatChargement,
   EtatErreur,
-  EtatTendanceIndisponible,
+  EtatVide,
 } from './graphiques/etats-graphique';
 import { Jauge } from './graphiques/jauge';
 import {
@@ -54,52 +50,98 @@ import {
 const MOIS_COURANT = '2026-09';
 const TIRET = '—';
 
-const GRANULARITES: { valeur: Granularite; libelle: string }[] = [
+// Pas de semaine au-dessus de la paroisse (400 `period_not_allowed`).
+const PERIODES: { valeur: Periode; libelle: string }[] = [
   { valeur: 'mois', libelle: 'Mois' },
   { valeur: 'trimestre', libelle: 'Trimestre' },
   { valeur: 'annee', libelle: 'Année' },
 ];
 
+const TITRE_GRAIN = {
+  jour: 'Collecté par jour',
+  semaine: 'Collecté par semaine',
+  mois: 'Collecté par mois',
+} as const;
+
+const m = arrondiMillier;
+
 /**
- * Règles d'agrégat au-dessus de la paroisse (décisions du 27/09) : montants
- * arrondis au millier — appliqué aussi côté client, par sûreté ; aucun
- * masquage « moins de 5 dons » ni règle de dominance. La quête impérée et les
- * comptes de trésorerie restent au franc près (rapprochement).
+ * Règles d'agrégat au-dessus de la paroisse (décisions du 27/09) : le serveur
+ * arrondit au millier `synthese`, `tendance` et `paroisses` ; le client
+ * réapplique l'arrondi, par sûreté. Aucun masquage « moins de 5 dons » ni règle
+ * de dominance. La quête impérée reste au franc près (argent de la curie, à
+ * rapprocher des remises).
  */
-export const arrondirAgregats = (data: AnalyseDiocese): AnalyseDiocese => ({
+export const arrondirAgregats = (data: AnalyseDons): AnalyseDons => ({
   ...data,
-  collecte: {
-    ...data.collecte,
-    total: arrondiMillier(data.collecte.total),
-    pour_curie: arrondiMillier(data.collecte.pour_curie),
+  synthese: {
+    ...data.synthese,
+    collecte: m(data.synthese.collecte),
+    en_ligne: m(data.synthese.en_ligne),
+    especes: m(data.synthese.especes),
+    par_destination: {
+      paroisse: m(data.synthese.par_destination.paroisse),
+      curie: m(data.synthese.par_destination.curie),
+    },
+    par_type_fonds: data.synthese.par_type_fonds.map((f) => ({
+      ...f,
+      en_ligne: m(f.en_ligne),
+      especes: m(f.especes),
+      total: m(f.total),
+    })),
+    par_canal: data.synthese.par_canal.map((c) => ({
+      ...c,
+      total: m(c.total),
+      sources: c.sources.map((s) => ({ ...s, total: m(s.total) })),
+    })),
+    par_moyen: data.synthese.par_moyen.map((x) => ({
+      ...x,
+      total: m(x.total),
+    })),
   },
-  par_fonds: data.par_fonds.map((f) => ({
-    ...f,
-    montant: arrondiMillier(f.montant),
-  })),
-  par_mois: data.par_mois.map((m) => ({
-    ...m,
-    total: arrondiMillier(m.total),
-    valeurs: Object.fromEntries(
-      Object.entries(m.valeurs).map(([k, v]) => [k, arrondiMillier(v ?? 0)]),
-    ) as typeof m.valeurs,
-  })),
-  paroisses: data.paroisses.map((p) => ({
-    ...p,
-    collecte: p.collecte === null ? null : arrondiMillier(p.collecte),
-  })),
+  tendance: {
+    ...data.tendance,
+    points: data.tendance.points.map((p) => ({
+      ...p,
+      total: m(p.total),
+      en_ligne: m(p.en_ligne),
+      especes: m(p.especes),
+      par_type_fonds: {
+        quete_dominicale: m(p.par_type_fonds.quete_dominicale),
+        quete_imperee: m(p.par_type_fonds.quete_imperee),
+        campagne: m(p.par_type_fonds.campagne),
+        contribution_annuelle: m(p.par_type_fonds.contribution_annuelle),
+      },
+    })),
+  },
+  paroisses: data.paroisses && {
+    ...data.paroisses,
+    lignes: data.paroisses.lignes.map((p) => ({
+      ...p,
+      collecte: p.collecte === null ? null : m(p.collecte),
+    })),
+  },
 });
 
 const EVOLUTION: Record<NonNullable<LigneParoisse['evolution']>, string> = {
   stable: 'stable',
-  hausse: 'en hausse',
-  baisse: 'en baisse',
+  en_hausse: 'en hausse',
+  en_baisse: 'en baisse',
 };
 
-function Synthese({ data }: { data: AnalyseDiocese }) {
-  const c = data.collecte;
-  const fonds = ordonnerParFonds(data.par_fonds);
+const LIEU_NOEUD: Record<string, string> = {
+  diocese: 'dans le diocèse',
+  doyenne: 'dans le doyenné',
+};
+
+function Synthese({ data }: { data: AnalyseDons }) {
+  const s = data.synthese;
+  const fonds = s.par_type_fonds;
   const periode = enPeriode(data.periode);
+  const compteurs = data.paroisses?.compteurs;
+  const lieu = /archidioc/i.test(data.noeud.nom)
+    ? "dans l'archidiocèse"
+    : (LIEU_NOEUD[data.noeud.type] ?? `à ${data.noeud.nom}`);
   return (
     <section
       aria-labelledby="titre-synthese-dio"
@@ -110,58 +152,70 @@ function Synthese({ data }: { data: AnalyseDiocese }) {
       </h2>
       <ChiffreTitre
         libelle={`Collecté via Jàngu Bi ${periode}`}
-        horodatage={`au ${formatHorodatage(data.arrete_au)}`}
+        horodatage={`au ${formatHorodatage(data.genere_le)}`}
         badge={
-          data.periode.en_cours && (
+          periodeEnCours(data.periode, data.genere_le) && (
             <StatusBadge
               tone="progress"
-              label="Mois en cours · chiffres provisoires"
+              label={`${data.periode.type === 'mois' ? 'Mois' : 'Période'} en cours · chiffres provisoires`}
             />
           )
         }
         avant="Environ"
-        valeur={formatNombre(c.total)}
+        valeur={formatNombre(s.collecte)}
         unite="FCFA"
       >
         <br />
-        collectés dans l&apos;archidiocèse, dont{' '}
+        collectés {lieu}, dont{' '}
         <strong className="font-semibold text-foreground">
-          {formatNombre(c.pour_curie)}
+          {formatNombre(s.par_destination.curie)}
         </strong>{' '}
-        destinés à la curie.{' '}
-        <strong className="font-semibold text-foreground">
-          {c.paroisses_actives} paroisse{c.paroisses_actives > 1 ? 's' : ''} sur{' '}
-          {c.paroisses_engagees}
-        </strong>{' '}
-        engagées collecte{c.paroisses_actives > 1 ? 'nt' : ''}
-        {c.paroisses_en_preparation > 0 &&
-          ` ; ${c.paroisses_en_preparation} ${c.paroisses_en_preparation > 1 ? 'sont' : 'est'} en préparation`}
-        .
+        destinés à la curie.
+        {compteurs && (
+          <>
+            {' '}
+            <strong className="font-semibold text-foreground">
+              {compteurs.collecte_ouverte} paroisse
+              {compteurs.collecte_ouverte > 1 ? 's' : ''} sur{' '}
+              {compteurs.engagees}
+            </strong>{' '}
+            engagées collecte{compteurs.collecte_ouverte > 1 ? 'nt' : ''}
+            {compteurs.en_preparation > 0 &&
+              ` ; ${compteurs.en_preparation} ${compteurs.en_preparation > 1 ? 'sont' : 'est'} en préparation`}
+            .
+          </>
+        )}
       </ChiffreTitre>
-      <BarreDeFlux
-        className="mt-4"
-        titre="Répartition par type de fonds"
-        segments={fonds.map((f) => ({
-          cle: f.type,
-          libelle: LIBELLE_FONDS[f.type],
-          valeur: f.montant,
-          couleur: COULEUR_FONDS[f.type],
-        }))}
-      />
-      <TableauRepartition
-        className="mt-4"
-        caption={`Collecté par type de fonds, ${data.periode.libelle}, montants arrondis au millier de FCFA`}
-        entete={{ libelle: 'Type de fonds', valeur: 'Environ' }}
-        barres={false}
-        formatValeur={formatFcfa}
-        lignes={fonds.map((f) => ({
-          cle: f.type,
-          libelle: f.libelle,
-          valeur: f.montant,
-          couleur: COULEUR_FONDS[f.type],
-        }))}
-        total={c.total}
-      />
+      {s.collecte === 0 ? (
+        <EtatVide className="mt-4" />
+      ) : (
+        <>
+          <BarreDeFlux
+            className="mt-4"
+            titre="Répartition par type de fonds"
+            segments={fonds.map((f) => ({
+              cle: f.type,
+              libelle: LIBELLE_FONDS[f.type],
+              valeur: f.total,
+              couleur: COULEUR_FONDS[f.type],
+            }))}
+          />
+          <TableauRepartition
+            className="mt-4"
+            caption={`Collecté par type de fonds, ${data.periode.libelle}, montants arrondis au millier de FCFA`}
+            entete={{ libelle: 'Type de fonds', valeur: 'Environ' }}
+            barres={false}
+            formatValeur={formatFcfa}
+            lignes={fonds.map((f) => ({
+              cle: f.type,
+              libelle: f.libelle,
+              valeur: f.total,
+              couleur: COULEUR_FONDS[f.type],
+            }))}
+            total={s.collecte}
+          />
+        </>
+      )}
       <p className="mt-3 text-[13px] leading-[18px] text-muted-foreground">
         Mesure : montant donné, en ligne et quêtes en espèces validées. Arrondis
         au millier : la somme peut différer du total.
@@ -170,156 +224,65 @@ function Synthese({ data }: { data: AnalyseDiocese }) {
   );
 }
 
-function ParMois({ data }: { data: AnalyseDiocese }) {
-  const mois = data.par_mois;
+function Tendance({ data }: { data: AnalyseDons }) {
+  const points = data.tendance.points;
+  const titre = TITRE_GRAIN[data.tendance.grain];
   const series = ORDRE_FONDS.filter((t) =>
-    mois.some((m) => (m.valeurs[t] ?? 0) > 0),
+    points.some((p) => p.par_type_fonds[t] > 0),
   ).map((t) => ({
     cle: t,
     libelle: LIBELLE_FONDS[t],
     couleur: COULEUR_FONDS[t],
   }));
-  const dernier = mois[mois.length - 1];
   return (
     <CarteGraphique
-      titre="Collecté par mois"
-      sousTitre={`Par type de fonds · en milliers${NBSP}de FCFA · mois calendaires`}
+      titre={titre}
+      sousTitre={`Par type de fonds · en milliers${NBSP}de FCFA, arrondis`}
       graphique={
-        mois.length < 3 ? (
-          <EtatTendanceIndisponible
-            premierePeriode={
-              data.premier_mois ? formatMois(data.premier_mois) : null
-            }
-            resume={
-              dernier && (
-                <>
-                  {capitaliser(formatMois(dernier.mois))} : environ{' '}
-                  <strong className="font-semibold text-foreground">
-                    {formatFcfa(dernier.total)}
-                  </strong>
-                </>
-              )
-            }
-          />
+        points.length === 0 ? (
+          <EtatVide />
         ) : (
           <ColonnesEmpilees
-            resume={`Collecté par mois : ${mois.map((m) => `${formatMois(m.mois)} environ ${formatFcfa(m.total)}`).join(' ; ')}.`}
+            resume={`${titre} : ${points.map((p) => `${p.libelle} environ ${formatFcfa(p.total)}`).join(' ; ')}.`}
             diviseur={1000}
             series={series}
-            periodes={mois.map((m) => ({
-              cle: m.mois,
-              libelle: formatMois(m.mois, true),
-              titreInfobulle: capitaliser(formatMois(m.mois)),
-              valeurs: m.valeurs,
+            periodes={points.map((p) => ({
+              cle: p.debut,
+              libelle: p.libelle,
+              titreInfobulle: `Du ${formatJourMois(p.debut)} au ${formatJourMois(p.fin)}`,
+              valeurs: p.par_type_fonds,
             }))}
           />
         )
       }
       tableau={
         <TableauSimple
-          caption="Collecté par mois et par type de fonds, montants arrondis au millier de FCFA"
+          caption={`${titre} et par type de fonds, montants arrondis au millier de FCFA`}
           colonnes={[
-            { libelle: 'Mois' },
+            { libelle: 'Période' },
             ...series.map((s) => ({
               libelle: s.libelle,
               alignement: 'droite' as const,
             })),
             { libelle: 'Total', alignement: 'droite' },
           ]}
-          lignes={mois.map((m) => ({
-            cle: m.mois,
+          lignes={points.map((p) => ({
+            cle: p.debut,
             cellules: [
-              capitaliser(formatMois(m.mois)),
-              ...series.map((s) =>
-                formatNombre(m.valeurs[s.cle as TypeFonds] ?? 0),
-              ),
-              formatNombre(m.total),
+              p.libelle,
+              ...series.map((s) => formatNombre(p.par_type_fonds[s.cle])),
+              formatNombre(p.total),
             ],
           }))}
         />
       }
       pied={
         <p>
-          Chaque paroisse ne sera comparée qu&apos;à elle-même, sur ses trois
-          mois comparables. Comparaison avec l&apos;an dernier disponible à
-          partir de septembre 2027.
+          Chaque paroisse n&apos;est comparée qu&apos;à elle-même, sur ses trois
+          périodes précédentes.
         </p>
       }
     />
-  );
-}
-
-function Releve({ lignes }: { lignes: { libelle: string; valeur: string }[] }) {
-  return (
-    <dl className="mt-3">
-      {lignes.map((l) => (
-        <div
-          key={l.libelle}
-          className="flex h-10 items-center justify-between gap-3 border-t border-border text-sm"
-        >
-          <dt className="text-foreground">{l.libelle}</dt>
-          <dd className="font-semibold tabular-nums text-foreground">
-            {l.valeur}
-          </dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function CompteMarchand({ data }: { data: AnalyseDiocese }) {
-  const m = data.compte_marchand;
-  return (
-    <Carte
-      titre="Compte marchand"
-      sousTitre={`Trésorerie de l'économat, ${data.periode.libelle.replace(/\s\d{4}$/, '')}. Montants exacts, sans aucun don nominatif.`}
-    >
-      <Releve
-        lignes={[
-          { libelle: "Reçu de l'agrégateur", valeur: formatFcfa(m.recu) },
-          { libelle: 'Frais de paiement', valeur: formatFcfa(-m.frais) },
-          {
-            libelle: 'Confirmé, non reversé',
-            valeur: formatFcfa(m.confirme_non_reverse),
-          },
-          { libelle: 'Écarts ouverts', valeur: String(m.ecarts_ouverts) },
-          {
-            libelle: 'Délai moyen de reversement',
-            valeur:
-              m.delai_moyen_jours === null
-                ? TIRET
-                : `${m.delai_moyen_jours}${NBSP}jours`,
-          },
-        ]}
-      />
-      {m.dernier_reversement_le && (
-        <p className="mt-2 text-[13px] text-muted-foreground">
-          Dernier reversement de l&apos;agrégateur le{' '}
-          {formatJourMois(m.dernier_reversement_le)}
-        </p>
-      )}
-    </Carte>
-  );
-}
-
-function CompteLiaison({ data }: { data: AnalyseDiocese }) {
-  return (
-    <Carte
-      titre="Compte de liaison"
-      sousTitre={`Soldes entre l'économat et les paroisses, au ${formatJourMois(data.arrete_au)}`}
-    >
-      <ul className="mt-3">
-        {data.compte_liaison.map((l) => (
-          <li key={l.libelle} className="border-t border-border py-3">
-            <p className="text-sm text-foreground">{l.libelle}</p>
-            <p className="text-xl font-semibold tabular-nums text-foreground">
-              {formatFcfa(l.montant)}
-            </p>
-            <p className="text-[13px] text-muted-foreground">{l.detail}</p>
-          </li>
-        ))}
-      </ul>
-    </Carte>
   );
 }
 
@@ -354,8 +317,8 @@ export function TableauParoisses({
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
-            Paroisses engagées de l&apos;archidiocèse, ordre alphabétique,{' '}
-            {periode}, montants arrondis au millier de FCFA
+            Paroisses engagées, ordre alphabétique, {periode}, montants arrondis
+            au millier de FCFA
           </caption>
           <thead className="bg-background-surface text-[13px] text-muted-foreground">
             <tr className="h-11 border-y border-border">
@@ -402,17 +365,14 @@ export function TableauParoisses({
                 data-paroisse={p.nom}
                 className="h-14 border-b border-border"
               >
-                <th scope="row" className="py-2 pl-6 text-left font-normal">
-                  <span className="block font-semibold text-foreground">
-                    {p.nom}
-                  </span>
-                  <span className="block text-[13px] text-muted-foreground">
-                    {p.doyenne}
-                    {p.note && ` · ${p.note}`}
-                  </span>
+                <th
+                  scope="row"
+                  className="py-2 pl-6 text-left font-semibold text-foreground"
+                >
+                  {p.nom}
                 </th>
                 <td>
-                  {p.statut === 'collecte_ouverte' ? (
+                  {p.statut_collecte === 'ouverte' ? (
                     <StatusBadge tone="success" label="Collecte ouverte" />
                   ) : (
                     <StatusBadge tone="progress" label="En préparation" />
@@ -433,9 +393,9 @@ export function TableauParoisses({
                   <span className="block">
                     {p.evolution ? EVOLUTION[p.evolution] : TIRET}
                   </span>
-                  {!p.evolution && p.evolution_libelle && (
+                  {!p.evolution && p.statut_collecte === 'ouverte' && (
                     <span className="block text-[13px] text-muted-foreground">
-                      {p.evolution_libelle}
+                      Moins de trois périodes
                     </span>
                   )}
                 </td>
@@ -452,32 +412,46 @@ export function TableauParoisses({
   );
 }
 
-function QueteImperee({ data }: { data: AnalyseDiocese }) {
-  const q = data.quete_imperee;
-  if (!q) return null;
-  const lignes = trierAlphabetique(q.lignes, (l) => l.nom);
-  const somme = (k: 'en_ligne' | 'especes' | 'total' | 'remis' | 'reste') =>
-    lignes.reduce((s, l) => s + (l[k] ?? 0), 0);
-  const cellule = (v: number | null) => (v === null ? TIRET : formatNombre(v));
+function QueteImpereeCarte({ q }: { q: QueteImperee }) {
+  const lignes = trierAlphabetique(q.paroisses, (l) => l.nom);
+  const somme = (
+    k:
+      | 'en_ligne'
+      | 'especes'
+      | 'total'
+      | 'remis'
+      | 'remise_declaree'
+      | 'reste_a_remettre',
+  ) => lignes.reduce((s, l) => s + l[k], 0);
+  const titreId = `titre-imperee-${q.fonds_id}`;
+  const sousTitre = [
+    `Quête du ${formatDateLongue(q.date)}`,
+    q.messe_anticipee_incluse ? 'messe anticipée incluse' : null,
+    q.echeance
+      ? `remise attendue avant le ${formatJourMois(q.echeance)}`
+      : null,
+    'en FCFA, montants exacts (argent destiné à la curie)',
+  ]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <section
-      aria-labelledby="titre-imperee"
+      aria-labelledby={titreId}
       className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft-sm"
     >
       <div className="px-6 pb-3 pt-5">
         <h2
-          id="titre-imperee"
+          id={titreId}
           className="font-sans text-xl font-semibold leading-7 tracking-normal"
         >
-          Quête impérée · {q.libelle}
+          {q.titre}
         </h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">{q.sous_titre}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">{sousTitre}</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
-            Quête impérée du {q.libelle} par paroisse, ordre alphabétique, en
-            FCFA
+            {q.titre} par paroisse, ordre alphabétique, en FCFA
           </caption>
           <thead className="bg-background-surface text-[13px] text-muted-foreground">
             <tr className="h-11 border-y border-border">
@@ -497,10 +471,10 @@ function QueteImperee({ data }: { data: AnalyseDiocese }) {
                 Remis à la curie
               </th>
               <th scope="col" className="pr-4 text-right font-medium">
-                Reste à remettre
+                Déclaré, à confirmer
               </th>
               <th scope="col" className="pr-4 text-right font-medium">
-                Échéance
+                Reste à remettre
               </th>
               <th scope="col" className="w-[140px] pr-6 text-left font-medium">
                 Remise
@@ -509,73 +483,75 @@ function QueteImperee({ data }: { data: AnalyseDiocese }) {
           </thead>
           <tbody>
             {lignes.map((l) => {
-              const part = l.total
-                ? Math.round(((l.remis ?? 0) / l.total) * 100)
-                : 0;
+              const part = l.part_remise ?? 0;
               return (
-                <tr key={l.paroisse_id} className="h-12 border-b border-border">
+                <tr key={l.id} className="h-12 border-b border-border">
                   <th scope="row" className="pl-6 text-left font-semibold">
                     {l.nom}
                   </th>
                   <td className="pr-4 text-right tabular-nums">
-                    {cellule(l.en_ligne)}
+                    {formatNombre(l.en_ligne)}
                   </td>
                   <td className="pr-4 text-right tabular-nums">
-                    {cellule(l.especes)}
+                    {formatNombre(l.especes)}
                   </td>
                   <td className="pr-4 text-right font-semibold tabular-nums">
-                    {cellule(l.total)}
+                    {formatNombre(l.total)}
                   </td>
                   <td className="pr-4 text-right tabular-nums">
-                    {cellule(l.remis)}
+                    {formatNombre(l.remis)}
+                  </td>
+                  <td className="pr-4 text-right tabular-nums">
+                    {formatNombre(l.remise_declaree)}
                   </td>
                   <td className="pr-4 text-right font-semibold tabular-nums">
-                    {cellule(l.reste)}
-                  </td>
-                  <td className="pr-4 text-right tabular-nums">
-                    {l.echeance ? formatJourMois(l.echeance) : TIRET}
+                    {formatNombre(l.reste_a_remettre)}
                   </td>
                   <td className="pr-6">
-                    {l.ouverte ? (
+                    {l.part_remise === null ? (
+                      <span className="text-[13px] text-muted-foreground">
+                        {TIRET}
+                      </span>
+                    ) : (
                       <Jauge
                         titre={`Remise à la curie, ${l.nom}`}
                         pourcent={part}
                         libelle={`${formatPourcent(part)} remis`}
                       />
-                    ) : (
-                      <span className="text-[13px] text-muted-foreground">
-                        Non ouverte
-                      </span>
                     )}
                   </td>
                 </tr>
               );
             })}
           </tbody>
-          <tfoot>
-            <tr className="h-12 bg-background-surface font-semibold">
-              <th scope="row" className="pl-6 text-left">
-                Archidiocèse
-              </th>
-              <td className="pr-4 text-right tabular-nums">
-                {formatNombre(somme('en_ligne'))}
-              </td>
-              <td className="pr-4 text-right tabular-nums">
-                {formatNombre(somme('especes'))}
-              </td>
-              <td className="pr-4 text-right tabular-nums">
-                {formatNombre(somme('total'))}
-              </td>
-              <td className="pr-4 text-right tabular-nums">
-                {formatNombre(somme('remis'))}
-              </td>
-              <td className="pr-4 text-right tabular-nums">
-                {formatNombre(somme('reste'))}
-              </td>
-              <td />
-              <td />
-            </tr>
-          </tfoot>
+          {lignes.length > 1 && (
+            <tfoot>
+              <tr className="h-12 bg-background-surface font-semibold">
+                <th scope="row" className="pl-6 text-left">
+                  Total
+                </th>
+                <td className="pr-4 text-right tabular-nums">
+                  {formatNombre(somme('en_ligne'))}
+                </td>
+                <td className="pr-4 text-right tabular-nums">
+                  {formatNombre(somme('especes'))}
+                </td>
+                <td className="pr-4 text-right tabular-nums">
+                  {formatNombre(somme('total'))}
+                </td>
+                <td className="pr-4 text-right tabular-nums">
+                  {formatNombre(somme('remis'))}
+                </td>
+                <td className="pr-4 text-right tabular-nums">
+                  {formatNombre(somme('remise_declaree'))}
+                </td>
+                <td className="pr-4 text-right tabular-nums">
+                  {formatNombre(somme('reste_a_remettre'))}
+                </td>
+                <td />
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
       <p className="px-6 py-3 text-[13px] text-muted-foreground">
@@ -588,13 +564,13 @@ function QueteImperee({ data }: { data: AnalyseDiocese }) {
   );
 }
 
-const exporter = (data: AnalyseDiocese) => {
+const exporter = (data: AnalyseDons) => {
   const csv = versCsv([
     {
       titre: `Collecté par type de fonds, arrondi au millier (${data.periode.libelle})`,
       lignes: [
         ['Type', 'Environ'],
-        ...data.par_fonds.map((f) => [f.libelle, f.montant]),
+        ...data.synthese.par_type_fonds.map((f) => [f.libelle, f.total]),
       ],
     },
     {
@@ -602,67 +578,48 @@ const exporter = (data: AnalyseDiocese) => {
       lignes: [
         [
           'Paroisse',
-          'Doyenné',
           'Collecte',
           'Collecté, environ',
           'Part en ligne (%)',
           'Quêtes à valider',
         ],
-        ...trierAlphabetique(data.paroisses, (p) => p.nom).map((p) => [
-          p.nom,
-          p.doyenne,
-          p.statut === 'collecte_ouverte'
-            ? 'Collecte ouverte'
-            : 'En préparation',
-          p.collecte,
-          p.part_en_ligne,
-          p.quetes_a_valider,
-        ]),
+        ...trierAlphabetique(data.paroisses?.lignes ?? [], (p) => p.nom).map(
+          (p) => [
+            p.nom,
+            p.statut_collecte === 'ouverte'
+              ? 'Collecte ouverte'
+              : 'En préparation',
+            p.collecte,
+            p.part_en_ligne,
+            p.quetes_a_valider,
+          ],
+        ),
       ],
     },
   ]);
-  telechargerCsv(`agregats-dons-${data.periode.debut.slice(0, 7)}.csv`, csv);
+  telechargerCsv(`agregats-dons-${data.periode.code}.csv`, csv);
 };
 
-const OPTIONS_FONDS = [
-  { valeur: '', libelle: 'Tous les types de fonds' },
-  ...ORDRE_FONDS.map((t) => ({ valeur: t, libelle: LIBELLE_FONDS[t] })),
-];
-const OPTIONS_CANAUX = [
-  { valeur: '', libelle: 'Tous les canaux' },
-  { valeur: 'en_ligne', libelle: 'En ligne' },
-  { valeur: 'especes', libelle: 'Espèces' },
-];
-
 export function AnalyseDioceseVue() {
-  const [granularite, setGranularite] = React.useState<Granularite>('mois');
+  const [periode, setPeriode] = React.useState<Periode>('mois');
   const [mois, setMois] = React.useState(MOIS_COURANT);
-  const [fonds, setFonds] = React.useState('');
-  const [canal, setCanal] = React.useState('');
-  const [doyenne, setDoyenne] = React.useState('');
-  const filtres: FiltresAnalyse = {
-    granularite,
-    date: mois,
-    fonds: (fonds || undefined) as TypeFonds | undefined,
-    canal: canal || undefined,
-    doyenne: doyenne || undefined,
-  };
-  const { data: brut, isLoading, error } = useAnalyseDiocese(filtres);
+  const { noeud, isLoading: chargementNoeud } = useNoeudAnalyse('diocese');
+  const {
+    data: brut,
+    isLoading,
+    error,
+  } = useAnalyseDons({
+    niveau: 'diocese',
+    noeud: noeud?.id,
+    periode,
+    date: codePeriode(periode, mois, MOIS_COURANT),
+  });
+  useFluxDons({ niveau: 'diocese', noeud: noeud?.id });
   const data = React.useMemo(
     () => (brut ? arrondirAgregats(brut) : undefined),
     [brut],
   );
-
-  const doyennes = Array.from(
-    new Set((data?.paroisses ?? []).map((p) => p.doyenne)),
-  );
-  const optionsDoyennes = [
-    { valeur: '', libelle: 'Tous les doyennés' },
-    ...trierAlphabetique(doyennes, (d) => d).map((d) => ({
-      valeur: d,
-      libelle: d,
-    })),
-  ];
+  const sansNoeud = !chargementNoeud && !noeud;
 
   return (
     <div className="space-y-6">
@@ -683,38 +640,18 @@ export function AnalyseDioceseVue() {
       </div>
 
       <BarreFiltres
-        granularites={GRANULARITES}
-        granularite={granularite}
-        onGranularite={setGranularite}
+        granularites={PERIODES}
+        granularite={periode}
+        onGranularite={setPeriode}
         mois={mois}
         onMois={setMois}
         moisMax={MOIS_COURANT}
-        filtres={[
-          {
-            cle: 'fonds',
-            nom: 'Type de fonds',
-            valeur: fonds,
-            options: OPTIONS_FONDS,
-            onChange: setFonds,
-          },
-          {
-            cle: 'canal',
-            nom: 'Canal',
-            valeur: canal,
-            options: OPTIONS_CANAUX,
-            onChange: setCanal,
-          },
-          {
-            cle: 'doyenne',
-            nom: 'Doyenné',
-            valeur: doyenne,
-            options: optionsDoyennes,
-            onChange: setDoyenne,
-          },
-        ]}
+        filtres={[]}
       />
 
-      {error ? (
+      {sansNoeud ? (
+        <EtatErreur interdit />
+      ) : error ? (
         <EtatErreur
           interdit={error instanceof ApiError && error.status === 403}
         />
@@ -725,28 +662,32 @@ export function AnalyseDioceseVue() {
           <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
             <div className="space-y-6">
               <Synthese data={data} />
-              <ParMois data={data} />
+              <Tendance data={data} />
             </div>
-            <div className="space-y-6">
-              <CompteMarchand data={data} />
-              <CompteLiaison data={data} />
-            </div>
+            <ATraiter elements={data.a_traiter} />
           </div>
-          <TableauParoisses
-            paroisses={data.paroisses}
-            periode={data.periode.libelle}
-          />
-          <QueteImperee data={data} />
+          {data.paroisses && (
+            <TableauParoisses
+              paroisses={data.paroisses.lignes}
+              periode={data.periode.libelle}
+            />
+          )}
+          {data.quetes_imperees.map((q) => (
+            <QueteImpereeCarte key={q.fonds_id} q={q} />
+          ))}
           <p className="flex items-start gap-2 rounded-xl bg-secondary px-4 py-3 text-sm text-secondary-foreground">
             <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             Agrégats seulement. Les montants sont arrondis au millier, sauf la
-            quête impérée et les comptes de trésorerie, tenus au franc près pour
-            le rapprochement.
+            quête impérée, tenue au franc près pour le rapprochement avec les
+            remises.
           </p>
-          <p className="text-[13px] text-muted-foreground">
-            Montants en FCFA. Aucun nom de donateur dans cette vue. Comparaison
-            avec l&apos;an dernier disponible à partir de septembre 2027.
-          </p>
+          {data.notes.length > 0 && (
+            <div className="space-y-1 text-[13px] text-muted-foreground">
+              {data.notes.map((n) => (
+                <p key={n}>{n}</p>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { AlertCircle, LineChart, Lock } from 'lucide-react';
+import { AlertCircle, Lock } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/utils/cn';
@@ -35,35 +35,6 @@ export function EtatVide({
     <div className={cn(cadre, className)}>
       <p className="text-[15px] text-foreground/80">{titre}</p>
       {detail && <p className="text-sm text-muted-foreground">{detail}</p>}
-    </div>
-  );
-}
-
-/** « Tendance indisponible » : moins de 3 périodes comparables. */
-export function EtatTendanceIndisponible({
-  premierePeriode,
-  resume,
-  className,
-}: {
-  premierePeriode?: string | null;
-  resume?: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn(cadre, 'py-10', className)}>
-      <LineChart
-        aria-hidden="true"
-        className="mb-1 size-5 text-muted-foreground"
-      />
-      <p className="text-[15px] text-foreground/80">
-        Pas encore de tendance : il faut au moins 3 mois comparables.
-      </p>
-      {premierePeriode && (
-        <p className="text-[15px] text-foreground/80">
-          Premier mois de collecte : {premierePeriode}.
-        </p>
-      )}
-      {resume && <p className="mt-2 text-sm text-muted-foreground">{resume}</p>}
     </div>
   );
 }

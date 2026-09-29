@@ -3,288 +3,332 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
-// Contrat : GET /v1/staff/dons/analyse/ — voir ../README.md.
-// Une seule route, deux portées : `paroisse` (détail, montants exacts) et
-// `diocese` (agrégats arrondis au millier, ordre alphabétique, sans masquage).
+// Contrat : GET /v1/staff/dons/analyse/ — backend `docs/API-DONS-ANALYSE.md` §2
+// (source : `apps/donations/serializers_analyse.py`). Une seule route, deux
+// niveaux : `paroisse` (montants exacts, blocs trésorerie / paiements /
+// campagnes) et `diocese` (diocèse ou doyenné : agrégats arrondis au millier,
+// `paroisses` renseigné, blocs propres à la paroisse à `null`). Les clés sont
+// toujours présentes ; un bloc qui ne s'applique pas vaut `null`.
 
 export const TYPES_FONDS = [
   'quete_dominicale',
   'quete_imperee',
   'campagne',
   'contribution_annuelle',
-  'autres',
 ] as const;
 
 export const typeFondsSchema = z.enum(TYPES_FONDS);
 export type TypeFonds = z.infer<typeof typeFondsSchema>;
 
-export const GRANULARITES = ['semaine', 'mois', 'trimestre', 'annee'] as const;
-export type Granularite = (typeof GRANULARITES)[number];
+export const NIVEAUX = ['paroisse', 'diocese'] as const;
+export type Niveau = (typeof NIVEAUX)[number];
 
-const periodeSchema = z.object({
-  granularite: z.enum(GRANULARITES),
+export const PERIODES = ['semaine', 'mois', 'trimestre', 'annee'] as const;
+export type Periode = (typeof PERIODES)[number];
+
+export const periodeSchema = z.object({
+  type: z.enum(PERIODES),
+  /** `2026-W39`, `2026-09`, `2026-T3` ou `2026`. */
+  code: z.string(),
   debut: z.string(),
+  /** Inclus. */
   fin: z.string(),
   libelle: z.string(),
-  en_cours: z.boolean(),
+});
+export type PeriodeAnalyse = z.infer<typeof periodeSchema>;
+
+const noeudSchema = z.object({
+  id: z.string(),
+  nom: z.string(),
+  type: z.string(),
 });
 
-const repartitionFondsSchema = z.object({
+const confidentialiteSchema = z.object({
+  /** 1 (paroisse, exact) ou 1000 (au-dessus de la paroisse). */
+  arrondi: z.number(),
+  noms_donateurs: z.boolean(),
+  ordre_paroisses: z.string(),
+  tri_par_montant: z.boolean(),
+});
+
+const typeFondsLigneSchema = z.object({
   type: typeFondsSchema,
   libelle: z.string(),
-  montant: z.number(),
+  en_ligne: z.number(),
+  especes: z.number(),
+  total: z.number(),
+  nombre: z.number(),
+  part: z.number().nullable(),
+});
+export type TypeFondsLigne = z.infer<typeof typeFondsLigneSchema>;
+
+const fondsLigneSchema = z.object({
+  fonds_id: z.string(),
+  titre: z.string(),
+  type: typeFondsSchema,
+  destination: z.string(),
+  en_ligne: z.number(),
+  especes: z.number(),
+  total: z.number(),
+  nombre: z.number(),
+  part: z.number().nullable(),
 });
 
-const valeursParFondsSchema = z.record(typeFondsSchema, z.number());
-
-// ---------------------------------------------------------------- paroisse
-
-const ligneRepartitionSchema = z.object({
-  code: z.string(),
+const sourceLigneSchema = z.object({
+  source: z.string(),
   libelle: z.string(),
-  montant: z.number(),
-  nombre: z.number().nullable(),
-  /** 0 = ligne principale, 1 = sous-ligne (retrait de 16 px). */
-  niveau: z.number().int().min(0).max(1).default(0),
-  /** Libellé du compteur (« dons », « quêtes »). */
-  unite: z.string().nullable().default(null),
-  /** Ligne « lieu non renseigné » : barre grise, libellé atténué. */
-  non_renseigne: z.boolean().default(false),
+  total: z.number(),
+  nombre: z.number(),
+  part: z.number().nullable(),
 });
-export type LigneRepartition = z.infer<typeof ligneRepartitionSchema>;
+
+const canalLigneSchema = z.object({
+  canal: z.string(),
+  libelle: z.string(),
+  total: z.number(),
+  nombre: z.number(),
+  part: z.number().nullable(),
+  sources: z.array(sourceLigneSchema),
+});
+export type CanalLigne = z.infer<typeof canalLigneSchema>;
+
+const moyenLigneSchema = z.object({
+  moyen: z.string(),
+  libelle: z.string(),
+  total: z.number(),
+  nombre: z.number(),
+  part: z.number().nullable(),
+});
+export type MoyenLigne = z.infer<typeof moyenLigneSchema>;
+
+const lieuLigneSchema = z.object({
+  /** `null` : « Lieu non renseigné ». */
+  lieu_id: z.number().nullable(),
+  nom: z.string(),
+  en_ligne: z.number(),
+  especes: z.number(),
+  total: z.number(),
+  nombre: z.number(),
+  part: z.number().nullable(),
+});
+export type LieuLigne = z.infer<typeof lieuLigneSchema>;
+
+const montantsParTypeSchema = z.object({
+  quete_dominicale: z.number(),
+  quete_imperee: z.number(),
+  campagne: z.number(),
+  contribution_annuelle: z.number(),
+});
+
+const syntheseSchema = z.object({
+  collecte: z.number(),
+  en_ligne: z.number(),
+  especes: z.number(),
+  nombre_dons_en_ligne: z.number(),
+  nombre_quetes: z.number(),
+  par_destination: z.object({ paroisse: z.number(), curie: z.number() }),
+  par_type_fonds: z.array(typeFondsLigneSchema),
+  par_fonds: z.array(fondsLigneSchema).nullable(),
+  par_canal: z.array(canalLigneSchema),
+  par_moyen: z.array(moyenLigneSchema),
+  par_lieu: z.array(lieuLigneSchema).nullable(),
+});
+export type Synthese = z.infer<typeof syntheseSchema>;
+
+const tendancePointSchema = z.object({
+  debut: z.string(),
+  fin: z.string(),
+  /** « au dim. 6 ». */
+  libelle: z.string(),
+  total: z.number(),
+  en_ligne: z.number(),
+  especes: z.number(),
+  par_type_fonds: montantsParTypeSchema,
+});
+export type TendancePoint = z.infer<typeof tendancePointSchema>;
+
+const tendanceSchema = z.object({
+  grain: z.enum(['jour', 'semaine', 'mois']),
+  points: z.array(tendancePointSchema),
+});
 
 export const TYPES_A_TRAITER = [
   'quete_a_confirmer',
   'paiements_en_attente',
-  'depot_especes',
+  'paiement_tardif',
+  'especes_a_deposer',
   'remise_curie',
+  'remise_a_confirmer',
+  'cloture_mois',
 ] as const;
 
 const aTraiterSchema = z.object({
-  id: z.string(),
-  type: z.enum(TYPES_A_TRAITER),
-  titre: z.string(),
-  /** Date limite ISO : la liste se trie dessus, la plus proche en premier. */
+  // Évolution additive : un type inconnu reste affiché (badge neutre).
+  type: z.string(),
+  /** Date `AAAA-MM-JJ` : la liste se trie dessus, la plus proche en premier. */
   echeance: z.string(),
-  detail: z.string().nullable(),
+  libelle: z.string(),
+  nombre: z.number(),
+  montant: z.number().nullable(),
+  depuis: z.string().nullable(),
+  paroisse: z.object({ id: z.string(), nom: z.string() }).nullable(),
+  objet_id: z.string().nullable(),
 });
 export type ElementATraiter = z.infer<typeof aTraiterSchema>;
 
-const campagneSchema = z.object({
-  id: z.string(),
-  titre: z.string(),
-  debut: z.string(),
-  fin: z.string(),
-  objectif: z.number().nullable(),
-  reuni: z.number(),
-  nombre_dons: z.number(),
-  montant_periode: z.number(),
-  rythme_hebdo: z.number().nullable(),
-  projection_fin: z.number().nullable(),
-  /** Cumul en fin de mois, du premier mois au mois courant (partiel). */
-  cumul: z.array(z.object({ mois: z.string(), cumul: z.number() })),
-});
-export type Campagne = z.infer<typeof campagneSchema>;
-
-export const analyseParoisseSchema = z.object({
-  portee: z.literal('paroisse'),
-  lieu: z.object({ id: z.string(), nom: z.string(), diocese: z.string() }),
-  periode: periodeSchema,
-  arrete_au: z.string(),
-  collecte: z.object({
-    total: z.number(),
-    en_ligne: z.number(),
-    en_ligne_nombre: z.number(),
-    especes: z.number(),
-    especes_quetes: z.number(),
-    pour_paroisse: z.number(),
-    pour_curie: z.number(),
-    quete_imperee_libelle: z.string().nullable(),
-    a_confirmer: z
-      .object({ montant: z.number(), nombre: z.number() })
-      .nullable(),
-  }),
-  par_fonds: z.array(repartitionFondsSchema),
-  par_semaine: z.array(
-    z.object({
-      debut: z.string(),
-      fin: z.string(),
-      libelle: z.string(),
-      sous_libelle: z.string(),
-      valeurs: valeursParFondsSchema,
-      total: z.number(),
-    }),
-  ),
-  par_canal: z.array(ligneRepartitionSchema),
-  par_moyen: z.array(ligneRepartitionSchema),
-  par_lieu: z.array(ligneRepartitionSchema),
-  paiements: z.object({
-    lances: z.number(),
-    confirmes: z.number(),
-    en_attente: z.number(),
-    echoues: z.number(),
-    expires: z.number(),
-    plus_ancien_attente_depuis: z.string().nullable(),
-    delai_median_s: z.number().nullable(),
-  }),
-  tresorerie: z.object({
-    paye_en_ligne: z.number(),
-    frais: z.number(),
-    net_en_ligne: z.number(),
-    reverse: z.number(),
-    reverse_le: z.string().nullable(),
-    en_attente_reversement: z.number(),
-    dons_frais_couverts: z.number(),
-    net_pour_100: z.number(),
-    especes_validees: z.number(),
-    especes_deposees: z.number(),
-    especes_en_caisse: z.number(),
-    quete_a_confirmer: z.number(),
-  }),
-  campagnes: z.array(campagneSchema),
-  a_traiter: z.array(aTraiterSchema),
-  notes: z.object({
-    par_semaine: z.array(z.string()),
-  }),
-});
-export type AnalyseParoisse = z.infer<typeof analyseParoisseSchema>;
-
-// ---------------------------------------------------------------- diocèse
-
-const ligneParoisseSchema = z.object({
+const paroisseLigneSchema = z.object({
   id: z.string(),
   nom: z.string(),
-  doyenne: z.string(),
-  note: z.string().nullable(),
-  statut: z.enum(['collecte_ouverte', 'en_preparation']),
+  statut_collecte: z.enum(['ouverte', 'en_preparation']),
   collecte: z.number().nullable(),
   part_en_ligne: z.number().nullable(),
   quetes_a_valider: z.number().nullable(),
-  /** Évolution par rapport à la paroisse elle-même, en texte neutre. */
-  evolution: z.enum(['stable', 'hausse', 'baisse']).nullable(),
-  evolution_libelle: z.string().nullable(),
+  /** La paroisse face à elle-même ; `null` sans trois périodes d'historique. */
+  evolution: z.enum(['stable', 'en_hausse', 'en_baisse']).nullable(),
 });
-export type LigneParoisse = z.infer<typeof ligneParoisseSchema>;
+export type LigneParoisse = z.infer<typeof paroisseLigneSchema>;
 
-const ligneQueteImpereeSchema = z.object({
-  paroisse_id: z.string(),
+const paroissesSchema = z.object({
+  compteurs: z.object({
+    engagees: z.number(),
+    collecte_ouverte: z.number(),
+    en_preparation: z.number(),
+  }),
+  lignes: z.array(paroisseLigneSchema),
+});
+
+const impereeParoisseSchema = z.object({
+  id: z.string(),
   nom: z.string(),
-  ouverte: z.boolean(),
-  en_ligne: z.number().nullable(),
-  especes: z.number().nullable(),
-  total: z.number().nullable(),
-  remis: z.number().nullable(),
-  reste: z.number().nullable(),
-  echeance: z.string().nullable(),
+  en_ligne: z.number(),
+  especes: z.number(),
+  total: z.number(),
+  remis: z.number(),
+  remise_declaree: z.number(),
+  reste_a_remettre: z.number(),
+  part_remise: z.number().nullable(),
 });
-export type LigneQueteImperee = z.infer<typeof ligneQueteImpereeSchema>;
+export type LigneQueteImperee = z.infer<typeof impereeParoisseSchema>;
 
-export const analyseDioceseSchema = z.object({
-  portee: z.literal('diocese'),
-  diocese: z.object({ id: z.string(), nom: z.string(), province: z.string() }),
-  periode: periodeSchema,
-  arrete_au: z.string(),
-  collecte: z.object({
-    /** Arrondi au millier côté serveur. */
-    total: z.number(),
-    pour_curie: z.number(),
-    paroisses_engagees: z.number(),
-    paroisses_actives: z.number(),
-    paroisses_en_preparation: z.number(),
-  }),
-  par_fonds: z.array(repartitionFondsSchema),
-  par_mois: z.array(
-    z.object({
-      mois: z.string(),
-      valeurs: valeursParFondsSchema,
-      total: z.number(),
-    }),
-  ),
-  premier_mois: z.string().nullable(),
-  paroisses: z.array(ligneParoisseSchema),
-  quete_imperee: z
-    .object({
-      libelle: z.string(),
-      sous_titre: z.string(),
-      lignes: z.array(ligneQueteImpereeSchema),
-    })
-    .nullable(),
-  compte_marchand: z.object({
-    recu: z.number(),
-    frais: z.number(),
-    confirme_non_reverse: z.number(),
-    ecarts_ouverts: z.number(),
-    delai_moyen_jours: z.number().nullable(),
-    dernier_reversement_le: z.string().nullable(),
-  }),
-  compte_liaison: z.array(
-    z.object({
-      libelle: z.string(),
-      montant: z.number(),
-      detail: z.string(),
-    }),
-  ),
+const queteImpereeSchema = z.object({
+  fonds_id: z.string(),
+  titre: z.string(),
+  date: z.string(),
+  echeance: z.string().nullable(),
+  messe_anticipee_incluse: z.boolean(),
+  paroisses: z.array(impereeParoisseSchema),
 });
-export type AnalyseDiocese = z.infer<typeof analyseDioceseSchema>;
+export type QueteImperee = z.infer<typeof queteImpereeSchema>;
+
+const tresorerieSchema = z.object({
+  en_ligne: z.object({
+    paye: z.number(),
+    frais: z.number(),
+    frais_reels: z.number(),
+    net: z.number(),
+    reverse: z.number(),
+    en_attente_reversement: z.number(),
+    part_reversee: z.number().nullable(),
+    net_pour_100: z.number().nullable(),
+    dons_frais_couverts: z.number(),
+    nombre: z.number(),
+  }),
+  especes: z.object({
+    validees: z.number(),
+    deposees: z.number(),
+    en_caisse: z.number(),
+    a_confirmer: z.number(),
+  }),
+});
+export type Tresorerie = z.infer<typeof tresorerieSchema>;
+
+const paiementsSchema = z.object({
+  lances: z.number(),
+  confirmes: z.number(),
+  en_attente: z.number(),
+  echoues: z.number(),
+  expires: z.number(),
+  taux_confirmation: z.number().nullable(),
+});
+export type Paiements = z.infer<typeof paiementsSchema>;
+
+const campagneSchema = z.object({
+  fonds_id: z.string(),
+  titre: z.string(),
+  objectif: z.number().nullable(),
+  reuni: z.number(),
+  part: z.number().nullable(),
+  nombre: z.number(),
+  /** Donné sur la période analysée. */
+  periode: z.number(),
+  debut: z.string().nullable(),
+  fin: z.string().nullable(),
+  statut: z.string(),
+  rythme_hebdo: z.number(),
+  projection_fin: z.number().nullable(),
+  part_projection: z.number().nullable(),
+});
+export type Campagne = z.infer<typeof campagneSchema>;
+
+export const analyseDonsSchema = z.object({
+  niveau: z.enum(NIVEAUX),
+  noeud: noeudSchema,
+  periode: periodeSchema,
+  genere_le: z.string(),
+  confidentialite: confidentialiteSchema,
+  synthese: syntheseSchema,
+  tendance: tendanceSchema,
+  a_traiter: z.array(aTraiterSchema),
+  paroisses: paroissesSchema.nullable(),
+  quetes_imperees: z.array(queteImpereeSchema),
+  tresorerie: tresorerieSchema.nullable(),
+  paiements: paiementsSchema.nullable(),
+  campagnes: z.array(campagneSchema).nullable(),
+  notes: z.array(z.string()),
+});
+export type AnalyseDons = z.infer<typeof analyseDonsSchema>;
 
 // ---------------------------------------------------------------- requête
 
-export type FiltresAnalyse = {
-  granularite: Granularite;
-  /** Période de référence, `AAAA-MM` (mois) ou `AAAA-MM-JJ` (semaine). */
+export type ParametresAnalyse = {
+  niveau: Niveau;
+  /** UUID : paroisse (`paroisse`), diocèse ou doyenné (`diocese`). */
+  noeud: string;
+  periode: Periode;
+  /** `2026-W39` · `2026-09` · `2026-T3` · `2026` ; absent : période en cours. */
   date?: string;
-  fonds?: TypeFonds;
-  canal?: string;
-  lieu?: string;
-  doyenne?: string;
-  /** Nœud (paroisse ou diocèse) ; facultatif si le compte n'en a qu'un. */
-  node?: string;
 };
+
+/** Clé react-query des analyses : `['dons-analyse']` ou `['dons-analyse', niveau]`. */
+export const donsAnalyseQueryKey = (niveau?: Niveau) =>
+  niveau ? ['dons-analyse', niveau] : ['dons-analyse'];
 
 const toQuery = (params: Record<string, string | undefined>) => {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v) qs.set(k, v);
   });
-  const s = qs.toString();
-  return s ? `?${s}` : '';
+  return qs.toString();
 };
 
-export const getAnalyseParoisse = (
-  filtres: FiltresAnalyse,
-): Promise<AnalyseParoisse> =>
+export const getAnalyseDons = (
+  params: ParametresAnalyse,
+): Promise<AnalyseDons> =>
   api
-    .get<unknown>(
-      `/v1/staff/dons/analyse/${toQuery({ portee: 'paroisse', ...filtres })}`,
-    )
-    .then((data) => analyseParoisseSchema.parse(data));
+    .get<unknown>(`/v1/staff/dons/analyse/?${toQuery(params)}`)
+    .then((data) => analyseDonsSchema.parse(data));
 
-export const getAnalyseDiocese = (
-  filtres: FiltresAnalyse,
-): Promise<AnalyseDiocese> =>
-  api
-    .get<unknown>(
-      `/v1/staff/dons/analyse/${toQuery({ portee: 'diocese', ...filtres })}`,
-    )
-    .then((data) => analyseDioceseSchema.parse(data));
-
-export const useAnalyseParoisse = (filtres: FiltresAnalyse) =>
+export const useAnalyseDons = (
+  params: Omit<ParametresAnalyse, 'noeud'> & { noeud: string | undefined },
+) =>
   useQuery(
     queryOptions({
-      queryKey: ['dons-analyse', 'paroisse', filtres],
-      queryFn: () => getAnalyseParoisse(filtres),
+      queryKey: [...donsAnalyseQueryKey(params.niveau), params],
+      queryFn: () =>
+        getAnalyseDons({ ...params, noeud: params.noeud as string }),
+      enabled: !!params.noeud,
       retry: false,
       // Pas de squelette qui clignote à chaque filtre (03 §4.3).
-      placeholderData: (prev) => prev,
-    }),
-  );
-
-export const useAnalyseDiocese = (filtres: FiltresAnalyse) =>
-  useQuery(
-    queryOptions({
-      queryKey: ['dons-analyse', 'diocese', filtres],
-      queryFn: () => getAnalyseDiocese(filtres),
-      retry: false,
       placeholderData: (prev) => prev,
     }),
   );

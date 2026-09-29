@@ -4,43 +4,45 @@
 `/app/plateforme/paiements`. Spec : `JanguBIMobileApp/docs/design/ECRANS-TABLEAU-DE-BORD-DONS.md`,
 `etude-tableau-de-bord-dons/03-dataviz.md`, décisions validées du 27/09 (`docs/PLAN-SUITE-V2.md` §1).
 
-## Contrat d'API supposé (à aligner avec le lot backend A2)
+## Contrat d'API
 
-Écrit côté web faute de `API-DONS-ANALYSE.md` au moment du lot ; les schémas Zod de `api/` font foi.
+Source de vérité : backend `docs/API-DONS-ANALYSE.md` (lot A2) et `docs/TEMPS-REEL.md` §3.
+Les schémas Zod de `api/` le reprennent champ pour champ ; les mocks
+(`src/testing/mocks/handlers/dons-analyse.ts`) sont les exemples du contrat (§2.5, §2.6, §3.1).
 
-### `GET /api/v1/staff/dons/analyse/`
-Paramètres : `portee=paroisse|diocese`, `granularite=semaine|mois|trimestre|annee`,
-`date=AAAA-MM`, filtres facultatifs `fonds`, `canal`, `lieu`, `doyenne`, `node` (UUID ; facultatif
-si le compte n'a qu'un nœud pour la capacité).
-
-- `portee=paroisse` — capacité `dons.voir_fonds` sur la paroisse elle-même. Montants exacts.
-  `collecte`, `par_fonds[]` (`type` ∈ quete_dominicale, quete_imperee, campagne,
-  contribution_annuelle, autres), `par_semaine[]` (`valeurs` par type), `par_canal[]` /
-  `par_moyen[]` / `par_lieu[]` (ordre canonique fixe, `niveau` 0/1, `non_renseigne`),
-  `paiements`, `tresorerie`, `campagnes[]` (cumul mensuel, rythme, projection),
-  `a_traiter[]` (`type`, `titre`, **`echeance` ISO**, `detail`), `notes`. Aucun nom de donateur.
-- `portee=diocese` — capacité `dons.voir_agregats`. **Arrondi au millier** des montants de
-  collecte (le client réapplique l'arrondi), **sans** seuil k = 5 ni règle de dominance.
-  Quête impérée et comptes de trésorerie (`compte_marchand`, `compte_liaison`) au franc près.
-  `paroisses[]` avec `statut`, `collecte`, `part_en_ligne`, `quetes_a_valider`, `evolution`
-  (stable/hausse/baisse, texte neutre). `par_mois[]` + `premier_mois` (moins de 3 mois →
-  « tendance indisponible »).
-
-### `GET /api/v1/platform/dons/activite/`
-Capacité `plateforme.admin`. Paramètres `granularite=semaine|mois`, `date`, `paroisse`, `moyen`,
-`source`. **Aucun montant** : nombres, taux, délais (`paiements`, `par_jour`, `delai`,
-`notifications`, `charge` 7 × 24, `sources`, `retours_ios`, `paroisses`, `incidents`). Le
-schéma Zod est `strict()` : un champ inattendu (un montant) fait échouer l'analyse.
+- `GET /api/v1/staff/dons/analyse/?niveau=paroisse|diocese&noeud=<uuid>&periode=semaine|mois|trimestre|annee&date=…`
+  (`date` : `2026-W39`, `2026-09`, `2026-T3`, `2026` ; absente pour la période en cours).
+  Une seule forme de réponse (`AnalyseDons`) ; les blocs qui ne s'appliquent pas au niveau valent
+  `null` (`paroisses` en paroisse ; `tresorerie`, `paiements`, `campagnes`, `par_fonds`, `par_lieu`
+  au diocèse). Pas de semaine au-dessus de la paroisse.
+- `GET /api/v1/me/capacites/` : le `noeud` vient de là (`dons.voir_fonds` sur la paroisse même,
+  non hérité ; `dons.voir_agregats` sur un diocèse ou un doyenné). Sans nœud : « vue non ouverte ».
+- `GET /api/v1/platform/dons/activite/?periode=&date=` : aucun montant ; schéma `strict()`, un
+  champ inattendu fait échouer l'analyse.
+- Flux SSE `GET /api/v1/staff/dons/flux/?noeud=<uuid>` (`hooks/use-flux-dons.ts`) :
+  `@microsoft/fetch-event-source` avec `Authorization: Bearer`, reconnexion automatique (délai
+  `retry:` du serveur, fin de flux à 30 min comprise), `last-event-id` repassé à la réouverture,
+  rafraîchissement du jeton sur 401, flux fermé quand l'onglet est masqué. Chaque
+  `dons.operation` / `dons.synthese_invalidee` invalide `['dons-analyse', niveau]`, regroupé
+  (un rechargement par seconde au plus).
 
 ## Règles appliquées côté écran
 - Ordre alphabétique des paroisses (`utils/ordre.ts`), seule la colonne Paroisse se trie ;
   aucun tri par montant, aucune barre comparant des paroisses, pas de vert/rouge de performance.
-- « À traiter » trié par échéance (la plus proche en premier), échéance affichée.
-- En-tête : phrase de synthèse + un chiffre-titre + barre de flux par fonds.
+- « À traiter » trié par échéance (la plus proche en premier), échéance affichée ; à échéance
+  égale, ordre du serveur.
+- Au diocèse, le client réapplique l'arrondi au millier (`arrondirAgregats`), sauf la quête
+  impérée (montants exacts, argent de la curie).
+- En-tête : phrase de synthèse + un chiffre-titre + barre de flux par type de fonds.
 - Palette données fixe en variables CSS `--dv-*` (`src/styles/globals.css`), pastilles et
   marques seulement, jamais en couleur de texte ; toute figure a sa vue tableau.
 
+## Écarts avec l'ancien contrat supposé
+Retirés faute de champ dans le contrat : filtres fonds / canal / lieu / doyenné, cumul mensuel
+des campagnes (courbe), date de reversement, délai médian en paroisse, comptes marchand et de
+liaison au diocèse, séries quotidiennes de délais et de notifications, retours iOS.
+
 ## Mocks
-`src/testing/mocks/handlers/dons-analyse.ts` (jeu de septembre). Comptes de démonstration du
-serveur de mocks (`yarn run-mock-server`) : `cecile.coly@saint-dominique.sn` (paroisse),
-`bernard.coly@archidiocese-dakar.sn` (diocèse), `moustoifa.ben@numerisen.sn` (plateforme).
+Comptes de démonstration du serveur de mocks (`yarn run-mock-server`) :
+`cecile.coly@saint-dominique.sn` (paroisse), `bernard.coly@archidiocese-dakar.sn` (diocèse),
+`moustoifa.ben@numerisen.sn` (plateforme).

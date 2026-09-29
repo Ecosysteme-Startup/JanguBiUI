@@ -2,20 +2,24 @@ import { http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 import { server } from '@/testing/mocks/server';
+import { clearAccessToken, setAccessToken } from '@/lib/api-client';
 import {
   activitePlateformeSeptembre,
   analyseDioceseSeptembre,
   analyseParoisseSeptembre,
+  NOEUD_SAINT_DOMINIQUE,
 } from '@/testing/mocks/handlers/dons-analyse';
 import {
   getDefaultNormalizer,
   renderApp,
   screen,
   userEvent,
+  waitFor,
   within,
 } from '@/testing/test-utils';
 
 import { activitePlateformeSchema } from '../../api/get-activite-plateforme';
+import { analyseDonsSchema } from '../../api/get-analyse-dons';
 import { ATraiter } from '../a-traiter';
 import { AnalyseDioceseVue, arrondirAgregats } from '../analyse-diocese';
 import { AnalyseParoisseVue } from '../analyse-paroisse';
@@ -24,22 +28,26 @@ import { CarteGraphique } from '../graphiques/carte-graphique';
 import { SantePaiementsVue } from '../sante-paiements';
 
 const ANALYSE_URL = `${env.API_URL}/v1/staff/dons/analyse/`;
+const FLUX_URL = `${env.API_URL}/v1/staff/dons/flux/`;
 
 // Garde les espaces insécables (le normaliseur par défaut les réduit en espaces).
 const brut = getDefaultNormalizer({ collapseWhitespace: false });
 
 describe('ATraiter', () => {
   test('trie par échéance et affiche l’échéance de chaque élément', () => {
-    renderApp(<ATraiter elements={analyseParoisseSeptembre.a_traiter} />);
+    // Reçu dans le désordre : l'écran trie par échéance.
+    renderApp(
+      <ATraiter elements={[...analyseParoisseSeptembre.a_traiter].reverse()} />,
+    );
     const items = screen.getAllByRole('listitem');
     expect(items.map((li) => li.getAttribute('data-a-traiter'))).toEqual([
       'paiements_en_attente',
       'quete_a_confirmer',
-      'depot_especes',
+      'especes_a_deposer',
       'remise_curie',
     ]);
     expect(
-      within(items[0]).getByText(/Échéance : 28\u00A0sept\., 14:15/, {
+      within(items[0]).getByText(/Échéance : 28\u00A0sept\.$/, {
         normalizer: brut,
       }),
     ).toBeInTheDocument();
@@ -48,6 +56,22 @@ describe('ATraiter', () => {
         normalizer: brut,
       }),
     ).toBeInTheDocument();
+    expect(
+      within(items[1]).getByText(/^64\u00A0000\u00A0FCFA/, {
+        normalizer: brut,
+      }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('Contrat', () => {
+  test('les exemples du contrat passent les schémas', () => {
+    expect(analyseDonsSchema.safeParse(analyseParoisseSeptembre).success).toBe(
+      true,
+    );
+    expect(analyseDonsSchema.safeParse(analyseDioceseSeptembre).success).toBe(
+      true,
+    );
   });
 });
 
@@ -149,13 +173,80 @@ describe('AnalyseParoisseVue', () => {
   test('403 : vue non ouverte', async () => {
     server.use(
       http.get(ANALYSE_URL, () =>
-        HttpResponse.json({ detail: 'x' }, { status: 403 }),
+        HttpResponse.json(
+          { error: { code: 'dons_forbidden', message: 'x', details: {} } },
+          { status: 403 },
+        ),
       ),
     );
     renderApp(<AnalyseParoisseVue />);
     expect(
       await screen.findByText("Cette vue n'est pas ouverte à votre compte."),
     ).toBeInTheDocument();
+  });
+
+  test('appelle le contrat : niveau, noeud, periode, date', async () => {
+    const urls: URL[] = [];
+    server.events.on('request:start', ({ request }) => {
+      if (request.url.startsWith(ANALYSE_URL)) urls.push(new URL(request.url));
+    });
+    renderApp(<AnalyseParoisseVue />);
+    await screen.findByText('1\u00A0214\u00A0830', {
+      selector: '[data-chiffre-titre]',
+      normalizer: brut,
+    });
+    const premiere = urls[0].searchParams;
+    expect(premiere.get('niveau')).toBe('paroisse');
+    expect(premiere.get('noeud')).toBe(NOEUD_SAINT_DOMINIQUE);
+    expect(premiere.get('periode')).toBe('mois');
+    // Période en cours : pas de date, le serveur prend le mois en cours.
+    expect(premiere.has('date')).toBe(false);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Mois précédent' }),
+    );
+    await waitFor(() =>
+      expect(urls.at(-1)?.searchParams.get('date')).toBe('2026-08'),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Trimestre' }));
+    await waitFor(() => {
+      const p = urls.at(-1)?.searchParams;
+      expect(p?.get('periode')).toBe('trimestre');
+      expect(p?.get('date')).toBe('2026-T3');
+    });
+    server.events.removeAllListeners();
+  });
+
+  test('un événement du flux SSE recharge l’analyse', async () => {
+    setAccessToken('jeton-test');
+    let appels = 0;
+    let dernierId: string | null = null;
+    server.use(
+      http.get(ANALYSE_URL, () => {
+        appels += 1;
+        return HttpResponse.json(analyseParoisseSeptembre);
+      }),
+      http.get(FLUX_URL, ({ request }) => {
+        expect(request.headers.get('authorization')).toBe('Bearer jeton-test');
+        dernierId = request.headers.get('last-event-id');
+        const corps =
+          'retry: 5000\n: flux\n\n' +
+          'id: 41\nevent: dons.operation\ndata: {"kind":"don"}\n\n' +
+          'id: 42\nevent: dons.synthese_invalidee\ndata: {"month":"2026-09"}\n\n';
+        return new HttpResponse(corps, {
+          headers: { 'Content-Type': 'text/event-stream' },
+        });
+      }),
+    );
+    renderApp(<AnalyseParoisseVue />);
+    await screen.findByText('1\u00A0214\u00A0830', {
+      selector: '[data-chiffre-titre]',
+      normalizer: brut,
+    });
+    // Deux événements regroupés : un seul rechargement.
+    await waitFor(() => expect(appels).toBe(2), { timeout: 3000 });
+    expect(dernierId).toBeNull();
+    clearAccessToken();
   });
 });
 
@@ -166,14 +257,17 @@ describe('AnalyseDioceseVue', () => {
       http.get(ANALYSE_URL, () =>
         HttpResponse.json({
           ...analyseDioceseSeptembre,
-          collecte: {
-            ...analyseDioceseSeptembre.collecte,
-            total: 1214830,
-            pour_curie: 674525,
+          synthese: {
+            ...analyseDioceseSeptembre.synthese,
+            collecte: 1214830,
+            par_destination: { paroisse: 540305, curie: 674525 },
           },
-          paroisses: analyseDioceseSeptembre.paroisses.map((p) =>
-            p.collecte ? { ...p, collecte: 1214830 } : p,
-          ),
+          paroisses: {
+            ...analyseDioceseSeptembre.paroisses!,
+            lignes: analyseDioceseSeptembre.paroisses!.lignes.map((p) =>
+              p.collecte ? { ...p, collecte: 1214830 } : p,
+            ),
+          },
         }),
       ),
     );
@@ -218,24 +312,26 @@ describe('AnalyseDioceseVue', () => {
     ).toHaveLength(1);
   });
 
-  test('un seul mois : tendance indisponible', async () => {
+  test('« À traiter » de la curie et compteurs de paroisses', async () => {
     renderApp(<AnalyseDioceseVue />);
     expect(
-      await screen.findByText(
-        'Pas encore de tendance : il faut au moins 3 mois comparables.',
-      ),
+      await screen.findByText('Saint-Dominique : 1 quête(s) à confirmer'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/1 paroisse sur 5/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        name: 'Quête impérée · Grand Séminaire de Brin',
+      }),
     ).toBeInTheDocument();
   });
 
-  test('arrondirAgregats ne touche pas la trésorerie', () => {
+  test('arrondirAgregats ne touche pas la quête impérée', () => {
     const r = arrondirAgregats({
       ...analyseDioceseSeptembre,
-      compte_marchand: {
-        ...analyseDioceseSeptembre.compte_marchand,
-        recu: 301480,
-      },
+      synthese: { ...analyseDioceseSeptembre.synthese, collecte: 1214830 },
     });
-    expect(r.compte_marchand.recu).toBe(301480);
+    expect(r.synthese.collecte).toBe(1215000);
+    expect(r.quetes_imperees[0].paroisses[0].total).toBe(674525);
   });
 });
 
