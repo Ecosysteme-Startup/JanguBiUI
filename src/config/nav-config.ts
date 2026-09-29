@@ -4,9 +4,12 @@ import {
   BookOpen,
   Calendar,
   Church,
+  CreditCard,
   FileText,
+  HandCoins,
   Heart,
   Home,
+  Landmark,
   MessageCircle,
   Newspaper,
   ShieldCheck,
@@ -14,7 +17,13 @@ import {
 } from 'lucide-react';
 
 import { User as UserType } from '@/lib/auth';
-import { isAdmin, isClergy } from '@/lib/authorization';
+import {
+  canViewDioceseDonsAggregates,
+  canViewParishDonsAnalysis,
+  canViewPlatformPayments,
+  isAdmin,
+  isClergy,
+} from '@/lib/authorization';
 
 export interface NavItem {
   label: string;
@@ -98,6 +107,30 @@ const ITEM_ADMIN: NavItem = {
   adminOnly: true,
 };
 
+// Tableaux de bord des dons (staff) : chaque entrée n'apparaît qu'avec la
+// capacité correspondante (cf. lib/authorization).
+const ITEM_DONS_ANALYSE: NavItem = {
+  label: 'Dons et quêtes',
+  href: '/app/dons/analyse',
+  icon: HandCoins,
+};
+const ITEM_DONS_DIOCESE: NavItem = {
+  label: 'Dons du diocèse',
+  href: '/app/diocese/dons',
+  icon: Landmark,
+};
+const ITEM_PAIEMENTS: NavItem = {
+  label: 'Paiements',
+  href: '/app/plateforme/paiements',
+  icon: CreditCard,
+};
+
+const donsStaffItems = (user: UserType | null | undefined): NavItem[] => [
+  ...(canViewParishDonsAnalysis(user) ? [ITEM_DONS_ANALYSE] : []),
+  ...(canViewDioceseDonsAggregates(user) ? [ITEM_DONS_DIOCESE] : []),
+  ...(canViewPlatformPayments(user) ? [ITEM_PAIEMENTS] : []),
+];
+
 export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
   // Les deux dimensions (role admin / pastoral_role) sont INDÉPENDANTES : un curé
   // peut être à la fois parish_admin et pretre. Le guard `!isClergy` est donc
@@ -108,6 +141,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_ACCUEIL_ADMIN,
       ITEM_ACTUS,
       ITEM_SPIRITUEL,
+      ...donsStaffItems(user),
       ITEM_MESSAGES,
       ITEM_PROFIL,
     ];
@@ -120,6 +154,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_SPIRITUEL,
       ITEM_CLERGE,
       ITEM_ANALYTIQUE,
+      ...donsStaffItems(user),
       // Clergé qui est aussi admin digital → passerelle vers l'admin.
       ...(isAdmin(user) ? [ITEM_ADMIN] : []),
       ITEM_MESSAGES,

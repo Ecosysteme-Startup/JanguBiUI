@@ -100,6 +100,9 @@ export interface User {
   church_ids?: number[];
   parish_ids?: number[];
   diocese_ids?: number[];
+  // Capacités effectives (`dons.voir_fonds`, `dons.voir_agregats`,
+  // `plateforme.admin`…) si /me les expose. Absentes → repli sur les rôles.
+  capabilities?: string[];
 }
 
 export interface AuthResponse {

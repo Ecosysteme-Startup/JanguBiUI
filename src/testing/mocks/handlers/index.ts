@@ -1,6 +1,7 @@
 import { authHandlers } from './auth';
 import { bibleHandlers } from './bible';
 import { documentsHandlers } from './documents';
+import { donsAnalyseHandlers } from './dons-analyse';
 import { messagingHandlers } from './messaging';
 import { newsHandlers } from './news';
 import { notificationsHandlers } from './notifications';
@@ -12,4 +13,5 @@ export const handlers = [
   ...notificationsHandlers,
   ...newsHandlers,
   ...bibleHandlers,
+  ...donsAnalyseHandlers,
 ];
