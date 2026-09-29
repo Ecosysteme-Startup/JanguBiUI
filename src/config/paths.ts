@@ -152,6 +152,22 @@ export const paths = {
     },
   },
 
+  /**
+   * Administration des comptes synchronisée avec Keycloak : dans l'espace d'un nœud
+   * (`comptes.gerer`) ou dans la plateforme (`nodeId` nul).
+   */
+  comptes: (nodeId: string | null) => {
+    const base = nodeId ? `/espace/${enc(nodeId)}/comptes` : '/plateforme/comptes';
+    return {
+      tableau: { getHref: () => base },
+      liste: { getHref: () => `${base}/utilisateurs` },
+      nouveau: { getHref: () => `${base}/utilisateurs/nouveau` },
+      fiche: { getHref: (id: string) => `${base}/utilisateurs/${enc(id)}` },
+      synchronisation: { getHref: () => `${base}/synchronisation` },
+      journal: { getHref: () => `${base}/journal` },
+    };
+  },
+
   plateforme: {
     root: { getHref: () => '/plateforme' },
     referentiels: { getHref: () => '/plateforme/referentiels' },

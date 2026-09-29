@@ -1,15 +1,18 @@
 import type { Metadata } from 'next';
 
-import { CapabilityPage } from '@/components/layouts/capability-page';
-import { ComptesPage } from '@/features/comptes/components/comptes-page';
+import { PageComptes } from '@/features/admin-comptes/components/page-comptes';
+import { TableauDeBordComptes } from '@/features/admin-comptes/components/tableau-de-bord';
 
 export const metadata: Metadata = { title: 'Comptes' };
 
-/** Comptes du realm (PLA-Comptes). */
-const Page = () => (
-  <CapabilityPage capacite="plateforme.admin" nodeId={null}>
-    <ComptesPage />
-  </CapabilityPage>
+const ComptesPage = () => (
+  <PageComptes
+    nodeId={null}
+    title="Comptes"
+    subtitle="Administration des comptes"
+  >
+    <TableauDeBordComptes />
+  </PageComptes>
 );
 
-export default Page;
+export default ComptesPage;

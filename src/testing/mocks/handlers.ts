@@ -2,6 +2,7 @@ import type { HttpHandler } from 'msw';
 
 import { declarationHandlers } from '@/testing/mocks/handlers/declaration';
 import { donsHandlers } from '@/testing/mocks/handlers/dons';
+import { adminComptesHandlers } from '@/testing/mocks/handlers/admin-comptes';
 import { donsAnalyseHandlers } from '@/testing/mocks/handlers/dons-analyse';
 import { audioLecteurHandlers } from '@/testing/mocks/handlers/audio-lecteur';
 import { actesHandlers } from '@/testing/mocks/handlers/f6-actes';
@@ -27,4 +28,6 @@ export const handlers: HttpHandler[] = [...f5bHandlers, ...shellHandlers, ...onb
   // Compléments V1 : intentions de messe, recherche, comptes du clergé, tâches du jour, compteurs.
   ...v1ComplementsHandlers,
   // Analyse des dons (paroisse, diocèse, plateforme).
-  ...donsAnalyseHandlers];
+  ...donsAnalyseHandlers,
+  // Administration des comptes synchronisée avec Keycloak (/admin/).
+  ...adminComptesHandlers];
