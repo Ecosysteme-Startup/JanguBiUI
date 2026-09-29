@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { tryRefreshAccess } from '@/lib/api-client';
 import { presenceDepuisTrame, useRealtimeStore } from '@/stores/realtime-store';
 
+import { publishNotificationFrame } from './notifications-socket';
 import { getWsTicket, PRESENCE_PING_MS, WS_CODES_AUTH, wsUrl } from './ws';
 
 // Socket `ws/notifications/` (backend `docs/TEMPS-REEL.md` §2, §4) : une seule
@@ -86,7 +87,11 @@ export function useNotificationsSocket(actif: boolean) {
       socket.onmessage = (event: MessageEvent) => {
         try {
           const trame = JSON.parse(String(event.data)) as TrameTempsReel;
-          if (trame && typeof trame.type === 'string') traiter(trame);
+          if (trame && typeof trame.type === 'string') {
+            traiter(trame);
+            // Les autres modules (lecteur : `playback.state`) écoutent le bus.
+            publishNotificationFrame(trame);
+          }
         } catch {
           // trame illisible : ignorée
         }
