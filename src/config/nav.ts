@@ -33,6 +33,7 @@ export const FIDELE_NAV: (NavLeaf & { children?: NavLeaf[] })[] = [
     ],
   },
   { label: 'Mes demandes', href: paths.app.demandes.list.getHref(), icon: 'document' },
+  { label: 'Intentions de messe', href: paths.app.intentions.getHref(), icon: 'calendrier-ok' },
   {
     label: 'Parler à un prêtre',
     href: paths.app.pretres.list.getHref(),
@@ -83,6 +84,7 @@ export const MOBILE_MENU: { title: string; items: NavLeaf[] }[] = [
     items: [
       { label: 'Agenda paroissial', href: paths.app.paroisse.root.getHref('agenda') },
       { label: 'Mes rendez-vous', href: paths.app.confession.getHref() },
+      { label: 'Intentions de messe', href: paths.app.intentions.getHref() },
       { label: 'Donner', href: paths.app.dons.root.getHref() },
       { label: 'Mes dons', href: paths.app.dons.historique.getHref() },
     ],
@@ -164,6 +166,7 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
         { label: 'Annonces', href: e.annonces.list.getHref(nodeId), icon: 'annonce', capacites: ['annonces.publier'] },
         { label: 'Horaires et lieux', href: e.horaires.getHref(nodeId), icon: 'horloge', capacites: ['horaires.gerer'] },
         { label: 'Agenda', href: e.agenda.getHref(nodeId), icon: 'calendrier', capacites: ['evenements.gerer'] },
+        { label: 'Intentions de messe', href: e.intentions.root.getHref(nodeId), icon: 'calendrier-ok', capacites: ['intentions.gerer'] },
         { label: 'Sonothèque', href: e.sonotheque.root.getHref(nodeId), icon: 'ecouter', capacites: ['audio.publier'] },
         {
           label: 'Dons et quêtes',

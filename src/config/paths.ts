@@ -74,6 +74,8 @@ export const paths = {
       conversation: { getHref: (id: string) => `/app/pretres/conversations/${enc(id)}` },
     },
     confession: { getHref: () => '/app/confession' },
+    /** Intentions de messe : demander qu'une messe soit célébrée à une intention, suivre ses demandes. */
+    intentions: { getHref: () => '/app/intentions' },
     /** Sonothèque (écoute) : accueil, album, source, playlist, recherche, bibliothèque. */
     ecouter: {
       root: { getHref: () => '/app/ecouter' },
@@ -128,6 +130,11 @@ export const paths = {
       quetes: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/quetes` },
       /** `section` : ancre de la page (« reversements »). */
       export: { getHref: (nodeId: string, section?: 'reversements') => `/espace/${enc(nodeId)}/dons/export${section ? `#${section}` : ''}` },
+    },
+    /** Intentions de messe reçues par la paroisse, et feuille du jour à imprimer pour la sacristie. */
+    intentions: {
+      root: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/intentions` },
+      feuille: { getHref: (nodeId: string, date: string) => `/espace/${enc(nodeId)}/intentions/feuille?date=${enc(date)}` },
     },
     /** Sonothèque de la paroisse : albums, enregistrements, envoi (`album` : ajouter à cet album). */
     sonotheque: {

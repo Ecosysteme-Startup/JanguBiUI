@@ -14,6 +14,7 @@ import { paroissesHandlers } from '@/testing/mocks/handlers/paroisses';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { shellHandlers } from '@/testing/mocks/handlers/shell';
 import { sonothequeHandlers } from '@/testing/mocks/handlers/sonotheque';
+import { v1ComplementsHandlers } from '@/testing/mocks/handlers/v1-complements';
 
 /**
  * Handlers MSW conformes au contrat (schema.yml), un fichier par lot.
@@ -21,4 +22,6 @@ import { sonothequeHandlers } from '@/testing/mocks/handlers/sonotheque';
  */
 export const handlers: HttpHandler[] = [...f5bHandlers, ...shellHandlers, ...onboardingHandlers, ...paroleHandlers, ...actesHandlers, ...f7PretreHandlers, ...f8aHandlers, ...f4PublicHandlers, ...f8bHandlers, ...declarationHandlers, ...donsHandlers,
   // Sonothèque et lecteur audio global (fusion de main), paroisses multiples.
-  ...audioLecteurHandlers, ...sonothequeHandlers, ...paroissesHandlers];
+  ...audioLecteurHandlers, ...sonothequeHandlers, ...paroissesHandlers,
+  // Compléments V1 : intentions de messe, recherche, comptes du clergé, tâches du jour, compteurs.
+  ...v1ComplementsHandlers];
