@@ -145,3 +145,23 @@ export const canPublishAudio = (user: User | null | undefined): boolean =>
     'audio.publier',
     (u) => isParishLevelAdmin(u) || isPretre(u) || isSuperAdmin(u),
   );
+
+/**
+ * Paroissiens d'une paroisse (liste nominative, retrait, rétablissement) :
+ * capacité `paroissiens.gerer` (curé, curé in solidum, secrétaire
+ * paroissial ; pas l'évêque). Sans repli sur les rôles : donnée nominative.
+ */
+export const canManageParishioners = (user: User | null | undefined): boolean =>
+  !!user?.capabilities?.includes('paroissiens.gerer');
+
+/** Paroisses où la personne gère les paroissiens (sans doublon). */
+export const parishionerNodes = (
+  user: User | null | undefined,
+): { id: string; name: string }[] => {
+  const vus = new Map<string, string>();
+  for (const c of user?.capability_nodes ?? []) {
+    if (c.capacite === 'paroissiens.gerer' && c.node_id && !vus.has(c.node_id))
+      vus.set(c.node_id, c.node_name);
+  }
+  return [...vus].map(([id, name]) => ({ id, name }));
+};

@@ -36,6 +36,7 @@ interface PutBody {
   position_seconds: number;
   device_id: string;
   client_updated_at: string;
+  playing?: boolean;
 }
 
 let puts: PutBody[];
@@ -79,35 +80,52 @@ afterEach(() => {
 });
 
 describe('PUT lecture/etat/', () => {
-  it('écrit l’état toutes les 15 s pendant la lecture, pas en pause', async () => {
+  it('écrit l’état au lancement (playing), toutes les 15 s, à la pause', async () => {
     await store().playTracks(messeTracks, 2);
+    // Décision 10 : le lancement part avec `playing: true`.
+    await vi.waitFor(() => expect(puts).toHaveLength(1));
+    expect(puts[0]).toMatchObject({
+      track_id: GLORIA_ID,
+      position_seconds: 112,
+      device_id: getDeviceId(),
+      playing: true,
+    });
     vi.useFakeTimers();
     renderHook(() => usePlayerSync(false));
 
     engine.tick(120);
     await vi.advanceTimersByTimeAsync(STATE_INTERVAL_MS);
-    expect(puts).toHaveLength(1);
-    expect(puts[0]).toMatchObject({
+    expect(puts).toHaveLength(2);
+    expect(puts[1]).toMatchObject({
       track_id: GLORIA_ID,
       position_seconds: 120,
       device_id: getDeviceId(),
+      playing: false,
     });
-    expect(new Date(puts[0].client_updated_at).toISOString()).toBe(
-      puts[0].client_updated_at,
+    expect(new Date(puts[1].client_updated_at).toISOString()).toBe(
+      puts[1].client_updated_at,
     );
 
     engine.tick(135);
     store().pause();
     await vi.advanceTimersByTimeAsync(0);
-    expect(puts).toHaveLength(2); // à la pause
-    expect(puts[1].position_seconds).toBe(135);
+    expect(puts).toHaveLength(3); // à la pause
+    expect(puts[2]).toMatchObject({ position_seconds: 135, playing: false });
 
     await vi.advanceTimersByTimeAsync(STATE_INTERVAL_MS * 2);
-    expect(puts).toHaveLength(2); // rien en pause
+    expect(puts).toHaveLength(3); // rien en pause
+
+    // Reprise : de nouveau `playing: true`.
+    store().play();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(puts).toHaveLength(4);
+    expect(puts[3]).toMatchObject({ position_seconds: 135, playing: true });
   });
 
   it('à pagehide : état et événements partent en fetch keepalive', async () => {
     await store().playTracks(messeTracks, 2);
+    await vi.waitFor(() => expect(puts).toHaveLength(1)); // lancement
+    puts.length = 0;
     renderHook(() => usePlayerSync(false));
     const spy = vi.spyOn(globalThis, 'fetch');
     engine.tick(150);
@@ -275,5 +293,56 @@ describe('reprise multi-appareils', () => {
     });
     await new Promise((r) => setTimeout(r, 20));
     expect(store().offer).toBeNull();
+  });
+});
+
+describe('une lecture à la fois (décision 10)', () => {
+  const pauseFrame = (sauf: string) => ({
+    type: 'notification',
+    event_type: 'playback.state',
+    action: 'pause',
+    sauf_device_id: sauf,
+    track_id: GLORIA_ID,
+    device_id: sauf,
+  });
+
+  beforeEach(() => {
+    server.use(
+      http.get(
+        `${API}/lecture/etat/`,
+        () => new HttpResponse(null, { status: 204 }),
+      ),
+    );
+  });
+
+  it('playback.state action pause d’un autre appareil → pause, sans erreur ni écriture', async () => {
+    renderHook(() => usePlayerSync(true));
+    await store().playTracks(messeTracks, 2);
+    await vi.waitFor(() => expect(puts).toHaveLength(1));
+    engine.tick(130);
+
+    dispatchNotificationFrameForTests(pauseFrame('android-mt-diouf'));
+    expect(store().status).toBe('paused');
+    expect(engine.playing).toBe(false);
+    expect(store().pausedElsewhere).toBe(true);
+    expect(store().errorMessage).toBeNull();
+    await new Promise((r) => setTimeout(r, 20));
+    // L'autre appareil garde la main : pas de PUT à cette pause.
+    expect(puts).toHaveLength(1);
+    expect(store().offer).toBeNull();
+
+    // Reprendre ici : on relance, `playing: true` repart.
+    store().play();
+    await vi.waitFor(() => expect(puts).toHaveLength(2));
+    expect(puts[1].playing).toBe(true);
+    expect(store().pausedElsewhere).toBe(false);
+  });
+
+  it('ignore la pause qui l’exclut (sauf_device_id = cet appareil)', async () => {
+    renderHook(() => usePlayerSync(true));
+    await store().playTracks(messeTracks, 2);
+    dispatchNotificationFrameForTests(pauseFrame(getDeviceId()));
+    expect(store().status).toBe('playing');
+    expect(engine.playing).toBe(true);
   });
 });

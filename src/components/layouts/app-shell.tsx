@@ -9,6 +9,7 @@ import { Link } from '@/components/ui/link/link';
 import { buildNavItems, isNavActive } from '@/config/nav-config';
 import { useLogout, useUser } from '@/lib/auth';
 import { springs } from '@/lib/motion/tokens';
+import { usePlayerStore } from '@/lib/player/player-store';
 import { cn } from '@/lib/utils';
 import { useMessagingStore } from '@/stores/messaging-store';
 
@@ -135,12 +136,22 @@ export function AppShell({ children }: AppShellProps) {
 function AppShellLayout({ children }: AppShellProps) {
   const totalUnread = useMessagingStore((s) => s.totalUnread);
   const meta = usePageMetaValue();
+  // Décision 13 : le lecteur déployé est un panneau latéral de 440 px. Sur
+  // grand écran (≥ 1280 px), la page se resserre à sa gauche et reste
+  // utilisable ; en dessous, le panneau passe par-dessus la page.
+  const panneauOuvert = usePlayerStore((s) => s.expanded && s.current != null);
 
   return (
     <div className="flex min-h-dvh bg-background">
       <RealtimeBridge />
       <DesktopSidebar messageBadge={totalUnread} />
-      <div className="flex flex-1 flex-col min-w-0">
+      <div
+        data-panneau-lecteur={panneauOuvert || undefined}
+        className={cn(
+          'flex flex-1 flex-col min-w-0',
+          panneauOuvert && 'xl:pr-[440px]',
+        )}
+      >
         <AppHeader />
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
         {/* Lecteur audio global : survit à la navigation entre les pages. */}

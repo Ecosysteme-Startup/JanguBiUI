@@ -88,6 +88,11 @@ const reglagePresenceJson = () => ({
   default: reglagePresence.defaut,
 });
 
+/** Remet le réglage de présence au défaut (tests). */
+export function resetReglagePresenceMock() {
+  reglagePresence = { montrer_presence: null, defaut: false };
+}
+
 export const messagingHandlers = [
   http.get(`${env.API_URL}/v1/messaging/presence/`, ({ request }) => {
     const users = (new URL(request.url).searchParams.get('users') ?? '')
@@ -104,6 +109,20 @@ export const messagingHandlers = [
           },
         },
         { status: 400 },
+      );
+    }
+    // Réciprocité (TEMPS-REEL §2.1) : présence masquée explicitement →
+    // lignes « inconnues » seulement.
+    if (reglagePresence.montrer_presence === false) {
+      return HttpResponse.json(
+        users
+          .filter((u) => u in PRESENCES)
+          .map((u) => ({
+            user_id: u,
+            visible: false,
+            online: null,
+            last_seen_at: null,
+          })),
       );
     }
     return HttpResponse.json(

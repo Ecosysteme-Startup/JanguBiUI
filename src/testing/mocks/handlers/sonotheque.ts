@@ -12,6 +12,8 @@ import type {
 
 import { networkDelay } from '../utils';
 
+import { estMembreDe } from './paroisses';
+
 // Sonothèque paroissiale — données fictives des maquettes C2
 // (ECRANS-V2-SONOTHEQUE §3) : Saint-Dominique (Point E), dimanche 27 septembre
 // 2026. Contrat : jangubi/docs/API-AUDIO.md.
@@ -71,9 +73,10 @@ export const SOURCES: Source[] = [
 ];
 const [SJ, SC, SCOUTS, SD] = SOURCES;
 
-const album = (a: Omit<Album, 'cover_url'>): Album => ({
+const album = (a: Omit<Album, 'cover_url' | 'verrouille'>): Album => ({
   ...a,
   cover_url: null,
+  verrouille: false,
 });
 
 export const ALBUMS: Album[] = [
@@ -146,8 +149,27 @@ export const ALBUMS: Album[] = [
     liturgical_season: '',
     published_at: '2026-08-15T10:00:00Z',
   }),
+  // Décision 4 (maquette WEB-FID-Album) : réservé aux paroissiens de
+  // Saint-Joseph de Médina ; Marie-Thérèse n'en est pas membre.
+  album({
+    id: 'f2a6c8e4-7d1b-4c9a-8e3f-6b4d2a9c1e81',
+    source: src(SJ),
+    kind: 'messe',
+    title: 'Messe de la Saint-Joseph 2026',
+    description:
+      'Messe de la solennité de saint Joseph, patron de la paroisse, jeudi 19 mars 2026 en l’église Saint-Joseph de Médina.',
+    visibility: 'paroisse',
+    recorded_on: '2026-03-19',
+    liturgical_season: 'careme',
+    published_at: '2026-03-24T10:00:00Z',
+  }),
 ];
-const [MESSE, HOMELIES, VISITATION, VEILLEE, RETRAITE, MEDINA] = ALBUMS;
+const [MESSE, HOMELIES, VISITATION, VEILLEE, RETRAITE, MEDINA, SAINT_JOSEPH] =
+  ALBUMS;
+
+/** Nœud (paroisse) de chaque source : sert au verrouillage des albums. */
+const NOEUD_DE_SOURCE: Record<string, { id: string; name: string }> =
+  Object.fromEntries(SOURCES.map((s) => [s.id, s.node ?? NOEUD_SD]));
 
 /** Album réservé aux paroissiens d'une autre paroisse : l'API répond 404. */
 export const ALBUM_RESERVE_ID = '99999999-0000-4000-8000-000000000001';
@@ -175,6 +197,7 @@ const piste = (
     position: null,
     visibility: alb.visibility,
     published_at: alb.published_at,
+    verrouille: false,
     ...extra,
   };
 };
@@ -190,8 +213,7 @@ export const PISTES_VISITATION = numeroter([
   piste(VISITATION, 'Je vous salue, Marie', 198, {
     composer: 'Harmonisation Élisabeth Gomis',
   }),
-  piste(VISITATION, 'Maryaama, yaay ju sell', 232, {
-    language: 'wo',
+  piste(VISITATION, 'Marie, mère très sainte', 232, {
     composer: 'Traditionnel',
   }),
   piste(VISITATION, 'Réjouis-toi, Marie', 185, {
@@ -205,8 +227,7 @@ export const PISTES_VISITATION = numeroter([
     language: 'la',
     composer: 'Grégorien',
   }),
-  piste(VISITATION, 'Nanu sant Yàlla', 254, {
-    language: 'wo',
+  piste(VISITATION, 'Rendons grâce à Dieu', 254, {
     composer: 'Traditionnel',
   }),
   piste(VISITATION, 'Bénie entre toutes les femmes', 217, {
@@ -220,20 +241,19 @@ export const PISTES_VISITATION = numeroter([
     language: 'la',
     composer: 'Hermann Contract',
   }),
-  piste(VISITATION, 'Maryaama, sunu yaay', 213, {
-    language: 'wo',
+  piste(VISITATION, 'Marie, notre mère', 213, {
     composer: 'Traditionnel',
   }),
 ]);
 
 export const PISTES_MESSE = numeroter([
   piste(MESSE, 'Chant d’entrée', 245),
-  piste(MESSE, 'Kyrie', 215, { language: 'wo', composer: 'Abbé Joseph Faye' }),
+  piste(MESSE, 'Kyrie', 215, { composer: 'Abbé Joseph Faye' }),
   piste(MESSE, 'Évangile · Matthieu 21, 28-32', 164),
   piste(MESSE, 'Homélie · Lequel des deux a fait la volonté du père ?', 878, {
     performers: ['Père Emmanuel Tine'],
   }),
-  piste(MESSE, 'Offertoire · Jërëjëf Yàlla', 266, { language: 'wo' }),
+  piste(MESSE, 'Offertoire · Merci, Seigneur', 266),
 ]);
 
 export const PISTES_HOMELIES = numeroter([
@@ -261,7 +281,48 @@ export const PISTES_VEILLEE = numeroter([
 
 export const PISTES_MEDINA = numeroter([
   piste(MEDINA, 'Ave Maria', 175, { language: 'la' }),
-  piste(MEDINA, 'Yaay Maryaama', 221, { language: 'wo' }),
+  piste(MEDINA, 'Mère Marie', 221),
+]);
+
+export const PISTES_SAINT_JOSEPH = numeroter([
+  piste(SAINT_JOSEPH, 'Hymne à saint Joseph', 234, {
+    composer: 'Traditionnel',
+  }),
+  piste(SAINT_JOSEPH, 'Kyrie de Médina', 172, {
+    composer: 'Messe de Médina, Paul Sarr',
+  }),
+  piste(SAINT_JOSEPH, 'Gloire à Dieu', 221, {
+    composer: 'Messe de Médina, Paul Sarr',
+  }),
+  piste(
+    SAINT_JOSEPH,
+    'Psaume 88 (89) — Sans fin, Seigneur, je chanterai ta grâce',
+    192,
+    { composer: 'Psalmodie de la chorale' },
+  ),
+  piste(SAINT_JOSEPH, 'Alléluia', 104, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(SAINT_JOSEPH, 'Credo III', 245, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(SAINT_JOSEPH, 'Offertoire — Saint Joseph, gardien du Rédempteur', 218, {
+    composer: 'Harmonisation de la chorale',
+  }),
+  piste(SAINT_JOSEPH, 'Sanctus', 130, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(SAINT_JOSEPH, 'Agnus Dei', 146, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(SAINT_JOSEPH, 'Ave Maria', 177, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
 ]);
 
 const PISTES_PAR_ALBUM: Record<string, Track[]> = {
@@ -271,7 +332,30 @@ const PISTES_PAR_ALBUM: Record<string, Track[]> = {
   [VEILLEE.id]: PISTES_VEILLEE,
   [RETRAITE.id]: PISTES_RETRAITE,
   [MEDINA.id]: PISTES_MEDINA,
+  [SAINT_JOSEPH.id]: PISTES_SAINT_JOSEPH,
 };
+
+// ------------------------------------------------ verrouillage (décision 4)
+
+/** Paroisse dont il faut être membre pour ce contenu `paroisse`. */
+const paroisseRequise = (sourceId: string) => NOEUD_DE_SOURCE[sourceId] ?? null;
+
+/** Réservé aux paroissiens d'une paroisse dont on n'est pas membre. */
+const estVerrouille = (visibility: string, sourceId: string) => {
+  if (visibility !== 'paroisse') return false;
+  const p = paroisseRequise(sourceId);
+  return !!p && !estMembreDe(p.id);
+};
+
+const albumVu = (a: Album) => ({
+  ...a,
+  verrouille: estVerrouille(a.visibility, a.source.id),
+});
+const pisteVue = (t: Track) => ({
+  ...t,
+  verrouille: estVerrouille(t.visibility, t.source.id),
+});
+
 const TOUTES = Object.values(PISTES_PAR_ALBUM).flat();
 
 export const PLAYLISTS: Playlist[] = [
@@ -288,7 +372,7 @@ export const PLAYLISTS: Playlist[] = [
   {
     id: 'e1c7a2d4-8b3f-4e6a-9c1d-7f2b5a8e3c91',
     title: 'Chants à Marie',
-    description: 'Pour le mois du Rosaire, en français, en wolof et en latin.',
+    description: 'Pour le mois du Rosaire, en français et en latin.',
     visibility: 'public',
     is_editorial: true,
     source: src(SD),
@@ -376,7 +460,6 @@ const staffTracks: StaffTrack[] = [
   ),
   staff(
     piste(MESSE, 'Prière universelle', 245, {
-      language: 'wo',
       published_at: null,
     }),
     {
@@ -528,6 +611,7 @@ export const STAFF_ALBUMS: StaffAlbum[] = [
       recorded_on: '2026-09-24',
       liturgical_season: 'ordinaire',
       published_at: null,
+      verrouille: false,
     },
     {
       track_count: 2,
@@ -583,12 +667,12 @@ export const sonothequeHandlers = [
     const pistes = albums.flatMap((a) => PISTES_PAR_ALBUM[a.id] ?? []);
     return HttpResponse.json({
       source,
-      albums,
+      albums: albums.map(albumVu),
       playlists: PLAYLISTS.filter(
         (p) => p.is_editorial && p.source?.id === source.id,
       ),
-      recent: pistes.slice(0, 6),
-      most_played: [...pistes].reverse().slice(0, 5),
+      recent: pistes.slice(0, 6).map(pisteVue),
+      most_played: [...pistes].reverse().slice(0, 5).map(pisteVue),
     });
   }),
 
@@ -601,7 +685,7 @@ export const sonothequeHandlers = [
       ALBUMS.filter(
         (a) =>
           (!kind || a.kind === kind) && (!source || a.source.id === source),
-      ),
+      ).map(albumVu),
     );
   }),
 
@@ -609,9 +693,14 @@ export const sonothequeHandlers = [
     await networkDelay();
     const a = ALBUMS.find((x) => x.id === params.id);
     if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    const tracks = (PISTES_PAR_ALBUM[a.id] ?? []).map(pisteVue);
+    const reserve =
+      a.visibility === 'paroisse' ||
+      tracks.some((t) => t.visibility === 'paroisse');
     return HttpResponse.json({
-      album: a,
-      tracks: PISTES_PAR_ALBUM[a.id] ?? [],
+      album: albumVu(a),
+      tracks,
+      paroisse_requise: reserve ? paroisseRequise(a.source.id) : null,
     });
   }),
 
@@ -628,6 +717,19 @@ export const sonothequeHandlers = [
     await networkDelay();
     const t = TOUTES.find((x) => x.id === params.id);
     if (!t) return erreur(404, 'piste_introuvable', 'Piste introuvable.');
+    if (estVerrouille(t.visibility, t.source.id)) {
+      const paroisse = paroisseRequise(t.source.id);
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'reserve_paroissiens',
+            message: `Réservé aux paroissiens de ${paroisse?.name ?? 'la paroisse'}.`,
+            details: { paroisse },
+          },
+        },
+        { status: 403 },
+      );
+    }
     return HttpResponse.json({
       track: t,
       stream: {
@@ -705,7 +807,10 @@ export const sonothequeHandlers = [
         .map(sansAccents)
         .some((s) => s.includes(q)),
     );
-    return HttpResponse.json({ results, next_cursor: null });
+    return HttpResponse.json({
+      results: results.map(pisteVue),
+      next_cursor: null,
+    });
   }),
 
   // -------------------------------------------------------- bibliothèque
@@ -1040,6 +1145,7 @@ export const sonothequeHandlers = [
       recorded_on: body.recorded_on ?? null,
       liturgical_season: body.liturgical_season ?? '',
       published_at: null,
+      verrouille: false,
       track_count: 0,
       hidden_at: null,
       created_at: maintenant,

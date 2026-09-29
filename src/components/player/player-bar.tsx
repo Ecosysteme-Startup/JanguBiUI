@@ -1,6 +1,12 @@
 'use client';
 
-import { Heart, ListMusic, Maximize2, SkipForward } from 'lucide-react';
+import {
+  Heart,
+  ListMusic,
+  PanelRightClose,
+  PanelRightOpen,
+  SkipForward,
+} from 'lucide-react';
 import { motion } from 'motion/react';
 
 import { Equalizer } from '@/lib/motion/equalizer';
@@ -15,6 +21,7 @@ import { PlayPauseIcon } from './play-pause-icon';
 import { PlayerIconButton, TransportControls } from './player-controls';
 import { PlayerCover } from './player-cover';
 import { SpeedCycleButton, VolumeControl } from './player-options';
+import { PlayerReserve } from './player-reserve';
 import { PlayerWaveform } from './player-waveform';
 
 export const COVER_LAYOUT_ID = 'jb-player-cover';
@@ -75,16 +82,24 @@ export function PlayerBar() {
     s.current ? !!s.liked[s.current.id] : false,
   );
   const expand = usePlayerStore((s) => s.expand);
+  const collapse = usePlayerStore((s) => s.collapse);
+  const reserve = usePlayerStore((s) => s.reserve);
+  const pausedElsewhere = usePlayerStore((s) => s.pausedElsewhere);
   const toggle = usePlayerStore((s) => s.toggle);
   const next = usePlayerStore((s) => s.next);
   const toggleLike = usePlayerStore((s) => s.toggleLike);
 
   if (!current) return null;
   const playing = status === 'playing' || status === 'loading';
+  const togglePanel = expanded ? collapse : expand;
   const subtitle =
     status === 'error' && errorMessage
       ? errorMessage
-      : (current.source?.name ?? current.performers[0] ?? '');
+      : pausedElsewhere
+        ? 'En pause : lecture sur un autre appareil'
+        : (current.source?.name ?? current.performers[0] ?? '');
+  // Contenu réservé : message sobre (pas en rouge), avec l'action.
+  const erreurVisible = status === 'error' && !reserve;
 
   return (
     <div
@@ -100,7 +115,7 @@ export function PlayerBar() {
           type="button"
           onClick={expand}
           aria-label="Ouvrir le lecteur"
-          aria-haspopup="dialog"
+          aria-expanded={expanded}
           className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           {expanded ? (
@@ -126,10 +141,10 @@ export function PlayerBar() {
           <span
             className={cn(
               'flex min-w-0 items-center gap-1.5 text-[13px] leading-[18px]',
-              status === 'error' ? 'text-destructive' : 'text-muted-foreground',
+              erreurVisible ? 'text-destructive' : 'text-muted-foreground',
             )}
           >
-            {status !== 'error' && (
+            {status !== 'error' && !pausedElsewhere && (
               <Equalizer
                 playing={status === 'playing'}
                 className="h-3 text-primary"
@@ -156,8 +171,14 @@ export function PlayerBar() {
 
       {/* Zone 2 : commandes + onde (bureau) ; lecture + suivant (mobile) */}
       <div className="hidden min-w-0 flex-col items-center gap-1 md:flex">
-        <TransportControls size="sm" />
-        <BarWaveformRow />
+        {reserve ? (
+          <PlayerReserve compact />
+        ) : (
+          <>
+            <TransportControls size="sm" />
+            <BarWaveformRow />
+          </>
+        )}
       </div>
       <div className="flex items-center gap-1 md:hidden">
         <motion.button
@@ -181,16 +202,31 @@ export function PlayerBar() {
       {/* Zone 3 : options */}
       <div className="hidden items-center justify-end gap-1 md:flex">
         <SpeedCycleButton />
-        <PlayerIconButton aria-label="File d’attente" onClick={expand}>
+        <PlayerIconButton
+          aria-label={
+            expanded
+              ? 'File d’attente et lecteur, panneau ouvert'
+              : 'File d’attente'
+          }
+          aria-pressed={expanded}
+          active={expanded}
+          onClick={togglePanel}
+        >
           <ListMusic className="size-5" aria-hidden />
         </PlayerIconButton>
         <VolumeControl className="hidden lg:inline-flex" />
         <PlayerIconButton
-          aria-label="Agrandir le lecteur"
-          aria-haspopup="dialog"
-          onClick={expand}
+          aria-label={
+            expanded ? 'Fermer le panneau du lecteur' : 'Agrandir le lecteur'
+          }
+          aria-expanded={expanded}
+          onClick={togglePanel}
         >
-          <Maximize2 className="size-5" aria-hidden />
+          {expanded ? (
+            <PanelRightClose className="size-5" aria-hidden />
+          ) : (
+            <PanelRightOpen className="size-5" aria-hidden />
+          )}
         </PlayerIconButton>
       </div>
     </div>

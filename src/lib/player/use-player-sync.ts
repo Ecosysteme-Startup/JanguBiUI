@@ -28,7 +28,9 @@ function reportNow(keepalive = false) {
  *   l'onglet passe en arrière-plan et à `pagehide` ;
  * - au démarrage (`enabled` = personne connectée) : `GET lecture/etat/` pour
  *   proposer « Reprendre sur cet appareil » ;
- * - `playback.state` sur `ws/notifications/` : un autre appareil écoute.
+ * - `playback.state` sur `ws/notifications/` : action `etat`, un autre
+ *   appareil a écrit sa position (offre de reprise) ; action `pause`, un
+ *   autre appareil vient de lancer la lecture, on se met en pause.
  */
 export function usePlayerSync(enabled: boolean) {
   // Relevés périodiques et fermeture de l'onglet.
@@ -93,6 +95,14 @@ export function usePlayerSync(enabled: boolean) {
       const parsed = playbackStateEventSchema.safeParse(frame);
       if (!parsed.success) return;
       const ev = parsed.data;
+      // Une lecture à la fois (décision 10) : un autre appareil vient de
+      // lancer la lecture ; on se met en pause, sans message d'erreur.
+      if (ev.action === 'pause') {
+        if (ev.sauf_device_id !== getDeviceId()) {
+          usePlayerStore.getState().pauseForOtherDevice();
+        }
+        return;
+      }
       if (ev.device_id === getDeviceId()) return;
       const s = usePlayerStore.getState();
       // On écoute déjà ici : on ne dérange pas.

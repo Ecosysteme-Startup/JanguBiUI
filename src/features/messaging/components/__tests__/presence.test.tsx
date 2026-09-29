@@ -165,4 +165,74 @@ describe('Présence dans la messagerie', () => {
       screen.getByText(/n'apparaissent que pour les fidèles qui l'ont activé/),
     ).toBeInTheDocument();
   });
+
+  test('réciprocité : présence masquée explicitement → plus aucune présence des autres', async () => {
+    let appels = 0;
+    server.use(
+      http.get(`${env.API_URL}/v1/me/`, () =>
+        HttpResponse.json(createUser({ id: 'me', role: 'fidele' })),
+      ),
+      http.get(`${env.API_URL}/v1/me/presence/`, () =>
+        HttpResponse.json({
+          montrer_presence: false,
+          effective: false,
+          default: false,
+        }),
+      ),
+      http.get(`${env.API_URL}/v1/messaging/presence/`, () => {
+        appels += 1;
+        return HttpResponse.json([
+          {
+            user_id: 'pere-emmanuel-tine',
+            visible: true,
+            online: true,
+            last_seen_at: null,
+          },
+        ]);
+      }),
+    );
+    renderApp(<ConversationList />);
+    expect(
+      await screen.findByText(/Vous avez masqué votre présence/),
+    ).toBeInTheDocument();
+    // Même un événement reçu ne s'affiche pas.
+    act(() => {
+      useRealtimeStore.getState().setPresences([
+        {
+          user_id: 'pere-emmanuel-tine',
+          visible: true,
+          online: true,
+          last_seen_at: null,
+        },
+      ]);
+    });
+    expect(
+      ligne('Père Emmanuel Tine').querySelector('[data-presence]'),
+    ).toBeNull();
+    expect(appels).toBe(0);
+  });
+
+  test('fidèle qui montre sa présence : texte de réciprocité', async () => {
+    server.use(
+      http.get(`${env.API_URL}/v1/me/`, () =>
+        HttpResponse.json(createUser({ id: 'me', role: 'fidele' })),
+      ),
+      http.get(`${env.API_URL}/v1/me/presence/`, () =>
+        HttpResponse.json({
+          montrer_presence: true,
+          effective: true,
+          default: false,
+        }),
+      ),
+    );
+    renderApp(<ConversationList />);
+    expect(
+      await screen.findByText(
+        /Si vous la masquez, vous ne verrez plus celle des autres/,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      await within(ligne('Père Emmanuel Tine')).findByText('En ligne'),
+    ).toBeInTheDocument();
+  });
 });

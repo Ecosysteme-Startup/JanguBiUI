@@ -27,8 +27,12 @@ export const AUDIO = '/v1/audio';
 
 /** `POST /audio/pistes/<id>/lecture/` : URL signée, reprise, forme d'onde. */
 export async function fetchLecture(trackId: string): Promise<Lecture> {
+  // `quiet` : le lecteur affiche lui-même l'erreur (404, 409, 403
+  // `reserve_paroissiens` avec « Ajouter cette paroisse »), sans toast.
   const data = await api.post<unknown>(
     `${AUDIO}/pistes/${encodeURIComponent(trackId)}/lecture/`,
+    undefined,
+    { quiet: true },
   );
   return lectureSchema.parse(data);
 }
@@ -45,6 +49,12 @@ export interface PutStateBody {
   position_seconds: number;
   device_id: string;
   client_updated_at: string;
+  /**
+   * Décision 10 : `true` quand cet appareil lance la lecture ; le serveur
+   * met alors en pause les autres appareils du compte (`playback.state`
+   * action `pause`). `false` (défaut) : pause, sauvegarde périodique.
+   */
+  playing?: boolean;
 }
 
 /** `PUT /audio/lecture/etat/` (dernière écriture gagnante). */

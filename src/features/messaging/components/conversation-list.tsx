@@ -61,12 +61,17 @@ function NotePresence({ fidele }: { fidele: boolean }) {
       Modifier
     </Link>
   );
+  // Réciprocité (décision 2) : seul un masquage explicite cache la présence
+  // des autres.
+  const masquee = data.montrer_presence === false;
   if (fidele) {
     return (
       <p className="px-4 py-3 text-xs leading-5 text-muted-foreground">
         {data.effective
-          ? 'Votre présence est affichée aux prêtres. '
-          : "Votre présence n'est pas affichée aux prêtres. "}
+          ? 'Votre présence est visible des prêtres avec qui vous échangez. Si vous la masquez, vous ne verrez plus celle des autres. '
+          : masquee
+            ? 'Vous avez masqué votre présence : vous ne voyez pas non plus celle des autres. '
+            : "Votre présence n'est pas affichée aux prêtres. "}
         {lien}
       </p>
     );
@@ -76,7 +81,9 @@ function NotePresence({ fidele }: { fidele: boolean }) {
       <p>
         {data.effective
           ? 'Vous apparaissez en ligne · '
-          : "Vous n'apparaissez pas en ligne · "}
+          : masquee
+            ? "Vous n'apparaissez pas en ligne et ne voyez pas celle des autres · "
+            : "Vous n'apparaissez pas en ligne · "}
         {lien}
       </p>
       <p>

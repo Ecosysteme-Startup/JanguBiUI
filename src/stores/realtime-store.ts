@@ -21,6 +21,8 @@ type RealtimeStore = {
   setNotificationsSocket: (etat: EtatSocket) => void;
   presences: Record<string, Presence>;
   setPresences: (liste: Presence[]) => void;
+  /** Réciprocité : présence masquée explicitement → on oublie celle des autres. */
+  clearPresences: () => void;
 };
 
 export const useRealtimeStore = create<RealtimeStore>((set) => ({
@@ -36,6 +38,7 @@ export const useRealtimeStore = create<RealtimeStore>((set) => ({
       });
       return { presences };
     }),
+  clearPresences: () => set({ presences: {} }),
 }));
 
 /** Trame `presence.changed` → état de présence (champs manquants tolérés). */

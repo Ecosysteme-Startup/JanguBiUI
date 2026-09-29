@@ -1,6 +1,6 @@
 'use client';
 
-import { Play } from 'lucide-react';
+import { Lock, Play } from 'lucide-react';
 
 import { Equalizer } from '@/lib/motion/equalizer';
 import { cn } from '@/utils/cn';
@@ -34,6 +34,9 @@ export function ListePistes({
 }: ListePistesProps) {
   const { playTracks, currentTrackId, isPlaying } = usePlayTracks();
   const aimes = useLikedIds();
+  // Décision 4 : les pistes verrouillées restent visibles mais n'entrent
+  // jamais dans la file de lecture.
+  const jouables = pistes.filter((p) => !p.verrouille);
 
   return (
     <div
@@ -77,6 +80,51 @@ export function ListePistes({
         <tbody>
           {pistes.map((piste, i) => {
             const enCours = piste.id === currentTrackId;
+            if (piste.verrouille) {
+              return (
+                <tr
+                  key={piste.id}
+                  data-verrouille
+                  className="border-b border-border last:border-0"
+                >
+                  <td className="py-2.5 pl-4 pr-2 text-right text-muted-foreground">
+                    <Lock
+                      className="ml-auto size-4"
+                      aria-label="Réservé aux paroissiens"
+                    />
+                  </td>
+                  <td className="py-2.5 pr-3">
+                    <span className="block truncate font-medium text-foreground">
+                      {piste.title}
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {avecSource
+                        ? `${piste.source.name} · lecture réservée`
+                        : `Piste ${piste.position ?? i + 1} · lecture réservée`}
+                    </span>
+                  </td>
+                  <td className="hidden py-2.5 pr-3 sm:table-cell">
+                    {piste.language && (
+                      <abbr
+                        title={
+                          LIBELLES_LANGUE[piste.language] ?? piste.language
+                        }
+                        className="rounded border border-border px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground no-underline"
+                      >
+                        {codeLangue(piste.language)}
+                      </abbr>
+                    )}
+                  </td>
+                  <td className="hidden truncate py-2.5 pr-3 text-muted-foreground md:table-cell">
+                    {piste.composer || '—'}
+                  </td>
+                  <td className="py-1" />
+                  <td className="py-2.5 pr-4 text-right tabular-nums text-muted-foreground">
+                    {formatDuree(piste.duration_seconds)}
+                  </td>
+                </tr>
+              );
+            }
             return (
               <tr
                 key={piste.id}
@@ -104,7 +152,9 @@ export function ListePistes({
                 <td className="py-2.5 pr-3">
                   <button
                     type="button"
-                    onClick={() => playTracks(pistes, i)}
+                    onClick={() =>
+                      playTracks(jouables, jouables.indexOf(piste))
+                    }
                     className={cn(
                       'block w-full min-w-0 text-left',
                       enCours

@@ -269,11 +269,15 @@ function initialState() {
 }
 
 const positions = new Map<string, number>();
+/** Dernier `playing` reçu par `PUT lecture/etat/` (tests). */
+let lastPlaying = false;
+export const dernierPlaying = () => lastPlaying;
 const liked = new Set<string>([GLORIA_ID]);
 
 export function resetAudioLecteurMocks() {
   serverState = initialState();
   positions.clear();
+  lastPlaying = false;
   liked.clear();
   liked.add(GLORIA_ID);
 }
@@ -302,7 +306,8 @@ export const audioLecteurHandlers = [
     await networkDelay();
     const id = String(params.id);
     const track = findTrack(id);
-    if (!track) return notFound();
+    // Piste du catalogue de la sonothèque : handler suivant (sonotheque.ts).
+    if (!track) return undefined;
     const index = allTracks().findIndex((t) => t.id === id);
     const verify =
       'verify=1790532000-3q2Nf0x8m1YxJ4b2kQ0hZ6s9tR5vW7yA1cE3gI5kM7o';
@@ -346,7 +351,10 @@ export const audioLecteurHandlers = [
       position_seconds: number;
       device_id: string;
       client_updated_at: string;
+      /** Décision 10 : cet appareil lit (les autres se mettent en pause). */
+      playing?: boolean;
     };
+    lastPlaying = body.playing ?? false;
     const track = findTrack(body.track_id);
     if (!track) return notFound();
     positions.set(body.track_id, body.position_seconds);
@@ -384,7 +392,7 @@ export const audioLecteurHandlers = [
 
   http.get(`${API}/pistes/:id/ensuite/`, async ({ params }) => {
     await networkDelay();
-    if (!findTrack(String(params.id))) return notFound();
+    if (!findTrack(String(params.id))) return undefined;
     return HttpResponse.json(recommendationTracks);
   }),
 

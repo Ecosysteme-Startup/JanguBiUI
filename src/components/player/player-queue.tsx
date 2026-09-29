@@ -110,8 +110,67 @@ function totalMinutes(tracks: Track[]): number {
   );
 }
 
+/** Aléatoire, répéter, lecture en continu (en-tête de la file ou onglets du panneau). */
+export function QueueModeButtons({ className }: { className?: string }) {
+  const m = usePlayerStore(
+    useShallow((st) => ({
+      shuffle: st.shuffle,
+      repeat: st.repeat,
+      autoplay: st.autoplay,
+      toggleShuffle: st.toggleShuffle,
+      cycleRepeat: st.cycleRepeat,
+      toggleAutoplay: st.toggleAutoplay,
+    })),
+  );
+  const repeatLabel =
+    m.repeat === 'one'
+      ? 'cette piste'
+      : m.repeat === 'all'
+        ? 'toute la file'
+        : 'désactivé';
+  return (
+    <span className={cn('flex gap-0.5', className)}>
+      <PlayerIconButton
+        aria-label="Lecture aléatoire"
+        aria-pressed={m.shuffle}
+        active={m.shuffle}
+        onClick={m.toggleShuffle}
+      >
+        <Shuffle className="size-[18px]" aria-hidden />
+      </PlayerIconButton>
+      <PlayerIconButton
+        aria-label={`Répéter : ${repeatLabel}`}
+        aria-pressed={m.repeat !== 'off'}
+        active={m.repeat !== 'off'}
+        onClick={m.cycleRepeat}
+      >
+        {m.repeat === 'one' ? (
+          <Repeat1 className="size-[18px]" aria-hidden />
+        ) : (
+          <Repeat className="size-[18px]" aria-hidden />
+        )}
+      </PlayerIconButton>
+      <PlayerIconButton
+        aria-label={`Lecture en continu : ${m.autoplay ? 'activée' : 'désactivée'}`}
+        aria-pressed={m.autoplay}
+        active={m.autoplay}
+        onClick={m.toggleAutoplay}
+      >
+        <InfinityIcon className="size-[18px]" aria-hidden />
+      </PlayerIconButton>
+    </span>
+  );
+}
+
 /** File d'attente (colonne du lecteur déployé). */
-export function PlayerQueue({ className }: { className?: string }) {
+export function PlayerQueue({
+  className,
+  bare = false,
+}: {
+  className?: string;
+  /** Panneau latéral : sans carte ni en-tête (les boutons sont dans les onglets). */
+  bare?: boolean;
+}) {
   // Pas de `position` ici : la file ne se redessine pas à chaque relevé.
   const s = usePlayerStore(
     useShallow((st) => ({
@@ -124,12 +183,7 @@ export function PlayerQueue({ className }: { className?: string }) {
       upNext: st.upNext,
       recommendations: st.recommendations,
       rates: st.rates,
-      shuffle: st.shuffle,
-      repeat: st.repeat,
       autoplay: st.autoplay,
-      toggleShuffle: st.toggleShuffle,
-      cycleRepeat: st.cycleRepeat,
-      toggleAutoplay: st.toggleAutoplay,
       clearUpNext: st.clearUpNext,
       playFromUpNext: st.playFromUpNext,
       removeFromUpNext: st.removeFromUpNext,
@@ -151,12 +205,6 @@ export function PlayerQueue({ className }: { className?: string }) {
     ? withPositions
     : withPositions.slice(0, VISIBLE_NEXT);
   const inAlbum = !s.context || /album/i.test(s.context.kindLabel ?? 'album');
-  const repeatLabel =
-    s.repeat === 'one'
-      ? 'cette piste'
-      : s.repeat === 'all'
-        ? 'toute la file'
-        : 'désactivé';
 
   const upNextSubtitle = (t: Track) => {
     const rate = s.rates[speedBucket(t)];
@@ -173,45 +221,19 @@ export function PlayerQueue({ className }: { className?: string }) {
     <section
       aria-label="File d'attente"
       className={cn(
-        'overflow-hidden rounded-2xl border border-border bg-card shadow-soft-sm',
+        !bare &&
+          'overflow-hidden rounded-2xl border border-border bg-card shadow-soft-sm',
         className,
       )}
     >
-      <div className="flex items-center justify-between px-5 pb-1 pt-[18px]">
-        <h2 className="font-sans text-lg font-semibold leading-[26px] tracking-normal">
-          File d’attente
-        </h2>
-        <span className="flex gap-0.5">
-          <PlayerIconButton
-            aria-label="Lecture aléatoire"
-            aria-pressed={s.shuffle}
-            active={s.shuffle}
-            onClick={s.toggleShuffle}
-          >
-            <Shuffle className="size-[18px]" aria-hidden />
-          </PlayerIconButton>
-          <PlayerIconButton
-            aria-label={`Répéter : ${repeatLabel}`}
-            aria-pressed={s.repeat !== 'off'}
-            active={s.repeat !== 'off'}
-            onClick={s.cycleRepeat}
-          >
-            {s.repeat === 'one' ? (
-              <Repeat1 className="size-[18px]" aria-hidden />
-            ) : (
-              <Repeat className="size-[18px]" aria-hidden />
-            )}
-          </PlayerIconButton>
-          <PlayerIconButton
-            aria-label={`Lecture en continu : ${s.autoplay ? 'activée' : 'désactivée'}`}
-            aria-pressed={s.autoplay}
-            active={s.autoplay}
-            onClick={s.toggleAutoplay}
-          >
-            <InfinityIcon className="size-[18px]" aria-hidden />
-          </PlayerIconButton>
-        </span>
-      </div>
+      {!bare && (
+        <div className="flex items-center justify-between px-5 pb-1 pt-[18px]">
+          <h2 className="font-sans text-lg font-semibold leading-[26px] tracking-normal">
+            File d’attente
+          </h2>
+          <QueueModeButtons />
+        </div>
+      )}
 
       <SectionTitle>En cours</SectionTitle>
       <ul>

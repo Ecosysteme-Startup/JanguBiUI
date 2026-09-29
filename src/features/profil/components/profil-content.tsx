@@ -7,16 +7,15 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ThemeToggle } from '@/components/layouts/theme-toggle';
-import { MembershipManager } from '@/components/org/membership-manager';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button/button';
 import { useNotifications } from '@/components/ui/notifications';
 import { useDeleteAccount, useLogout, useUser } from '@/lib/auth';
-import { isFidele } from '@/lib/authorization';
 import { accountConsoleUrl } from '@/lib/oidc';
 
 import { UpdateProfileInput, useUpdateProfile } from '../api/update-profile';
 
+import { MesParoisses } from './mes-paroisses';
 import { Personnalisation } from './personnalisation';
 
 // ── Schemas ─────────────────────────────────────────────────────────────────
@@ -237,12 +236,10 @@ export function ProfilContent() {
           </a>
         </SectionCard>
 
-        {/* Mes églises — gestion des appartenances (Chantier 7b) */}
-        {isFidele(user) && (
-          <SectionCard title="Mes églises">
-            <MembershipManager />
-          </SectionCard>
-        )}
+        {/* Mes paroisses : principale et secondaires (décisions 6-8) */}
+        <SectionCard id="paroisses" title="Mes paroisses">
+          <MesParoisses />
+        </SectionCard>
 
         {/* Personnalisation : suggestions, présence, historique (lot C5) */}
         <SectionCard id="personnalisation" title="Personnalisation">

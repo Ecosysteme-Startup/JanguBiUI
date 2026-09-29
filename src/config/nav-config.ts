@@ -16,12 +16,14 @@ import {
   Newspaper,
   ShieldCheck,
   User,
+  UsersRound,
 } from 'lucide-react';
 
 import { User as UserType } from '@/lib/auth';
 import {
   canViewDioceseDonsAggregates,
   canViewParishDonsAnalysis,
+  canManageParishioners,
   canPublishAudio,
   canViewPlatformPayments,
   isAdmin,
@@ -146,8 +148,18 @@ const donsStaffItems = (user: UserType | null | undefined): NavItem[] => [
   ...(canViewPlatformPayments(user) ? [ITEM_PAIEMENTS] : []),
 ];
 
-const sonothequeStaffItems = (user: UserType | null | undefined): NavItem[] =>
-  canPublishAudio(user) ? [ITEM_SONOTHEQUE] : [];
+// Paroissiens (décisions 6-8) : liste nominative, retrait et rétablissement,
+// seulement avec la capacité paroissiens.gerer.
+const ITEM_PAROISSIENS: NavItem = {
+  label: 'Paroissiens',
+  href: '/app/paroisse/paroissiens',
+  icon: UsersRound,
+};
+
+const sonothequeStaffItems = (user: UserType | null | undefined): NavItem[] => [
+  ...(canPublishAudio(user) ? [ITEM_SONOTHEQUE] : []),
+  ...(canManageParishioners(user) ? [ITEM_PAROISSIENS] : []),
+];
 
 export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
   // Les deux dimensions (role admin / pastoral_role) sont INDÉPENDANTES : un curé

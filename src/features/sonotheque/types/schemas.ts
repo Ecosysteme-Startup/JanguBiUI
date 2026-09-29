@@ -78,6 +78,11 @@ export const trackSchema = z.object({
   position: z.number().nullable().default(null),
   visibility: visibiliteSchema,
   published_at: z.string().nullable().default(null),
+  /**
+   * Décision 4 : piste réservée aux paroissiens d'une paroisse dont on n'est
+   * pas membre. Visible (titre, durée) mais pas écoutable ; aucune URL.
+   */
+  verrouille: z.boolean().default(false),
 });
 export type Track = z.infer<typeof trackSchema>;
 
@@ -125,6 +130,8 @@ export const albumSchema = z.object({
   recorded_on: z.string().nullable().default(null),
   liturgical_season: z.string().default(''),
   published_at: z.string().nullable().default(null),
+  /** Décision 4 : album réservé, vu par un non-membre (toujours `false` côté staff). */
+  verrouille: z.boolean().default(false),
 });
 export type Album = z.infer<typeof albumSchema>;
 
@@ -149,9 +156,17 @@ export const sourceDetailSchema = z.object({
 });
 export type SourceDetail = z.infer<typeof sourceDetailSchema>;
 
+export const paroisseRequiseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type ParoisseRequise = z.infer<typeof paroisseRequiseSchema>;
+
 export const albumDetailSchema = z.object({
   album: albumSchema,
   tracks: z.array(trackSchema).default([]),
+  /** Paroisse à ajouter pour écouter (« Ajouter cette paroisse »), sinon `null`. */
+  paroisse_requise: paroisseRequiseSchema.nullable().default(null),
 });
 export type AlbumDetail = z.infer<typeof albumDetailSchema>;
 

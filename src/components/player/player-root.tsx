@@ -13,7 +13,7 @@ import { usePlayerShortcuts } from '@/lib/player/use-player-shortcuts';
 import { usePlayerSync } from '@/lib/player/use-player-sync';
 
 import { PlayerBar } from './player-bar';
-import { PlayerExpanded } from './player-expanded';
+import { PlayerPanel } from './player-panel';
 import { ResumeOffer } from './resume-offer';
 
 interface PlayerRootProps {
@@ -24,7 +24,8 @@ interface PlayerRootProps {
 /**
  * Lecteur audio global, monté UNE fois dans le shell de `/app` : il survit à
  * la navigation entre les pages. Contient l'unique `<audio>`, la barre de
- * lecture persistante, le lecteur déployé, l'offre de reprise, les
+ * lecture persistante, le lecteur déployé en panneau latéral droit
+ * (décision 13 : la page reste visible et utilisable), l'offre de reprise, les
  * raccourcis clavier et la synchronisation avec le serveur.
  */
 export function PlayerRoot({ createEngine }: PlayerRootProps) {
@@ -91,8 +92,9 @@ export function PlayerRoot({ createEngine }: PlayerRootProps) {
         </AnimatePresence>
       </div>
 
+      {/* Décision 13 : panneau latéral droit, non modal. */}
       <AnimatePresence>
-        {expanded && current && <PlayerExpanded key="expanded" />}
+        {expanded && current && <PlayerPanel key="panel" />}
       </AnimatePresence>
     </LayoutGroup>
   );

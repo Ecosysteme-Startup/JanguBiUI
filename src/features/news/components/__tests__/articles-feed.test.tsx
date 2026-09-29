@@ -1,9 +1,13 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 import { createArticle, createUser } from '@/testing/data-generators';
+import {
+  PAROISSES,
+  resetParoissesMocks,
+} from '@/testing/mocks/handlers/paroisses';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
@@ -60,7 +64,10 @@ describe('ArticlesFeed', () => {
     ];
     server.use(
       http.get(FEED, () =>
-        HttpResponse.json({ count: mockArticles.length, results: mockArticles }),
+        HttpResponse.json({
+          count: mockArticles.length,
+          results: mockArticles,
+        }),
       ),
     );
 
@@ -93,7 +100,10 @@ describe('ArticlesFeed', () => {
     ];
     server.use(
       http.get(FEED, () =>
-        HttpResponse.json({ count: mockArticles.length, results: mockArticles }),
+        HttpResponse.json({
+          count: mockArticles.length,
+          results: mockArticles,
+        }),
       ),
     );
 
@@ -112,9 +122,7 @@ describe('ArticlesFeed', () => {
 
     renderApp(<ArticlesFeed />);
 
-    expect(
-      await screen.findByText(/^aucune actualité$/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/^aucune actualité$/i)).toBeInTheDocument();
   });
 
   test('shows error message when the feed request fails', async () => {
@@ -154,7 +162,11 @@ describe('ArticlesFeed', () => {
         return HttpResponse.json({
           count: 2,
           results: [
-            createArticle({ id: 'g1', title: 'Article Universel', scope_type: 'global' }),
+            createArticle({
+              id: 'g1',
+              title: 'Article Universel',
+              scope_type: 'global',
+            }),
             createArticle({
               id: 'churchA',
               title: 'Veillée Église A',
@@ -173,12 +185,64 @@ describe('ArticlesFeed', () => {
     expect(screen.getByText('Veillée Église A')).toBeInTheDocument();
 
     // Sélection du filtre « Église A ».
-    await userEvent.click(await screen.findByRole('button', { name: 'Église A' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Église A' }),
+    );
 
     // Le fil est restreint à la portée église A (l'article universel disparaît).
     await screen.findByText('Veillée Église A');
     await waitFor(() =>
       expect(screen.queryByText('Article Universel')).not.toBeInTheDocument(),
+    );
+  });
+
+  test('fil « Autres paroisses » : annonces des secondaires, sans notification, filtrables', async () => {
+    resetParoissesMocks();
+    const demandes: (string | null)[] = [];
+    server.use(
+      http.get(FEED, () => HttpResponse.json({ count: 0, results: [] })),
+      http.get(`${env.API_URL}/v1/me/feed/secondaires/`, ({ request }) => {
+        demandes.push(new URL(request.url).searchParams.get('paroisse'));
+        return undefined;
+      }),
+    );
+    const user = userEvent.setup();
+    renderApp(<ArticlesFeed />);
+
+    const onglet = await screen.findByRole('tab', {
+      name: 'Autres paroisses',
+    });
+    expect(screen.getByRole('tab', { name: 'Ma paroisse' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await user.click(onglet);
+
+    const liste = await screen.findByRole('list', {
+      name: 'Annonces des autres paroisses',
+    });
+    const annonces = within(liste).getAllByRole('listitem');
+    expect(annonces).toHaveLength(4);
+    // Triées par date, avec le nom de la paroisse.
+    expect(annonces[0]).toHaveTextContent('Ouverture du mois du Rosaire');
+    expect(annonces[0]).toHaveTextContent(
+      'Cathédrale Notre-Dame-des-Victoires',
+    );
+    expect(annonces[1]).toHaveTextContent('Kermesse paroissiale');
+    expect(screen.getByText(/sans notification/)).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Saint-Pierre des Baobabs' }),
+    );
+    await waitFor(() =>
+      expect(demandes).toContain(PAROISSES.saintPierre.id),
+    );
+    await waitFor(() =>
+      expect(
+        within(
+          screen.getByRole('list', { name: 'Annonces des autres paroisses' }),
+        ).getAllByRole('listitem'),
+      ).toHaveLength(2),
     );
   });
 });

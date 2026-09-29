@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { create } from 'zustand';
 
 import { ApiError } from '@/lib/api-client';
@@ -12,6 +13,7 @@ import {
   type PlayerStatus,
   type Quality,
   type RepeatMode,
+  type ReserveParoissiens,
   type ResumeOffer,
   type SleepTimer,
   type SpeedBucket,
@@ -121,6 +123,10 @@ export interface PlayerState {
   // Lecture
   status: PlayerStatus;
   errorMessage: string | null;
+  /** Lecture refusée : réservée aux paroissiens (« Ajouter cette paroisse »). */
+  reserve: ReserveParoissiens | null;
+  /** Mise en pause parce qu'un autre appareil du compte lit (décision 10). */
+  pausedElsewhere: boolean;
   position: number;
   duration: number;
   waveform: number[];
@@ -152,6 +158,8 @@ export interface PlayerState {
   toggle: () => void;
   play: () => void;
   pause: () => void;
+  /** `playback.state` action `pause` : un autre appareil lit, on s'arrête sans bruit. */
+  pauseForOtherDevice: () => void;
   seek: (seconds: number) => void;
   skipBy: (delta: number) => void;
   next: (options?: { auto?: boolean }) => void;
@@ -220,6 +228,24 @@ function parseTrack(input: TrackInput): Track {
   return trackSchema.parse(input);
 }
 
+const paroisseSchema = z.object({ id: z.string(), name: z.string() });
+
+/** 403 `reserve_paroissiens` (décision 4) → message sobre + paroisse à ajouter. */
+function reserveFrom(err: unknown): ReserveParoissiens | null {
+  if (!(err instanceof ApiError) || err.code !== 'reserve_paroissiens')
+    return null;
+  const details = (err.details ?? {}) as { paroisse?: unknown };
+  const parsed = paroisseSchema.safeParse(details.paroisse);
+  const paroisse = parsed.success ? parsed.data : null;
+  const message =
+    err.message && !/^HTTP \d+|^Forbidden$/i.test(err.message)
+      ? err.message
+      : paroisse
+        ? `Réservé aux paroissiens de ${paroisse.name}.`
+        : 'Réservé aux paroissiens.';
+  return { message, paroisse };
+}
+
 function lectureErrorMessage(err: unknown): string {
   const status = err instanceof ApiError ? err.status : 0;
   if (status === 404) return 'Cette piste n’est plus disponible.';
@@ -281,6 +307,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       current: track,
       status: 'loading',
       errorMessage: null,
+      reserve: null,
+      pausedElsewhere: false,
       position: startAt ?? 0,
       duration: track.duration_seconds,
       waveform: [],
@@ -293,7 +321,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       lecture = await getLecture(track.id);
     } catch (err) {
       if (loadId !== loadCounter) return;
-      set({ status: 'error', errorMessage: lectureErrorMessage(err) });
+      const reserve = reserveFrom(err);
+      set({
+        status: 'error',
+        errorMessage: reserve?.message ?? lectureErrorMessage(err),
+        reserve,
+      });
       return;
     }
     if (loadId !== loadCounter) return;
@@ -387,11 +420,21 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       if (duration > 0) set({ duration });
     },
     onPlaying: () => {
-      set({ status: 'playing', errorMessage: null });
+      const wasPlaying = get().status === 'playing';
+      set({ status: 'playing', errorMessage: null, pausedElsewhere: false });
       const { current, position } = get();
       if (current && startedFor !== loadCounter) {
         startedFor = loadCounter;
         recordListenEvent('start', current.id, position);
+      }
+      // Une lecture à la fois (décision 10) : on annonce que cet appareil
+      // lit ; le serveur met les autres appareils du compte en pause.
+      if (current && !wasPlaying) {
+        void reportPlaybackState({
+          trackId: current.id,
+          position,
+          playing: true,
+        });
       }
     },
     onPaused: () => {
@@ -456,6 +499,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
 
     status: 'idle',
     errorMessage: null,
+    reserve: null,
+    pausedElsewhere: false,
     position: 0,
     duration: 0,
     waveform: [],
@@ -529,6 +574,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       } else if (s.status === 'loading') {
         set({ status: 'paused' });
       }
+    },
+
+    pauseForOtherDevice: () => {
+      const s = get();
+      if (!s.current) return;
+      if (s.status !== 'playing' && s.status !== 'loading') return;
+      // Statut d'abord : `onPaused` n'écrit alors pas l'état (l'autre
+      // appareil garde la main sur la reprise multi-appareils).
+      set({ status: 'paused', pausedElsewhere: true });
+      engine?.pause();
     },
 
     seek: (seconds) => {
@@ -780,6 +835,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       set({
         current: null,
         status: 'idle',
+        reserve: null,
+        pausedElsewhere: false,
         position: 0,
         duration: 0,
         waveform: [],

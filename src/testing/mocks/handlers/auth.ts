@@ -109,6 +109,8 @@ export const CAPACITES_DEMO: Record<string, CapaciteMe[]> = {
     'annonces.publier',
     'audio.publier',
     'dons.voir_fonds',
+    // Liste des paroissiens, retrait et rétablissement (API-AUDIO §9).
+    'paroissiens.gerer',
   ].map((c) =>
     capacite(c, 'secretaire_paroissial', 'Secrétaire paroissiale', 'paroisse'),
   ),

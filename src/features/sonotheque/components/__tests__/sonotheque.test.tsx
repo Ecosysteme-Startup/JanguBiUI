@@ -7,8 +7,11 @@ import { createUser } from '@/testing/data-generators';
 import {
   ALBUMS,
   ALBUM_RESERVE_ID,
+  PISTES_SAINT_JOSEPH,
   SOURCES,
 } from '@/testing/mocks/handlers/sonotheque';
+import { resetParoissesMocks } from '@/testing/mocks/handlers/paroisses';
+import { usePlayerStore } from '@/lib/player/player-store';
 import { server } from '@/testing/mocks/server';
 import {
   renderApp,
@@ -283,6 +286,75 @@ describe('Visibilité', () => {
     expect(
       await screen.findByText('Réservé aux paroissiens de Saint-Dominique'),
     ).toBeInTheDocument();
+  });
+
+  test('album réservé, non-membre (décision 4) : pistes verrouillées, « Ajouter cette paroisse »', async () => {
+    resetParoissesMocks();
+    let lecture = 0;
+    server.use(
+      http.post(`${A}/pistes/:id/lecture/`, () => {
+        lecture += 1;
+        return undefined;
+      }),
+    );
+    const saintJoseph = ALBUMS.find(
+      (a) => a.title === 'Messe de la Saint-Joseph 2026',
+    )!;
+    const user = userEvent.setup();
+    renderApp(<AlbumVue albumId={saintJoseph.id} />);
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Réservé aux paroissiens de Saint-Joseph de Médina',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Vous voyez la liste des pistes/),
+    ).toBeInTheDocument();
+    // Pochette, titre, source ET liste des titres avec durées.
+    const table = screen.getByRole('table', {
+      name: 'Pistes de Messe de la Saint-Joseph 2026',
+    });
+    const lignes = within(table).getAllByRole('row').slice(1);
+    expect(lignes).toHaveLength(PISTES_SAINT_JOSEPH.length);
+    expect(lignes[0]).toHaveTextContent('Hymne à saint Joseph');
+    expect(lignes[0]).toHaveTextContent('Piste 1 · lecture réservée');
+    expect(lignes[0]).toHaveTextContent('3:54');
+    expect(
+      within(lignes[0]).getByLabelText('Réservé aux paroissiens'),
+    ).toBeInTheDocument();
+    // Lecture impossible : ni « Lire », ni bouton par piste.
+    expect(screen.queryByRole('button', { name: 'Lire' })).toBeNull();
+    expect(within(table).queryByRole('button', { name: /Lire/ })).toBeNull();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Ajouter cette paroisse' }),
+    );
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Ajouter Saint-Joseph de Médina',
+    });
+    expect(
+      await within(dialog).findByText(
+        'Saint-Dominique reste votre paroisse principale.',
+      ),
+    ).toBeInTheDocument();
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Ajouter à mes paroisses' }),
+    );
+    // Membre : l'album s'ouvre et se lit.
+    const lire = await screen.findByRole('button', { name: 'Lire' });
+    expect(
+      screen.queryByRole('heading', {
+        name: 'Réservé aux paroissiens de Saint-Joseph de Médina',
+      }),
+    ).toBeNull();
+    await user.click(lire);
+    await waitFor(() => expect(lecture).toBe(1));
+    await waitFor(() =>
+      expect(usePlayerStore.getState().current?.title).toBe(
+        'Hymne à saint Joseph',
+      ),
+    );
+    usePlayerStore.getState().stop();
   });
 
   test('album non visible (404) : message sobre, sans dire s’il existe', async () => {

@@ -1,8 +1,9 @@
 'use client';
 
-import { Pause, Play, Shuffle } from 'lucide-react';
+import { Lock, Pause, Play, Shuffle } from 'lucide-react';
 
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import { AjouterCetteParoisse } from '@/components/paroisses/ajouter-cette-paroisse';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { Link } from '@/components/ui/link';
@@ -46,7 +47,10 @@ export function AlbumVue({ albumId }: { albumId: string }) {
   const { data, isLoading, error, refetch } = useAlbum(albumId);
   const sourceId = data?.album.source.id ?? '';
   const source = useSource(sourceId);
-  const premiere = data?.tracks[0]?.id ?? '';
+  // Pas de suggestions pour un album verrouillé (rien d'écoutable ici).
+  const premiere =
+    (data?.album.verrouille ? null : data?.tracks.find((t) => !t.verrouille))
+      ?.id ?? '';
   const ensuite = useEnsuite(premiere);
   const { playTracks, togglePause, currentTrackId, isPlaying } =
     usePlayTracks();
@@ -70,13 +74,18 @@ export function AlbumVue({ albumId }: { albumId: string }) {
   if (!data) return null;
 
   const { album, tracks } = data;
+  // Décision 4 : un non-membre voit l'album et ses pistes, verrouillés.
+  const verrouille = album.verrouille;
+  const paroisseRequise = data.paroisse_requise;
+  const jouables = tracks.filter((t) => !t.verrouille);
   const duree = tracks.reduce((s, t) => s + (t.duration_seconds ?? 0), 0);
   const langues = [...new Set(tracks.map((t) => t.language).filter(Boolean))];
   const annee = (album.recorded_on ?? album.published_at ?? '').slice(0, 4);
   const lectureEnCours = tracks.some((t) => t.id === currentTrackId);
-  const paroisse = source.data?.source.node?.name ?? null;
+  const paroisse =
+    paroisseRequise?.name ?? source.data?.source.node?.name ?? null;
   const autres = (source.data?.albums ?? [])
-    .filter((a) => a.id !== album.id)
+    .filter((a) => a.id !== album.id && (!verrouille || !a.verrouille))
     .slice(0, 2);
   const suite = (ensuite.data ?? []).slice(0, 3);
 
@@ -145,38 +154,75 @@ export function AlbumVue({ albumId }: { albumId: string }) {
               long
             />
           </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button
-              className="rounded-full px-6"
-              disabled={!tracks.length}
-              onClick={() =>
-                lectureEnCours ? togglePause() : playTracks(tracks, 0)
-              }
-              icon={
-                lectureEnCours && isPlaying ? (
-                  <Pause className="size-4" aria-hidden />
-                ) : (
-                  <Play className="size-4 fill-current" aria-hidden />
-                )
-              }
-            >
-              {lectureEnCours && isPlaying ? 'Pause' : 'Lire'}
-            </Button>
-            <Button
-              variant="outline"
-              className="rounded-full"
-              disabled={tracks.length < 2}
-              onClick={() => playTracks(melanger(tracks), 0)}
-              icon={<Shuffle className="size-4" aria-hidden />}
-            >
-              Aléatoire
-            </Button>
-          </div>
+          {verrouille ? (
+            <div className="mt-5 flex flex-wrap gap-3">
+              {paroisseRequise && (
+                <AjouterCetteParoisse
+                  paroisse={paroisseRequise}
+                  className="rounded-full px-6"
+                  onAjoutee={() => void refetch()}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button
+                className="rounded-full px-6"
+                disabled={!jouables.length}
+                onClick={() =>
+                  lectureEnCours ? togglePause() : playTracks(jouables, 0)
+                }
+                icon={
+                  lectureEnCours && isPlaying ? (
+                    <Pause className="size-4" aria-hidden />
+                  ) : (
+                    <Play className="size-4 fill-current" aria-hidden />
+                  )
+                }
+              >
+                {lectureEnCours && isPlaying ? 'Pause' : 'Lire'}
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                disabled={jouables.length < 2}
+                onClick={() => playTracks(melanger(jouables), 0)}
+                icon={<Shuffle className="size-4" aria-hidden />}
+              >
+                Aléatoire
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         <Reveal appear>
+          {verrouille && (
+            <section
+              aria-labelledby="album-reserve"
+              className="mb-4 flex items-start gap-3 rounded-2xl border border-border bg-muted/50 p-4"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background text-muted-foreground">
+                <Lock className="size-4" aria-hidden />
+              </span>
+              <span className="min-w-0">
+                <h2
+                  id="album-reserve"
+                  className="text-[15px] font-semibold text-foreground"
+                >
+                  {paroisse
+                    ? `Réservé aux paroissiens de ${paroisse}`
+                    : 'Réservé aux paroissiens'}
+                </h2>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {paroisseRequise
+                    ? `Vous voyez la liste des pistes, mais vous ne pouvez pas encore les écouter. Ajoutez ${paroisseRequise.name} à vos paroisses pour écouter cet album et le télécharger. Votre paroisse principale ne change pas.`
+                    : 'Vous voyez la liste des pistes, mais leur écoute est réservée aux paroissiens.'}
+                </p>
+              </span>
+            </section>
+          )}
           {tracks.length ? (
             <ListePistes pistes={tracks} titre={`Pistes de ${album.title}`} />
           ) : (
@@ -210,6 +256,14 @@ export function AlbumVue({ albumId }: { albumId: string }) {
                   <dt className="text-muted-foreground">Enregistré le</dt>
                   <dd className="text-right font-medium">
                     {formatDateLongue(album.recorded_on)}
+                  </dd>
+                </div>
+              )}
+              {album.visibility === 'paroisse' && (
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Visibilité</dt>
+                  <dd className="text-right font-medium">
+                    {paroisse ? `Paroissiens de ${paroisse}` : 'Paroissiens'}
                   </dd>
                 </div>
               )}
@@ -258,7 +312,9 @@ export function AlbumVue({ albumId }: { albumId: string }) {
           {autres.length > 0 && (
             <section>
               <h2 className="mb-3 font-serif text-lg font-semibold">
-                De la même source
+                {verrouille
+                  ? 'En accès libre, même source'
+                  : 'De la même source'}
               </h2>
               <div className="grid grid-cols-2 gap-3">
                 {autres.map((a) => (

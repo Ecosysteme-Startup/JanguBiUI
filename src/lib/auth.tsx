@@ -104,6 +104,14 @@ export interface User {
   // `audio.publier`, `plateforme.admin`…), lues sur /v1/me/capacites/.
   // Absentes → repli sur les rôles (anciens mocks).
   capabilities?: string[];
+  // Nœuds où s'exerce chaque capacité (`paroissiens.gerer` sur Saint-Dominique…),
+  // lus sur /v1/me/capacites/. Absents pour les anciens mocks.
+  capability_nodes?: {
+    capacite: string;
+    node_id: string | null;
+    node_name: string;
+    node_type: string;
+  }[];
   // Champs du contrat V1 (/v1/me/), conservés tels quels.
   etat_de_vie?: string;
   degre_ordre?: string;
@@ -224,6 +232,12 @@ export const userFromMe = (
     diocese: null,
     province: null,
     capabilities: Array.from(new Set(capacites.map((c) => c.capacite))),
+    capability_nodes: capacites.map((c) => ({
+      capacite: c.capacite,
+      node_id: c.node_id,
+      node_name: c.node_name,
+      node_type: c.node_type,
+    })),
     etat_de_vie: me.etat_de_vie,
     degre_ordre: me.degre_ordre,
     statut_verification: me.statut_verification,

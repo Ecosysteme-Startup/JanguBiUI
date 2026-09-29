@@ -16,7 +16,7 @@ Lot C5-lecteur (plan suite V2, §5.3 et §7). Maquettes : `WEB-FID-Lecteur-Barre
 | `src/lib/player/listen-events.ts` | Événements d'écoute en lot (30 s, arrière-plan, `pagehide`, retour du réseau), gardés en stockage local |
 | `src/lib/realtime/notifications-socket.ts` | Socket unique `ws/notifications/` (ticket, battement 25 s, reconnexion) à laquelle on s'abonne |
 | `src/lib/player/use-player.ts` | **API publique** (ci-dessous) |
-| `src/components/player/` | `PlayerRoot` (monté dans `AppShell`), barre, lecteur déployé, onde, file, « À propos », options, offre de reprise |
+| `src/components/player/` | `PlayerRoot` (monté dans `AppShell`), barre, panneau latéral (`player-panel`), onde, file, « À propos », options, offre de reprise |
 | `src/testing/mocks/handlers/audio-lecteur.ts` | Mocks MSW / mock-server (données de la maquette) |
 
 `<PlayerRoot />` et `<PlayerSpacer />` sont montés une fois dans
@@ -80,26 +80,41 @@ const { isCurrent, isPlaying } = usePlayerTrackStatus(track.id);
 - **Multi-appareils** : au démarrage, `GET lecture/etat/` (état de moins de
   48 h) ; en cours de session, `playback.state` d'un autre `device_id` quand on
   n'écoute rien ici. Carte « Reprendre sur cet appareil ? » au-dessus de la
-  barre ; la reprise ici ne met pas l'autre appareil en pause.
+  barre.
+- **Une lecture à la fois** (décision 10) : au lancement (et à chaque reprise)
+  `PUT lecture/etat/` part avec `playing: true` ; le serveur envoie
+  `playback.state` action `pause` avec `sauf_device_id`. Tout autre appareil
+  se met en pause sans erreur (« En pause : lecture sur un autre appareil »)
+  et n'écrit pas son état à cette pause.
+- **Contenu réservé** (décision 4) : `403 reserve_paroissiens` → message sobre
+  (pas en rouge) et « Ajouter cette paroisse » (`POST /me/paroisses/`), puis
+  la piste est relancée. Les pistes `verrouille` des listes n'entrent jamais
+  dans la file.
 - **`pagehide`** : `fetch(…, {keepalive: true})` plutôt que `sendBeacon`, qui ne
   sait faire que des POST sans en-tête `Authorization`.
 - **Media Session** : touches multimédia et écran verrouillé.
 
 ## Clavier et accessibilité
 
-- Espace : lecture / pause ; ← / → : −15 s / +15 s ; Échap : réduire. Inactifs
-  dans un champ, un curseur, un menu (Espace reste aux boutons et liens).
+- Espace : lecture / pause ; ← / → : −15 s / +15 s ; Échap : fermer le
+  panneau. Inactifs dans un champ, un curseur, un menu, une fenêtre (Espace
+  reste aux boutons et liens).
 - La forme d'onde est un `role="slider"` : `aria-valuetext` « 1 minute
   52 secondes sur 4 minutes 12 », flèches ±15 s, Page ±60 s, Début / Fin.
-- Lecteur déployé : `role="dialog"`, `aria-modal`, focus piégé, rendu au
-  bouton d'origine à la fermeture ; vitesse en `radiogroup` ; volume en
-  curseur natif.
+- Lecteur déployé (décision 13) : panneau latéral droit de 440 px
+  (`<aside>`, `complementary`), **non modal** : pas de piège de focus, la page
+  et la navigation restent utilisables ; ≥ 1280 px la page se resserre à sa
+  gauche, en dessous le panneau la recouvre. Focus sur « Fermer le panneau »
+  à l'ouverture, rendu au bouton d'origine à la fermeture s'il était encore
+  dans le panneau. Onglets « À suivre » / « À propos » (`tablist`, flèches) ;
+  vitesse en `radiogroup` ; volume en curseur natif.
 
 ## Mouvement
 
 Jetons `playerMotion` de `src/lib/motion/tokens.ts` (planche APP-H03, §01).
-Pochette partagée barre → panneau par `layoutId` avec `springs.indicator`
-(18 / 0,7 / 190) ; fond (pochette floutée, voile papier 88 %, Ken Burns)
+Panneau qui glisse depuis la droite avec `springs.indicator` (sortie en
+240 ms out-cubic) ; pochette partagée barre → panneau par `layoutId` avec
+`springs.indicator` (18 / 0,7 / 190) ; fond (pochette floutée, voile papier 88 %, Ken Burns)
 en 240 ms ; titre, onde, commandes, options, file, « À propos » décalés de
 40 ms à partir de 200 ms ; pochette 0,94 en pause ; lecture ⇄ pause en 160 ms
 (fondu + échelle, transform et opacité seulement) ; changement de piste en
@@ -112,9 +127,10 @@ relevés. Mouvement réduit : un seul fondu de 120 ms, fond fixe, égaliseur fig
 2. Onde : barres restantes grises (`muted-foreground` à 60 %), pas b200.
 3. Vitesse mémorisée par type de contenu (homélies à part).
 4. Minuterie : 15, 30, 45 min ou fin de piste ; fondu de 10 s.
-5. Reprise : carte au démarrage et sur `playback.state` ; ne met pas l'autre
-   appareil en pause.
-6. Web : le lecteur déployé couvre tout l'écran, barre latérale comprise.
+5. Reprise : carte au démarrage et sur `playback.state` ; lancer la lecture
+   ici met l'autre appareil en pause (décision 10).
+6. Web : le lecteur déployé est un panneau latéral droit de 440 px, fixe
+   (décision 13) ; sous 1280 px il recouvre la page.
 7. Crédit photo : pas sur l'écran principal.
 
 ## Écarts connus

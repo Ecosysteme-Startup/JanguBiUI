@@ -1,6 +1,6 @@
 'use client';
 
-import { Play } from 'lucide-react';
+import { Lock, Play } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Equalizer } from '@/lib/motion/equalizer';
@@ -71,18 +71,31 @@ export function LignePiste({
         </p>
       )}
       {fin}
-      <button
-        type="button"
-        onClick={() => playTracks(pistes, index)}
-        aria-label={`Lire ${piste.title}`}
-        className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform hover:bg-primary/15 active:scale-[0.97] motion-reduce:transform-none"
-      >
-        {enCours ? (
-          <Equalizer playing={isPlaying} className="text-primary" />
-        ) : (
-          <Play className="size-4 fill-current" aria-hidden />
-        )}
-      </button>
+      {piste.verrouille ? (
+        <span
+          role="img"
+          aria-label={`${piste.title} : réservé aux paroissiens`}
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
+        >
+          <Lock className="size-4" aria-hidden />
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            const jouables = pistes.filter((p) => !p.verrouille);
+            playTracks(jouables, jouables.indexOf(piste));
+          }}
+          aria-label={`Lire ${piste.title}`}
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform hover:bg-primary/15 active:scale-[0.97] motion-reduce:transform-none"
+        >
+          {enCours ? (
+            <Equalizer playing={isPlaying} className="text-primary" />
+          ) : (
+            <Play className="size-4 fill-current" aria-hidden />
+          )}
+        </button>
+      )}
     </div>
   );
 }

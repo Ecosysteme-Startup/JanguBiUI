@@ -139,7 +139,14 @@ function ReportForm({
 }
 
 /** Panneau « À propos de cette piste » (colonne du lecteur déployé). */
-export function PlayerAbout({ className }: { className?: string }) {
+export function PlayerAbout({
+  className,
+  bare = false,
+}: {
+  className?: string;
+  /** Panneau latéral : sans carte ni titre (l'onglet porte le titre). */
+  bare?: boolean;
+}) {
   const track = usePlayerStore((s) => s.current);
   const collapse = usePlayerStore((s) => s.collapse);
   const [reporting, setReporting] = useState(false);
@@ -154,11 +161,12 @@ export function PlayerAbout({ className }: { className?: string }) {
     <section
       aria-label="À propos de cette piste"
       className={cn(
-        'overflow-hidden rounded-2xl border border-border bg-card shadow-soft-sm',
+        !bare &&
+          'overflow-hidden rounded-2xl border border-border bg-card shadow-soft-sm',
         className,
       )}
     >
-      <div className="px-5 pb-3 pt-[18px]">
+      <div className={cn('px-5 pb-3 pt-[18px]', bare && 'sr-only')}>
         <h2 className="font-sans text-lg font-semibold leading-[26px] tracking-normal">
           À propos de cette piste
         </h2>

@@ -136,48 +136,159 @@ describe('<PlayerRoot>', () => {
     expect(store().position).toBe(0);
   });
 
-  it('Agrandir ouvre le lecteur déployé (focus piégé) ; Échap le réduit et rend le focus', async () => {
+  it('Agrandir ouvre le panneau latéral (non modal) ; Échap le ferme et rend le focus', async () => {
     const user = await renderWithGloria();
+    // Un élément de la page, pour vérifier qu'elle reste utilisable.
+    const pageAction = vi.fn();
+    const pageButton = document.createElement('button');
+    pageButton.textContent = 'Action de la page';
+    pageButton.addEventListener('click', pageAction);
+    document.body.appendChild(pageButton);
+
     const expandButton = screen.getByRole('button', {
       name: 'Agrandir le lecteur',
     });
     await user.click(expandButton);
 
-    const dialog = await screen.findByRole('dialog', {
+    const panel = await screen.findByRole('complementary', {
       name: 'Lecteur : Gloria — Messe de la Visitation',
     });
-    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(panel).not.toHaveAttribute('aria-modal');
     expect(
-      within(dialog).getByRole('button', { name: 'Réduire' }),
+      within(panel).getByRole('button', { name: 'Fermer le panneau (Échap)' }),
     ).toHaveFocus();
+    expect(within(panel).getByText('Lecture en cours')).toBeInTheDocument();
+    expect(within(panel).getByText(/Depuis l’album/)).toHaveTextContent(
+      'Depuis l’album Messe du 27 septembre 2026',
+    );
+    // La barre reste en bas ; « Agrandir » devient « Fermer le panneau ».
+    const bar = screen.getByRole('region', { name: 'Lecteur audio' });
     expect(
-      within(dialog).getByText(/Lecture depuis l’album/),
-    ).toHaveTextContent('Lecture depuis l’album Messe du 27 septembre 2026');
+      within(bar).getByRole('button', {
+        name: 'Fermer le panneau du lecteur',
+      }),
+    ).toHaveAttribute('aria-expanded', 'true');
+
+    // Onglet « À suivre » : la file.
+    const suivre = within(panel).getByRole('tab', { name: 'À suivre' });
+    expect(suivre).toHaveAttribute('aria-selected', 'true');
     expect(
-      within(dialog).getByRole('region', { name: "File d'attente" }),
+      within(panel).getByRole('region', { name: "File d'attente" }),
     ).toBeInTheDocument();
-    expect(
-      within(dialog).getByRole('region', { name: 'À propos de cette piste' }),
-    ).toBeInTheDocument();
-    expect(within(dialog).getByText('Élisabeth Gomis')).toBeInTheDocument();
-    expect(
-      within(dialog).getByText('Ensuite dans l’album'),
-    ).toBeInTheDocument();
-    expect(within(dialog).getByText('7 pistes · 22 min')).toBeInTheDocument();
+    expect(within(panel).getByText('Ensuite dans l’album')).toBeInTheDocument();
+    expect(within(panel).getByText('7 pistes · 22 min')).toBeInTheDocument();
     await waitFor(() =>
       expect(
-        within(dialog).getByText(
+        within(panel).getByText(
           'Souvent écouté après la Messe de la Visitation',
         ),
       ).toBeInTheDocument(),
     );
 
+    // Onglet « À propos » (flèche droite dans la liste d'onglets).
+    suivre.focus();
+    await user.keyboard('{ArrowRight}');
+    const propos = within(panel).getByRole('tab', { name: 'À propos' });
+    expect(propos).toHaveAttribute('aria-selected', 'true');
+    expect(propos).toHaveFocus();
+    expect(
+      within(panel).getByRole('region', { name: 'À propos de cette piste' }),
+    ).toBeInTheDocument();
+    expect(within(panel).getByText('Élisabeth Gomis')).toBeInTheDocument();
+
+    // La page reste utilisable pendant l'écoute (pas de piège de focus).
+    await user.click(pageButton);
+    expect(pageAction).toHaveBeenCalledTimes(1);
+    expect(store().expanded).toBe(true);
+
+    // Échap ferme le panneau ; le focus, hors du panneau, ne bouge pas.
     await user.keyboard('{Escape}');
     await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+      expect(screen.queryByRole('complementary')).not.toBeInTheDocument(),
     );
     expect(store().expanded).toBe(false);
-    expect(expandButton).toHaveFocus();
+    expect(pageButton).toHaveFocus();
+    pageButton.remove();
+  });
+
+  it('Échap depuis le panneau rend le focus au bouton d’origine', async () => {
+    const user = await renderWithGloria();
+    const expandButton = screen.getByRole('button', {
+      name: 'Agrandir le lecteur',
+    });
+    await user.click(expandButton);
+    await screen.findByRole('complementary');
+    await user.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByRole('complementary')).not.toBeInTheDocument(),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Agrandir le lecteur' }),
+    ).toHaveFocus();
+  });
+
+  it('piste réservée (403 reserve_paroissiens) : message sobre, « Ajouter cette paroisse », puis lecture', async () => {
+    let membre = false;
+    let ajout: unknown = null;
+    server.use(
+      http.post(`${env.API_URL}/v1/audio/pistes/:id/lecture/`, () =>
+        membre
+          ? undefined
+          : HttpResponse.json(
+              {
+                error: {
+                  code: 'reserve_paroissiens',
+                  message: 'Réservé aux paroissiens de Saint-Joseph de Médina.',
+                  details: {
+                    paroisse: {
+                      id: '5b7d2c1e-8a41-4f0b-9d7e-2c3f1a6b9e02',
+                      name: 'Saint-Joseph de Médina',
+                    },
+                  },
+                },
+              },
+              { status: 403 },
+            ),
+      ),
+      http.post(`${env.API_URL}/v1/me/paroisses/`, async ({ request }) => {
+        ajout = await request.json();
+        membre = true;
+        return HttpResponse.json([], { status: 201 });
+      }),
+    );
+    const user = userEvent.setup();
+    renderApp(<PlayerRoot createEngine={() => engine} />);
+    await act(async () => {
+      await store().playTracks(messeTracks, 2);
+    });
+    expect(store().status).toBe('error');
+    expect(store().reserve?.paroisse?.name).toBe('Saint-Joseph de Médina');
+    expect(engine.loads).toHaveLength(0);
+
+    const bar = await screen.findByRole('region', { name: 'Lecteur audio' });
+    const message = within(bar).getByText(
+      'Réservé aux paroissiens de Saint-Joseph de Médina.',
+    );
+    // Sobre : pas la couleur d'erreur.
+    expect(message.parentElement).not.toHaveClass('text-destructive');
+
+    await user.click(
+      within(bar).getByRole('button', { name: 'Ajouter cette paroisse' }),
+    );
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Ajouter Saint-Joseph de Médina',
+    });
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Ajouter à mes paroisses' }),
+    );
+    await waitFor(() => expect(engine.loads).toHaveLength(1));
+    expect(ajout).toEqual({
+      paroisse_id: '5b7d2c1e-8a41-4f0b-9d7e-2c3f1a6b9e02',
+      principale: false,
+    });
+    expect(store().reserve).toBeNull();
+    expect(store().status).toBe('playing');
   });
 
   it('vitesse segmentée : radiogroupe, 1,25× retenu pour la piste', async () => {
@@ -185,8 +296,8 @@ describe('<PlayerRoot>', () => {
     await user.click(
       screen.getByRole('button', { name: 'Agrandir le lecteur' }),
     );
-    const dialog = await screen.findByRole('dialog');
-    const group = within(dialog).getByRole('radiogroup', { name: 'Vitesse' });
+    const panel = await screen.findByRole('complementary');
+    const group = within(panel).getByRole('radiogroup', { name: 'Vitesse' });
     await user.click(within(group).getByRole('radio', { name: '1,25×' }));
     expect(within(group).getByRole('radio', { name: '1,25×' })).toHaveAttribute(
       'aria-checked',

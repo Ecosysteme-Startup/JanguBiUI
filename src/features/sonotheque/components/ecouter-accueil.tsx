@@ -182,6 +182,7 @@ export function regrouperNouveautes(pistes: Track[]): Nouveaute[] {
         recorded_on: null,
         liturgical_season: t.liturgical_season,
         published_at: t.published_at,
+        verrouille: t.verrouille,
       },
     });
   }

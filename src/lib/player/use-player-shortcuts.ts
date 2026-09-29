@@ -35,8 +35,8 @@ function isOwnedByTarget(target: EventTarget | null, key: string): boolean {
 
 /**
  * Raccourcis globaux du lecteur (planche APP-H03, séquence web) :
- * Espace = lecture / pause ; ← / → = −15 s / +15 s ; Échap = réduire le
- * lecteur déployé. Actifs dès qu'une piste est chargée, sauf dans un champ de
+ * Espace = lecture / pause ; ← / → = −15 s / +15 s ; Échap = fermer le
+ * panneau du lecteur. Actifs dès qu'une piste est chargée, sauf dans un champ de
  * saisie, un curseur ou un menu.
  */
 export function usePlayerShortcuts() {
@@ -48,8 +48,9 @@ export function usePlayerShortcuts() {
       if (!s.current) return;
       const key = event.key;
       if (key === 'Escape') {
-        // Un menu (vitesse, minuterie…) ouvert se ferme d'abord seul.
-        if (document.querySelector('[role="menu"]')) return;
+        // Un menu (vitesse, minuterie…) ou une fenêtre (« Ajouter cette
+        // paroisse ») ouverts se ferment d'abord seuls.
+        if (document.querySelector('[role="menu"], [role="dialog"]')) return;
         if (s.expanded) {
           event.preventDefault();
           s.collapse();

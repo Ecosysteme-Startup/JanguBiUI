@@ -65,6 +65,7 @@ export const paths = {
       bibliotheque: { getHref: () => '/app/ecouter/bibliotheque' },
     },
     paroisse: {
+      paroissiens: { getHref: () => '/app/paroisse/paroissiens' },
       sonotheque: { getHref: () => '/app/paroisse/sonotheque' },
       sonothequeAjouter: {
         getHref: (album?: string) =>

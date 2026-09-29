@@ -82,14 +82,35 @@ export const putPlaybackStateResponseSchema = z.object({
   state: playbackStateSchema.nullish(),
 });
 
-/** Événement `playback.state` reçu sur `ws/notifications/`. */
-export const playbackStateEventSchema = z.object({
+/**
+ * Événement `playback.state` reçu sur `ws/notifications/` (TEMPS-REEL §2.6) :
+ * - `etat` : un autre appareil a écrit sa position (« Reprendre sur cet
+ *   appareil ») ; sans `action`, c'est aussi un `etat` ;
+ * - `pause` : un appareil vient de lancer la lecture ; tous les autres
+ *   (`device_id` ≠ `sauf_device_id`) se mettent en pause (décision 10).
+ */
+export const playbackEtatEventSchema = z.object({
   event_type: z.literal('playback.state'),
+  action: z.literal('etat').optional(),
+  playing: z.boolean().optional(),
   track_id: z.string(),
   position_seconds: z.number(),
   device_id: z.string(),
   updated_at: z.string(),
 });
+
+export const playbackPauseEventSchema = z.object({
+  event_type: z.literal('playback.state'),
+  action: z.literal('pause'),
+  sauf_device_id: z.string(),
+  track_id: z.string().nullish(),
+  device_id: z.string().nullish(),
+});
+
+export const playbackStateEventSchema = z.union([
+  playbackPauseEventSchema,
+  playbackEtatEventSchema,
+]);
 
 export type PlaybackStateEvent = z.infer<typeof playbackStateEventSchema>;
 
@@ -136,6 +157,16 @@ export interface ResumeOffer {
   positionSeconds: number;
   deviceId: string;
   updatedAt: string;
+}
+
+/**
+ * Lecture refusée : piste réservée aux paroissiens (403 `reserve_paroissiens`,
+ * décision 4). `paroisse` sert à « Ajouter cette paroisse » (`null` si le
+ * contenu relève d'un nœud au-dessus de la paroisse).
+ */
+export interface ReserveParoissiens {
+  message: string;
+  paroisse: { id: string; name: string } | null;
 }
 
 /** Vitesse mémorisée par type de contenu (spec lecteur, décision 4). */

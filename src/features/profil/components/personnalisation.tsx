@@ -106,9 +106,12 @@ export function Personnalisation() {
       />
       <p className="flex items-start gap-2 rounded-xl bg-muted px-3 py-2.5 text-[13px] leading-[18px] text-foreground/80">
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-        Seules les personnes avec qui vous avez une conversation le voient.
-        Désactivé, rien n&apos;apparaît : ni «&nbsp;En ligne&nbsp;», ni
-        «&nbsp;Vu à&nbsp;».
+        <span>
+          Seules les personnes avec qui vous avez une conversation le voient.
+          Désactivé, rien n&apos;apparaît : ni «&nbsp;En ligne&nbsp;», ni
+          «&nbsp;Vu à&nbsp;». Si vous masquez votre présence, vous ne verrez
+          plus celle des autres.
+        </span>
       </p>
       <div className="border-t border-border pt-4">
         <h3 className="text-sm font-medium text-foreground">Historique</h3>
