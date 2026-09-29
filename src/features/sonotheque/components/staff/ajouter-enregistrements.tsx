@@ -1,6 +1,6 @@
 'use client';
 
-import { FolderPlus, Send, UploadCloud } from 'lucide-react';
+import { FolderPlus, UploadCloud } from 'lucide-react';
 import NextLink from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
@@ -8,6 +8,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Choice } from '@/components/ui/choice';
+import { Icon } from '@/components/ui/icon';
 import { Textarea } from '@/components/ui/textarea';
 import { paths } from '@/config/paths';
 import { Reveal } from '@/lib/motion/reveal';
@@ -417,7 +418,7 @@ export function AjouterEnregistrements({
             disabled={enAttente === 0 || !sourceId}
             onClick={lancer}
           >
-            <Send className="size-4" aria-hidden />
+            <Icon name="envoyer" className="size-4" aria-hidden />
             {enAttente > 0
               ? `Envoyer ${pluriel(enAttente, 'fichier', 'fichiers')}`
               : 'Envoyer'}

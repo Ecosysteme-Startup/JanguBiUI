@@ -1,8 +1,8 @@
 'use client';
 
-import { Lock } from 'lucide-react';
 
 import { AjouterCetteParoisse } from '@/components/paroisses/ajouter-cette-paroisse';
+import { Icon } from '@/components/ui/icon';
 import { usePlayerStore } from '@/lib/player/player-store';
 import { cn } from '@/utils/cn';
 
@@ -40,7 +40,7 @@ export function PlayerReserve({
         className,
       )}
     >
-      <Lock className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
+      <Icon name="cadenas" className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="text-14 font-medium text-ink">{reserve.message}</p>
         <p className="mt-0.5 text-13 leading-[18px] text-ink-3">

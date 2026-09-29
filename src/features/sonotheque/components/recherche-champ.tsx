@@ -1,9 +1,9 @@
 'use client';
 
-import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 import { cn } from '@/utils/cn';
 
@@ -33,7 +33,7 @@ export function RechercheChamp({
         else router.push(paths.app.ecouter.recherche.getHref(v));
       }}
     >
-      <Search className="size-[18px] shrink-0" aria-hidden />
+      <Icon name="recherche" className="size-[18px] shrink-0" aria-hidden />
       <input
         type="search"
         value={q}

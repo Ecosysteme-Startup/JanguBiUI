@@ -1,10 +1,10 @@
 'use client';
 
-import { RefreshCw, UserPlus } from 'lucide-react';
 import NextLink from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import {
@@ -78,7 +78,7 @@ export function TableauDeBordComptes() {
         </div>
         <Button asChild>
           <NextLink href={c.nouveau.getHref()}>
-            <UserPlus className="size-4" />
+            <Icon name="utilisateur-plus" className="size-4" />
             Créer un compte
           </NextLink>
         </Button>
@@ -155,7 +155,7 @@ export function TableauDeBordComptes() {
                 {perimetre?.is_platform_admin && (
                   <Button asChild size="sm" variant="outline">
                     <NextLink href={c.synchronisation.getHref()}>
-                      <RefreshCw className="size-4" />
+                      <Icon name="rafraichir" className="size-4" />
                       Lancer une réconciliation
                     </NextLink>
                   </Button>

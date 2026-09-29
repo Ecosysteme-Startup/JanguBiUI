@@ -1,6 +1,5 @@
 'use client';
 
-import { Info, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { useId, useState } from 'react';
 
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
@@ -411,7 +411,7 @@ function Liste({ noeud }: { noeud: NoeudStaff }) {
             />
           )}
           <p className="flex gap-2 rounded-lg bg-surface-2 p-3 text-13 text-ink-3">
-            <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <Icon name="info" className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             Aucun montant ni paiement n’est géré ici. L’offrande éventuelle se
             remet au secrétariat, comme d’habitude.
           </p>
@@ -450,7 +450,7 @@ function MessesDuJour({ noeud }: { noeud: NoeudStaff }) {
         </div>
         <Button asChild size="sm" variant="outline">
           <Link href={paths.espace.intentions.feuille.getHref(noeud.id, date)}>
-            <Printer className="size-4" aria-hidden="true" />
+            <Icon name="imprimer" className="size-4" aria-hidden="true" />
             Feuille à imprimer
           </Link>
         </Button>

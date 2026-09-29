@@ -1,7 +1,7 @@
 'use client';
 
-import { Lock, Play } from 'lucide-react';
 
+import { Icon } from '@/components/ui/icon';
 import { Equalizer } from '@/lib/motion/equalizer';
 import { cn } from '@/utils/cn';
 
@@ -88,7 +88,7 @@ export function ListePistes({
                   className="border-b border-line last:border-0"
                 >
                   <td className="py-2.5 pl-4 pr-2 text-right text-ink-3">
-                    <Lock
+                    <Icon name="cadenas"
                       className="ml-auto size-4"
                       aria-label="Réservé aux paroissiens"
                     />
@@ -142,7 +142,7 @@ export function ListePistes({
                       <span className="group-hover:hidden">
                         {piste.position ?? i + 1}
                       </span>
-                      <Play
+                      <Icon name="lecture"
                         className="ml-auto hidden size-4 text-ink group-hover:block"
                         aria-hidden
                       />

@@ -1,9 +1,9 @@
 'use client';
 
-import { BookOpen } from 'lucide-react';
 import NextLink from 'next/link';
 import { useState } from 'react';
 
+import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 import { reportTrack, type ReportMotif } from '@/lib/player/api';
 import { seasonLabel } from '@/lib/player/format';
@@ -257,7 +257,7 @@ export function PlayerAbout({
                   onClick={collapse}
                   className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line px-3 text-13 font-medium tabular-nums text-ink-2 hover:border-tint-300"
                 >
-                  <BookOpen className="size-3.5" aria-hidden />
+                  <Icon name="parole" className="size-3.5" aria-hidden />
                   {r}
                 </NextLink>
               </li>

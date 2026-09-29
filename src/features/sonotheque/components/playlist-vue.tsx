@@ -1,10 +1,10 @@
 'use client';
 
-import { Play } from 'lucide-react';
 import NextLink from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { Reveal } from '@/lib/motion/reveal';
@@ -88,7 +88,7 @@ export function PlaylistVue({ playlistId }: { playlistId: string }) {
               disabled={!tracks.length}
               onClick={() => playTracks(tracks, 0)}
             >
-              <Play className="size-4 fill-current" aria-hidden />
+              <Icon name="lecture" className="size-4 fill-current" aria-hidden />
               Lire
             </Button>
             <VisibiliteBadge visibilite={playlist.visibility} long />

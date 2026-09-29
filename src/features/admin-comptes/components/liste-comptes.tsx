@@ -1,6 +1,5 @@
 'use client';
 
-import { Download, Search, UserPlus } from 'lucide-react';
 import NextLink from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useId, useState } from 'react';
@@ -8,6 +7,7 @@ import { useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataTable, type DataTableColumn } from '@/components/ui/data-table';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { saveBlob } from '@/lib/api-client';
 
 import {
@@ -159,12 +159,12 @@ export function ListeComptes() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={exporter} loading={exportEnCours}>
-            <Download className="size-4" />
+            <Icon name="import" className="size-4" />
             Exporter en CSV
           </Button>
           <Button asChild>
             <NextLink href={c.nouveau.getHref()}>
-              <UserPlus className="size-4" />
+              <Icon name="utilisateur-plus" className="size-4" />
               Créer un compte
             </NextLink>
           </Button>
@@ -178,7 +178,7 @@ export function ListeComptes() {
             Rechercher
           </label>
           <div className="relative">
-            <Search
+            <Icon name="recherche"
               aria-hidden="true"
               className="absolute left-3 top-1/2 mt-0.5 size-4 -translate-y-1/2 text-ink-3"
             />

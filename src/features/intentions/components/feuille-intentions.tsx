@@ -1,10 +1,10 @@
 'use client';
 
-import { Printer } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 
@@ -69,7 +69,7 @@ export function FeuilleIntentions({
       <style>{STYLE_IMPRESSION}</style>
       <div className="flex flex-wrap gap-2 print:hidden">
         <Button size="sm" onClick={() => window.print()}>
-          <Printer className="size-4" aria-hidden="true" />
+          <Icon name="imprimer" className="size-4" aria-hidden="true" />
           Imprimer
         </Button>
         <Button asChild size="sm" variant="ghost">

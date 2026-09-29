@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Church, Home, LogOut, Plus, Search, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Icon } from '@/components/ui/icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ApiError } from '@/lib/api-client';
 import {
@@ -102,7 +103,7 @@ function AjouterUneParoisse({ mes }: { mes: MaParoisse[] }) {
     <div className="rounded-xl border border-line bg-paper p-4">
       <h3 className="text-15 font-semibold text-ink">Ajouter une paroisse</h3>
       <label className="mt-3 flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-14 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-        <Search className="size-4 text-ink-3" aria-hidden />
+        <Icon name="recherche" className="size-4 text-ink-3" aria-hidden />
         <input
           type="search"
           value={q}
@@ -143,7 +144,7 @@ function AjouterUneParoisse({ mes }: { mes: MaParoisse[] }) {
                 className="flex items-start gap-3 rounded-xl border border-line bg-surface p-3"
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-tint-50 text-primary">
-                  <Church className="size-4" aria-hidden />
+                  <Icon name="paroisse" className="size-4" aria-hidden />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-14 font-semibold text-ink">
@@ -163,7 +164,7 @@ function AjouterUneParoisse({ mes }: { mes: MaParoisse[] }) {
                     <PastillePrincipale />
                   ) : (
                     <span className="inline-flex h-8 items-center gap-1 text-14 font-medium text-ink-3">
-                      <Check className="size-4" aria-hidden />
+                      <Icon name="check" className="size-4" aria-hidden />
                       {ajoutee === p.id ? 'Ajoutée' : 'Membre'}
                     </span>
                   )
@@ -183,7 +184,7 @@ function AjouterUneParoisse({ mes }: { mes: MaParoisse[] }) {
                       )
                     }
                   >
-                    <Plus className="size-4" aria-hidden />
+                    <Icon name="plus" className="size-4" aria-hidden />
                     Ajouter
                   </Button>
                 )}
@@ -240,7 +241,7 @@ export function MesParoisses() {
       {main ? (
         <div className="flex items-start gap-3 rounded-xl border border-tint-300 bg-tint-50 p-4">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-tint-50 text-primary">
-            <Home className="size-5" aria-hidden />
+            <Icon name="accueil" className="size-5" aria-hidden />
           </span>
           <span className="min-w-0 flex-1">
             <span className="flex flex-wrap items-center gap-2">
@@ -282,7 +283,7 @@ export function MesParoisses() {
               >
                 <span className="flex min-w-0 flex-1 items-start gap-3">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-3">
-                    <Church className="size-4" aria-hidden />
+                    <Icon name="paroisse" className="size-4" aria-hidden />
                   </span>
                   <span className="min-w-0">
                     <span className="block text-14 font-semibold text-ink">
@@ -326,7 +327,7 @@ export function MesParoisses() {
                       setAQuitter(m.paroisse);
                     }}
                   >
-                    <LogOut className="size-3.5" aria-hidden />
+                    <Icon name="deconnexion" className="size-3.5" aria-hidden />
                     Quitter
                   </Button>
                 </span>
@@ -362,7 +363,7 @@ export function MesParoisses() {
               'Les annonces des autres paroisses sont réunies dans un fil séparé, « Autres paroisses », sans notification.',
             ].map((t) => (
               <li key={t} className="flex gap-2">
-                <Check
+                <Icon name="check"
                   className="mt-0.5 size-3.5 shrink-0 text-primary"
                   aria-hidden
                 />

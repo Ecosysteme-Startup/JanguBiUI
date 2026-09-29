@@ -1,15 +1,10 @@
 'use client';
 
-import {
-  Infinity as InfinityIcon,
-  Repeat,
-  Repeat1,
-  Shuffle,
-  X,
-} from 'lucide-react';
+import { Infinity as InfinityIcon, Repeat, Repeat1, Shuffle } from 'lucide-react';
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
+import { Icon } from '@/components/ui/icon';
 import { Equalizer } from '@/lib/motion/equalizer';
 import { formatClock, formatRate } from '@/lib/player/format';
 import { speedBucket, usePlayerStore } from '@/lib/player/player-store';
@@ -93,7 +88,7 @@ function QueueRow({
           className="mr-2 size-8 opacity-70 group-hover:opacity-100"
           onClick={onRemove}
         >
-          <X className="size-4" aria-hidden />
+          <Icon name="x" className="size-4" aria-hidden />
         </PlayerIconButton>
       )}
     </li>

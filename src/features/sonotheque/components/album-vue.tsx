@@ -1,11 +1,12 @@
 'use client';
 
-import { Lock, Pause, Play, Shuffle } from 'lucide-react';
+import { Pause, Shuffle } from 'lucide-react';
 import NextLink from 'next/link';
 
 import { AjouterCetteParoisse } from '@/components/paroisses/ajouter-cette-paroisse';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
 import { Reveal } from '@/lib/motion/reveal';
@@ -165,7 +166,7 @@ export function AlbumVue({ albumId }: { albumId: string }) {
                 {lectureEnCours && isPlaying ? (
                   <Pause className="size-4" aria-hidden />
                 ) : (
-                  <Play className="size-4 fill-current" aria-hidden />
+                  <Icon name="lecture" className="size-4 fill-current" aria-hidden />
                 )}
                 {lectureEnCours && isPlaying ? 'Pause' : 'Lire'}
               </Button>
@@ -191,7 +192,7 @@ export function AlbumVue({ albumId }: { albumId: string }) {
               className="mb-4 flex items-start gap-3 rounded-16 border border-line bg-surface-2 p-4"
             >
               <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-paper text-ink-3">
-                <Lock className="size-4" aria-hidden />
+                <Icon name="cadenas" className="size-4" aria-hidden />
               </span>
               <span className="min-w-0">
                 <h2

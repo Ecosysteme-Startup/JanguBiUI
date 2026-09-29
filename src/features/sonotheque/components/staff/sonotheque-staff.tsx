@@ -1,14 +1,7 @@
 'use client';
 
 import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query';
-import {
-  AlertTriangle,
-  FolderPlus,
-  Pencil,
-  Plus,
-  RotateCcw,
-  Search,
-} from 'lucide-react';
+import { FolderPlus } from 'lucide-react';
 import NextLink from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -16,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -168,7 +162,7 @@ export function SonothequeStaff({ nodeId }: { nodeId: string }) {
           </Button>
           <Button asChild>
             <NextLink href={paths.espace.sonotheque.ajouter.getHref(nodeId)}>
-              <Plus className="size-4" aria-hidden />
+              <Icon name="plus" className="size-4" aria-hidden />
               Ajouter des enregistrements
             </NextLink>
           </Button>
@@ -187,7 +181,7 @@ export function SonothequeStaff({ nodeId }: { nodeId: string }) {
           role="alert"
           className="mt-6 flex flex-col gap-3 rounded-16 border border-err-line bg-err-bg p-4 sm:flex-row sm:items-center"
         >
-          <AlertTriangle className="size-5 shrink-0 text-err" aria-hidden />
+          <Icon name="alerte" className="size-5 shrink-0 text-err" aria-hidden />
           <p className="flex-1 text-14">
             <strong>{echecs[0].title}</strong>
             {echecs[0].album ? ` (${echecs[0].album.title})` : ''} n’a pas pu
@@ -215,7 +209,7 @@ export function SonothequeStaff({ nodeId }: { nodeId: string }) {
               loading={relancer.isPending}
               onClick={() => relancer.mutate(echecs[0].id)}
             >
-              <RotateCcw className="size-3.5" aria-hidden />
+              <Icon name="rembourser" className="size-3.5" aria-hidden />
               Réessayer
             </Button>
           </div>
@@ -268,7 +262,7 @@ export function SonothequeStaff({ nodeId }: { nodeId: string }) {
                   ))}
                 </select>
                 <label className="flex h-9 items-center gap-2 rounded-lg border border-line px-2.5 text-ink-3">
-                  <Search className="size-4" aria-hidden />
+                  <Icon name="recherche" className="size-4" aria-hidden />
                   <input
                     type="search"
                     value={texte}
@@ -462,7 +456,7 @@ export function SonothequeStaff({ nodeId }: { nodeId: string }) {
                         onClick={() => setDialogue({ album: a })}
                         aria-label={`Modifier ${a.title}`}
                       >
-                        <Pencil className="size-3.5" aria-hidden />
+                        <Icon name="crayon" className="size-3.5" aria-hidden />
                         Modifier
                       </Button>
                       {!a.published_at && !a.hidden_at && (

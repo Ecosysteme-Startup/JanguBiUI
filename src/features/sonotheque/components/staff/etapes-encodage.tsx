@@ -1,5 +1,6 @@
-import { AlertCircle, Check, Circle, Loader2 } from 'lucide-react';
+import { Circle } from 'lucide-react';
 
+import { Icon } from '@/components/ui/icon';
 import { cn } from '@/utils/cn';
 
 import type { EncodingStep, StaffTrack } from '../../types/schemas';
@@ -132,11 +133,11 @@ export function EtapesEncodage({
                 aria-hidden
               >
                 {s === 'fait' ? (
-                  <Check className="size-3.5" />
+                  <Icon name="check" className="size-3.5" />
                 ) : s === 'en_cours' ? (
-                  <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" />
+                  <Icon name="chargement" className="size-3.5 animate-spin motion-reduce:animate-none" />
                 ) : s === 'echec' ? (
-                  <AlertCircle className="size-3.5" />
+                  <Icon name="erreur" className="size-3.5" />
                 ) : (
                   <Circle className="size-2.5" />
                 )}

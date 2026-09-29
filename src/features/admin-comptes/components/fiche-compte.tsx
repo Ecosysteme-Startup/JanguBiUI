@@ -1,6 +1,5 @@
 'use client';
 
-import { AlertTriangle, Info } from 'lucide-react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
@@ -15,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMe } from '@/hooks/use-me';
 
@@ -268,21 +268,21 @@ export function FicheCompte({ id }: { id: string }) {
 
       {soi && (
         <p className="flex items-center gap-2 rounded-md border bg-surface-2 px-3 py-2 text-14">
-          <Info className="size-4 shrink-0" aria-hidden="true" />
+          <Icon name="info" className="size-4 shrink-0" aria-hidden="true" />
           C’est votre propre compte : les actions destructives ne sont pas
           proposées.
         </p>
       )}
       {!c.can_manage && !soi && (
         <p className="flex items-center gap-2 rounded-md border bg-surface-2 px-3 py-2 text-14">
-          <Info className="size-4 shrink-0" aria-hidden="true" />
+          <Icon name="info" className="size-4 shrink-0" aria-hidden="true" />
           Ce compte relève d’un niveau supérieur au vôtre : consultation
           seulement.
         </p>
       )}
       {kc && !kc.available && (
         <p className="flex items-center gap-2 rounded-md border border-warn-dot bg-warn-bg px-3 py-2 text-14">
-          <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
+          <Icon name="alerte" className="size-4 shrink-0" aria-hidden="true" />
           Keycloak est injoignable : l’état de connexion (sessions,
           verrouillage, double authentification) n’est pas connu pour le moment.
         </p>

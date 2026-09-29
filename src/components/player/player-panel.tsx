@@ -1,10 +1,11 @@
 'use client';
 
-import { Heart, X } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { motion, useIsPresent } from 'motion/react';
 import NextLink from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 
+import { Icon } from '@/components/ui/icon';
 import { KenBurns } from '@/lib/motion/ken-burns';
 import { easings, playerMotion, springs } from '@/lib/motion/tokens';
 import { useMotionOK } from '@/lib/motion/use-motion-ok';
@@ -285,7 +286,7 @@ export function PlayerPanel() {
             onClick={collapse}
             className="text-ink"
           >
-            <X className="size-5" aria-hidden />
+            <Icon name="x" className="size-5" aria-hidden />
           </PlayerIconButton>
         </header>
 

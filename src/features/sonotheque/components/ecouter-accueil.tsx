@@ -1,12 +1,13 @@
 'use client';
 
-import { Laptop, Library, Play, Smartphone, Sparkles } from 'lucide-react';
+import { Laptop, Library, Smartphone, Sparkles } from 'lucide-react';
 import NextLink from 'next/link';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock, Skeleton } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
@@ -141,7 +142,7 @@ function CarteReprise({ recent }: { recent: Recent }) {
         aria-label={`Reprendre ${t.title}`}
         className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-tint-50 text-primary hover:bg-tint-100 active:scale-[0.97] motion-reduce:transform-none"
       >
-        <Play className="size-5 fill-current" aria-hidden />
+        <Icon name="lecture" className="size-5 fill-current" aria-hidden />
       </button>
     </div>
   );

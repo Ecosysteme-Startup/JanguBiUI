@@ -1,8 +1,8 @@
 'use client';
 
-import { Lock, Play } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import { Icon } from '@/components/ui/icon';
 import { Equalizer } from '@/lib/motion/equalizer';
 import { cn } from '@/utils/cn';
 
@@ -77,7 +77,7 @@ export function LignePiste({
           aria-label={`${piste.title} : réservé aux paroissiens`}
           className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-3"
         >
-          <Lock className="size-4" aria-hidden />
+          <Icon name="cadenas" className="size-4" aria-hidden />
         </span>
       ) : (
         <button
@@ -92,7 +92,7 @@ export function LignePiste({
           {enCours ? (
             <Equalizer playing={isPlaying} className="text-primary" />
           ) : (
-            <Play className="size-4 fill-current" aria-hidden />
+            <Icon name="lecture" className="size-4 fill-current" aria-hidden />
           )}
         </button>
       )}

@@ -1,11 +1,11 @@
 'use client';
 
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Reveal } from '@/lib/motion/reveal';
@@ -25,7 +25,7 @@ function NouvellePlaylist() {
   if (!ouvert) {
     return (
       <Button variant="outline" size="sm" onClick={() => setOuvert(true)}>
-        <Plus className="size-4" aria-hidden />
+        <Icon name="plus" className="size-4" aria-hidden />
         Nouvelle playlist
       </Button>
     );

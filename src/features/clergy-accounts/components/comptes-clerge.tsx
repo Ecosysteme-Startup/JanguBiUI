@@ -1,6 +1,5 @@
 'use client';
 
-import { Copy, FileText, Mail, UserPlus } from 'lucide-react';
 import { useId, useState } from 'react';
 
 import { Badge, type BadgeTone } from '@/components/ui/badge';
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { ApiError } from '@/lib/api-client';
 import { useNodes } from '@/lib/can';
@@ -56,12 +56,12 @@ function LienJustificatif({ piece }: { piece?: Justificatif | null }) {
       rel="noreferrer"
       className="inline-flex items-center gap-1 text-14 text-primary underline-offset-2 hover:underline"
     >
-      <FileText className="size-4" aria-hidden="true" />
+      <Icon name="document" className="size-4" aria-hidden="true" />
       {piece.file_name}
     </a>
   ) : (
     <span className="inline-flex items-center gap-1 text-14">
-      <FileText className="size-4" aria-hidden="true" />
+      <Icon name="document" className="size-4" aria-hidden="true" />
       {piece.file_name}
     </span>
   );
@@ -165,7 +165,7 @@ function DialogueInvitation({ onClose }: { onClose: () => void }) {
                   setCopie(true);
                 }}
               >
-                <Copy className="size-4" aria-hidden="true" />
+                <Icon name="copier" className="size-4" aria-hidden="true" />
               </Button>
             </div>
           )}
@@ -334,7 +334,7 @@ function DialogueInvitation({ onClose }: { onClose: () => void }) {
               loading={inviter.isPending}
               disabled={!noeudId}
             >
-              <Mail className="size-4" aria-hidden="true" />
+              <Icon name="mail" className="size-4" aria-hidden="true" />
               Envoyer l’invitation
             </Button>
           </DialogFooter>
@@ -831,7 +831,7 @@ export function ComptesClerge() {
           onChange={setOnglet}
         />
         <Button size="sm" onClick={() => setInviter(true)}>
-          <UserPlus className="size-4" aria-hidden="true" />
+          <Icon name="utilisateur-plus" className="size-4" aria-hidden="true" />
           Inviter un membre du clergé
         </Button>
       </div>

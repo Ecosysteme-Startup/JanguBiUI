@@ -1,12 +1,12 @@
 'use client';
 
-import { Info } from 'lucide-react';
 import { useId, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { ApiError } from '@/lib/api-client';
 import { useMesParoisses } from '@/lib/paroisses/api';
@@ -36,7 +36,7 @@ const messageErreur = (e: unknown) =>
 export function NoteOffrande() {
   return (
     <p className="flex gap-2 rounded-lg bg-surface-2 p-3 text-13 leading-relaxed text-ink-3">
-      <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <Icon name="info" className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       <span>{PHRASE_OFFRANDE}</span>
     </p>
   );

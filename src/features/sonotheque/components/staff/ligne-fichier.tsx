@@ -1,8 +1,9 @@
 'use client';
 
-import { FileAudio, RotateCcw, X } from 'lucide-react';
+import { FileAudio } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
 import { cn } from '@/utils/cn';
 
 import type { FichierEnvoi } from '../../hooks/use-file-envoi';
@@ -134,7 +135,7 @@ export function LigneFichier({
         <div className="mt-2 flex justify-end gap-2 pl-8">
           {f.etape === 'echec' && (
             <Button size="sm" onClick={onReessayer}>
-              <RotateCcw className="size-3.5" aria-hidden />
+              <Icon name="rembourser" className="size-3.5" aria-hidden />
               Réessayer
             </Button>
           )}
@@ -144,7 +145,7 @@ export function LigneFichier({
             onClick={onRetirer}
             aria-label={`Retirer ${f.file.name}`}
           >
-            <X className="size-3.5" aria-hidden />
+            <Icon name="x" className="size-3.5" aria-hidden />
             Retirer
           </Button>
         </div>

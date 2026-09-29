@@ -1,6 +1,6 @@
 'use client';
 
-import { RotateCcw, Search, UserMinus } from 'lucide-react';
+import { UserMinus } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
+import { Icon } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { ApiError } from '@/lib/api-client';
@@ -150,7 +151,7 @@ export function ParoissiensStaff({ nodeId }: { nodeId: string }) {
           ))}
         </div>
         <label className="flex h-10 flex-1 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-14 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary sm:max-w-sm">
-          <Search className="size-4 text-ink-3" aria-hidden />
+          <Icon name="recherche" className="size-4 text-ink-3" aria-hidden />
           <input
             type="search"
             value={q}
@@ -263,7 +264,7 @@ export function ParoissiensStaff({ nodeId }: { nodeId: string }) {
                         }
                         onClick={() => retablir.mutate(m.user_id)}
                       >
-                        <RotateCcw className="size-3.5" aria-hidden />
+                        <Icon name="rembourser" className="size-3.5" aria-hidden />
                         Rétablir
                       </Button>
                     ) : (

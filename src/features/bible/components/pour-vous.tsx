@@ -1,9 +1,9 @@
 'use client';
 
-import { Bookmark, Share2 } from 'lucide-react';
 import NextLink from 'next/link';
 import * as React from 'react';
 
+import { Icon } from '@/components/ui/icon';
 import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
 import { Reveal } from '@/lib/motion/reveal';
@@ -109,7 +109,7 @@ function Verset({ verset }: { verset: NonNullable<PourVous['verset']> }) {
             )
           }
         >
-          <Bookmark
+          <Icon name="signet"
             className={cn('size-[18px]', isSuccess && 'fill-current')}
             aria-hidden="true"
           />
@@ -120,7 +120,7 @@ function Verset({ verset }: { verset: NonNullable<PourVous['verset']> }) {
           aria-label="Partager le verset"
           onClick={() => void partager()}
         >
-          <Share2 className="size-[18px]" aria-hidden="true" />
+          <Icon name="partager" className="size-[18px]" aria-hidden="true" />
         </button>
       </div>
     </div>
