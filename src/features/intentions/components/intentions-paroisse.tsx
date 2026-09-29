@@ -1,6 +1,7 @@
 'use client';
 
-import { Info, Inbox } from 'lucide-react';
+import { Info, Inbox, Printer } from 'lucide-react';
+import Link from 'next/link';
 import { useId, useState } from 'react';
 
 import {
@@ -15,18 +16,31 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { FilterPills } from '@/components/ui/filter-pills';
 import { SkeletonList } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
 import { ApiError } from '@/lib/api-client';
 import { type NoeudStaff } from '@/lib/staff/capacites';
 
 import {
+  heureCourte,
   LIBELLES_TYPE_INTENTION,
+  PLAFOND_MAX,
+  PLAFOND_MIN,
   type StaffMassIntention,
   useCelebrerIntention,
   useIntentionsParoisse,
+  useMessesDuJour,
+  useModifierReglages,
   usePlanifierIntention,
   useRefuserIntention,
+  useReglagesIntentions,
 } from '../api/intentions';
-import { aujourdhuiIso, jourCourt, jourLong } from '../utils/format';
+import {
+  aujourdhuiIso,
+  jourCourt,
+  jourLong,
+  PAS_DE_DATE,
+  placesRestantes,
+} from '../utils/format';
 
 import { IntentionStatusBadge } from './intention-status-badge';
 
@@ -39,8 +53,19 @@ const MOTIFS_TYPES = [
   'Texte à reformuler',
 ];
 
-const messageErreur = (e: unknown) =>
-  e instanceof ApiError ? e.message : 'L’opération n’a pas abouti.';
+const messageErreur = (e: unknown) => {
+  if (e instanceof ApiError) {
+    if (e.code === 'mass_full')
+      return 'Cette messe a déjà toutes ses intentions. Choisissez une autre messe.';
+    if (e.code === 'place_required')
+      return 'Indiquez le lieu de la messe pour la planifier à cette heure.';
+    return e.message;
+  }
+  return 'L’opération n’a pas abouti.';
+};
+
+/** Valeur du choix « autre messe » : planification sans heure précise. */
+const SANS_HEURE = '';
 
 const recue = (iso: string) =>
   new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
@@ -58,6 +83,15 @@ function PanneauDecision({
   );
   const [messe, setMesse] = useState(
     intention.scheduled_mass || intention.requested_mass,
+  );
+  const [heure, setHeure] = useState(
+    intention.scheduled_time
+      ? heureCourte(intention.scheduled_time)
+      : SANS_HEURE,
+  );
+  const { data: jour } = useMessesDuJour(intention.parish.id, date);
+  const messeChoisie = jour?.masses.find(
+    (m) => heureCourte(m.start_time) === heure,
   );
   const [motif, setMotif] = useState(MOTIFS_TYPES[0]);
   const [message, setMessage] = useState('');
@@ -84,7 +118,7 @@ function PanneauDecision({
           Souhaitée :{' '}
           {intention.requested_date
             ? `${jourLong(intention.requested_date)}${intention.requested_mass ? `, ${intention.requested_mass}` : ''}`
-            : 'pas de date'}
+            : PAS_DE_DATE}
         </p>
         <p className="text-xs text-muted-foreground">
           Annoncée à la messe : {intention.announced_as}
@@ -101,7 +135,13 @@ function PanneauDecision({
               {
                 id: intention.id,
                 scheduled_date: date,
-                scheduled_mass: messe.trim(),
+                ...(messeChoisie
+                  ? {
+                      scheduled_time: heure,
+                      place_id: messeChoisie.place_id,
+                      scheduled_mass: messeChoisie.label,
+                    }
+                  : { scheduled_mass: messe.trim() }),
               },
               { onSuccess: onFermer },
             );
@@ -128,19 +168,50 @@ function PanneauDecision({
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor={`${id}-messe`} className="text-xs font-medium">
+              <label htmlFor={`${id}-heure`} className="text-xs font-medium">
                 Messe
+              </label>
+              <select
+                id={`${id}-heure`}
+                className={champ}
+                value={heure}
+                onChange={(e) => setHeure(e.target.value)}
+              >
+                {jour?.masses.map((m) => {
+                  const h = heureCourte(m.start_time);
+                  // La messe déjà choisie reste sélectionnable (déplacement).
+                  const pleine =
+                    m.is_full &&
+                    heureCourte(intention.scheduled_time ?? '') !== h;
+                  return (
+                    <option
+                      key={`${m.place_id}-${h}`}
+                      value={h}
+                      disabled={pleine}
+                    >
+                      {`${m.label || h} · ${pleine ? 'complète' : placesRestantes(m.remaining)}`}
+                    </option>
+                  );
+                })}
+                <option value={SANS_HEURE}>Autre messe, sans heure</option>
+              </select>
+            </div>
+          </div>
+          {!messeChoisie && (
+            <div className="space-y-1">
+              <label htmlFor={`${id}-messe`} className="text-xs font-medium">
+                Précision (facultatif)
               </label>
               <input
                 id={`${id}-messe`}
                 maxLength={120}
-                placeholder="11:30"
+                placeholder="Messe des jeunes"
                 className={champ}
                 value={messe}
                 onChange={(e) => setMesse(e.target.value)}
               />
             </div>
-          </div>
+          )}
           <Button
             type="submit"
             size="sm"
@@ -148,7 +219,7 @@ function PanneauDecision({
             isLoading={planifier.isPending}
           >
             {date
-              ? `Planifier le ${jourCourt(date)}${messe.trim() ? `, ${messe.trim()}` : ''}`
+              ? `Planifier le ${jourCourt(date)}${(messeChoisie?.label ?? messe.trim()) ? `, ${messeChoisie?.label ?? messe.trim()}` : ''}`
               : 'Planifier'}
           </Button>
         </form>
@@ -262,7 +333,7 @@ function Liste({ noeud }: { noeud: NoeudStaff }) {
       cell: (i) => {
         const d = statut === 'recue' ? i.requested_date : i.scheduled_date;
         const m = statut === 'recue' ? i.requested_mass : i.scheduled_mass;
-        return `${jourCourt(d)}${m ? `, ${m}` : ''}`;
+        return `${d ? jourCourt(d) : PAS_DE_DATE}${m ? `, ${m}` : ''}`;
       },
     },
     { header: 'Reçue', cell: (i) => recue(i.created_at), hideOnMobile: true },
@@ -338,6 +409,150 @@ function Liste({ noeud }: { noeud: NoeudStaff }) {
   );
 }
 
+/** Messes d'un jour : intentions planifiées sur le plafond, lien vers la feuille. */
+function MessesDuJour({ noeud }: { noeud: NoeudStaff }) {
+  const id = useId();
+  const [date, setDate] = useState(aujourdhuiIso());
+  const { data, isLoading, isError, refetch } = useMessesDuJour(noeud.id, date);
+
+  return (
+    <section
+      aria-labelledby={`${id}-titre`}
+      className="space-y-3 rounded-xl border border-border bg-card p-4"
+    >
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-1">
+          <h2 id={`${id}-titre`} className="text-sm font-semibold">
+            Messes du jour
+          </h2>
+          <label htmlFor={`${id}-date`} className="sr-only">
+            Jour
+          </label>
+          <input
+            id={`${id}-date`}
+            type="date"
+            className={champ}
+            value={date}
+            onChange={(e) => e.target.value && setDate(e.target.value)}
+          />
+        </div>
+        <Button asChild size="sm" variant="outline">
+          <Link
+            href={paths.app.paroisse.intentionsFeuille.getHref(noeud.id, date)}
+          >
+            <Printer className="size-4" aria-hidden="true" />
+            Feuille à imprimer
+          </Link>
+        </Button>
+      </div>
+      {isLoading && <SkeletonList count={2} />}
+      {isError && <ErrorState onRetry={() => refetch()} />}
+      {data && data.masses.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Aucune messe prévue ce jour dans les horaires.
+        </p>
+      )}
+      {data && data.masses.length > 0 && (
+        <ul className="divide-y divide-border">
+          {data.masses.map((m) => (
+            <li
+              key={`${m.place_id}-${m.start_time}`}
+              className="flex items-center justify-between gap-3 py-2 text-sm"
+            >
+              <span>
+                <span className="font-medium">
+                  {m.label || heureCourte(m.start_time)}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {m.place_name}
+                </span>
+              </span>
+              <span className="text-right text-xs">
+                {m.intentions_count} / {m.max_intentions} intentions
+                <span className="block text-muted-foreground">
+                  {m.is_full ? 'Complète' : placesRestantes(m.remaining)}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {data && data.without_time_count > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {data.without_time_count === 1
+            ? '1 intention planifiée ce jour sans heure précise.'
+            : `${data.without_time_count} intentions planifiées ce jour sans heure précise.`}
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** Réglage du nombre d'intentions par messe (1 à 50). */
+function Reglages({ noeud }: { noeud: NoeudStaff }) {
+  const id = useId();
+  const { data } = useReglagesIntentions(noeud.id);
+  const modifier = useModifierReglages();
+  const [valeur, setValeur] = useState<string | null>(null);
+  const affichee = valeur ?? (data ? String(data.max_per_mass) : '');
+
+  return (
+    <form
+      aria-label="Réglages des intentions"
+      className="space-y-2 rounded-xl border border-border bg-card p-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const n = Number(affichee);
+        if (!Number.isInteger(n) || n < PLAFOND_MIN || n > PLAFOND_MAX) return;
+        modifier.mutate(
+          { node: noeud.id, max_per_mass: n },
+          { onSuccess: () => setValeur(null) },
+        );
+      }}
+    >
+      <label htmlFor={`${id}-plafond`} className="text-sm font-semibold">
+        Intentions par messe
+      </label>
+      <div className="flex gap-2">
+        <input
+          id={`${id}-plafond`}
+          type="number"
+          min={PLAFOND_MIN}
+          max={PLAFOND_MAX}
+          step={1}
+          required
+          className={champ}
+          value={affichee}
+          onChange={(e) => setValeur(e.target.value)}
+        />
+        <Button
+          type="submit"
+          size="sm"
+          variant="outline"
+          isLoading={modifier.isPending}
+          disabled={!data}
+        >
+          Enregistrer
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        De {PLAFOND_MIN} à {PLAFOND_MAX}. Une messe complète n’accepte plus
+        d’intention à son heure.
+      </p>
+      {modifier.isSuccess && valeur === null && (
+        <p role="status" className="text-xs text-muted-foreground">
+          Réglage enregistré.
+        </p>
+      )}
+      {modifier.error && (
+        <p role="alert" className="text-sm text-destructive">
+          {messageErreur(modifier.error)}
+        </p>
+      )}
+    </form>
+  );
+}
+
 /** File des intentions de la paroisse (WEB-PAR-Intentions), `intentions.gerer`. */
 export function IntentionsParoisse() {
   const { noeud, noeuds, choisir, isLoading } =
@@ -347,6 +562,10 @@ export function IntentionsParoisse() {
   return (
     <div className="space-y-4">
       <NoeudSelect noeuds={noeuds} valeur={noeud.id} onChange={choisir} />
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <MessesDuJour key={`m-${noeud.id}`} noeud={noeud} />
+        <Reglages key={`r-${noeud.id}`} noeud={noeud} />
+      </div>
       <Liste key={noeud.id} noeud={noeud} />
     </div>
   );

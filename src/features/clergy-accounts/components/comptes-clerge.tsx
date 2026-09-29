@@ -1,6 +1,6 @@
 'use client';
 
-import { Copy, Inbox, Mail, UserPlus } from 'lucide-react';
+import { Copy, FileText, Inbox, Mail, UserPlus } from 'lucide-react';
 import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -24,10 +24,16 @@ import { noeudsPour } from '@/lib/staff/capacites';
 
 import {
   type CompteClerge,
+  type FiltresComptes,
   type Invitation,
+  type Justificatif,
   libelleRole,
+  ROLES_FILTRE,
+  STATUTS_FILTRE,
   useActionCompte,
+  useComptesClerge,
   useComptesEnAttente,
+  type VueComptes,
   useInvitations,
   useInviter,
   useRevoquerInvitation,
@@ -36,8 +42,31 @@ import {
 const champ =
   'w-full rounded-md border border-input bg-background px-3 py-2 text-sm';
 
-const messageErreur = (e: unknown) =>
-  e instanceof ApiError ? e.message : 'L’opération n’a pas abouti.';
+const messageErreur = (e: unknown) => {
+  if (e instanceof ApiError && e.code?.startsWith('file_'))
+    return 'La pièce justificative n’a pas pu être prise en compte. Déposez-la de nouveau.';
+  return e instanceof ApiError ? e.message : 'L’opération n’a pas abouti.';
+};
+
+function LienJustificatif({ piece }: { piece?: Justificatif | null }) {
+  if (!piece) return null;
+  return piece.url ? (
+    <a
+      href={piece.url}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1 text-sm text-primary underline-offset-2 hover:underline"
+    >
+      <FileText className="size-4" aria-hidden="true" />
+      {piece.file_name}
+    </a>
+  ) : (
+    <span className="inline-flex items-center gap-1 text-sm">
+      <FileText className="size-4" aria-hidden="true" />
+      {piece.file_name}
+    </span>
+  );
+}
 
 const dateCourte = (iso: string | null | undefined) =>
   iso
@@ -99,6 +128,7 @@ function DialogueInvitation({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState('');
   const [degre, setDegre] = useState('pretre');
   const [jours, setJours] = useState(14);
+  const [fichier, setFichier] = useState<File | null>(null);
   const inviter = useInviter();
   const noeudId = noeud || options[0]?.id || '';
   const [copie, setCopie] = useState(false);
@@ -169,6 +199,7 @@ function DialogueInvitation({ onClose }: { onClose: () => void }) {
               etat_de_vie: consacre ? 'consacre' : 'clerc',
               degre_ordre: consacre ? 'aucun' : degre,
               ttl_days: jours,
+              fichier,
             });
           }}
         >
@@ -271,6 +302,21 @@ function DialogueInvitation({ onClose }: { onClose: () => void }) {
               onChange={(e) => setJours(Number(e.target.value))}
             />
           </div>
+          <div className="space-y-1">
+            <label htmlFor={`${id}-piece`} className="text-sm font-medium">
+              Pièce justificative (facultatif)
+            </label>
+            <input
+              id={`${id}-piece`}
+              type="file"
+              accept="application/pdf,image/*"
+              className="block w-full text-sm"
+              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Lettre de nomination ou décret d’affectation, si vous l’avez.
+            </p>
+          </div>
           {inviter.isError && (
             <p role="alert" className="text-sm text-destructive">
               {messageErreur(inviter.error)}
@@ -354,6 +400,14 @@ function PanneauCompte({
         <dd>{compte.node?.name ?? '—'}</dd>
         <dt className="text-muted-foreground">Inscrit le</dt>
         <dd>{dateCourte(compte.declared_at)}</dd>
+        <dt className="text-muted-foreground">Pièce justificative</dt>
+        <dd>
+          {compte.justificatif ? (
+            <LienJustificatif piece={compte.justificatif} />
+          ) : (
+            'Aucune'
+          )}
+        </dd>
       </dl>
       <p className="text-xs text-muted-foreground">
         À valider par la chancellerie : l’affectation doit correspondre à la
@@ -443,8 +497,133 @@ function PanneauCompte({
   );
 }
 
-function EnAttente() {
-  const { data, isLoading, isError, refetch } = useComptesEnAttente();
+function FiltresBarre({
+  vue,
+  filtres,
+  onChange,
+}: {
+  vue: VueComptes;
+  filtres: FiltresComptes;
+  onChange: (f: FiltresComptes) => void;
+}) {
+  const id = useId();
+  const { data: user } = useUser();
+  const perimetre = noeudsPour(user, 'comptes.valider');
+  const maj = (cle: keyof FiltresComptes) => (v: string) =>
+    onChange({ ...filtres, [cle]: v });
+  return (
+    <div
+      role="group"
+      aria-label="Filtrer les comptes"
+      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      <div>
+        <label htmlFor={`${id}-q`} className="sr-only">
+          Nom ou e-mail
+        </label>
+        <input
+          id={`${id}-q`}
+          type="search"
+          placeholder="Nom ou e-mail"
+          className={champ}
+          value={filtres.q ?? ''}
+          onChange={(e) => maj('q')(e.target.value)}
+        />
+      </div>
+      {perimetre.length > 1 && (
+        <div>
+          <label htmlFor={`${id}-diocese`} className="sr-only">
+            Diocèse
+          </label>
+          <select
+            id={`${id}-diocese`}
+            className={champ}
+            value={filtres.diocese ?? ''}
+            onChange={(e) => maj('diocese')(e.target.value)}
+          >
+            <option value="">Tous les diocèses</option>
+            {perimetre.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div>
+        <label htmlFor={`${id}-role`} className="sr-only">
+          Rôle
+        </label>
+        <select
+          id={`${id}-role`}
+          className={champ}
+          value={filtres.role ?? ''}
+          onChange={(e) => maj('role')(e.target.value)}
+        >
+          <option value="">Tous les rôles</option>
+          {ROLES_FILTRE.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {vue === 'all' && (
+        <div>
+          <label htmlFor={`${id}-statut`} className="sr-only">
+            Statut
+          </label>
+          <select
+            id={`${id}-statut`}
+            className={champ}
+            value={filtres.statut ?? ''}
+            onChange={(e) => maj('statut')(e.target.value)}
+          >
+            <option value="">Tous les statuts</option>
+            {STATUTS_FILTRE.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const TEXTES_VUE: Record<
+  VueComptes,
+  { caption: string; vide: string; description: string }
+> = {
+  pending: {
+    caption: 'Comptes du clergé en attente de validation',
+    vide: 'Aucun compte en attente',
+    description: 'Tout est à jour.',
+  },
+  validated: {
+    caption: 'Comptes du clergé validés',
+    vide: 'Aucun compte validé',
+    description: 'Rien pour ces filtres.',
+  },
+  all: {
+    caption: 'Comptes du clergé',
+    vide: 'Aucun compte',
+    description: 'Rien pour ces filtres.',
+  },
+};
+
+const LIBELLES_STATUT_COMPTE: Record<string, StatusConfig> = {
+  declare: { label: 'Déclaré', tone: 'warning' },
+  complement: { label: 'Complément demandé', tone: 'warning' },
+  verifie: { label: 'Validé', tone: 'success' },
+  rejete: { label: 'Refusé', tone: 'danger' },
+};
+
+function Comptes({ vue }: { vue: VueComptes }) {
+  const [filtres, setFiltres] = useState<FiltresComptes>({});
+  const { data, isLoading, isError, refetch } = useComptesClerge(vue, filtres);
+  const textes = TEXTES_VUE[vue];
   const [choisi, setChoisi] = useState<CompteClerge | null>(null);
   const colonnes: DataTableColumn<CompteClerge>[] = [
     {
@@ -469,6 +648,21 @@ function EnAttente() {
       ),
     },
     { header: 'Affectation déclarée', cell: (c) => c.node?.name ?? '—' },
+    ...(vue === 'pending'
+      ? []
+      : [
+          {
+            header: 'Statut',
+            cell: (c: CompteClerge) => (
+              <StatusBadge
+                {...(LIBELLES_STATUT_COMPTE[c.statut_verification] ?? {
+                  label: c.statut_verification,
+                  tone: 'neutral' as const,
+                })}
+              />
+            ),
+          },
+        ]),
     {
       header: 'Inscrit',
       cell: (c) => dateCourte(c.declared_at),
@@ -477,36 +671,46 @@ function EnAttente() {
     {
       header: 'Actions',
       isAction: true,
-      cell: (c) => (
-        <Button size="sm" variant="outline" onClick={() => setChoisi(c)}>
-          Examiner
-        </Button>
-      ),
+      cell: (c) =>
+        c.statut_verification === 'declare' ||
+        c.statut_verification === 'complement' ? (
+          <Button size="sm" variant="outline" onClick={() => setChoisi(c)}>
+            Examiner
+          </Button>
+        ) : (
+          <LienJustificatif piece={c.justificatif} />
+        ),
     },
   ];
-  if (isError) return <ErrorState onRetry={() => refetch()} />;
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <DataTable
-        data={data?.results}
-        columns={colonnes}
-        rowKey={(c) => c.id}
-        isLoading={isLoading}
-        caption="Comptes du clergé en attente de validation"
-        emptyState={
-          <EmptyState
-            icon={<Inbox />}
-            title="Aucun compte en attente"
-            description="Tout est à jour."
+    <div className="space-y-3">
+      <FiltresBarre vue={vue} filtres={filtres} onChange={setFiltres} />
+      {isError ? (
+        <ErrorState onRetry={() => refetch()} />
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <DataTable
+            data={data?.results}
+            columns={colonnes}
+            rowKey={(c) => c.id}
+            isLoading={isLoading}
+            caption={textes.caption}
+            emptyState={
+              <EmptyState
+                icon={<Inbox />}
+                title={textes.vide}
+                description={textes.description}
+              />
+            }
           />
-        }
-      />
-      {choisi && (
-        <PanneauCompte
-          key={choisi.id}
-          compte={choisi}
-          onFermer={() => setChoisi(null)}
-        />
+          {choisi && (
+            <PanneauCompte
+              key={choisi.id}
+              compte={choisi}
+              onFermer={() => setChoisi(null)}
+            />
+          )}
+        </div>
       )}
     </div>
   );
@@ -613,6 +817,8 @@ export function ComptesClerge() {
         <FilterPills
           options={[
             { value: 'attente', label: 'En attente', count: attente?.count },
+            { value: 'valides', label: 'Validés' },
+            { value: 'tous', label: 'Tous les comptes' },
             {
               value: 'invitations',
               label: 'Invitations',
@@ -628,7 +834,10 @@ export function ComptesClerge() {
           Inviter un membre du clergé
         </Button>
       </div>
-      {onglet === 'attente' ? <EnAttente /> : <Invitations />}
+      {onglet === 'attente' && <Comptes key="p" vue="pending" />}
+      {onglet === 'valides' && <Comptes key="v" vue="validated" />}
+      {onglet === 'tous' && <Comptes key="a" vue="all" />}
+      {onglet === 'invitations' && <Invitations />}
       {inviter && <DialogueInvitation onClose={() => setInviter(false)} />}
       <p className="text-xs text-muted-foreground">
         Chaque décision est inscrite au journal d’audit.

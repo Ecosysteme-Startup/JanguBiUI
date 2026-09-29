@@ -20,6 +20,9 @@ export const jourCourt = (iso: string | null | undefined): string => {
   });
 };
 
+/** Demande sans date souhaitée (`requested_date` nul) : le secrétariat choisit. */
+export const PAS_DE_DATE = 'Pas de date précise';
+
 /** Date locale du jour au format `AAAA-MM-JJ`. */
 export const aujourdhuiIso = (maintenant = new Date()): string => {
   const p = (n: number) => String(n).padStart(2, '0');
@@ -43,10 +46,16 @@ export const ligneSuivi = (i: {
     case 'celebree':
       return `Célébrée le ${jourLong(i.celebrated_at ?? i.scheduled_date)}${messe(i.scheduled_mass)}`;
     case 'refusee':
-      return `Demandée pour le ${jourLong(i.requested_date)}${messe(i.requested_mass)}`;
+      return i.requested_date
+        ? `Demandée pour le ${jourLong(i.requested_date)}${messe(i.requested_mass)}`
+        : `Demandée sans date précise${messe(i.requested_mass)}`;
     case 'annulee':
       return 'Demande annulée';
     default:
-      return `Souhaitée le ${jourLong(i.requested_date)}${messe(i.requested_mass)}${i.is_anonymous ? ' · anonyme' : ''}`;
+      return `${i.requested_date ? `Souhaitée le ${jourLong(i.requested_date)}` : PAS_DE_DATE}${messe(i.requested_mass)}${i.is_anonymous ? ' · anonyme' : ''}`;
   }
 };
+
+/** « 3 places restantes », « 1 place restante ». */
+export const placesRestantes = (n: number): string =>
+  n === 1 ? '1 place restante' : `${n} places restantes`;

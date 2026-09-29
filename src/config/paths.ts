@@ -88,6 +88,10 @@ export const paths = {
       },
       sonotheque: { getHref: () => '/app/paroisse/sonotheque' },
       intentions: { getHref: () => '/app/paroisse/intentions' },
+      intentionsFeuille: {
+        getHref: (node: string, date: string) =>
+          `/app/paroisse/intentions/feuille?${new URLSearchParams({ node, date }).toString()}`,
+      },
       sonothequeAjouter: {
         getHref: (album?: string) =>
           album

@@ -39,6 +39,19 @@ describe('Recherche transverse (/v1/search/)', () => {
     expect(await screen.findByText('Aucun résultat')).toBeInTheDocument();
   });
 
+  test('un verset ouvre le lecteur au bon livre et chapitre', async () => {
+    const user = userEvent.setup();
+    renderApp(<Recherche />);
+    await user.type(screen.getByRole('searchbox'), 'merveilles');
+    const bible = await screen.findByRole('region', { name: /Bible/ });
+    expect(
+      within(bible).getByRole('link', { name: /Luc 1, 49/ }),
+    ).toHaveAttribute(
+      'href',
+      '/app/bible?tab=bible&livre=42&chapitre=1&verset=49',
+    );
+  });
+
   test('aucun résultat : message sobre', async () => {
     const user = userEvent.setup();
     renderApp(<Recherche />);

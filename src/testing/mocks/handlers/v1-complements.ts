@@ -33,6 +33,7 @@ const erreur = (status: number, code: string, message: string) =>
   HttpResponse.json({ error: { code, message, details: {} } }, { status });
 
 const SD = { id: NOEUD_SAINT_DOMINIQUE, name: 'Saint-Dominique' };
+const EGLISE_SD = { id: 12, name: 'Église Saint-Dominique' };
 
 export const NOTICE_OFFRANDE =
   "L'application ne reçoit aucune offrande. Selon l'usage, l'offrande de messe se remet directement au secrétariat de la paroisse.";
@@ -42,15 +43,16 @@ export const NOTICE_OFFRANDE =
 type Intention = {
   id: string;
   parish: { id: string; name: string };
-  place: null;
+  place: { id: number; name: string } | null;
   kind: string;
   intention: string;
   is_anonymous: boolean;
-  requested_date: string;
+  requested_date: string | null;
   requested_mass: string;
   status: string;
   scheduled_date: string | null;
   scheduled_mass: string;
+  scheduled_time: string | null;
   refusal_reason: string;
   celebrated_at: string | null;
   cancelled_at: string | null;
@@ -72,6 +74,7 @@ const intention = (
   requested_mass: '11:30',
   scheduled_date: null,
   scheduled_mass: '',
+  scheduled_time: null,
   refusal_reason: '',
   celebrated_at: null,
   cancelled_at: null,
@@ -88,7 +91,9 @@ const intentionsInitiales = (): Intention[] => [
     requested_date: '2026-11-02',
     requested_mass: '18:30',
     scheduled_date: '2026-11-02',
-    scheduled_mass: '18:30',
+    scheduled_mass: 'Messe de 18 h 30',
+    scheduled_time: '18:30:00',
+    place: EGLISE_SD,
   }),
   intention(2, {
     kind: 'action_de_graces',
@@ -114,9 +119,69 @@ const intentionsInitiales = (): Intention[] => [
     requested_mass: '18:30',
     requester_name: 'Jean-Baptiste Mendy',
   }),
+  intention(5, {
+    kind: 'defunt',
+    intention: 'Pour le repos de l’âme de Rose Gomis',
+    status: 'recue',
+    requested_date: null,
+    requested_mass: '',
+    requester_name: 'Cécile Coly',
+  }),
 ];
 
 let intentions = intentionsInitiales();
+
+// Messes du jour (horaires `MassSchedule` du lieu) et plafond par messe (§5.2).
+const MESSES_SD = [
+  { start_time: '07:00:00', label: 'Messe de 7 h', language: 'fr' },
+  { start_time: '10:00:00', label: 'Messe de 10 h', language: 'fr' },
+  { start_time: '18:30:00', label: 'Messe de 18 h 30', language: 'fr' },
+];
+let plafond = 5;
+
+const comptees = (date: string, heure: string, sauf?: string) =>
+  intentions.filter(
+    (i) =>
+      i.id !== sauf &&
+      ['planifiee', 'celebree'].includes(i.status) &&
+      i.scheduled_date === date &&
+      i.scheduled_time === heure,
+  );
+
+const messesDuJour = (date: string) =>
+  MESSES_SD.map((m) => {
+    const n = comptees(date, m.start_time).length;
+    return {
+      place_id: EGLISE_SD.id,
+      place_name: EGLISE_SD.name,
+      ...m,
+      note: '',
+      intentions_count: n,
+      max_intentions: plafond,
+      remaining: Math.max(0, plafond - n),
+      is_full: n >= plafond,
+    };
+  });
+
+const sansHeure = (date: string) =>
+  intentions.filter(
+    (i) =>
+      ['planifiee', 'celebree'].includes(i.status) &&
+      i.scheduled_date === date &&
+      !MESSES_SD.some((m) => m.start_time === i.scheduled_time),
+  );
+
+const ligneFeuille = (i: Intention) => ({
+  id: i.id,
+  kind: i.kind,
+  kind_label:
+    { defunt: 'Pour un défunt', action_de_graces: 'Action de grâce' }[i.kind] ??
+    'Intention particulière',
+  intention: i.intention,
+  announced_as: i.is_anonymous ? 'Une personne' : i.requester_name,
+  status: i.status,
+});
+
 const MOI = 'Marie-Thérèse Diouf';
 
 const versFidele = (i: Intention) => {
@@ -143,13 +208,11 @@ const intentionsHandlers = [
   ),
   http.post(`${API}/mass-intentions/`, async ({ request }) => {
     const b = (await request.json()) as Record<string, unknown>;
-    if (!b.requested_date)
-      return erreur(400, 'validation_error', 'La date est obligatoire.');
     const i = intention(intentions.length + 1, {
       kind: String(b.kind),
       intention: String(b.intention),
       is_anonymous: !!b.is_anonymous,
-      requested_date: String(b.requested_date),
+      requested_date: b.requested_date ? String(b.requested_date) : null,
       requested_mass: String(b.requested_mass ?? ''),
       status: 'recue',
     });
@@ -175,6 +238,52 @@ const intentionsHandlers = [
       ),
     );
   }),
+  http.get(`${API}/mass-intentions/parish/messes/`, ({ request }) => {
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date') ?? '';
+    if (!url.searchParams.get('node') || !date)
+      return erreur(400, 'validation_error', 'Paroisse et date obligatoires.');
+    return HttpResponse.json({
+      node: SD,
+      date,
+      max_per_mass: plafond,
+      masses: messesDuJour(date),
+      without_time_count: sansHeure(date).length,
+    });
+  }),
+  http.get(`${API}/mass-intentions/parish/feuille/`, ({ request }) => {
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date') ?? '';
+    if (!url.searchParams.get('node') || !date)
+      return erreur(400, 'validation_error', 'Paroisse et date obligatoires.');
+    return HttpResponse.json({
+      node: SD,
+      date,
+      masses: messesDuJour(date).map((m) => ({
+        ...m,
+        intentions: comptees(date, m.start_time).map(ligneFeuille),
+      })),
+      other_intentions: sansHeure(date).map((i) => ({
+        ...ligneFeuille(i),
+        scheduled_mass: i.scheduled_mass,
+      })),
+    });
+  }),
+  http.get(`${API}/mass-intentions/parish/reglages/`, () =>
+    HttpResponse.json({ node: SD.id, max_per_mass: plafond }),
+  ),
+  http.patch(`${API}/mass-intentions/parish/reglages/`, async ({ request }) => {
+    const b = (await request.json()) as { max_per_mass?: number };
+    const v = Number(b.max_per_mass);
+    if (!Number.isInteger(v) || v < 1 || v > 50)
+      return erreur(
+        400,
+        'max_invalid',
+        'Le nombre d’intentions par messe va de 1 à 50.',
+      );
+    plafond = v;
+    return HttpResponse.json({ node: SD.id, max_per_mass: plafond });
+  }),
   http.post(
     `${API}/mass-intentions/:id/accept/`,
     async ({ params, request }) => {
@@ -183,10 +292,31 @@ const intentionsHandlers = [
       const b = (await request.json()) as {
         scheduled_date: string;
         scheduled_mass?: string;
+        scheduled_time?: string | null;
+        place_id?: number | null;
       };
+      const heure = b.scheduled_time
+        ? `${b.scheduled_time.slice(0, 5)}:00`
+        : null;
+      if (heure) {
+        if (!b.place_id && !i.place)
+          return erreur(
+            400,
+            'place_required',
+            'Choisissez le lieu de la messe.',
+          );
+        if (comptees(b.scheduled_date, heure, i.id).length >= plafond)
+          return erreur(
+            409,
+            'mass_full',
+            'Cette messe a déjà toutes ses intentions.',
+          );
+      }
       i.status = 'planifiee';
       i.scheduled_date = b.scheduled_date;
       i.scheduled_mass = b.scheduled_mass ?? '';
+      i.scheduled_time = heure;
+      if (b.place_id) i.place = EGLISE_SD;
       i.decided_at = '2026-09-27T11:00:00+00:00';
       return HttpResponse.json(versStaff(i));
     },
@@ -261,6 +391,37 @@ type CompteMock = Record<string, unknown> & {
   is_active: boolean;
 };
 
+/** Pièce justificative (§5.3) telle que la renvoie le sérialiseur. */
+const pieceJustificative = (id: number) => ({
+  id,
+  file_name: 'lettre-de-nomination.pdf',
+  file_type: 'application/pdf',
+  url: `http://localhost:8001/media/files/${id}/lettre-de-nomination.pdf`,
+});
+
+const ROLES_EN_ATTENTE = ['declare', 'complement'];
+
+/** Filtres `role`, `statut`, `q` (le sous-arbre `diocese` n'est pas simulé). */
+const filtrerComptes = (rows: CompteMock[], request: Request) => {
+  const p = new URL(request.url).searchParams;
+  const role = p.get('role');
+  const statut = p.get('statut');
+  const q = (p.get('q') ?? '').toLowerCase();
+  return rows.filter(
+    (c) =>
+      (!role ||
+        (role === 'consacre'
+          ? c.etat_de_vie === 'consacre'
+          : c.degre_ordre === role)) &&
+      (!statut ||
+        (statut === 'en_attente'
+          ? ROLES_EN_ATTENTE.includes(c.statut_verification)
+          : c.statut_verification === statut)) &&
+      (!q ||
+        `${String(c.full_name)} ${String(c.email)}`.toLowerCase().includes(q)),
+  );
+};
+
 const comptesInitiaux = (): CompteMock[] => [
   {
     id: 'c0000000-0000-4000-8000-000000000001',
@@ -276,6 +437,7 @@ const comptesInitiaux = (): CompteMock[] => [
       id: 'st000000-0000-4000-8000-000000000001',
       name: 'Sainte-Thérèse de Grand-Dakar',
     },
+    justificatif: pieceJustificative(77),
   },
   {
     id: 'c0000000-0000-4000-8000-000000000002',
@@ -288,6 +450,20 @@ const comptesInitiaux = (): CompteMock[] => [
     declared_at: '2026-09-25T08:00:00+00:00',
     is_active: false,
     node: SD,
+    justificatif: null,
+  },
+  {
+    id: 'c0000000-0000-4000-8000-000000000003',
+    email: 'e.tine@archidakar.sn',
+    full_name: 'Emmanuel Tine',
+    etat_de_vie: 'clerc',
+    degre_ordre: 'pretre',
+    statut_verification: 'verifie',
+    verification_note: '',
+    declared_at: '2026-09-02T08:00:00+00:00',
+    is_active: true,
+    node: SD,
+    justificatif: pieceJustificative(61),
   },
 ];
 
@@ -329,7 +505,10 @@ const clergeHandlers = [
   http.post(
     `${API}/clergy-accounts/invitations/accept/`,
     async ({ request }) => {
-      const { token } = (await request.json()) as { token?: string };
+      const { token, justificatif_id } = (await request.json()) as {
+        token?: string;
+        justificatif_id?: number;
+      };
       if (token !== JETON_INVITATION)
         return erreur(
           410,
@@ -347,6 +526,9 @@ const clergeHandlers = [
         declared_at: '2026-09-29T09:00:00+00:00',
         is_active: true,
         node: SD,
+        justificatif: justificatif_id
+          ? pieceJustificative(justificatif_id)
+          : null,
       });
     },
   ),
@@ -377,6 +559,9 @@ const clergeHandlers = [
       accepted_at: null,
       revoked_at: null,
       created_at: '2026-09-29T09:00:00+00:00',
+      justificatif: b.justificatif_id
+        ? pieceJustificative(Number(b.justificatif_id))
+        : null,
     };
     invitations.unshift(inv);
     return HttpResponse.json(
@@ -397,10 +582,29 @@ const clergeHandlers = [
   http.get(`${API}/clergy-accounts/pending/`, ({ request }) =>
     HttpResponse.json(
       page(
-        comptes.filter((c) => c.statut_verification === 'declare'),
+        filtrerComptes(
+          comptes.filter((c) =>
+            ROLES_EN_ATTENTE.includes(c.statut_verification),
+          ),
+          request,
+        ),
         request,
       ),
     ),
+  ),
+  http.get(`${API}/clergy-accounts/validated/`, ({ request }) =>
+    HttpResponse.json(
+      page(
+        filtrerComptes(
+          comptes.filter((c) => c.statut_verification === 'verifie'),
+          request,
+        ),
+        request,
+      ),
+    ),
+  ),
+  http.get(`${API}/clergy-accounts/`, ({ request }) =>
+    HttpResponse.json(page(filtrerComptes(comptes, request), request)),
   ),
   http.post(
     `${API}/clergy-accounts/:id/:action/`,
@@ -457,6 +661,8 @@ const rechercheHandlers = [
           id: 24049,
           book_name: 'Luc',
           book_slug: 'luc',
+          book_id: 42,
+          chapter_id: 1101,
           chapter: 1,
           verse: 49,
           text: 'Le Puissant fit pour moi des merveilles ; Saint est son nom !',
@@ -661,6 +867,7 @@ const staffHandlers = [
 /** Remet les données de ce module à l'état initial (tests). */
 export const reinitialiserV1Complements = () => {
   intentions = intentionsInitiales();
+  plafond = 5;
   invitations = invitationsInitiales();
   comptes = comptesInitiaux();
   compteurs = compteursInitiaux();

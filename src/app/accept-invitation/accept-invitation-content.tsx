@@ -2,6 +2,7 @@
 
 import { CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useId, useState } from 'react';
 
 import { Button } from '@/components/ui/button/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -25,6 +26,8 @@ const Cadre = ({ children }: { children: React.ReactNode }) => (
 const messageAcceptation = (e: unknown) => {
   if (e instanceof ApiError && e.code === 'invitation_email_mismatch')
     return 'Vous êtes connecté avec une autre adresse que celle de l’invitation. Déconnectez-vous puis reconnectez-vous avec l’adresse invitée.';
+  if (e instanceof ApiError && e.code?.startsWith('file_'))
+    return 'La pièce jointe n’a pas pu être prise en compte. Réessayez de la déposer, ou acceptez sans pièce.';
   if (e instanceof ApiError && e.status === 410)
     return 'Ce lien d’invitation n’est plus valable. Demandez une nouvelle invitation.';
   return e instanceof ApiError ? e.message : 'L’acceptation n’a pas abouti.';
@@ -39,6 +42,8 @@ export function AcceptInvitationContent({ token }: { token: string }) {
   const { data: user } = useUser();
   const { data: invitation, isLoading, isError } = useInvitationParJeton(token);
   const accepter = useAccepterInvitation();
+  const idFichier = useId();
+  const [fichier, setFichier] = useState<File | null>(null);
 
   if (isLoading) {
     return (
@@ -141,10 +146,26 @@ export function AcceptInvitationContent({ token }: { token: string }) {
               {messageAcceptation(accepter.error)}
             </p>
           )}
+          <div className="mt-6 space-y-1">
+            <label htmlFor={idFichier} className="text-sm font-medium">
+              Pièce justificative (facultatif)
+            </label>
+            <input
+              id={idFichier}
+              type="file"
+              accept="application/pdf,image/*"
+              className="block w-full text-sm"
+              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Lettre de nomination ou attestation, pour aider le diocèse à
+              valider votre compte.
+            </p>
+          </div>
           <Button
             className="mt-6 w-full"
             isLoading={accepter.isPending}
-            onClick={() => accepter.mutate(token)}
+            onClick={() => accepter.mutate({ token, fichier })}
           >
             Accepter l’invitation
           </Button>

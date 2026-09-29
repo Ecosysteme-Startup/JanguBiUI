@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { z } from 'zod';
 
+import { uploadDocumentFile } from '@/features/documents/api/upload-document-file';
 import { api } from '@/lib/api-client';
 
 // Comptes du clergé — backend `docs/API-V1-COMPLEMENTS.md` §1
@@ -32,6 +33,33 @@ export const libelleRole = (etat: string, degre: string): string =>
 
 const refSchema = z.object({ id: z.string(), name: z.string() });
 
+/** Pièce justificative facultative (§5.3) : `{id, file_name, file_type, url}`. */
+export const justificatifSchema = z.object({
+  id: z.union([z.number(), z.string()]),
+  file_name: z.string(),
+  file_type: z.string().default(''),
+  url: z.string().nullish(),
+});
+export type Justificatif = z.infer<typeof justificatifSchema>;
+
+/** Rôles filtrables (`role`) sur les listes de comptes. */
+export const ROLES_FILTRE = [
+  { value: 'pretre', label: 'Prêtre' },
+  { value: 'diacre_permanent', label: 'Diacre permanent' },
+  { value: 'diacre_transitoire', label: 'Diacre (transitoire)' },
+  { value: 'eveque', label: 'Évêque' },
+  { value: 'consacre', label: 'Consacré ou consacrée' },
+] as const;
+
+/** Statuts filtrables (`statut`) sur la liste générale. */
+export const STATUTS_FILTRE = [
+  { value: 'en_attente', label: 'En attente' },
+  { value: 'declare', label: 'Déclarés' },
+  { value: 'complement', label: 'Complément demandé' },
+  { value: 'verifie', label: 'Validés' },
+  { value: 'rejete', label: 'Refusés' },
+] as const;
+
 export const invitationSchema = z.object({
   id: z.string(),
   email: z.string(),
@@ -47,6 +75,7 @@ export const invitationSchema = z.object({
   revoked_at: z.string().nullable().optional(),
   created_at: z.string(),
   accept_url: z.string().optional(),
+  justificatif: justificatifSchema.nullish(),
 });
 export type Invitation = z.infer<typeof invitationSchema>;
 
@@ -72,6 +101,7 @@ export const compteClergeSchema = z.object({
   declared_at: z.string().nullable().optional(),
   is_active: z.boolean(),
   node: refSchema.nullable(),
+  justificatif: justificatifSchema.nullish(),
 });
 export type CompteClerge = z.infer<typeof compteClergeSchema>;
 
@@ -110,14 +140,23 @@ export type InvitationInput = {
   etat_de_vie: 'clerc' | 'consacre';
   degre_ordre: string;
   ttl_days?: number;
+  /** Pièce facultative, déposée d'abord par `files/upload/standard/`. */
+  fichier?: File | null;
 };
+
+/** Dépose la pièce (si fournie) et renvoie son identifiant pour `justificatif_id`. */
+const deposer = async (fichier?: File | null) =>
+  fichier ? { justificatif_id: (await uploadDocumentFile(fichier)).id } : {};
 
 export const useInviter = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InvitationInput) =>
+    mutationFn: async ({ fichier, ...data }: InvitationInput) =>
       invitationSchema.parse(
-        await api.post<unknown>('/v1/clergy-accounts/invitations/', data),
+        await api.post<unknown>('/v1/clergy-accounts/invitations/', {
+          ...data,
+          ...(await deposer(fichier)),
+        }),
       ),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['clergy-accounts', 'invitations'] }),
@@ -157,29 +196,62 @@ export const useInvitationParJeton = (token: string) =>
 
 export const useAccepterInvitation = () =>
   useMutation({
-    mutationFn: async (token: string) =>
+    mutationFn: async ({
+      token,
+      fichier,
+    }: {
+      token: string;
+      fichier?: File | null;
+    }) =>
       compteClergeSchema.parse(
         await api.post<unknown>(
           '/v1/clergy-accounts/invitations/accept/',
-          { token },
+          { token, ...(await deposer(fichier)) },
           { quiet: true },
         ),
       ),
   });
 
-// --- Comptes en attente -------------------------------------------------------------
+// --- Comptes (en attente, validés, tous) --------------------------------------------
 
-export const useComptesEnAttente = () =>
+export type FiltresComptes = {
+  /** UUID d'un diocèse ou de tout nœud : son sous-arbre, borné à mon périmètre. */
+  diocese?: string;
+  role?: string;
+  /** Liste générale seulement. */
+  statut?: string;
+  q?: string;
+};
+
+export type VueComptes = 'pending' | 'validated' | 'all';
+
+const CHEMINS_VUE: Record<VueComptes, string> = {
+  pending: '/v1/clergy-accounts/pending/',
+  validated: '/v1/clergy-accounts/validated/',
+  all: '/v1/clergy-accounts/',
+};
+
+export const useComptesClerge = (vue: VueComptes, f: FiltresComptes = {}) =>
   useQuery({
-    queryKey: ['clergy-accounts', 'pending'],
+    queryKey: ['clergy-accounts', vue, f],
     queryFn: async () =>
       page(compteClergeSchema).parse(
-        await api.get<unknown>('/v1/clergy-accounts/pending/', {
-          params: { limit: 50 },
+        await api.get<unknown>(CHEMINS_VUE[vue], {
+          params: {
+            diocese: f.diocese || undefined,
+            role: f.role || undefined,
+            statut: vue === 'all' ? f.statut || undefined : undefined,
+            q: f.q?.trim() || undefined,
+            limit: 50,
+          },
           quiet: true,
         }),
       ),
+    placeholderData: keepPreviousData,
   });
+
+export const useComptesEnAttente = (f: FiltresComptes = {}) =>
+  useComptesClerge('pending', f);
 
 export type ActionCompte = 'validate' | 'refuse' | 'activate' | 'deactivate';
 
@@ -202,6 +274,10 @@ export const useActionCompte = () => {
         ),
       ),
     onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ['clergy-accounts', 'pending'] }),
+      Promise.all(
+        (['pending', 'validated', 'all'] as const).map((vue) =>
+          qc.invalidateQueries({ queryKey: ['clergy-accounts', vue] }),
+        ),
+      ),
   });
 };

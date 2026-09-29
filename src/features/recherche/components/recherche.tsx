@@ -10,6 +10,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import { FilterPills } from '@/components/ui/filter-pills';
 import { SkeletonList } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
+import { lienBible } from '@/features/bible/utils/liens';
 
 import {
   LIBELLES_RECHERCHE,
@@ -35,6 +36,14 @@ export const lignes = (
         cle: `b${v.id}`,
         titre: `${v.book_name} ${v.chapter}, ${v.verse}`,
         detail: v.text,
+        href:
+          v.book_id != null
+            ? lienBible({
+                livreId: v.book_id,
+                chapitre: v.chapter,
+                verset: v.verse,
+              })
+            : undefined,
       }));
     case 'paroisses':
       return (r.paroisses?.items ?? []).map((p) => ({

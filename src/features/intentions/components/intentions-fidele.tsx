@@ -21,7 +21,7 @@ import {
   useDemanderIntention,
   useMesIntentions,
 } from '../api/intentions';
-import { aujourdhuiIso, ligneSuivi } from '../utils/format';
+import { aujourdhuiIso, ligneSuivi, PAS_DE_DATE } from '../utils/format';
 
 import { IntentionStatusBadge } from './intention-status-badge';
 
@@ -53,6 +53,7 @@ function FormulaireIntention({
   const { data: paroisses = [] } = useMesParoisses();
   const [paroisse, setParoisse] = useState(preremplie?.parish.id ?? '');
   const [date, setDate] = useState('');
+  const [sansDate, setSansDate] = useState(false);
   const [messe, setMesse] = useState('');
   const [type, setType] = useState<TypeIntention>(
     (preremplie?.kind as TypeIntention) ?? 'defunt',
@@ -68,20 +69,21 @@ function FormulaireIntention({
       aria-label="Nouvelle demande"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!paroisseId || !date || !texte.trim()) return;
+        if (!paroisseId || (!sansDate && !date) || !texte.trim()) return;
         demander.mutate(
           {
             node: paroisseId,
             kind: type,
             intention: texte.trim(),
             is_anonymous: anonyme,
-            requested_date: date,
+            requested_date: sansDate ? null : date,
             requested_mass: messe.trim(),
           },
           {
             onSuccess: () => {
               setTexte('');
               setDate('');
+              setSansDate(false);
               setMesse('');
               setAnonyme(false);
               onEnvoyee();
@@ -121,12 +123,21 @@ function FormulaireIntention({
           <input
             id={`${id}-date`}
             type="date"
-            required
+            required={!sansDate}
+            disabled={sansDate}
             min={aujourdhuiIso()}
             className={champ}
-            value={date}
+            value={sansDate ? '' : date}
             onChange={(e) => setDate(e.target.value)}
           />
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={sansDate}
+              onChange={(e) => setSansDate(e.target.checked)}
+            />
+            {PAS_DE_DATE}
+          </label>
         </div>
         <div className="space-y-1">
           <label htmlFor={`${id}-messe`} className="text-sm font-medium">

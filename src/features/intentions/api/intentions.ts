@@ -34,7 +34,10 @@ const refSchema = z.object({ id: z.string(), name: z.string() });
 export const intentionSchema = z.object({
   id: z.string(),
   parish: refSchema,
-  place: refSchema.nullable().optional(),
+  place: z
+    .object({ id: z.union([z.number(), z.string()]), name: z.string() })
+    .nullable()
+    .optional(),
   kind: z.string(),
   intention: z.string(),
   is_anonymous: z.boolean(),
@@ -43,6 +46,7 @@ export const intentionSchema = z.object({
   status: z.string(),
   scheduled_date: z.string().nullable().optional(),
   scheduled_mass: z.string().default(''),
+  scheduled_time: z.string().nullable().optional(),
   refusal_reason: z.string().default(''),
   celebrated_at: z.string().nullable().optional(),
   cancelled_at: z.string().nullable().optional(),
@@ -97,7 +101,8 @@ export type IntentionInput = {
   kind: TypeIntention;
   intention: string;
   is_anonymous: boolean;
-  requested_date: string;
+  /** `null` : « Pas de date précise », le secrétariat choisit la messe. */
+  requested_date: string | null;
   requested_mass?: string;
 };
 
@@ -163,6 +168,7 @@ const useDecision = <V>(chemin: (v: V) => string, corps: (v: V) => object) => {
     mutationFn: async (v: V) =>
       intentionStaffSchema.parse(await api.post<unknown>(chemin(v), corps(v))),
     onSuccess: () =>
+      // Couvre aussi messes du jour et feuille (clés sous `parish`).
       qc.invalidateQueries({ queryKey: ['mass-intentions', 'parish'] }),
   });
 };
@@ -177,12 +183,20 @@ export const usePlanifierIntention = () =>
       id: string;
       scheduled_date: string;
       scheduled_mass?: string;
+      /** `"10:00"` : messe précise, lieu requis et plafond appliqué. */
+      scheduled_time?: string | null;
       place_id?: number | null;
     }) => url(v.id, 'accept'),
-    ({ scheduled_date, scheduled_mass = '', place_id = null }) => ({
+    ({
+      scheduled_date,
+      scheduled_mass = '',
+      scheduled_time = null,
+      place_id = null,
+    }) => ({
       scheduled_date,
       scheduled_mass,
       place_id,
+      ...(scheduled_time ? { scheduled_time } : {}),
     }),
   );
 
@@ -197,3 +211,116 @@ export const useCelebrerIntention = () =>
     (v: { id: string }) => url(v.id, 'celebrate'),
     () => ({}),
   );
+
+// --- Messes du jour, feuille, plafond (§5.2) ---------------------------------------
+
+export const PLAFOND_MIN = 1;
+export const PLAFOND_MAX = 50;
+
+const messeSchema = z.object({
+  place_id: z.number(),
+  place_name: z.string(),
+  start_time: z.string(),
+  label: z.string().default(''),
+  language: z.string().default(''),
+  note: z.string().default(''),
+  intentions_count: z.number(),
+  max_intentions: z.number(),
+  remaining: z.number(),
+  is_full: z.boolean(),
+});
+export type MesseDuJour = z.infer<typeof messeSchema>;
+
+const nodeRefSchema = z.object({ id: z.string(), name: z.string() });
+
+export const messesDuJourSchema = z.object({
+  node: nodeRefSchema,
+  date: z.string(),
+  max_per_mass: z.number(),
+  masses: z.array(messeSchema),
+  without_time_count: z.number().default(0),
+});
+export type MessesDuJour = z.infer<typeof messesDuJourSchema>;
+
+const ligneFeuilleSchema = z.object({
+  id: z.string(),
+  kind: z.string(),
+  kind_label: z.string().default(''),
+  intention: z.string(),
+  announced_as: z.string(),
+  status: z.string(),
+});
+export type LigneFeuille = z.infer<typeof ligneFeuilleSchema>;
+
+// La feuille ne porte jamais de montant (il n'en existe aucun).
+export const feuilleSchema = z.object({
+  node: nodeRefSchema,
+  date: z.string(),
+  masses: z.array(
+    messeSchema.extend({ intentions: z.array(ligneFeuilleSchema) }),
+  ),
+  other_intentions: z.array(
+    ligneFeuilleSchema.extend({ scheduled_mass: z.string().default('') }),
+  ),
+});
+export type FeuilleIntentions = z.infer<typeof feuilleSchema>;
+
+export const reglagesSchema = z.object({
+  node: z.string(),
+  max_per_mass: z.number(),
+});
+
+/** « 10:00:00 » → « 10:00 » (valeur attendue par `accept`). */
+export const heureCourte = (t: string) => t.slice(0, 5);
+
+export const useMessesDuJour = (node: string, date: string) =>
+  useQuery({
+    queryKey: ['mass-intentions', 'parish', 'messes', node, date],
+    queryFn: async () =>
+      messesDuJourSchema.parse(
+        await api.get<unknown>('/v1/mass-intentions/parish/messes/', {
+          params: { node, date },
+          quiet: true,
+        }),
+      ),
+    enabled: !!node && !!date,
+    placeholderData: keepPreviousData,
+  });
+
+export const useFeuilleIntentions = (node: string, date: string) =>
+  useQuery({
+    queryKey: ['mass-intentions', 'parish', 'feuille', node, date],
+    queryFn: async () =>
+      feuilleSchema.parse(
+        await api.get<unknown>('/v1/mass-intentions/parish/feuille/', {
+          params: { node, date },
+          quiet: true,
+        }),
+      ),
+    enabled: !!node && !!date,
+  });
+
+export const useReglagesIntentions = (node: string) =>
+  useQuery({
+    queryKey: ['mass-intentions', 'parish', 'reglages', node],
+    queryFn: async () =>
+      reglagesSchema.parse(
+        await api.get<unknown>('/v1/mass-intentions/parish/reglages/', {
+          params: { node },
+          quiet: true,
+        }),
+      ),
+    enabled: !!node,
+  });
+
+export const useModifierReglages = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: { node: string; max_per_mass: number }) =>
+      reglagesSchema.parse(
+        await api.patch<unknown>('/v1/mass-intentions/parish/reglages/', data),
+      ),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['mass-intentions', 'parish'] }),
+  });
+};

@@ -39,6 +39,9 @@ export const resultatsSchema = z.object({
         id: z.number(),
         book_name: z.string(),
         book_slug: z.string(),
+        // Identifiants des routes `bible/` (§5.1) : lien direct vers le lecteur.
+        book_id: z.number().nullish(),
+        chapter_id: z.number().nullish(),
         chapter: z.number(),
         verse: z.number(),
         text: z.string(),
