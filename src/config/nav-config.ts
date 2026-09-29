@@ -4,17 +4,31 @@ import {
   BookOpen,
   Calendar,
   Church,
+  CreditCard,
   FileText,
+  HandCoins,
+  Headphones,
   Heart,
   Home,
+  Library,
+  Landmark,
   MessageCircle,
   Newspaper,
   ShieldCheck,
   User,
+  UsersRound,
 } from 'lucide-react';
 
 import { User as UserType } from '@/lib/auth';
-import { isAdmin, isClergy } from '@/lib/authorization';
+import {
+  canViewDioceseDonsAggregates,
+  canViewParishDonsAnalysis,
+  canManageParishioners,
+  canPublishAudio,
+  canViewPlatformPayments,
+  isAdmin,
+  isClergy,
+} from '@/lib/authorization';
 
 export interface NavItem {
   label: string;
@@ -34,6 +48,18 @@ const ITEM_SPIRITUEL: NavItem = {
   label: 'Spirituel',
   href: '/app/spirituel',
   icon: BookOpen,
+};
+// Sonothèque (lot C5) : « Écouter » pour le fidèle, « Sonothèque » pour le
+// staff qui a la capacité audio.publier.
+const ITEM_ECOUTER: NavItem = {
+  label: 'Écouter',
+  href: '/app/ecouter',
+  icon: Headphones,
+};
+const ITEM_SONOTHEQUE: NavItem = {
+  label: 'Sonothèque',
+  href: '/app/paroisse/sonotheque',
+  icon: Library,
 };
 const ITEM_DOCUMENTS: NavItem = {
   label: 'Documents',
@@ -98,6 +124,43 @@ const ITEM_ADMIN: NavItem = {
   adminOnly: true,
 };
 
+// Tableaux de bord des dons (staff) : chaque entrée n'apparaît qu'avec la
+// capacité correspondante (cf. lib/authorization).
+const ITEM_DONS_ANALYSE: NavItem = {
+  label: 'Dons et quêtes',
+  href: '/app/dons/analyse',
+  icon: HandCoins,
+};
+const ITEM_DONS_DIOCESE: NavItem = {
+  label: 'Dons du diocèse',
+  href: '/app/diocese/dons',
+  icon: Landmark,
+};
+const ITEM_PAIEMENTS: NavItem = {
+  label: 'Paiements',
+  href: '/app/plateforme/paiements',
+  icon: CreditCard,
+};
+
+const donsStaffItems = (user: UserType | null | undefined): NavItem[] => [
+  ...(canViewParishDonsAnalysis(user) ? [ITEM_DONS_ANALYSE] : []),
+  ...(canViewDioceseDonsAggregates(user) ? [ITEM_DONS_DIOCESE] : []),
+  ...(canViewPlatformPayments(user) ? [ITEM_PAIEMENTS] : []),
+];
+
+// Paroissiens (décisions 6-8) : liste nominative, retrait et rétablissement,
+// seulement avec la capacité paroissiens.gerer.
+const ITEM_PAROISSIENS: NavItem = {
+  label: 'Paroissiens',
+  href: '/app/paroisse/paroissiens',
+  icon: UsersRound,
+};
+
+const sonothequeStaffItems = (user: UserType | null | undefined): NavItem[] => [
+  ...(canPublishAudio(user) ? [ITEM_SONOTHEQUE] : []),
+  ...(canManageParishioners(user) ? [ITEM_PAROISSIENS] : []),
+];
+
 export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
   // Les deux dimensions (role admin / pastoral_role) sont INDÉPENDANTES : un curé
   // peut être à la fois parish_admin et pretre. Le guard `!isClergy` est donc
@@ -108,6 +171,8 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_ACCUEIL_ADMIN,
       ITEM_ACTUS,
       ITEM_SPIRITUEL,
+      ...donsStaffItems(user),
+      ...sonothequeStaffItems(user),
       ITEM_MESSAGES,
       ITEM_PROFIL,
     ];
@@ -120,6 +185,9 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_SPIRITUEL,
       ITEM_CLERGE,
       ITEM_ANALYTIQUE,
+      ITEM_ECOUTER,
+      ...donsStaffItems(user),
+      ...sonothequeStaffItems(user),
       // Clergé qui est aussi admin digital → passerelle vers l'admin.
       ...(isAdmin(user) ? [ITEM_ADMIN] : []),
       ITEM_MESSAGES,
@@ -132,6 +200,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
     ITEM_ACCUEIL,
     ITEM_ACTUS,
     ITEM_SPIRITUEL,
+    ITEM_ECOUTER,
     ITEM_DOCUMENTS,
     ITEM_DONS,
     ITEM_AGENDA,

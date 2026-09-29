@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 
@@ -24,7 +24,7 @@ const mockUser = createUser({
 describe('ProfilContent', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () => HttpResponse.json(mockUser)),
+      http.get(`${env.API_URL}/v1/me/`, () => HttpResponse.json(mockUser)),
     );
   });
 
@@ -42,10 +42,10 @@ describe('ProfilContent', () => {
     expect(screen.getByDisplayValue('Dupont')).toBeInTheDocument();
   });
 
-  test('submits updated profile to PATCH /v1/users/me/update/', async () => {
+  test('submits updated profile to PATCH /v1/me/', async () => {
     const capturedBodies: unknown[] = [];
     server.use(
-      http.patch(`${env.API_URL}/v1/users/me/update/`, async ({ request }) => {
+      http.patch(`${env.API_URL}/v1/me/`, async ({ request }) => {
         const body = await request.json();
         capturedBodies.push(body);
         return HttpResponse.json(mockUser);
@@ -68,9 +68,7 @@ describe('ProfilContent', () => {
 
   test('shows success notification after profile update', async () => {
     server.use(
-      http.patch(`${env.API_URL}/v1/users/me/update/`, () =>
-        HttpResponse.json(mockUser),
-      ),
+      http.patch(`${env.API_URL}/v1/me/`, () => HttpResponse.json(mockUser)),
     );
 
     renderApp(<ProfilContent />);
@@ -83,63 +81,48 @@ describe('ProfilContent', () => {
     expect(await screen.findByText(/profil mis à jour/i)).toBeInTheDocument();
   });
 
-  test('calls POST /v1/users/password/change/ with current_password when submitted', async () => {
-    const capturedBodies: unknown[] = [];
-    server.use(
-      http.post(
-        `${env.API_URL}/v1/users/password/change/`,
-        async ({ request }) => {
-          const body = await request.json();
-          capturedBodies.push(body);
-          return HttpResponse.json({ detail: 'Mot de passe modifié.' });
-        },
-      ),
-    );
-
+  test('mot de passe et double authentification : lien vers le compte Keycloak', async () => {
     renderApp(<ProfilContent />);
 
-    await screen.findByText('Jean Dupont');
-
-    // Two sections share the label "Mot de passe actuel"; scope to the right one.
-    const heading = screen.getByRole('heading', { name: /changer le mot de passe/i });
-    // eslint-disable-next-line testing-library/no-node-access
-    const passwordSection = heading.closest('section')!;
-    const currentPasswordInput = within(passwordSection).getByLabelText(/mot de passe actuel/i);
-    const newPasswordInput = within(passwordSection).getByLabelText(/^nouveau mot de passe$/i);
-    const confirmPasswordInput = within(passwordSection).getByLabelText(/confirmer le nouveau mot de passe/i);
-
-    await userEvent.type(currentPasswordInput, 'ancienmdp');
-    await userEvent.type(newPasswordInput, 'nouveaumdp');
-    await userEvent.type(confirmPasswordInput, 'nouveaumdp');
-    await userEvent.click(
-      screen.getByRole('button', { name: /modifier le mot de passe/i }),
-    );
-
-    await waitFor(() => expect(capturedBodies).toHaveLength(1));
-    expect(capturedBodies[0]).toEqual({
-      current_password: 'ancienmdp',
-      new_password: 'nouveaumdp',
+    const lien = await screen.findByRole('link', {
+      name: /gérer ma connexion/i,
     });
+    expect(lien).toHaveAttribute(
+      'href',
+      expect.stringMatching(/\/realms\/jangubi\/account\//),
+    );
+    expect(screen.queryByLabelText(/mot de passe actuel/i)).toBeNull();
   });
 
-  test('calls POST /v1/auth/jwt/logout/ when disconnect button is clicked', async () => {
-    let logoutCalled = false;
-    server.use(
-      http.post(`${env.API_URL}/v1/auth/jwt/logout/`, () => {
-        logoutCalled = true;
-        return HttpResponse.json({});
-      }),
-    );
+  test('« Se déconnecter » termine la session Keycloak (end_session)', async () => {
+    const assign = vi.fn();
+    const original = window.location;
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: {
+        origin: original.origin,
+        pathname: '/app/profil',
+        search: '',
+        assign,
+      },
+    });
+    try {
+      renderApp(<ProfilContent />);
 
-    renderApp(<ProfilContent />);
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Se déconnecter' }),
+      );
 
-    // Use exact match — "/se déconnecter/i" would also match "Se déconnecter de tous les appareils"
-    await screen.findByRole('button', { name: 'Se déconnecter' });
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Se déconnecter' }),
-    );
-
-    await waitFor(() => expect(logoutCalled).toBe(true));
+      await waitFor(() => expect(assign).toHaveBeenCalled());
+      expect(String(assign.mock.calls[0][0])).toMatch(
+        /\/protocol\/openid-connect\/logout\?/,
+      );
+    } finally {
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: original,
+      });
+    }
   });
 
   test('shows confirmation dialog before deleting account', async () => {
@@ -177,10 +160,16 @@ describe('ProfilContent', () => {
 
   test('renders safely when user has no profile fields', async () => {
     const emptyProfileUser = createUser({
-      profile: { first_name: '', last_name: '', phone: '', primary_parish: null, avatar: null },
+      profile: {
+        first_name: '',
+        last_name: '',
+        phone: '',
+        primary_parish: null,
+        avatar: null,
+      },
     });
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(emptyProfileUser),
       ),
     );
@@ -188,7 +177,9 @@ describe('ProfilContent', () => {
     renderApp(<ProfilContent />);
 
     await screen.findByRole('button', { name: /^enregistrer$/i });
-    expect(screen.getByRole('heading', { name: /informations personnelles/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /informations personnelles/i }),
+    ).toBeInTheDocument();
   });
 
   test('does not crash when profile is undefined (missing from API response)', async () => {
@@ -198,7 +189,7 @@ describe('ProfilContent', () => {
       profile: undefined as unknown as ReturnType<typeof createUser>['profile'],
     });
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(userWithoutProfile),
       ),
     );
@@ -208,6 +199,8 @@ describe('ProfilContent', () => {
     // The component must render without crashing — email appears in both h1 and p when profile is absent
     const emailElements = await screen.findAllByText(userWithoutProfile.email);
     expect(emailElements.length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: /^enregistrer$/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^enregistrer$/i }),
+    ).toBeInTheDocument();
   });
 });

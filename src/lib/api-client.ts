@@ -1,18 +1,34 @@
 import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
 
+import {
+  type OidcTokens,
+  readSession,
+  refreshTokens,
+  sessionFromTokens,
+  writeSession,
+} from './oidc';
+
 export class ApiError extends Error {
   constructor(
     message: string,
     public readonly status: number,
+    /** Code d'erreur V1 (`{"error": {"code"}}`) : `mfa_required`, `not_found`… */
+    public readonly code: string | null = null,
+    public readonly details: unknown = null,
   ) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-// Access token — memory only (short-lived, refreshed via /jwt/refresh/)
+// --- Jetons Keycloak ----------------------------------------------------------
+// Jeton d'accès : en mémoire seulement (10 min, rafraîchi avant échéance et sur
+// 401). Jeton de rafraîchissement et id_token : sessionStorage de l'onglet
+// (voir `oidc.ts`).
+
 let _accessToken: string | null = null;
+let _refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function setAccessToken(token: string): void {
   _accessToken = token;
@@ -20,73 +36,88 @@ export function setAccessToken(token: string): void {
 
 export function clearAccessToken(): void {
   _accessToken = null;
+  if (_refreshTimer) clearTimeout(_refreshTimer);
+  _refreshTimer = null;
 }
 
 export function getAccessToken(): string | null {
   return _accessToken;
 }
 
-// Refresh token — persisted to localStorage so it survives page reloads
-const REFRESH_TOKEN_KEY = 'jb_refresh_token';
-
-let _refreshToken: string | null = (() => {
-  try {
-    return typeof window !== 'undefined' ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
-  } catch {
-    return null;
-  }
-})();
+/** Vrai si l'onglet a une session Keycloak (jeton de rafraîchissement). */
+export function getRefreshToken(): string | null {
+  return readSession()?.refresh_token ?? null;
+}
 
 export function setRefreshToken(token: string): void {
-  _refreshToken = token;
-  try {
-    if (typeof window !== 'undefined') localStorage.setItem(REFRESH_TOKEN_KEY, token);
-  } catch {
-    // localStorage indisponible (SSR / navigation privée) — non bloquant
-  }
+  writeSession({ ...emptySession, ...readSession(), refresh_token: token });
 }
 
 export function clearRefreshToken(): void {
-  _refreshToken = null;
-  try {
-    if (typeof window !== 'undefined') localStorage.removeItem(REFRESH_TOKEN_KEY);
-  } catch {
-    // localStorage indisponible (SSR / navigation privée) — non bloquant
+  writeSession(null);
+}
+
+const emptySession = {
+  refresh_token: null,
+  id_token: null,
+  refresh_expires_at: null,
+};
+
+/** Enregistre les jetons reçus de Keycloak et planifie le rafraîchissement
+ *  silencieux une minute avant l'échéance du jeton d'accès. */
+export function setSessionTokens(tokens: OidcTokens): void {
+  setAccessToken(tokens.access_token);
+  writeSession(sessionFromTokens(tokens, readSession()));
+  if (_refreshTimer) clearTimeout(_refreshTimer);
+  _refreshTimer = null;
+  if (typeof window !== 'undefined' && tokens.expires_in) {
+    const delay = Math.max(5, tokens.expires_in - 60) * 1000;
+    _refreshTimer = setTimeout(() => {
+      _refreshTimer = null;
+      tryRefreshAccess().catch(() => {
+        // session terminée : le prochain appel renverra vers la connexion
+      });
+    }, delay);
   }
 }
 
-export function getRefreshToken(): string | null {
-  return _refreshToken;
+/** Oublie la session locale (jetons en mémoire et dans l'onglet). */
+export function clearSession(): void {
+  clearAccessToken();
+  clearRefreshToken();
 }
 
-let _isRefreshing = false;
 let _refreshPromise: Promise<void> | null = null;
 
+/** Échange le jeton de rafraîchissement contre un nouveau jeton d'accès.
+ *  Les appels simultanés partagent le même échange. Échec = session morte. */
 export async function tryRefreshAccess(): Promise<void> {
-  if (_isRefreshing) return _refreshPromise!;
-
-  _isRefreshing = true;
+  if (_refreshPromise) return _refreshPromise;
   _refreshPromise = (async () => {
     try {
-      if (!_refreshToken) throw new Error('No refresh token');
-      const res = await fetch(`${env.API_URL}/v1/auth/jwt/refresh/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ refresh: _refreshToken }),
-      });
-      if (!res.ok) throw new Error('Refresh failed');
-      const data = await res.json();
-      if (data.access) setAccessToken(data.access);
-      if (data.refresh) setRefreshToken(data.refresh);
+      const refresh = getRefreshToken();
+      if (!refresh) throw new Error('No refresh token');
+      try {
+        setSessionTokens(await refreshTokens(refresh));
+      } catch (e) {
+        clearSession();
+        throw e;
+      }
     } finally {
-      _isRefreshing = false;
       _refreshPromise = null;
     }
   })();
-
   return _refreshPromise;
 }
+
+const redirectToLogin = (): boolean => {
+  const { pathname, search } = window.location;
+  const isPublicPage = pathname === '/' || pathname.startsWith('/auth/');
+  if (isPublicPage) return false;
+  const redirectTo = encodeURIComponent(`${pathname}${search}`);
+  window.location.href = `/auth/login?redirectTo=${redirectTo}`;
+  return true;
+};
 
 type RequestOptions = {
   method?: string;
@@ -96,6 +127,8 @@ type RequestOptions = {
   params?: Record<string, string | number | boolean | undefined | null>;
   cache?: RequestCache;
   next?: NextFetchRequestConfig;
+  /** Pas de notification en cas d'erreur (l'appelant gère l'état). */
+  quiet?: boolean;
 };
 
 function buildUrlWithParams(
@@ -172,6 +205,29 @@ function buildFetchInit(
   };
 }
 
+/** Message et code d'une réponse en erreur : format V1
+ *  `{"error": {"code", "message", "details"}}`, puis DRF `{"detail"}`. */
+export async function readApiError(response: Response): Promise<ApiError> {
+  const body = (await response.json().catch(() => ({}))) as Record<
+    string,
+    unknown
+  >;
+  const v1 = body.error as
+    | { code?: unknown; message?: unknown; details?: unknown }
+    | undefined;
+  const message =
+    (typeof v1?.message === 'string' ? v1.message : undefined) ||
+    (typeof body.detail === 'string' ? body.detail : undefined) ||
+    (typeof body.message === 'string' ? body.message : undefined) ||
+    response.statusText ||
+    `Erreur ${response.status}`;
+  const code =
+    (typeof v1?.code === 'string' ? v1.code : undefined) ||
+    (typeof body.code === 'string' ? body.code : undefined) ||
+    null;
+  return new ApiError(message, response.status, code, v1?.details ?? null);
+}
+
 async function fetchApi<T>(
   url: string,
   options: RequestOptions = {},
@@ -184,6 +240,7 @@ async function fetchApi<T>(
     params,
     cache = 'no-store',
     next,
+    quiet = false,
   } = options;
 
   // Get cookies from the request when running on server
@@ -193,91 +250,46 @@ async function fetchApi<T>(
   }
 
   const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
-  const init = buildFetchInit(method, body, headers, cookieHeader, cache, next);
-
-  const response = await fetch(fullUrl, init);
-
-  // A 401 on the login/refresh endpoints means "bad credentials" or "dead
-  // session" — NOT an expired access token. Attempting a refresh here swallows
-  // the error before the user sees it (silent login failure). Let these fall
-  // through to the generic error handler below so a toast is shown.
-  const isAuthCredentialEndpoint =
-    url.includes('/auth/jwt/login/') || url.includes('/auth/jwt/refresh/');
-
-  if (
-    response.status === 401 &&
-    typeof window !== 'undefined' &&
-    !isAuthCredentialEndpoint
-  ) {
-    try {
-      await tryRefreshAccess();
-    } catch {
-      // Refresh token expired or missing — session is dead, redirect to login
-      clearAccessToken();
-      clearRefreshToken();
-      const { pathname } = window.location;
-      const isPublicPage = pathname === '/' || pathname.startsWith('/auth/');
-      if (!isPublicPage) {
-        const redirectTo = encodeURIComponent(pathname);
-        window.location.href = `/auth/login?redirectTo=${redirectTo}`;
-        return new Promise<never>(() => {});
-      }
-      throw new Error('Unauthenticated');
-    }
-
-    // Refresh succeeded — retry with the new access token
-    const retriedInit = buildFetchInit(
-      method,
-      body,
-      headers,
-      cookieHeader,
-      cache,
-      next,
+  const send = () =>
+    fetch(
+      fullUrl,
+      buildFetchInit(method, body, headers, cookieHeader, cache, next),
     );
-    const retried = await fetch(fullUrl, retriedInit);
-    if (retried.ok) return retried.json() as Promise<T>;
 
-    // Retry failed after a successful refresh (permission issue, not auth)
-    const retryBody = (await retried.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
-    const retryMessage =
-      (retryBody.message as string | undefined) || retried.statusText;
-    if (retried.status !== 401) {
-      useNotifications.getState().addNotification({
-        type: 'error',
-        title: 'Erreur',
-        message: retryMessage,
-      });
+  let response = await send();
+
+  // 401 : jeton d'accès expiré (ou absent après un rechargement). On le
+  // rafraîchit auprès de Keycloak puis on relance la requête une fois.
+  if (response.status === 401 && typeof window !== 'undefined') {
+    if (getRefreshToken()) {
+      try {
+        await tryRefreshAccess();
+        response = await send();
+      } catch {
+        // session Keycloak terminée : traitée ci-dessous
+      }
     }
-    throw new Error(retryMessage);
+    if (response.status === 401) {
+      clearSession();
+      if (redirectToLogin()) return new Promise<never>(() => {});
+    }
   }
 
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
-    // DRF renvoie l'erreur sous `detail` ({"detail": "..."}). On lit `detail`
-    // en priorité, puis `message` (autres backends), puis le statut HTTP.
-    let message =
-      (body.detail as string | undefined) ||
-      (body.message as string | undefined) ||
-      response.statusText;
-    // Message clair et en français pour un échec d'authentification au login
-    // (SimpleJWT renvoie un message anglais peu parlant pour le fidèle).
-    if (response.status === 401 && url.includes('/auth/jwt/login/')) {
-      message = 'E-mail ou mot de passe incorrect.';
-    }
-    if (typeof window !== 'undefined' && response.status !== 404) {
+    const error = await readApiError(response);
+    if (
+      typeof window !== 'undefined' &&
+      !quiet &&
+      response.status !== 404 &&
+      response.status !== 401
+    ) {
       useNotifications.getState().addNotification({
         type: 'error',
         title: 'Erreur',
-        message,
+        message: error.message,
       });
     }
-    throw new ApiError(message, response.status);
+    throw error;
   }
 
   // 204 No Content (ex. DELETE) ou corps vide → pas de JSON à parser

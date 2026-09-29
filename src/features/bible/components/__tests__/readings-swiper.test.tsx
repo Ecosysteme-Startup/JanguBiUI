@@ -39,7 +39,8 @@ const mockReadings = [
       titre: '« Soyez miséricordieux »',
       intro_lue: 'Évangile de Jésus Christ selon saint Luc',
       refrain_psalmique: null,
-      verset_evangile: '<p><strong>Alléluia.</strong> Soyez miséricordieux.</p>',
+      verset_evangile:
+        '<p><strong>Alléluia.</strong> Soyez miséricordieux.</p>',
     },
     matched_verses: [],
   },
@@ -53,9 +54,7 @@ describe('ReadingsSwiper', () => {
       screen.getByRole('tab', { name: 'Première Lecture' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Psaume' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('tab', { name: 'Évangile' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Évangile' })).toBeInTheDocument();
   });
 
   test('shows titre when raw_metadata has titre', () => {
@@ -84,7 +83,9 @@ describe('ReadingsSwiper', () => {
     // Text inside the <strong> tag should be visible
     expect(screen.getByText('Mon refrain HTML')).toBeInTheDocument();
     // Literal HTML tags must not appear as text
-    expect(screen.queryByText('<strong>Mon refrain HTML</strong>')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('<strong>Mon refrain HTML</strong>'),
+    ).not.toBeInTheDocument();
     // The "Refrain" label should be present
     expect(screen.getByText('Refrain')).toBeInTheDocument();
   });

@@ -50,7 +50,10 @@ export function ConnectionBanner({ status }: ConnectionBannerProps) {
       )}
     >
       {spinning ? (
-        <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+        <Loader2
+          className="size-3.5 animate-spin motion-reduce:animate-none"
+          aria-hidden="true"
+        />
       ) : (
         <WifiOff className="size-3.5" aria-hidden="true" />
       )}

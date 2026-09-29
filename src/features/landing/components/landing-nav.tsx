@@ -38,15 +38,18 @@ export function LandingNav() {
 
   return (
     <>
-      <nav
-        className={cn(
-          'fixed left-0 right-0 top-0 z-50 transition-all duration-300',
-          scrolled
-            ? 'bg-background/90 py-3.5 shadow-sm backdrop-blur-xl'
-            : 'py-5',
-        )}
-      >
-        <div className="mx-auto max-w-[1180px] px-5 sm:px-10">
+      <nav className="fixed inset-x-0 top-0 z-50 py-4">
+        {/* Fond qui apparaît au défilement : seule l'opacité d'un calque est
+            animée (300 ms, out-cubic) — plus de transition sur le padding,
+            donc ni relayout ni saut de contenu. */}
+        <div
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute inset-0 bg-background/90 shadow-sm backdrop-blur-xl transition-opacity duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] motion-reduce:transition-none',
+            scrolled ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+        <div className="relative mx-auto max-w-[1180px] px-5 sm:px-10">
           <div className="flex items-center justify-between gap-8">
             {/* Logo */}
             <a

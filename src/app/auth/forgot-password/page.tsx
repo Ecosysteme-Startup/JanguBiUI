@@ -1,5 +1,9 @@
-import { ForgotPasswordForm } from '@/features/auth/components/forgot-password-form';
+'use client';
 
-const ForgotPasswordPage = () => <ForgotPasswordForm />;
+import { KeycloakRedirect } from '@/features/auth/components/keycloak-redirect';
 
-export default ForgotPasswordPage;
+// Mot de passe, vérification et changement d'e-mail relèvent de Keycloak : sa
+// page de connexion propose « Mot de passe oublié ? ». Ancien lien : on y va.
+const LegacyAuthPage = () => <KeycloakRedirect action="login" />;
+
+export default LegacyAuthPage;

@@ -25,9 +25,7 @@ export default function OnboardingPage() {
     },
   });
 
-  const { mutate: logout } = useLogout({
-    onSuccess: () => router.replace('/auth/login'),
-  });
+  const { mutate: logout } = useLogout();
 
   // Onboarding déjà terminé → on redirige (effet, pas pendant le render).
   const completed = user?.onboarding_state === 'completed';

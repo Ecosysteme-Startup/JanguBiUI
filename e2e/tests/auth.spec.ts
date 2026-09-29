@@ -1,208 +1,66 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * Auth flows — login, register, forgot-password, logout.
- *
- * These tests deliberately bypass the shared storageState so they can exercise
- * unauthenticated flows from a clean browser context.
+ * Connexion Keycloak (Authorization Code + PKCE), sans Keycloak : la page
+ * d'autorisation et le point de jeton du realm sont interceptés.
  */
 
-// Credentials that match the account created by auth.setup.ts.
-// They are intentionally wrong in the "invalid credentials" test.
-const VALID_EMAIL = process.env.E2E_USER_EMAIL ?? 'e2e-user@example.com';
-const VALID_PASSWORD = process.env.E2E_USER_PASSWORD ?? 'Password123!';
+const KEYCLOAK = process.env.NEXT_PUBLIC_KEYCLOAK_URL ?? 'http://localhost:8180';
+const OIDC = `${KEYCLOAK}/realms/jangubi/protocol/openid-connect`;
 
-// Strip saved auth so each test starts unauthenticated.
 test.use({ storageState: { cookies: [], origins: [] } });
 
-// ---------------------------------------------------------------------------
-// Login
-// ---------------------------------------------------------------------------
+test.skip(
+  process.env.NEXT_PUBLIC_API_MOCKING === 'true',
+  'Mode mocks : la page de connexion propose des comptes de démonstration.',
+);
 
-test.describe('Login', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/login');
+test('connexion : PKCE vers Keycloak, rappel, retour à la page demandée', async ({
+  page,
+}) => {
+  let verifier: string | null = null;
+  await page.route(`${OIDC}/auth?**`, async (route) => {
+    const url = new URL(route.request().url());
+    expect(url.searchParams.get('client_id')).toBe('jangubi-web');
+    expect(url.searchParams.get('code_challenge_method')).toBe('S256');
+    const retour = new URL(url.searchParams.get('redirect_uri')!);
+    retour.searchParams.set('code', 'code-e2e');
+    retour.searchParams.set('state', url.searchParams.get('state')!);
+    await route.fulfill({ status: 302, headers: { location: retour.toString() } });
   });
-
-  test('page renders the login form', async ({ page }) => {
-    await expect(
-      page.getByLabel(/email address/i).or(page.getByLabel(/adresse email/i)),
-    ).toBeVisible();
-    await expect(
-      page.getByLabel(/password/i).or(page.getByLabel(/mot de passe/i)),
-    ).toBeVisible();
+  await page.route(`${OIDC}/token`, async (route) => {
+    const form = new URLSearchParams(route.request().postData() ?? '');
+    verifier = form.get('code_verifier');
+    await route.fulfill({
+      json: { access_token: 'acces-e2e', expires_in: 600, refresh_token: 'r' },
+    });
   });
+  await page.route('**/v1/me/', (route) =>
+    route.fulfill({
+      json: {
+        id: '0c7b0000-0000-4000-8000-000000000001',
+        email: 'marie-therese.diouf@example.sn',
+        profile: { first_name: 'Marie-Thérèse', last_name: 'Diouf' },
+        etat_de_vie: 'laic',
+        degre_ordre: 'aucun',
+        statut_verification: 'declare',
+        paroisse_suivie: null,
+      },
+    }),
+  );
+  await page.route('**/v1/me/capacites/', (route) => route.fulfill({ json: [] }));
 
-  test('shows an error for invalid credentials', async ({ page }) => {
-    await page
-      .getByLabel(/email address/i)
-      .or(page.getByLabel(/adresse email/i))
-      .fill('mauvais@exemple.com');
-    await page
-      .getByLabel(/password/i)
-      .or(page.getByLabel(/mot de passe/i))
-      .fill('MotDePasseInvalide999!');
-    await page.getByRole('button', { name: /log in|se connecter/i }).click();
-
-    // Either an inline error or a toast notification must appear.
-    await expect(
-      page
-        .getByRole('alert')
-        .or(page.getByText(/identifiants|incorrect|invalide|invalid/i)),
-    ).toBeVisible({ timeout: 10_000 });
-  });
-
-  test('valid credentials redirect to /app/bible (or /app)', async ({
-    page,
-  }) => {
-    // This test relies on the account created by auth.setup.ts having been
-    // persisted in the backend.  We use environment variables so the email is
-    // consistent between setup and this test.  If E2E_USER_EMAIL is not set,
-    // the test is skipped to avoid false failures.
-    if (!process.env.E2E_USER_EMAIL) {
-      test.skip(true, 'E2E_USER_EMAIL not set — skipping live login test');
-    }
-
-    await page
-      .getByLabel(/email address/i)
-      .or(page.getByLabel(/adresse email/i))
-      .fill(VALID_EMAIL);
-    await page
-      .getByLabel(/password/i)
-      .or(page.getByLabel(/mot de passe/i))
-      .fill(VALID_PASSWORD);
-    await page.getByRole('button', { name: /log in|se connecter/i }).click();
-
-    await expect(page).toHaveURL(/\/app(\/bible)?/, { timeout: 15_000 });
-  });
-
-  test('has a link to the registration page', async ({ page }) => {
-    // The register link text varies between "Register" (current code) and
-    // "S'inscrire" in the French UI spec.
-    await expect(
-      page
-        .getByRole('link', { name: /register|s'inscrire|créer un compte/i })
-        .first(),
-    ).toBeVisible();
-  });
-
-  test('has a "Mot de passe oublié ?" link', async ({ page }) => {
-    await expect(
-      page.getByRole('link', { name: /mot de passe oublié/i }),
-    ).toBeVisible();
-  });
+  await page.goto('/auth/login?redirectTo=%2Fapp%2Fprofil');
+  await page.waitForURL('**/app/profil', { timeout: 15_000 });
+  expect(verifier).toMatch(/^[\w-]{64}$/);
 });
 
-// ---------------------------------------------------------------------------
-// Register
-// ---------------------------------------------------------------------------
-
-test.describe('Register', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/register');
-  });
-
-  test('page renders all required fields', async ({ page }) => {
-    await expect(page.getByLabel(/civilité/i)).toBeVisible();
-    await expect(page.getByLabel(/prénom/i)).toBeVisible();
-    await expect(page.getByLabel(/^nom$/i)).toBeVisible();
-    await expect(page.getByLabel(/adresse email/i)).toBeVisible();
-    await expect(page.getByLabel(/téléphone/i)).toBeVisible();
-    await expect(page.getByLabel(/mot de passe$/i)).toBeVisible();
-    await expect(page.getByLabel(/confirmer le mot de passe/i)).toBeVisible();
-  });
-
-  test('creates a new account and redirects to /app/bible (or /app)', async ({
-    page,
-  }) => {
-    const unique = Date.now();
-    const email = `e2e-reg-${unique}@example.com`;
-
-    await page.getByLabel(/civilité/i).selectOption('MR');
-    await page.getByLabel(/prénom/i).fill('Marie');
-    await page.getByLabel(/^nom$/i).fill('Test');
-    await page.getByLabel(/adresse email/i).fill(email);
-    await page.getByLabel(/téléphone/i).fill('+221700000001');
-    await page.getByLabel(/mot de passe$/i).fill('Password123!');
-    await page.getByLabel(/confirmer le mot de passe/i).fill('Password123!');
-
-    await page
-      .getByRole('button', { name: /créer mon compte|s'inscrire/i })
-      .click();
-
-    await expect(page).toHaveURL(/\/app(\/bible)?/, { timeout: 15_000 });
-  });
-
-  test('has a link back to the login page', async ({ page }) => {
-    await expect(
-      page.getByRole('link', { name: /se connecter/i }),
-    ).toBeVisible();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Forgot password
-// ---------------------------------------------------------------------------
-
-test.describe('Forgot password', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/auth/forgot-password');
-  });
-
-  test('page renders the email field and submit button', async ({ page }) => {
-    await expect(page.getByLabel(/adresse email/i)).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: /envoyer le lien/i }),
-    ).toBeVisible();
-  });
-
-  test('submitting an email shows the confirmation message', async ({
-    page,
-  }) => {
-    await page.getByLabel(/adresse email/i).fill('test@exemple.com');
-    await page.getByRole('button', { name: /envoyer le lien/i }).click();
-
-    // After a successful (or silently failed) submission, the UI shows a
-    // confirmation message so as not to leak whether the account exists.
-    await expect(
-      page.getByText(/si cette adresse est enregistrée/i),
-    ).toBeVisible({ timeout: 10_000 });
-  });
-
-  test('has a link back to the login page', async ({ page }) => {
-    await expect(
-      page.getByRole('link', { name: /retour à la connexion/i }),
-    ).toBeVisible();
-  });
-
-  test('submit button is disabled for an invalid email', async ({ page }) => {
-    await page.getByLabel(/adresse email/i).fill('pas-un-email');
-    await page.getByLabel(/adresse email/i).blur();
-
-    // Button should remain disabled until the email is valid.
-    await expect(
-      page.getByRole('button', { name: /envoyer le lien/i }),
-    ).toBeDisabled();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Logout — requires an authenticated session, so we use the shared state
-// but override it here with a temporary fresh login.
-// ---------------------------------------------------------------------------
-
-test.describe('Logout', () => {
-  // For the logout test we need a real authenticated session.  We re-use the
-  // global storageState rather than stripping it.
-  test.use({ storageState: 'e2e/.auth/user.json' });
-
-  test('logout button on profile page redirects to /auth/login', async ({
-    page,
-  }) => {
-    await page.goto('/app/profil');
-
-    await page.getByRole('button', { name: /se déconnecter/i }).click();
-
-    await expect(page).toHaveURL('/auth/login', { timeout: 10_000 });
-  });
+test('inscription : page Keycloak avec prompt=create', async ({ page }) => {
+  const demande = page.waitForRequest((r) => r.url().startsWith(`${OIDC}/auth`));
+  await page.route(`${OIDC}/auth?**`, (route) =>
+    route.fulfill({ body: 'Keycloak' }),
+  );
+  await page.goto('/auth/register');
+  const url = new URL((await demande).url());
+  expect(url.searchParams.get('prompt')).toBe('create');
 });

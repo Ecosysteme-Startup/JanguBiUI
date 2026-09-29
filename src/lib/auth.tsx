@@ -7,13 +7,13 @@ import {
 import { z } from 'zod';
 
 import {
+  ApiError,
   api,
-  clearAccessToken,
-  clearRefreshToken,
+  clearSession,
+  getAccessToken,
   getRefreshToken,
-  setAccessToken,
-  setRefreshToken,
 } from './api-client';
+import { buildAuthorizationUrl, buildEndSessionUrl, readSession } from './oidc';
 
 // Dimension 1 — capacité d'administration digitale. Reflète le champ `role`
 // du backend (apps.users.enums.UserRole) : il ne contient JAMAIS une valeur
@@ -100,177 +100,235 @@ export interface User {
   church_ids?: number[];
   parish_ids?: number[];
   diocese_ids?: number[];
+  // Capacités effectives (`dons.voir_fonds`, `dons.voir_agregats`,
+  // `audio.publier`, `plateforme.admin`…), lues sur /v1/me/capacites/.
+  // Absentes → repli sur les rôles (anciens mocks).
+  capabilities?: string[];
+  // Nœuds où s'exerce chaque capacité (`paroissiens.gerer` sur Saint-Dominique…),
+  // lus sur /v1/me/capacites/. Absents pour les anciens mocks.
+  capability_nodes?: {
+    capacite: string;
+    node_id: string | null;
+    node_name: string;
+    node_type: string;
+  }[];
+  // Champs du contrat V1 (/v1/me/), conservés tels quels.
+  etat_de_vie?: string;
+  degre_ordre?: string;
+  statut_verification?: string;
+  paroisse_suivie?: { id: string; name: string } | null;
+  /** /me/capacites/ a répondu 403 `mfa_required` : reconnexion avec OTP. */
+  mfa_required?: boolean;
 }
 
-export interface AuthResponse {
-  access: string;
-  refresh: string;
-  user: User;
-}
+// -----------------------------------------------------------------------------
+// Personne connectée : GET /v1/me/ + GET /v1/me/capacites/
+// -----------------------------------------------------------------------------
+
+const nodeRefSchema = z.object({ id: z.string(), name: z.string() });
+
+/** Contrat réel de `GET /v1/me/` (apps/users/apis_privacy.MeOutputSerializer). */
+export const meSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  profile: z.object({
+    first_name: z.string().default(''),
+    last_name: z.string().default(''),
+    title: z.string().nullish(),
+    date_of_birth: z.string().nullish(),
+    phone: z.string().nullish(),
+  }),
+  etat_de_vie: z.string().default('laic'),
+  degre_ordre: z.string().default('aucun'),
+  statut_verification: z.string().default('declare'),
+  incardination: nodeRefSchema.nullish(),
+  institut: nodeRefSchema.nullish(),
+  paroisse_suivie: nodeRefSchema.nullish(),
+  consent: z.unknown().optional(),
+});
+export type Me = z.infer<typeof meSchema>;
+
+/** `GET /v1/me/capacites/` (CapaciteOutputSerializer). */
+export const capaciteSchema = z.object({
+  capacite: z.string(),
+  node_id: z.string().nullable(),
+  node_name: z.string(),
+  node_type: z.string(),
+  herite: z.boolean(),
+  office: z.string(),
+  office_label: z.string(),
+});
+export type CapaciteMe = z.infer<typeof capaciteSchema>;
+
+// Rôle d'interface dérivé des nominations (le back n'a plus de champ `role` :
+// les droits sont des capacités sur des nœuds). Sert au choix de la navigation ;
+// le back reste seul juge (403).
+const ROLE_PAR_NOEUD: Record<string, UserRole> = {
+  province: 'province_admin',
+  diocese: 'diocese_admin',
+  zone: 'diocese_admin',
+  doyenne: 'diocese_admin',
+  paroisse: 'parish_admin',
+  quasi_paroisse: 'parish_admin',
+};
+const RANG: UserRole[] = [
+  'fidele',
+  'church_admin',
+  'parish_admin',
+  'diocese_admin',
+  'province_admin',
+  'super_admin',
+];
+
+export const roleFromCapacites = (capacites: CapaciteMe[]): UserRole => {
+  let role: UserRole = 'fidele';
+  for (const c of capacites) {
+    const candidat: UserRole =
+      c.capacite === 'plateforme.admin'
+        ? 'super_admin'
+        : (ROLE_PAR_NOEUD[c.node_type] ?? 'church_admin');
+    if (RANG.indexOf(candidat) > RANG.indexOf(role)) role = candidat;
+  }
+  return role;
+};
+
+/** Identité pastorale : seulement un état de vie VÉRIFIÉ (un état déclaré
+ *  n'a aucun effet, contrat /me/declaration/). */
+export const pastoralRoleFromMe = (me: Me): PastoralRole | null => {
+  if (me.statut_verification !== 'verifie') return null;
+  if (me.degre_ordre === 'eveque') return 'eveque';
+  if (me.degre_ordre === 'pretre') return 'pretre';
+  if (me.degre_ordre.startsWith('diacre')) return 'diacre';
+  if (me.etat_de_vie === 'consacre') return 'religieux';
+  return null;
+};
+
+export const userFromMe = (
+  me: Me,
+  capacites: CapaciteMe[],
+  { mfaRequired = false }: { mfaRequired?: boolean } = {},
+): User => {
+  const role = roleFromCapacites(capacites);
+  return {
+    id: me.id,
+    email: me.email,
+    role,
+    pastoral_role: pastoralRoleFromMe(me),
+    // Vérification de l'e-mail et inscription : dans Keycloak. La paroisse
+    // suivie est facultative, elle ne bloque pas l'accès.
+    onboarding_state: 'completed',
+    is_active: true,
+    is_verified: true,
+    is_admin: role !== 'fidele',
+    is_staff: capacites.length > 0,
+    profile: {
+      first_name: me.profile.first_name,
+      last_name: me.profile.last_name,
+      title: me.profile.title ?? undefined,
+      phone: me.profile.phone ?? undefined,
+      primary_parish: null,
+      avatar: null,
+    },
+    diocese: null,
+    province: null,
+    capabilities: Array.from(new Set(capacites.map((c) => c.capacite))),
+    capability_nodes: capacites.map((c) => ({
+      capacite: c.capacite,
+      node_id: c.node_id,
+      node_name: c.node_name,
+      node_type: c.node_type,
+    })),
+    etat_de_vie: me.etat_de_vie,
+    degre_ordre: me.degre_ordre,
+    statut_verification: me.statut_verification,
+    paroisse_suivie: me.paroisse_suivie ?? null,
+    mfa_required: mfaRequired,
+  };
+};
+
+// Anciens mocks (tests des écrans V1 : appartenances, rôles) : la charge porte
+// déjà un `role`. Le backend réel ne renvoie jamais ce champ.
+const isLegacyUser = (data: unknown): data is User =>
+  typeof data === 'object' &&
+  data !== null &&
+  typeof (data as { role?: unknown }).role === 'string';
+
+const getCapacites = async (): Promise<{
+  capacites: CapaciteMe[];
+  mfaRequired: boolean;
+}> => {
+  try {
+    const data = await api.get<unknown>('/v1/me/capacites/', { quiet: true });
+    return {
+      capacites: z.array(capaciteSchema).parse(data),
+      mfaRequired: false,
+    };
+  } catch (e) {
+    // 403 `mfa_required` : compte responsable connecté sans OTP. Il garde
+    // l'accès fidèle ; les écrans staff proposent de se reconnecter.
+    return {
+      capacites: [],
+      mfaRequired: e instanceof ApiError && e.code === 'mfa_required',
+    };
+  }
+};
 
 export const getUser = async (): Promise<User> => {
-  return api.get('/v1/auth/me/');
+  const data = await api.get<unknown>('/v1/me/');
+  if (isLegacyUser(data)) return data;
+  const me = meSchema.parse(data);
+  const { capacites, mfaRequired } = await getCapacites();
+  return userFromMe(me, capacites, { mfaRequired });
 };
 
-const userQueryKey = ['user'];
+export const userQueryKey = ['user'];
 
-export const getUserQueryOptions = () => {
-  const hasToken = typeof window !== 'undefined' ? !!getRefreshToken() : false;
-  return queryOptions({
+const hasSession = () =>
+  typeof window !== 'undefined' && (!!getRefreshToken() || !!getAccessToken());
+
+export const getUserQueryOptions = () =>
+  queryOptions({
     queryKey: userQueryKey,
     queryFn: getUser,
-    enabled: hasToken,
+    enabled: hasSession(),
     retry: false,
   });
-};
 
 export const useUser = () => useQuery(getUserQueryOptions());
 
-export const useLogin = ({ onSuccess }: { onSuccess?: () => void } = {}) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: loginWithEmailAndPassword,
-    onSuccess: (data) => {
-      if (data.access) setAccessToken(data.access);
-      if (data.refresh) setRefreshToken(data.refresh);
-      queryClient.setQueryData(userQueryKey, data.user);
-      onSuccess?.();
-    },
-  });
+// -----------------------------------------------------------------------------
+// Connexion, inscription, déconnexion : Keycloak (voir oidc.ts)
+// -----------------------------------------------------------------------------
+
+type StartOptions = { redirectTo?: string | null; loginHint?: string };
+
+/** Envoie le navigateur sur la page de connexion Keycloak. */
+export const startLogin = async (options: StartOptions = {}) => {
+  window.location.assign(await buildAuthorizationUrl(options));
 };
 
-export const useRegister = ({ onSuccess }: { onSuccess?: () => void } = {}) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: registerWithEmailAndPassword,
-    onSuccess: (data) => {
-      if (data?.user) {
-        queryClient.setQueryData(userQueryKey, data.user);
-      }
-      onSuccess?.();
-    },
-  });
+/** Envoie le navigateur sur la page d'inscription Keycloak. */
+export const startRegister = async (options: StartOptions = {}) => {
+  window.location.assign(
+    await buildAuthorizationUrl({ ...options, action: 'register' }),
+  );
 };
 
-export const useLogout = ({ onSuccess }: { onSuccess?: () => void } = {}) => {
+/** Oublie la session locale puis termine la session Keycloak (SSO). */
+export const useLogout = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: logout,
-    onSettled: () => {
-      clearAccessToken();
-      clearRefreshToken();
+    mutationFn: async () => {
+      const idToken = readSession()?.id_token ?? null;
+      clearSession();
       queryClient.clear();
-      onSuccess?.();
+      window.location.assign(buildEndSessionUrl(idToken));
     },
   });
 };
 
-const logout = (): Promise<void> => {
-  const refresh = getRefreshToken();
-  return api.post('/v1/auth/jwt/logout/', refresh ? { refresh } : undefined);
-};
-
-export const useLogoutAll = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: () => api.post<void>('/v1/auth/jwt/logout-all/'),
-    onSuccess: () => {
-      clearAccessToken();
-      clearRefreshToken();
-      queryClient.removeQueries({ queryKey: userQueryKey });
-      onSuccess?.();
-    },
-  });
-};
-
-export const loginInputSchema = z.object({
-  email: z.string().min(1, 'Requis').email('Email invalide'),
-  password: z.string().min(1, 'Requis'),
-});
-
-export type LoginInput = z.infer<typeof loginInputSchema>;
-
-const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
-  return api.post('/v1/auth/jwt/login/', data);
-};
-
-export const registerInputSchema = z
-  .object({
-    email: z.string().min(1, 'Requis').email('Email invalide'),
-    phone_number: z.string().min(1, 'Requis'),
-    first_name: z.string().min(1, 'Requis'),
-    last_name: z.string().min(1, 'Requis'),
-    title: z.enum(['MR', 'MRS'], {
-      required_error: 'Requis',
-      invalid_type_error: 'Civilité invalide',
-    }),
-    password: z.string().min(8, 'Minimum 8 caractères'),
-    confirmPassword: z.string().min(1, 'Requis'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Les mots de passe ne correspondent pas',
-    path: ['confirmPassword'],
-  });
-
-export type RegisterInput = z.infer<typeof registerInputSchema>;
-
-const registerWithEmailAndPassword = (
-  data: RegisterInput,
-): Promise<AuthResponse> => {
-  // Strip confirmPassword before sending to backend.
-  const { confirmPassword: _confirmPassword, ...payload } = data;
-  void _confirmPassword;
-  return api.post('/v1/users/register/', payload);
-};
-
 // -----------------------------------------------------------------------------
-// Password reset
-// -----------------------------------------------------------------------------
-
-export type RequestPasswordResetInput = { email: string };
-
-export const useRequestPasswordReset = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) =>
-  useMutation({
-    mutationFn: (data: RequestPasswordResetInput) =>
-      api.post<unknown>('/v1/users/password/reset/request/', data),
-    onSuccess,
-  });
-
-export type ConfirmPasswordResetInput = {
-  token: string;
-  new_password: string;
-};
-
-export const useConfirmPasswordReset = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) =>
-  useMutation({
-    mutationFn: (data: ConfirmPasswordResetInput) =>
-      api.post<unknown>('/v1/users/password/reset/confirm/', data),
-    onSuccess,
-  });
-
-// -----------------------------------------------------------------------------
-// Email verification
-// -----------------------------------------------------------------------------
-
-export type VerifyEmailInput = { token: string };
-
-export const useVerifyEmail = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) =>
-  useMutation({
-    mutationFn: (data: VerifyEmailInput) =>
-      api.post<unknown>('/v1/users/verify-email/', data),
-    onSuccess,
-  });
-
-// -----------------------------------------------------------------------------
-// Account deletion
+// Suppression du compte : DELETE /v1/me/ (anonymisation, irréversible)
 // -----------------------------------------------------------------------------
 
 export const useDeleteAccount = ({
@@ -278,44 +336,13 @@ export const useDeleteAccount = ({
 }: { onSuccess?: () => void } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => api.delete<unknown>('/v1/users/me/delete/'),
+    mutationFn: () => api.delete<unknown>('/v1/me/'),
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: userQueryKey });
+      const idToken = readSession()?.id_token ?? null;
+      clearSession();
+      queryClient.clear();
       onSuccess?.();
-    },
-  });
-};
-
-// -----------------------------------------------------------------------------
-// Email change flow
-// -----------------------------------------------------------------------------
-
-export type RequestEmailChangeInput = {
-  new_email: string;
-  current_password: string;
-};
-
-export const useRequestEmailChange = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) =>
-  useMutation({
-    mutationFn: (data: RequestEmailChangeInput) =>
-      api.post<unknown>('/v1/users/email/change/request/', data),
-    onSuccess,
-  });
-
-export type ConfirmEmailChangeInput = { otp_code: string };
-
-export const useConfirmEmailChange = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data: ConfirmEmailChangeInput) =>
-      api.post<unknown>('/v1/users/email/change/confirm/', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userQueryKey });
-      onSuccess?.();
+      window.location.assign(buildEndSessionUrl(idToken));
     },
   });
 };

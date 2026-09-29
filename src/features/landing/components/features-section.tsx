@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
 
+import { Reveal, Stagger, StaggerItem } from '@/lib/motion/reveal';
+
 interface Feature {
   Icon: LucideIcon;
   title: string;
@@ -71,7 +73,7 @@ export function FeaturesSection() {
   return (
     <section id="features" className="py-24">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-10">
-        <div className="mb-14 text-center">
+        <Reveal className="mb-14 text-center">
           <p className="mb-3 text-[0.6875rem] font-bold uppercase tracking-[.12em] text-primary">
             Tout-en-un
           </p>
@@ -80,11 +82,11 @@ export function FeaturesSection() {
             <br />
             de votre vie catholique
           </h2>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 divide-x divide-y divide-border overflow-hidden rounded-[28px] border border-border sm:grid-cols-2 lg:grid-cols-4">
+        <Stagger className="grid grid-cols-1 divide-x divide-y divide-border overflow-hidden rounded-[28px] border border-border sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map(({ Icon, title, description }) => (
-            <div
+            <StaggerItem
               key={title}
               className="bg-background-surface p-7 transition-colors hover:bg-background-subtle"
             >
@@ -95,9 +97,9 @@ export function FeaturesSection() {
               <p className="text-sm leading-relaxed text-foreground/60">
                 {description}
               </p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { MotionConfig } from 'motion/react';
 import * as React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -35,13 +36,17 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <ErrorBoundary FallbackComponent={MainErrorFallback}>
-        <QueryClientProvider client={queryClient}>
-          {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
-          <Notifications />
-          {children}
-        </QueryClientProvider>
-      </ErrorBoundary>
+      {/* reducedMotion="user" : toute animation `motion` de transform est
+          coupée si l'OS demande de réduire les animations (opacité conservée). */}
+      <MotionConfig reducedMotion="user">
+        <ErrorBoundary FallbackComponent={MainErrorFallback}>
+          <QueryClientProvider client={queryClient}>
+            {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+            <Notifications />
+            {children}
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </MotionConfig>
     </ThemeProvider>
   );
 };

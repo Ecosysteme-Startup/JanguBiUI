@@ -1,6 +1,7 @@
 'use client';
 
 import { MoreHorizontal } from 'lucide-react';
+import { motion } from 'motion/react';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
@@ -17,6 +18,7 @@ import {
   isNavActive,
 } from '@/config/nav-config';
 import { useUser } from '@/lib/auth';
+import { springs } from '@/lib/motion/tokens';
 import { cn } from '@/utils/cn';
 
 interface BottomNavProps {
@@ -60,11 +62,20 @@ export function BottomNav({ messageBadge }: BottomNavProps) {
             >
               <span
                 className={cn(
-                  'relative flex size-10 items-center justify-center rounded-full transition-all duration-200',
-                  isActive ? 'bg-primary/12 scale-105' : 'bg-transparent',
+                  'relative flex size-10 items-center justify-center rounded-full',
                 )}
               >
-                <Icon className="size-5" />
+                {/* Pastille active : glisse d'un onglet à l'autre avec le
+                    ressort de la barre d'onglets mobile. */}
+                {isActive && (
+                  <motion.span
+                    aria-hidden
+                    layoutId="bottom-nav-pill"
+                    transition={springs.indicator}
+                    className="absolute inset-0 rounded-full bg-primary/12"
+                  />
+                )}
+                <Icon className="relative size-5" />
                 {badge !== undefined && (
                   <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
                     {badge > 9 ? '9+' : badge}

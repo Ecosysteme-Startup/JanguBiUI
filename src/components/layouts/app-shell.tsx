@@ -1,11 +1,15 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
+import { usePathname } from 'next/navigation';
 
+import { PlayerRoot, PlayerSpacer } from '@/components/player/player-root';
 import { Link } from '@/components/ui/link/link';
 import { buildNavItems, isNavActive } from '@/config/nav-config';
 import { useLogout, useUser } from '@/lib/auth';
+import { springs } from '@/lib/motion/tokens';
+import { usePlayerStore } from '@/lib/player/player-store';
 import { cn } from '@/lib/utils';
 import { useMessagingStore } from '@/stores/messaging-store';
 
@@ -14,6 +18,7 @@ import { BottomNav } from './bottom-nav';
 import { NotificationBell } from './notification-bell';
 import { OnboardingGuard } from './onboarding-guard';
 import { PageMetaProvider, usePageMetaValue } from './page-meta';
+import { RealtimeBridge } from './realtime-bridge';
 import { ThemeToggle } from './theme-toggle';
 
 interface AppShellProps {
@@ -36,11 +41,8 @@ function CrossIcon({ className }: { className?: string }) {
 
 function DesktopSidebar({ messageBadge }: { messageBadge?: number }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { data: user } = useUser();
-  const { mutate: logout } = useLogout({
-    onSuccess: () => router.replace('/auth/login'),
-  });
+  const { mutate: logout } = useLogout();
   const navItems = buildNavItems(user);
 
   return (
@@ -82,7 +84,12 @@ function DesktopSidebar({ messageBadge }: { messageBadge?: number }) {
               aria-current={isActive ? 'page' : undefined}
             >
               {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r-full bg-primary" />
+                <motion.span
+                  aria-hidden
+                  layoutId="sidebar-indicator"
+                  transition={springs.indicator}
+                  className="absolute left-0 top-[calc(50%-10px)] h-5 w-0.5 rounded-r-full bg-primary"
+                />
               )}
               <span className="relative shrink-0">
                 <Icon className="size-5" />
@@ -129,13 +136,27 @@ export function AppShell({ children }: AppShellProps) {
 function AppShellLayout({ children }: AppShellProps) {
   const totalUnread = useMessagingStore((s) => s.totalUnread);
   const meta = usePageMetaValue();
+  // Décision 13 : le lecteur déployé est un panneau latéral de 440 px. Sur
+  // grand écran (≥ 1280 px), la page se resserre à sa gauche et reste
+  // utilisable ; en dessous, le panneau passe par-dessus la page.
+  const panneauOuvert = usePlayerStore((s) => s.expanded && s.current != null);
 
   return (
     <div className="flex min-h-dvh bg-background">
+      <RealtimeBridge />
       <DesktopSidebar messageBadge={totalUnread} />
-      <div className="flex flex-1 flex-col min-w-0">
+      <div
+        data-panneau-lecteur={panneauOuvert || undefined}
+        className={cn(
+          'flex flex-1 flex-col min-w-0',
+          panneauOuvert && 'xl:pr-[440px]',
+        )}
+      >
         <AppHeader />
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
+        {/* Lecteur audio global : survit à la navigation entre les pages. */}
+        <PlayerSpacer />
+        <PlayerRoot />
         <BottomNav messageBadge={totalUnread} />
       </div>
       {/* Cloche flottante mobile — uniquement pour les pages NON migrées : les

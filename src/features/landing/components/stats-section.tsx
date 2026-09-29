@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { CountUp } from '@/lib/motion/count-up';
+import { Stagger, StaggerItem } from '@/lib/motion/reveal';
 
 interface Stat {
   target: number;
@@ -15,69 +16,34 @@ const STATS: Stat[] = [
   { target: 99.9, suffix: '%', label: 'Uptime' },
 ];
 
-function formatValue(val: number, target: number, suffix?: string): string {
+function formatValue(val: number, suffix?: string): string {
   if (val >= 1000) return `${(val / 1000).toFixed(1)}k+`;
   if (suffix) return `${val}${suffix}`;
   return String(val);
 }
 
-function formatFinal(target: number, suffix?: string): string {
-  if (target >= 1000) return `${(target / 1000).toFixed(1)}k+`;
-  if (suffix) return `${target}${suffix}`;
-  return String(target);
-}
-
-function StatCounter({ stat }: { stat: Stat }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const animated = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting || animated.current) return;
-        animated.current = true;
-        obs.disconnect();
-
-        const dur = 1500;
-        const start = Date.now();
-        const step = () => {
-          const p = Math.min((Date.now() - start) / dur, 1);
-          const ease = 1 - Math.pow(1 - p, 3);
-          const val = Math.floor(ease * stat.target);
-          el.textContent = formatValue(val, stat.target, stat.suffix);
-          if (p < 1) requestAnimationFrame(step);
-          else el.textContent = formatFinal(stat.target, stat.suffix);
-        };
-        requestAnimationFrame(step);
-      },
-      { threshold: 0.5 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [stat.target, stat.suffix]);
-
-  return <div ref={ref}>0</div>;
-}
+/** Valeur intermédiaire arrondie à l'entier ; valeur finale exacte (99.9 %). */
+const formatterFor = (stat: Stat) => (v: number) =>
+  v >= stat.target
+    ? formatValue(stat.target, stat.suffix)
+    : formatValue(Math.floor(v), stat.suffix);
 
 export function StatsSection() {
   return (
     <section className="border-y border-border py-16">
       <div className="mx-auto max-w-[1180px] px-5 sm:px-10">
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+        <Stagger className="grid grid-cols-2 gap-6 sm:grid-cols-4">
           {STATS.map((stat) => (
-            <div key={stat.label} className="p-6 text-center">
-              <div className="mb-1.5 font-serif text-4xl font-bold text-primary lg:text-5xl">
-                <StatCounter stat={stat} />
+            <StaggerItem key={stat.label} className="p-6 text-center">
+              <div className="mb-1.5 font-serif text-4xl font-bold tabular-nums text-primary lg:text-5xl">
+                <CountUp to={stat.target} format={formatterFor(stat)} />
               </div>
               <p className="text-[0.6875rem] font-semibold uppercase tracking-widest text-muted-foreground">
                 {stat.label}
               </p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

@@ -21,7 +21,18 @@ export const mockNotifications = [
   },
 ];
 
+let ticketsEmis = 0;
+
 export const notificationsHandlers = [
+  // Ticket WebSocket à usage unique (TEMPS-REEL §1).
+  http.post(`${env.API_URL}/v1/me/ws-ticket/`, () => {
+    ticketsEmis += 1;
+    return HttpResponse.json({
+      ticket: `ticket-demo-${ticketsEmis}`,
+      expires_in: 60,
+    });
+  }),
+
   http.get(`${env.API_URL}/v1/messaging/notifications/`, () => {
     return HttpResponse.json(mockNotifications);
   }),

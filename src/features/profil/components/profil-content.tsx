@@ -7,19 +7,16 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { ThemeToggle } from '@/components/layouts/theme-toggle';
-import { MembershipManager } from '@/components/org/membership-manager';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button/button';
 import { useNotifications } from '@/components/ui/notifications';
 import { useDeleteAccount, useLogout, useUser } from '@/lib/auth';
-import { isFidele } from '@/lib/authorization';
+import { accountConsoleUrl } from '@/lib/oidc';
 
-import {
-  ChangePasswordInput,
-  UpdateProfileInput,
-  useChangePassword,
-  useUpdateProfile,
-} from '../api/update-profile';
+import { UpdateProfileInput, useUpdateProfile } from '../api/update-profile';
+
+import { MesParoisses } from './mes-paroisses';
+import { Personnalisation } from './personnalisation';
 
 // ── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -29,33 +26,24 @@ const profileSchema = z.object({
   phone: z.string().optional(),
 });
 
-const passwordSchema = z
-  .object({
-    current_password: z.string().min(1, 'Mot de passe actuel requis'),
-    new_password: z
-      .string()
-      .min(8, 'Le nouveau mot de passe doit contenir au moins 8 caractères.'),
-    confirm_new_password: z.string().min(1, 'Confirmation requise'),
-  })
-  .refine((data) => data.new_password === data.confirm_new_password, {
-    message: 'Les mots de passe ne correspondent pas.',
-    path: ['confirm_new_password'],
-  });
-
 type ProfileFormValues = z.infer<typeof profileSchema>;
-type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function SectionCard({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-card p-4">
+    <section
+      id={id}
+      className="scroll-mt-20 space-y-4 rounded-2xl border border-border bg-card p-4"
+    >
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       {children}
     </section>
@@ -101,17 +89,6 @@ export function ProfilContent() {
     }
   }, [user, resetProfile]);
 
-  // Password form
-  const {
-    register: registerPassword,
-    handleSubmit: handlePasswordSubmit,
-    reset: resetPassword,
-    formState: { errors: passwordErrors },
-  } = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordSchema),
-    mode: 'onTouched',
-  });
-
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile({
     onSuccess: () => {
       addNotification({
@@ -122,30 +99,10 @@ export function ProfilContent() {
     },
   });
 
-  const { mutate: changePassword, isPending: isChangingPassword } =
-    useChangePassword({
-      onSuccess: () => {
-        addNotification({
-          type: 'success',
-          title: 'Succès',
-          message: 'Mot de passe modifié.',
-        });
-        resetPassword();
-      },
-    });
-
-  const { mutate: logout, isPending: isLoggingOut } = useLogout({
-    onSuccess: () => {
-      window.location.href = '/auth/login';
-    },
-  });
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   const { mutate: deleteAccount, isPending: isDeletingAccount } =
-    useDeleteAccount({
-      onSuccess: () => {
-        window.location.href = '/auth/login';
-      },
-    });
+    useDeleteAccount();
 
   function onProfileSubmit(data: ProfileFormValues) {
     const payload: UpdateProfileInput = {};
@@ -153,14 +110,6 @@ export function ProfilContent() {
     if (data.last_name) payload.last_name = data.last_name;
     if (data.phone) payload.phone = data.phone;
     updateProfile(payload);
-  }
-
-  function onPasswordSubmit(data: PasswordFormValues) {
-    const payload: ChangePasswordInput = {
-      current_password: data.current_password,
-      new_password: data.new_password,
-    };
-    changePassword(payload);
   }
 
   if (isLoading) {
@@ -271,77 +220,31 @@ export function ProfilContent() {
           </form>
         </SectionCard>
 
-        {/* Change password section */}
-        <SectionCard title="Changer le mot de passe">
-          <form
-            onSubmit={handlePasswordSubmit(onPasswordSubmit)}
-            className="space-y-3"
+        {/* Mot de passe, e-mail, double authentification : compte Keycloak */}
+        <SectionCard title="Connexion et sécurité">
+          <p className="mb-3 text-sm text-muted-foreground">
+            Votre mot de passe, votre adresse e-mail et la double
+            authentification se gèrent sur votre espace de connexion Jàngu Bi.
+          </p>
+          <a
+            href={accountConsoleUrl('security')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <div>
-              <label htmlFor="current_password" className={labelClass}>
-                Mot de passe actuel
-              </label>
-              <input
-                id="current_password"
-                type="password"
-                className={inputClass}
-                {...registerPassword('current_password')}
-              />
-              {passwordErrors.current_password && (
-                <p className={errorClass} role="alert">
-                  {passwordErrors.current_password.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="new_password" className={labelClass}>
-                Nouveau mot de passe
-              </label>
-              <input
-                id="new_password"
-                type="password"
-                className={inputClass}
-                {...registerPassword('new_password')}
-              />
-              {passwordErrors.new_password && (
-                <p className={errorClass} role="alert">
-                  {passwordErrors.new_password.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="confirm_new_password" className={labelClass}>
-                Confirmer le nouveau mot de passe
-              </label>
-              <input
-                id="confirm_new_password"
-                type="password"
-                className={inputClass}
-                {...registerPassword('confirm_new_password')}
-              />
-              {passwordErrors.confirm_new_password && (
-                <p className={errorClass} role="alert">
-                  {passwordErrors.confirm_new_password.message}
-                </p>
-              )}
-            </div>
-            <Button
-              type="submit"
-              size="lg"
-              fullWidth
-              isLoading={isChangingPassword}
-            >
-              Modifier le mot de passe
-            </Button>
-          </form>
+            Gérer ma connexion
+          </a>
         </SectionCard>
 
-        {/* Mes églises — gestion des appartenances (Chantier 7b) */}
-        {isFidele(user) && (
-          <SectionCard title="Mes églises">
-            <MembershipManager />
-          </SectionCard>
-        )}
+        {/* Mes paroisses : principale et secondaires (décisions 6-8) */}
+        <SectionCard id="paroisses" title="Mes paroisses">
+          <MesParoisses />
+        </SectionCard>
+
+        {/* Personnalisation : suggestions, présence, historique (lot C5) */}
+        <SectionCard id="personnalisation" title="Personnalisation">
+          <Personnalisation />
+        </SectionCard>
 
         {/* Apparence — bascule thème (parité mobile ; la sidebar la porte sur
             desktop). md:hidden : évite un 2e toggle sur le Profil desktop. */}

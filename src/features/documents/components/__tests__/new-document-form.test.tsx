@@ -35,7 +35,7 @@ const MEMBERSHIPS = [
 
 function mockMe() {
   server.use(
-    http.get(`${env.API_URL}/v1/auth/me/`, () =>
+    http.get(`${env.API_URL}/v1/me/`, () =>
       HttpResponse.json(createUser({ memberships: MEMBERSHIPS })),
     ),
   );

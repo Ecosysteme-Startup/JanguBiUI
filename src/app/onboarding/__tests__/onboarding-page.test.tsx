@@ -57,7 +57,7 @@ describe('OnboardingPage', () => {
       prefetch: vi.fn(),
     } as never);
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(createUser({ onboarding_state: 'pending_parish' })),
       ),
       http.get(`${env.API_URL}/v1/org/dioceses/`, () =>

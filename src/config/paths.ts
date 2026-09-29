@@ -43,7 +43,37 @@ export const paths = {
     bible: { getHref: () => '/app/bible' },
     chapelet: { getHref: () => '/app/chapelet' },
     dons: { getHref: () => '/app/dons' },
+    donsAnalyse: { getHref: () => '/app/dons/analyse' },
+    diocese: {
+      dons: { getHref: () => '/app/diocese/dons' },
+    },
+    plateforme: {
+      paiements: { getHref: () => '/app/plateforme/paiements' },
+    },
     tv: { getHref: () => '/app/tv' },
+    ecouter: {
+      root: { getHref: () => '/app/ecouter' },
+      album: { getHref: (id: string) => `/app/ecouter/albums/${id}` },
+      source: { getHref: (id: string) => `/app/ecouter/sources/${id}` },
+      playlist: { getHref: (id: string) => `/app/ecouter/playlists/${id}` },
+      recherche: {
+        getHref: (q?: string) =>
+          q
+            ? `/app/ecouter/recherche?q=${encodeURIComponent(q)}`
+            : '/app/ecouter/recherche',
+      },
+      bibliotheque: { getHref: () => '/app/ecouter/bibliotheque' },
+    },
+    paroisse: {
+      paroissiens: { getHref: () => '/app/paroisse/paroissiens' },
+      sonotheque: { getHref: () => '/app/paroisse/sonotheque' },
+      sonothequeAjouter: {
+        getHref: (album?: string) =>
+          album
+            ? `/app/paroisse/sonotheque/ajouter?album=${encodeURIComponent(album)}`
+            : '/app/paroisse/sonotheque/ajouter',
+      },
+    },
     messages: { getHref: () => '/app/messages' },
     conversation: { getHref: (id: string) => `/app/messages/${id}` },
     documents: { getHref: () => '/app/documents' },

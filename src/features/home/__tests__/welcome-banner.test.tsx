@@ -26,7 +26,7 @@ describe('WelcomeBanner', () => {
 
   test('renders safely when user profile is null', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(createUser({ profile: null as never })),
       ),
     );
