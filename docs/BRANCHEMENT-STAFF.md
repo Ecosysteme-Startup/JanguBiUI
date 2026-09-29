@@ -110,6 +110,10 @@ validés.
 
 ## Routes manquantes (écrans masqués)
 
+> Fusion V1 (29/09/2026) : ce mécanisme n'a pas été porté dans l'architecture V1 ; `NEXT_PUBLIC_FEATURES`
+> n'est plus lu par le code ni passé au build (workflow de livraison, Dockerfile). Le tableau reste comme
+> inventaire des routes manquantes.
+
 Aucune route V1 n'existe côté backend pour ces écrans hérités. Ils ne sont pas
 inventés côté web : l'entrée est masquée et la page affiche « Bientôt
 disponible » tant que l'indicateur est éteint (`src/config/fonctionnalites.ts`,

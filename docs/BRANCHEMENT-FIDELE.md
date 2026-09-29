@@ -62,6 +62,10 @@ Réglage backend pour le retour de paiement : `DONATIONS_RETURN_URL=<origine du 
 
 ## Indicateurs de fonctionnalité
 
+> Fusion V1 (29/09/2026) : ce mécanisme n'a pas été porté dans l'architecture V1 ; `NEXT_PUBLIC_FEATURES`
+> n'est plus lu par le code ni passé au build (workflow de livraison, Dockerfile). Le tableau reste comme
+> inventaire des routes manquantes.
+
 `NEXT_PUBLIC_FEATURES=<liste séparée par des virgules>` (ou `*` pour tout activer sur les
 mocks). Sans indicateur, l'entrée est masquée (navigation, raccourcis, onglets) et l'URL
 directe affiche « Bientôt disponible ».

@@ -15,7 +15,7 @@
 # Secrets facultatifs : SENTRY_AUTH_TOKEN (source maps, secret BuildKit)
 # Variables (facultatives, défauts = contrat) :
 #   INFRA_REPO (Ecosysteme-Startup/Infrastructure), IMAGE_REPO (soszaboss/jangubi-frontend),
-#   NEXT_PUBLIC_SENTRY_DSN, NEXT_PUBLIC_FEATURES_STAGING, NEXT_PUBLIC_FEATURES_PROD,
+#   NEXT_PUBLIC_SENTRY_DSN,
 #   NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_STAGING, NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_PROD
 #
 # Connexion Keycloak (Auth.js) : variables d'EXÉCUTION du conteneur, fournies
@@ -120,7 +120,6 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.dev/api/v1
             NEXT_PUBLIC_WS_URL=wss://api-jangubi.ceac.dev
             NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_STAGING }}
-            NEXT_PUBLIC_FEATURES=${{ vars.NEXT_PUBLIC_FEATURES_STAGING }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
           # Jeton Sentry : secret BuildKit, absent des couches de l'image.
           secrets: |
@@ -141,7 +140,6 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.sn/api/v1
             NEXT_PUBLIC_WS_URL=wss://api-jangubi.ceac.sn
             NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_PROD }}
-            NEXT_PUBLIC_FEATURES=${{ vars.NEXT_PUBLIC_FEATURES_PROD }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
           # Jeton Sentry : secret BuildKit, absent des couches de l'image.
           secrets: |
