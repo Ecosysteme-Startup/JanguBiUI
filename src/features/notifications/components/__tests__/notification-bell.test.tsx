@@ -20,7 +20,7 @@ const mockNotifications = [
   },
   {
     id: 'notif-2',
-    event_type: 'document_validated',
+    event_type: 'documents.status',
     payload: {},
     is_read: true,
     read_at: new Date().toISOString(),
@@ -30,9 +30,7 @@ const mockNotifications = [
 
 function setupAuthenticatedUser() {
   const user = createUser();
-  server.use(
-    http.get(`${env.API_URL}/v1/me/`, () => HttpResponse.json(user)),
-  );
+  server.use(http.get(`${env.API_URL}/v1/me/`, () => HttpResponse.json(user)));
   return user;
 }
 
@@ -40,20 +38,20 @@ describe('NotificationBell', () => {
   test('renders the bell button', async () => {
     setupAuthenticatedUser();
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
-        HttpResponse.json([]),
-      ),
+      http.get(`${env.API_URL}/v1/notifications/`, () => HttpResponse.json([])),
     );
 
     renderApp(<NotificationBell />);
 
-    expect(screen.getByRole('button', { name: /notifications/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /notifications/i }),
+    ).toBeInTheDocument();
   });
 
   test('shows unread badge when there are unread notifications', async () => {
     setupAuthenticatedUser();
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
+      http.get(`${env.API_URL}/v1/notifications/`, () =>
         HttpResponse.json(mockNotifications),
       ),
     );
@@ -70,7 +68,7 @@ describe('NotificationBell', () => {
     setupAuthenticatedUser();
     const allRead = mockNotifications.map((n) => ({ ...n, is_read: true }));
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
+      http.get(`${env.API_URL}/v1/notifications/`, () =>
         HttpResponse.json(allRead),
       ),
     );
@@ -85,32 +83,36 @@ describe('NotificationBell', () => {
   test('opens dropdown and shows notification list when clicked', async () => {
     setupAuthenticatedUser();
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
+      http.get(`${env.API_URL}/v1/notifications/`, () =>
         HttpResponse.json(mockNotifications),
       ),
     );
 
     renderApp(<NotificationBell />);
 
-    await userEvent.click(screen.getByRole('button', { name: /notifications/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /notifications/i }),
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Nouveau message reçu')).toBeInTheDocument();
-      expect(screen.getByText('Document validé')).toBeInTheDocument();
+      expect(
+        screen.getByText('Votre demande d’acte a avancé'),
+      ).toBeInTheDocument();
     });
   });
 
   test('shows empty state when no notifications', async () => {
     setupAuthenticatedUser();
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
-        HttpResponse.json([]),
-      ),
+      http.get(`${env.API_URL}/v1/notifications/`, () => HttpResponse.json([])),
     );
 
     renderApp(<NotificationBell />);
 
-    await userEvent.click(screen.getByRole('button', { name: /notifications/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /notifications/i }),
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Aucune notification')).toBeInTheDocument();
@@ -122,21 +124,20 @@ describe('NotificationBell', () => {
     const readIds: string[] = [];
 
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
+      http.get(`${env.API_URL}/v1/notifications/`, () =>
         HttpResponse.json(mockNotifications),
       ),
-      http.post(
-        `${env.API_URL}/v1/messaging/notifications/:id/read/`,
-        ({ params }) => {
-          readIds.push(String(params.id));
-          return HttpResponse.json({ ...mockNotifications[0], is_read: true });
-        },
-      ),
+      http.post(`${env.API_URL}/v1/notifications/:id/read/`, ({ params }) => {
+        readIds.push(String(params.id));
+        return HttpResponse.json({ ...mockNotifications[0], is_read: true });
+      }),
     );
 
     renderApp(<NotificationBell />);
 
-    await userEvent.click(screen.getByRole('button', { name: /notifications/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /notifications/i }),
+    );
     await screen.findByText('Nouveau message reçu');
 
     await userEvent.click(screen.getByText('Nouveau message reçu'));
@@ -158,7 +159,7 @@ describe('NotificationBell', () => {
     }));
 
     server.use(
-      http.get(`${env.API_URL}/v1/messaging/notifications/`, () =>
+      http.get(`${env.API_URL}/v1/notifications/`, () =>
         HttpResponse.json(manyUnread),
       ),
     );

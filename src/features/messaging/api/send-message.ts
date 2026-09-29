@@ -4,7 +4,12 @@ import { api } from '@/lib/api-client';
 
 import { Message, MessagesResponse, messageSchema } from '../types';
 
-export type SendMessageInput = { content: string };
+export type SendMessageInput = {
+  content: string;
+  /** UUID d'idempotence : un renvoi ne crée pas de doublon côté serveur. */
+  client_message_id?: string;
+  reply_to_id?: string | null;
+};
 
 export const sendMessage = (
   conversationId: string,
@@ -16,6 +21,17 @@ export const sendMessage = (
       data,
     )
     .then((res) => messageSchema.parse(res));
+
+const newUuid = (): string =>
+  typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () =>
+        Math.floor(Math.random() * 16).toString(16),
+      );
+
+/** Ajoute un `client_message_id` (UUID) s'il manque. */
+export const withClientId = (data: SendMessageInput): SendMessageInput =>
+  data.client_message_id ? data : { ...data, client_message_id: newUuid() };
 
 /** Préfixe des ID temporaires d'envoi optimiste (avant confirmation serveur). */
 export const OPTIMISTIC_ID_PREFIX = 'optimistic-';
@@ -50,11 +66,7 @@ export const useSendMessage = (conversationId: string) => {
     onMutate: async (data): Promise<OptimisticContext> => {
       await queryClient.cancelQueries({ queryKey });
       const previous = queryClient.getQueryData<MessagesResponse>(queryKey);
-      const tempId = `${OPTIMISTIC_ID_PREFIX}${
-        typeof crypto !== 'undefined' && 'randomUUID' in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random()}`
-      }`;
+      const tempId = `${OPTIMISTIC_ID_PREFIX}${data.client_message_id ?? newUuid()}`;
       const optimistic = buildOptimisticMessage(data.content, tempId);
 
       queryClient.setQueryData<MessagesResponse>(queryKey, (old) => {

@@ -3,23 +3,41 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 
+// `GET /v1/messaging/priests/` (ReachablePriestOutput) : prêtres joignables
+// des paroisses du fidèle, avec leur disponibilité.
+const availabilitySchema = z.object({
+  accepts_new_conversations: z.boolean().default(true),
+  absent_until: z.string().nullable().optional(),
+  reply_windows: z.array(z.unknown()).default([]),
+  note: z.string().default(''),
+});
+
 const priestSchema = z.object({
-  id: z.number(),
   user_id: z.string(),
   full_name: z.string(),
-  email: z.string(),
-  accepts_pastoral_chat: z.boolean(),
-  bio: z.string().nullable().optional(),
+  nodes: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        type: z.string().optional(),
+      }),
+    )
+    .default([]),
+  availability: availabilitySchema.nullable(),
+  office: z.object({ code: z.string(), label: z.string() }).nullable(),
 });
 
 export type Priest = z.infer<typeof priestSchema>;
 
-const priestListSchema = z.array(priestSchema);
+/** Sans réglage de disponibilité, le prêtre accepte les nouveaux échanges. */
+export const acceptsNewConversations = (p: Priest): boolean =>
+  p.availability?.accepts_new_conversations ?? true;
 
 export const getPriests = (): Promise<Priest[]> =>
   api
     .get<unknown>('/v1/messaging/priests/')
-    .then((data) => priestListSchema.parse(data));
+    .then((data) => z.array(priestSchema).parse(data));
 
 export const getPriestsQueryOptions = () =>
   queryOptions({

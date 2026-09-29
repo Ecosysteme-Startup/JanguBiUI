@@ -196,7 +196,10 @@ describe('ChatWindow', () => {
     await userEvent.click(screen.getByRole('button', { name: /envoyer/i }));
 
     await waitFor(() => expect(capturedBodies).toHaveLength(1));
-    expect(capturedBodies[0]).toEqual({ content: 'Bonjour !' });
+    expect(capturedBodies[0]).toMatchObject({
+      content: 'Bonjour !',
+      client_message_id: expect.stringMatching(/^[0-9a-f-]{36}$/),
+    });
   });
 
   test('sends message on Enter key press (without Shift)', async () => {
@@ -235,7 +238,7 @@ describe('ChatWindow', () => {
     await userEvent.keyboard('{Enter}');
 
     await waitFor(() => expect(capturedBodies).toHaveLength(1));
-    expect(capturedBodies[0]).toEqual({ content: 'Test message' });
+    expect(capturedBodies[0]).toMatchObject({ content: 'Test message' });
   });
 
   test('clears textarea after sending message', async () => {
