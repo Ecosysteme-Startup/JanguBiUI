@@ -103,7 +103,12 @@ export const GROUPES_STAFF: Groupe[] = [
         description: 'Fonds, quêtes, opérations',
         href: paths.app.paroisse.dons.getHref(),
         icon: HandCoins,
-        capacites: ['dons.voir_fonds'],
+        capacites: [
+          'dons.voir_fonds',
+          'dons.gerer_fonds',
+          'dons.saisir_quete',
+          'dons.exporter',
+        ],
       },
       {
         label: 'Paramètres',

@@ -9,6 +9,8 @@ import { notificationsHandlers } from './notifications';
 import { paroissesHandlers } from './paroisses';
 import { sonothequeHandlers } from './sonotheque';
 import { staffHandlers } from './staff';
+import { staffDonsHandlers } from './staff-dons';
+import { staffStructureHandlers } from './staff-structure';
 
 export const handlers = [
   ...authHandlers,
@@ -22,4 +24,6 @@ export const handlers = [
   ...sonothequeHandlers,
   ...paroissesHandlers,
   ...staffHandlers,
+  ...staffDonsHandlers,
+  ...staffStructureHandlers,
 ];
