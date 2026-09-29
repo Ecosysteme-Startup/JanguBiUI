@@ -1,0 +1,814 @@
+import { HttpResponse, http } from 'msw';
+
+import { env } from '@/config/env';
+import type {
+  Album,
+  Playlist,
+  Source,
+  StaffTrack,
+  Track,
+} from '@/features/sonotheque/types/schemas';
+
+import { networkDelay } from '../utils';
+
+// Sonothèque paroissiale — données fictives des maquettes C2
+// (ECRANS-V2-SONOTHEQUE §3) : Saint-Dominique (Point E), dimanche 27 septembre
+// 2026. Contrat : jangubi/docs/API-AUDIO.md.
+
+const A = `${env.API_URL}/v1/audio`;
+
+const NOEUD_SD = {
+  id: '5b7d2c1e-8a41-4f0b-9d7e-2c3f1a6b9e01',
+  name: 'Saint-Dominique',
+};
+const NOEUD_MEDINA = {
+  id: '5b7d2c1e-8a41-4f0b-9d7e-2c3f1a6b9e02',
+  name: 'Saint-Joseph de Médina',
+};
+
+const src = (s: Source) => ({ id: s.id, name: s.name, kind: s.kind });
+
+export const SOURCES: Source[] = [
+  {
+    id: '0f6a9c2d-3b1e-4d7a-8c5f-6e2b1a9d4c11',
+    name: 'Chorale Saint-Joseph de Médina',
+    kind: 'chorale',
+    description: 'Chorale de la paroisse Saint-Joseph de Médina.',
+    node: NOEUD_MEDINA,
+    cover_url: null,
+    is_active: true,
+  },
+  {
+    id: '0f6a9c2d-3b1e-4d7a-8c5f-6e2b1a9d4c10',
+    name: 'Chorale Sainte-Cécile',
+    kind: 'chorale',
+    description:
+      'Chorale de la paroisse Saint-Dominique (Point E), sous la direction d’Élisabeth Gomis.',
+    node: NOEUD_SD,
+    cover_url: null,
+    is_active: true,
+  },
+  {
+    id: '3a8e1c5b-7d2f-4b9a-8e6c-1f4d7a2b9c30',
+    name: 'Mouvement des Scouts',
+    kind: 'mouvement',
+    description: 'Groupe scout de Saint-Dominique.',
+    node: NOEUD_SD,
+    cover_url: null,
+    is_active: true,
+  },
+  {
+    id: '7c1e4b2a-9d3f-4a6e-b8c1-2d5f7a9e3b20',
+    name: 'Paroisse Saint-Dominique',
+    kind: 'paroisse',
+    description:
+      'Messes, homélies et enseignements de la paroisse Saint-Dominique.',
+    node: NOEUD_SD,
+    cover_url: null,
+    is_active: true,
+  },
+];
+const [SJ, SC, SCOUTS, SD] = SOURCES;
+
+const album = (a: Omit<Album, 'cover_url'>): Album => ({
+  ...a,
+  cover_url: null,
+});
+
+export const ALBUMS: Album[] = [
+  album({
+    id: 'a3d9e7f1-2c4b-4e8a-9f1d-6b2c8e4a7d30',
+    source: src(SD),
+    kind: 'messe',
+    title: 'Messe du 27 septembre 2026',
+    description:
+      'Messe de 9 h 30 présidée par l’Abbé Augustin Ndiaye, homélie du Père Emmanuel Tine.',
+    visibility: 'paroisse',
+    recorded_on: '2026-09-27',
+    liturgical_season: 'ordinaire',
+    published_at: '2026-09-27T12:05:00Z',
+  }),
+  album({
+    id: 'b8e2f4a6-1d3c-4b9e-8a7f-5c2d9e1b6a40',
+    source: src(SD),
+    kind: 'homelies',
+    title: 'Homélies du temps ordinaire',
+    description:
+      'Homélies du Père Emmanuel Tine, du 21e au 26e dimanche (année A).',
+    visibility: 'public',
+    recorded_on: null,
+    liturgical_season: 'ordinaire',
+    published_at: '2026-09-27T10:44:00Z',
+  }),
+  album({
+    id: 'c6a1d9e3-4f2b-4a7c-9e8d-2b5f1c7a3e50',
+    source: src(SC),
+    kind: 'album',
+    title: 'Chants de la Visitation',
+    description:
+      'Enregistré lors de la veillée mariale du samedi 30 mai 2026, en l’église Saint-Dominique, sous la direction d’Élisabeth Gomis.',
+    visibility: 'public',
+    recorded_on: '2026-05-30',
+    liturgical_season: '',
+    published_at: '2026-09-20T17:00:00Z',
+  }),
+  album({
+    id: 'd4b8e2c6-9a1f-4d3e-8b7c-5a2e9f1d6c60',
+    source: src(SCOUTS),
+    kind: 'album',
+    title: 'Veillée scoute de la rentrée',
+    description: 'Chants de la veillée du 12 septembre.',
+    visibility: 'public',
+    recorded_on: '2026-09-12',
+    liturgical_season: '',
+    published_at: '2026-09-12T21:00:00Z',
+  }),
+  album({
+    id: 'e9c3f7a1-5b2d-4e8f-a6c9-3d1b7e5f2a70',
+    source: src(SD),
+    kind: 'retraite',
+    title: 'Retraite de carême 2026',
+    description: 'Six enseignements de l’Abbé Augustin Ndiaye, du 6 au 8 mars.',
+    visibility: 'paroisse',
+    recorded_on: '2026-03-06',
+    liturgical_season: 'careme',
+    published_at: '2026-03-12T09:00:00Z',
+  }),
+  album({
+    id: 'f2a6c8e4-7d1b-4c9a-8e3f-6b4d2a9c1e80',
+    source: src(SJ),
+    kind: 'album',
+    title: 'Chants à Marie de Médina',
+    description: '',
+    visibility: 'public',
+    recorded_on: null,
+    liturgical_season: '',
+    published_at: '2026-08-15T10:00:00Z',
+  }),
+];
+const [MESSE, HOMELIES, VISITATION, VEILLEE, RETRAITE, MEDINA] = ALBUMS;
+
+/** Album réservé aux paroissiens d'une autre paroisse : l'API répond 404. */
+export const ALBUM_RESERVE_ID = '99999999-0000-4000-8000-000000000001';
+
+let n = 0;
+const piste = (
+  alb: Album,
+  title: string,
+  duree: number,
+  extra: Partial<Track> = {},
+): Track => {
+  n += 1;
+  return {
+    id: `70000000-0000-4000-8000-${n.toString().padStart(12, '0')}`,
+    title,
+    performers: [alb.source.name],
+    composer: '',
+    language: 'fr',
+    liturgical_season: alb.liturgical_season,
+    tags: [],
+    description: '',
+    duration_seconds: duree,
+    source: alb.source,
+    album: { id: alb.id, title: alb.title, kind: alb.kind },
+    position: null,
+    visibility: alb.visibility,
+    published_at: alb.published_at,
+    ...extra,
+  };
+};
+
+const numeroter = (ts: Track[]) =>
+  ts.map((t, i) => ({ ...t, position: i + 1 }));
+
+export const PISTES_VISITATION = numeroter([
+  piste(VISITATION, 'Magnificat', 266, {
+    language: 'la',
+    composer: 'Grégorien, 8e ton',
+  }),
+  piste(VISITATION, 'Je vous salue, Marie', 198, {
+    composer: 'Harmonisation Élisabeth Gomis',
+  }),
+  piste(VISITATION, 'Maryaama, yaay ju sell', 232, {
+    language: 'wo',
+    composer: 'Traditionnel',
+  }),
+  piste(VISITATION, 'Réjouis-toi, Marie', 185, {
+    composer: 'Harmonisation Élisabeth Gomis',
+  }),
+  piste(VISITATION, 'Ave Maria', 161, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(VISITATION, 'Sub tuum praesidium', 118, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(VISITATION, 'Nanu sant Yàlla', 254, {
+    language: 'wo',
+    composer: 'Traditionnel',
+  }),
+  piste(VISITATION, 'Bénie entre toutes les femmes', 217, {
+    composer: 'Chant de la Visitation',
+  }),
+  piste(VISITATION, 'Regina caeli', 144, {
+    language: 'la',
+    composer: 'Grégorien',
+  }),
+  piste(VISITATION, 'Salve Regina', 190, {
+    language: 'la',
+    composer: 'Hermann Contract',
+  }),
+  piste(VISITATION, 'Maryaama, sunu yaay', 213, {
+    language: 'wo',
+    composer: 'Traditionnel',
+  }),
+]);
+
+export const PISTES_MESSE = numeroter([
+  piste(MESSE, 'Chant d’entrée', 245),
+  piste(MESSE, 'Kyrie', 215, { language: 'wo', composer: 'Abbé Joseph Faye' }),
+  piste(MESSE, 'Évangile · Matthieu 21, 28-32', 164),
+  piste(MESSE, 'Homélie · Lequel des deux a fait la volonté du père ?', 878, {
+    performers: ['Père Emmanuel Tine'],
+  }),
+  piste(MESSE, 'Offertoire · Jërëjëf Yàlla', 266, { language: 'wo' }),
+]);
+
+export const PISTES_HOMELIES = numeroter([
+  piste(HOMELIES, '24e dimanche · Pardonner soixante-dix fois sept fois', 801, {
+    performers: ['Père Emmanuel Tine'],
+  }),
+  piste(HOMELIES, '25e dimanche · Les ouvriers de la onzième heure', 832, {
+    performers: ['Père Emmanuel Tine'],
+  }),
+  piste(HOMELIES, '26e dimanche · Les deux fils', 878, {
+    performers: ['Père Emmanuel Tine'],
+  }),
+]);
+
+export const PISTES_RETRAITE = numeroter([
+  piste(RETRAITE, 'Le désert, lieu de la rencontre', 2140),
+  piste(RETRAITE, 'Revenez à moi de tout votre cœur', 2310),
+  piste(RETRAITE, 'Le jeûne qui plaît à Dieu', 2207),
+]);
+
+export const PISTES_VEILLEE = numeroter([
+  piste(VEILLEE, 'Notre-Dame de Popenguine', 204),
+  piste(VEILLEE, 'Chant de la promesse', 176),
+]);
+
+export const PISTES_MEDINA = numeroter([
+  piste(MEDINA, 'Ave Maria', 175, { language: 'la' }),
+  piste(MEDINA, 'Yaay Maryaama', 221, { language: 'wo' }),
+]);
+
+const PISTES_PAR_ALBUM: Record<string, Track[]> = {
+  [MESSE.id]: PISTES_MESSE,
+  [HOMELIES.id]: PISTES_HOMELIES,
+  [VISITATION.id]: PISTES_VISITATION,
+  [VEILLEE.id]: PISTES_VEILLEE,
+  [RETRAITE.id]: PISTES_RETRAITE,
+  [MEDINA.id]: PISTES_MEDINA,
+};
+const TOUTES = Object.values(PISTES_PAR_ALBUM).flat();
+
+export const PLAYLISTS: Playlist[] = [
+  {
+    id: 'e1c7a2d4-8b3f-4e6a-9c1d-7f2b5a8e3c90',
+    title: 'Pour prier le matin',
+    description: 'Psaumes, prières et chants doux pour commencer la journée.',
+    visibility: 'public',
+    is_editorial: true,
+    source: src(SD),
+    track_count: 4,
+    updated_at: '2026-09-20T18:00:00Z',
+  },
+  {
+    id: 'e1c7a2d4-8b3f-4e6a-9c1d-7f2b5a8e3c91',
+    title: 'Chants à Marie',
+    description: 'Pour le mois du Rosaire, en français, en wolof et en latin.',
+    visibility: 'public',
+    is_editorial: true,
+    source: src(SD),
+    track_count: 5,
+    updated_at: '2026-09-26T18:00:00Z',
+  },
+  {
+    id: 'e1c7a2d4-8b3f-4e6a-9c1d-7f2b5a8e3c92',
+    title: 'Mes chants de mariage',
+    description: '',
+    visibility: 'prive',
+    is_editorial: false,
+    source: null,
+    track_count: 3,
+    updated_at: '2026-09-21T11:00:00Z',
+  },
+];
+const PISTES_PLAYLIST: Record<string, Track[]> = {
+  [PLAYLISTS[0].id]: [
+    PISTES_HOMELIES[2],
+    PISTES_VISITATION[1],
+    PISTES_VISITATION[5],
+    PISTES_VEILLEE[0],
+  ],
+  [PLAYLISTS[1].id]: [
+    PISTES_VISITATION[0],
+    PISTES_VISITATION[2],
+    PISTES_MEDINA[0],
+    PISTES_VISITATION[9],
+    PISTES_MEDINA[1],
+  ],
+  [PLAYLISTS[2].id]: [
+    PISTES_VISITATION[1],
+    PISTES_VISITATION[6],
+    PISTES_VISITATION[3],
+  ],
+};
+
+// ------------------------------------------------------------ état fidèle
+const likes = new Set<string>([
+  PISTES_VISITATION[0].id,
+  PISTES_VISITATION[9].id,
+]);
+let recommandations = true;
+
+const erreur = (status: number, code: string, message: string) =>
+  HttpResponse.json({ error: { code, message, details: {} } }, { status });
+
+const sansAccents = (s: string) =>
+  s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+// ------------------------------------------------------------ état staff
+const staff = (t: Track, extra: Partial<StaffTrack> = {}): StaffTrack => ({
+  ...t,
+  own_visibility: t.visibility,
+  status: 'pret',
+  failure_reason: null,
+  version: 1,
+  encoded_version: 1,
+  encoded_at: t.published_at,
+  hidden_at: null,
+  created_at: t.published_at,
+  updated_at: t.published_at,
+  plays_30d: null,
+  ...extra,
+});
+
+const staffTracks: StaffTrack[] = [
+  staff(
+    piste(MESSE, 'Chant d’envoi · Allez dans le monde entier', 0, {
+      published_at: null,
+    }),
+    {
+      status: 'echec',
+      failure_reason:
+        'Le fichier s’arrête à 3 min 12 s alors que son en-tête annonce 3 min 48 s : il est incomplet ou endommagé.',
+      duration_seconds: null,
+      encoded_version: null,
+      updated_at: '2026-09-27T10:58:00Z',
+    },
+  ),
+  staff(
+    piste(MESSE, 'Prière universelle', 245, {
+      language: 'wo',
+      published_at: null,
+    }),
+    {
+      status: 'encodage',
+      encoding_step: 3,
+      encoding_percent: 62,
+      encoded_version: null,
+      updated_at: '2026-09-27T10:52:00Z',
+    },
+  ),
+  staff(PISTES_MESSE[3], { plays_30d: 31, updated_at: '2026-09-27T10:41:00Z' }),
+  staff(PISTES_MESSE[4], { plays_30d: 12, updated_at: '2026-09-27T10:41:00Z' }),
+  staff(PISTES_MESSE[2], { plays_30d: 18, updated_at: '2026-09-27T10:40:00Z' }),
+  staff(PISTES_HOMELIES[2], {
+    plays_30d: 27,
+    updated_at: '2026-09-27T10:44:00Z',
+  }),
+  staff(
+    piste(MESSE, 'Louange d’ouverture', 372, {
+      visibility: 'prive',
+      published_at: null,
+    }),
+    {
+      status: 'brouillon',
+      updated_at: '2026-09-24T19:00:00Z',
+    },
+  ),
+  staff(
+    piste(MESSE, 'Méditation · Jean 15, 1-8', 587, {
+      visibility: 'prive',
+      published_at: null,
+    }),
+    {
+      status: 'en_file',
+      updated_at: '2026-09-24T19:05:00Z',
+    },
+  ),
+  staff(PISTES_VISITATION[0], {
+    plays_30d: 186,
+    updated_at: '2026-09-20T17:00:00Z',
+  }),
+  staff(PISTES_VISITATION[2], {
+    plays_30d: 141,
+    updated_at: '2026-09-20T17:00:00Z',
+  }),
+  staff(PISTES_VISITATION[9], {
+    plays_30d: 118,
+    updated_at: '2026-09-20T17:00:00Z',
+  }),
+  staff(PISTES_HOMELIES[1], {
+    plays_30d: 64,
+    updated_at: '2026-09-20T12:00:00Z',
+  }),
+  staff(PISTES_VISITATION[6], {
+    plays_30d: 57,
+    updated_at: '2026-09-20T17:00:00Z',
+  }),
+  staff(PISTES_RETRAITE[2], {
+    plays_30d: 22,
+    updated_at: '2026-03-12T09:00:00Z',
+  }),
+];
+
+/** Envois en cours du serveur de mocks : nombre de consultations du suivi. */
+const envois = new Map<
+  string,
+  { track: StaffTrack; consultations: number; tronque: boolean }
+>();
+
+const avancer = (e: {
+  track: StaffTrack;
+  consultations: number;
+  tronque: boolean;
+}) => {
+  e.consultations += 1;
+  const c = e.consultations;
+  if (e.tronque && c >= 2) {
+    e.track = {
+      ...e.track,
+      status: 'echec',
+      failure_reason:
+        'Le fichier s’arrête avant la fin annoncée par son en-tête : il est incomplet ou endommagé. Trois tentatives automatiques ont été faites.',
+    };
+  } else if (c >= 6) {
+    e.track = {
+      ...e.track,
+      status: 'pret',
+      encoding_step: null,
+      encoding_percent: null,
+      encoded_version: e.track.version,
+    };
+  } else if (c >= 2) {
+    const pas = Math.min(4, c - 1);
+    e.track = {
+      ...e.track,
+      status: 'encodage',
+      encoding_step: pas,
+      encoding_percent: pas * 25 - 10,
+    };
+  }
+  return e.track;
+};
+
+export const sonothequeHandlers = [
+  // -------------------------------------------------------- catalogue
+  http.get(`${A}/sources/`, async ({ request }) => {
+    await networkDelay();
+    const kind = new URL(request.url).searchParams.get('kind');
+    return HttpResponse.json(
+      kind ? SOURCES.filter((s) => s.kind === kind) : SOURCES,
+    );
+  }),
+
+  http.get(`${A}/sources/:id/`, async ({ params }) => {
+    await networkDelay();
+    const source = SOURCES.find((s) => s.id === params.id);
+    if (!source)
+      return erreur(404, 'source_introuvable', 'Source introuvable.');
+    const albums = ALBUMS.filter((a) => a.source.id === source.id);
+    const pistes = albums.flatMap((a) => PISTES_PAR_ALBUM[a.id] ?? []);
+    return HttpResponse.json({
+      source,
+      albums,
+      playlists: PLAYLISTS.filter(
+        (p) => p.is_editorial && p.source?.id === source.id,
+      ),
+      recent: pistes.slice(0, 6),
+      most_played: [...pistes].reverse().slice(0, 5),
+    });
+  }),
+
+  http.get(`${A}/albums/`, async ({ request }) => {
+    await networkDelay();
+    const q = new URL(request.url).searchParams;
+    const kind = q.get('kind');
+    const source = q.get('source');
+    return HttpResponse.json(
+      ALBUMS.filter(
+        (a) =>
+          (!kind || a.kind === kind) && (!source || a.source.id === source),
+      ),
+    );
+  }),
+
+  http.get(`${A}/albums/:id/`, async ({ params }) => {
+    await networkDelay();
+    const a = ALBUMS.find((x) => x.id === params.id);
+    if (!a) return erreur(404, 'album_introuvable', 'Album introuvable.');
+    return HttpResponse.json({
+      album: a,
+      tracks: PISTES_PAR_ALBUM[a.id] ?? [],
+    });
+  }),
+
+  http.get(`${A}/pistes/:id/ensuite/`, async ({ params }) => {
+    await networkDelay();
+    return HttpResponse.json(
+      [PISTES_MEDINA[0], PISTES_VEILLEE[0], PISTES_VISITATION[9]].filter(
+        (t) => t.id !== params.id,
+      ),
+    );
+  }),
+
+  http.post(`${A}/pistes/:id/lecture/`, async ({ params }) => {
+    await networkDelay();
+    const t = TOUTES.find((x) => x.id === params.id);
+    if (!t) return erreur(404, 'piste_introuvable', 'Piste introuvable.');
+    return HttpResponse.json({
+      track: t,
+      stream: {
+        format: 'hls',
+        master_url: `https://audio.jangubi.sn/audio-hls/${t.id}/1/master.m3u8?verify=demo`,
+        mp3_url: `https://audio.jangubi.sn/audio-hls/${t.id}/1/audio.mp3?verify=demo`,
+        expires_at: '2026-09-27T17:20:00Z',
+      },
+      resume: null,
+      waveform: [],
+    });
+  }),
+
+  http.put(`${A}/pistes/:id/like/`, ({ params }) => {
+    likes.add(params.id as string);
+    return HttpResponse.json({ liked: true });
+  }),
+  http.delete(`${A}/pistes/:id/like/`, ({ params }) => {
+    likes.delete(params.id as string);
+    return HttpResponse.json({ liked: false });
+  }),
+
+  http.post(`${A}/pistes/:id/signaler/`, () =>
+    HttpResponse.json({ id: 'r1', status: 'ouvert' }, { status: 201 }),
+  ),
+
+  // -------------------------------------------------------- recherche
+  http.get(`${A}/recherche/`, async ({ request }) => {
+    await networkDelay();
+    const q = sansAccents(
+      new URL(request.url).searchParams.get('q') ?? '',
+    ).trim();
+    if (q.length < 2) {
+      return erreur(
+        400,
+        'recherche_trop_courte',
+        'Saisissez au moins deux caractères.',
+      );
+    }
+    const results = TOUTES.filter((t) =>
+      [
+        t.title,
+        t.source.name,
+        t.album?.title ?? '',
+        t.composer,
+        ...t.performers,
+        t.description,
+      ]
+        .map(sansAccents)
+        .some((s) => s.includes(q)),
+    );
+    return HttpResponse.json({ results, next_cursor: null });
+  }),
+
+  // -------------------------------------------------------- bibliothèque
+  http.get(`${A}/bibliotheque/`, async () => {
+    await networkDelay();
+    return HttpResponse.json({
+      likes: TOUTES.filter((t) => likes.has(t.id)),
+      playlists: PLAYLISTS.filter((p) => !p.is_editorial),
+      recent: [
+        {
+          track: PISTES_HOMELIES[1],
+          position_seconds: 472,
+          updated_at: '2026-09-26T21:40:00Z',
+          device_id: 'ios-mt-diouf',
+        },
+        {
+          track: PISTES_RETRAITE[2],
+          position_seconds: 947,
+          updated_at: '2026-09-25T19:10:00Z',
+          device_id: 'web-mt-diouf',
+        },
+      ],
+    });
+  }),
+
+  http.get(`${A}/playlists/:id/`, async ({ params }) => {
+    await networkDelay();
+    const p = PLAYLISTS.find((x) => x.id === params.id);
+    if (!p) return erreur(404, 'playlist_introuvable', 'Playlist introuvable.');
+    return HttpResponse.json({
+      playlist: p,
+      tracks: PISTES_PLAYLIST[p.id] ?? [],
+    });
+  }),
+
+  http.post(`${A}/playlists/`, async ({ request }) => {
+    const body = (await request.json()) as {
+      title: string;
+      visibility: 'prive' | 'public';
+    };
+    const p: Playlist = {
+      id: crypto.randomUUID(),
+      title: body.title,
+      description: '',
+      visibility: body.visibility,
+      is_editorial: false,
+      source: null,
+      track_count: 0,
+      updated_at: new Date().toISOString(),
+    };
+    PLAYLISTS.push(p);
+    return HttpResponse.json(p, { status: 201 });
+  }),
+
+  // -------------------------------------------------------- recommandations
+  http.get(`${A}/pour-vous/`, async () => {
+    await networkDelay();
+    return HttpResponse.json({
+      personnalise: recommandations,
+      demarrage_a_froid: false,
+      results: [
+        {
+          track: PISTES_VISITATION[9],
+          reason: 'Parce que vous avez écouté Magnificat',
+        },
+        {
+          track: PISTES_MEDINA[0],
+          reason: 'Pour le mois du Rosaire, qui commence jeudi',
+        },
+        {
+          track: PISTES_HOMELIES[0],
+          reason: 'Suite de la série que vous écoutez',
+        },
+        {
+          track: PISTES_VEILLEE[0],
+          reason: 'Aimé par des fidèles qui aiment vos chants',
+        },
+      ],
+    });
+  }),
+  http.put(`${A}/reglages/`, async ({ request }) => {
+    const body = (await request.json()) as { recommendations_enabled: boolean };
+    recommandations = body.recommendations_enabled;
+    return HttpResponse.json({ recommendations_enabled: recommandations });
+  }),
+
+  // -------------------------------------------------------- staff
+  http.get(`${A}/staff/sources/`, async () => {
+    await networkDelay();
+    return HttpResponse.json([SC, SCOUTS, SD]);
+  }),
+
+  http.get(`${A}/staff/pistes/`, async ({ request }) => {
+    await networkDelay();
+    const source = new URL(request.url).searchParams.get('source');
+    return HttpResponse.json(
+      staffTracks.filter((t) => !source || t.source.id === source),
+    );
+  }),
+
+  http.post(`${A}/uploads/`, async ({ request }) => {
+    await networkDelay();
+    const body = (await request.json()) as {
+      source_id: string;
+      album_id?: string;
+      title: string;
+      visibility: StaffTrack['visibility'];
+      file_name: string;
+      file_size: number;
+      rights_confirmed: boolean;
+    };
+    if (!body.rights_confirmed) {
+      return erreur(
+        400,
+        'droits_non_confirmes',
+        'Confirmez que vous disposez des droits de diffusion.',
+      );
+    }
+    const s = SOURCES.find((x) => x.id === body.source_id) ?? SD;
+    const alb = ALBUMS.find((a) => a.id === body.album_id);
+    const id = crypto.randomUUID();
+    const track: StaffTrack = staff(
+      {
+        ...piste(alb ?? MESSE, body.title, 0),
+        id,
+        source: src(s),
+        album: alb ? { id: alb.id, title: alb.title, kind: alb.kind } : null,
+        visibility: body.visibility,
+        published_at: null,
+      },
+      {
+        status: 'brouillon',
+        version: 0,
+        encoded_version: null,
+        duration_seconds: null,
+      },
+    );
+    envois.set(id, {
+      track,
+      consultations: 0,
+      tronque: /envoi|tronque/i.test(body.file_name),
+    });
+    return HttpResponse.json(
+      {
+        upload_id: id,
+        track,
+        method: 'POST',
+        // Stockage local (développement) : champ `file` seul, jeton requis.
+        url: `${A}/uploads/${id}/local/`,
+        fields: {},
+        max_size: 524288000,
+        expires_in: 3600,
+      },
+      { status: 201 },
+    );
+  }),
+
+  http.post(
+    `${A}/uploads/:id/local/`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+
+  http.post(`${A}/uploads/:id/terminer/`, async ({ params }) => {
+    await networkDelay();
+    const e = envois.get(params.id as string);
+    if (!e)
+      return erreur(
+        400,
+        'upload_absent',
+        'Le fichier n’est pas encore arrivé.',
+      );
+    e.track = { ...e.track, status: 'en_file', version: 1 };
+    return HttpResponse.json(e.track, { status: 202 });
+  }),
+
+  http.get(`${A}/uploads/:id/`, async ({ params }) => {
+    await networkDelay();
+    const e = envois.get(params.id as string);
+    if (!e) return erreur(404, 'upload_introuvable', 'Envoi introuvable.');
+    return HttpResponse.json(avancer(e));
+  }),
+
+  http.post(`${A}/pistes/:id/reencoder/`, async ({ params }) => {
+    await networkDelay();
+    const e = envois.get(params.id as string);
+    if (e) {
+      e.tronque = false;
+      e.consultations = 1;
+      e.track = {
+        ...e.track,
+        status: 'en_file',
+        failure_reason: null,
+        version: e.track.version + 1,
+      };
+      return HttpResponse.json(e.track, { status: 202 });
+    }
+    const t = staffTracks.find((x) => x.id === params.id);
+    if (!t) return erreur(404, 'piste_introuvable', 'Piste introuvable.');
+    t.status = 'en_file';
+    t.failure_reason = null;
+    return HttpResponse.json(t, { status: 202 });
+  }),
+
+  http.post(`${A}/pistes/:id/publier/`, async ({ params }) => {
+    const e = envois.get(params.id as string);
+    const t = e?.track ?? staffTracks.find((x) => x.id === params.id);
+    if (!t) return erreur(404, 'piste_introuvable', 'Piste introuvable.');
+    if (t.status !== 'pret')
+      return erreur(409, 'piste_pas_prete', 'L’encodage n’est pas terminé.');
+    const publie = { ...t, published_at: new Date().toISOString() };
+    if (e) e.track = publie;
+    return HttpResponse.json(publie);
+  }),
+
+  http.patch(`${A}/pistes/:id/`, async ({ params, request }) => {
+    const body = (await request.json()) as Partial<StaffTrack>;
+    const e = envois.get(params.id as string);
+    if (e) e.track = { ...e.track, ...body };
+    return HttpResponse.json(e?.track ?? { ...staffTracks[0], ...body });
+  }),
+];

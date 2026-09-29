@@ -133,3 +133,15 @@ export const canViewDioceseDonsAggregates = (
 export const canViewPlatformPayments = (
   user: User | null | undefined,
 ): boolean => capabilityOr(user, 'plateforme.admin', isSuperAdmin);
+
+/**
+ * Sonothèque paroissiale : publier des enregistrements (audio.publier, lue sur
+ * le nœud de la source). Repli sur les rôles si /me n'expose pas les capacités ;
+ * le back reste la source de vérité (403 audio_forbidden).
+ */
+export const canPublishAudio = (user: User | null | undefined): boolean =>
+  capabilityOr(
+    user,
+    'audio.publier',
+    (u) => isParishLevelAdmin(u) || isPretre(u) || isSuperAdmin(u),
+  );
