@@ -3,26 +3,42 @@ import { ChevronRight } from 'lucide-react';
 import { StatusBadge, type StatusTone } from '@/components/ui/status-badge';
 
 import type { ElementATraiter } from '../api/get-analyse-dons';
-import { formatHeure, formatJourMois } from '../utils/format';
+import { formatFcfa, formatHeure, formatJourMois } from '../utils/format';
 import { trierParEcheance } from '../utils/ordre';
 
-const BADGES: Record<
-  ElementATraiter['type'],
-  { label: string; tone: StatusTone }
-> = {
+const BADGES: Record<string, { label: string; tone: StatusTone }> = {
   quete_a_confirmer: { label: 'À confirmer', tone: 'warning' },
   paiements_en_attente: { label: 'En attente', tone: 'warning' },
-  depot_especes: { label: 'À déposer', tone: 'progress' },
+  paiement_tardif: { label: 'À régulariser', tone: 'warning' },
+  especes_a_deposer: { label: 'À déposer', tone: 'progress' },
   remise_curie: { label: 'À remettre', tone: 'progress' },
+  remise_a_confirmer: { label: 'Remise à confirmer', tone: 'progress' },
+  cloture_mois: { label: 'Mois à clore', tone: 'neutral' },
 };
+const BADGE_INCONNU = { label: 'À traiter', tone: 'neutral' as StatusTone };
 
-/** « 28 sept., 14:15 », ou « 4 oct. » quand l'échéance est une journée entière. */
+/**
+ * « 4 oct. » : l'échéance du contrat est une date ; un instant garde son heure
+ * (« 28 sept., 14:15 »).
+ */
 export const formatEcheance = (iso: string): string => {
+  if (iso.length === 10) return formatJourMois(iso);
   const heure = formatHeure(iso);
   return heure === '0:00'
     ? formatJourMois(iso)
     : `${formatJourMois(iso)}, ${heure}`;
 };
+
+const detail = (e: ElementATraiter): string | null => {
+  const morceaux = [
+    e.montant !== null ? formatFcfa(e.montant) : null,
+    e.depuis ? `depuis le ${formatHorodatageCourt(e.depuis)}` : null,
+  ].filter(Boolean);
+  return morceaux.length ? morceaux.join(' · ') : null;
+};
+
+const formatHorodatageCourt = (iso: string) =>
+  `${formatJourMois(iso)}, ${formatHeure(iso)}`;
 
 interface ATraiterProps {
   elements: ElementATraiter[];
@@ -31,7 +47,8 @@ interface ATraiterProps {
 
 /**
  * Colonne « À traiter » : triée par échéance (la plus proche en premier),
- * échéance affichée sur chaque ligne (décision du 27/09).
+ * échéance affichée sur chaque ligne (décision du 27/09). À échéance égale,
+ * l'ordre du serveur (ordre des types du contrat §2.4) est conservé.
  */
 export function ATraiter({ elements, className }: ATraiterProps) {
   const tries = trierParEcheance(elements);
@@ -62,17 +79,18 @@ export function ATraiter({ elements, className }: ATraiterProps) {
         </p>
       ) : (
         <ol className="mt-3">
-          {tries.map((e) => {
-            const badge = BADGES[e.type];
+          {tries.map((e, i) => {
+            const badge = BADGES[e.type] ?? BADGE_INCONNU;
+            const precision = detail(e);
             return (
               <li
-                key={e.id}
+                key={`${e.type}-${e.objet_id ?? ''}-${e.paroisse?.id ?? ''}-${i}`}
                 data-a-traiter={e.type}
                 className="flex items-center gap-3 border-t border-border py-3 first:border-t-0"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold leading-5 text-foreground">
-                    {e.titre}
+                    {e.libelle}
                   </p>
                   <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                     <StatusBadge label={badge.label} tone={badge.tone} />
@@ -80,9 +98,9 @@ export function ATraiter({ elements, className }: ATraiterProps) {
                       Échéance : {formatEcheance(e.echeance)}
                     </span>
                   </div>
-                  {e.detail && (
-                    <p className="mt-0.5 text-[13px] leading-[18px] text-muted-foreground">
-                      {e.detail}
+                  {precision && (
+                    <p className="mt-0.5 text-[13px] leading-[18px] text-muted-foreground tabular-nums">
+                      {precision}
                     </p>
                   )}
                 </div>

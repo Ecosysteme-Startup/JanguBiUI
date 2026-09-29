@@ -7,14 +7,12 @@ import { ApiError } from '@/lib/api-client';
 
 import {
   type ActivitePlateforme,
-  type FiltresPlateforme,
-  type IncidentPaiement,
   useActivitePlateforme,
 } from '../api/get-activite-plateforme';
+import type { Periode } from '../api/get-analyse-dons';
 import {
   capitaliser,
   formatDuree,
-  formatHeure,
   formatHorodatage,
   formatJourLong,
   formatJourMois,
@@ -25,6 +23,7 @@ import {
   partPourcent,
 } from '../utils/format';
 import { STATUTS_PAIEMENT } from '../utils/palette';
+import { codePeriode } from '../utils/periode';
 
 import { BarreFiltres } from './barre-filtres';
 import { BarreDeFlux } from './graphiques/barre-de-flux';
@@ -38,7 +37,6 @@ import {
   EtatVide,
 } from './graphiques/etats-graphique';
 import { Pastille } from './graphiques/legende';
-import { LigneTendance } from './graphiques/ligne-tendance';
 import {
   TableauRepartition,
   TableauSimple,
@@ -50,29 +48,46 @@ import {
 
 const MOIS_COURANT = '2026-09';
 const nombre = (n: number) => String(n);
+const TIRET = '—';
 
-const ETATS_INCIDENT: Record<
-  IncidentPaiement['etat'],
-  { label: string; tone: StatusTone }
-> = {
-  en_attente: { label: 'En attente', tone: 'warning' },
-  doublon: { label: 'Doublon ignoré', tone: 'neutral' },
-  a_examiner: { label: 'À examiner', tone: 'danger' },
-  resolu: { label: 'Résolu', tone: 'success' },
+const PERIODES: { valeur: Periode; libelle: string }[] = [
+  { valeur: 'semaine', libelle: 'Semaine' },
+  { valeur: 'mois', libelle: 'Mois' },
+  { valeur: 'trimestre', libelle: 'Trimestre' },
+  { valeur: 'annee', libelle: 'Année' },
+];
+
+const TYPES_INCIDENT: Record<string, string> = {
+  late_payment: 'Paiement réussi après expiration ou échec',
+  amount_mismatch: 'Montant payé différent du montant attendu',
+  invalid_signature: 'Notification à la signature invalide',
+  unknown_reference: 'Notification pour une référence inconnue',
 };
 
-const ACTIONS_INCIDENT: Record<
-  NonNullable<IncidentPaiement['action']>,
-  string
-> = {
-  relancer: 'Relancer la vérification',
-  acces_urgence: "Accès d'urgence journalisé",
+const STATUTS_INCIDENT: Record<string, { label: string; tone: StatusTone }> = {
+  ouvert: { label: 'À régulariser', tone: 'warning' },
+  resolu: { label: 'Régularisé', tone: 'success' },
 };
+
+// 1 = lundi … 7 = dimanche (contrat §3).
+const JOURS = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
+const JOURS_LONGS = [
+  'lundi',
+  'mardi',
+  'mercredi',
+  'jeudi',
+  'vendredi',
+  'samedi',
+  'dimanche',
+];
+
+const sansAnnee = (libelle: string) => libelle.replace(/\s\d{4}$/, '');
 
 function Synthese({ data }: { data: ActivitePlateforme }) {
   const p = data.paiements;
-  const taux = partPourcent(p.confirmes, p.lances);
-  const mois = data.periode.libelle.replace(/\s\d{4}$/, '');
+  const taux = p.taux_confirmation ?? partPourcent(p.confirmes, p.lances);
+  const periode = sansAnnee(data.periode.libelle);
+  const derniere = data.notifications.derniere_recue;
   return (
     <section
       aria-labelledby="titre-synthese-pla"
@@ -82,18 +97,18 @@ function Synthese({ data }: { data: ActivitePlateforme }) {
         Synthèse
       </h2>
       <ChiffreTitre
-        libelle={`Paiements en ligne lancés en ${mois}`}
-        avant={`Sur ${mois},`}
+        libelle={`Paiements en ligne lancés, ${periode}`}
+        avant={`Sur ${periode},`}
         valeur={String(taux)}
         unite="%"
       >
         des paiements lancés sont confirmés.
-        {p.derniere_notification_le &&
-          ` Dernière notification reçue il y a ${formatDuree(p.derniere_notification_le, data.arrete_au)}.`}
+        {derniere &&
+          ` Dernière notification reçue il y a ${formatDuree(derniere, data.genere_le)}.`}
         {p.en_attente > 0 &&
           ` ${p.en_attente} paiement${p.en_attente > 1 ? 's' : ''} en attente${
-            p.plus_ancien_attente_depuis
-              ? `, le plus ancien depuis ${formatDuree(p.plus_ancien_attente_depuis, data.arrete_au)}`
+            p.plus_ancien_en_attente
+              ? `, le plus ancien depuis ${formatDuree(p.plus_ancien_en_attente, data.genere_le)}`
               : ''
           }.`}
       </ChiffreTitre>
@@ -107,7 +122,7 @@ function Synthese({ data }: { data: ActivitePlateforme }) {
           couleur: s.couleur,
         }))}
       />
-      <dl className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <dl className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-6">
         {STATUTS_PAIEMENT.map((s) => (
           <div key={s.cle} className="border-t border-border pt-2">
             <dt className="flex items-center gap-1.5 text-sm text-foreground/80">
@@ -124,6 +139,12 @@ function Synthese({ data }: { data: ActivitePlateforme }) {
           </div>
         ))}
         <div className="border-t border-border pt-2">
+          <dt className="text-sm text-foreground/80">Remboursés</dt>
+          <dd className="text-sm font-semibold tabular-nums text-foreground">
+            {p.rembourses}
+          </dd>
+        </div>
+        <div className="border-t border-border pt-2">
           <dt className="text-sm text-foreground/80">Lancés</dt>
           <dd className="text-sm font-semibold tabular-nums text-foreground">
             {p.lances}
@@ -131,8 +152,10 @@ function Synthese({ data }: { data: ActivitePlateforme }) {
         </div>
       </dl>
       <p className="mt-3 text-[13px] text-muted-foreground">
-        Les pourcentages sont calculés sur les paiements lancés. Un paiement en
-        attente peut encore être confirmé ou expirer.
+        Les pourcentages sont calculés sur les paiements lancés
+        {p.taux_echec !== null &&
+          ` ; échecs et expirations : ${formatPourcent(p.taux_echec)}`}
+        . Un paiement en attente peut encore être confirmé ou expirer.
       </p>
     </section>
   );
@@ -143,7 +166,6 @@ function IssueParJour({ data }: { data: ActivitePlateforme }) {
   const somme = (
     k: 'lances' | 'confirmes' | 'en_attente' | 'echoues' | 'expires',
   ) => jours.reduce((s, j) => s + j[k], 0);
-  const partiel = jours.find((j) => j.partiel);
   const premier = jours[0];
   const dernier = jours[jours.length - 1];
   return (
@@ -151,12 +173,12 @@ function IssueParJour({ data }: { data: ActivitePlateforme }) {
       titre="Issue des paiements par jour"
       sousTitre={
         premier && dernier
-          ? `${jours.length} derniers jours, du ${formatJourMois(premier.date).replace(/\s.*/, '')} au ${formatJourMois(dernier.date)} · part de chaque statut, en % des paiements lancés le jour même`
+          ? `Du ${formatJourMois(premier.date).replace(/\s.*/, '')} au ${formatJourMois(dernier.date)} · part de chaque statut, en % des paiements lancés le jour même`
           : undefined
       }
       graphique={
         jours.length === 0 ? (
-          <EtatVide titre="Aucun paiement lancé sur ces jours." />
+          <EtatVide titre="Aucun paiement lancé sur cette période." />
         ) : (
           <ColonnesEmpilees
             mode="pourcent"
@@ -223,108 +245,79 @@ function IssueParJour({ data }: { data: ActivitePlateforme }) {
       }
       pied={
         <p>
-          Sur ces {jours.length} jours : {somme('lances')} paiements lancés,{' '}
+          Sur la période : {somme('lances')} paiements lancés,{' '}
           {somme('confirmes')} confirmés, {somme('en_attente')} en attente,{' '}
           {somme('echoues')} échoués, {somme('expires')} expirés.
-          {partiel &&
-            ` Le ${formatJourLong(partiel.date).replace(/\s\S+$/, '')} est compté jusqu'à ${formatHeure(data.arrete_au).replace(':', `${NBSP}h${NBSP}`)}.`}
         </p>
       }
     />
   );
 }
 
-function Delai({ data }: { data: ActivitePlateforme }) {
-  const d = data.delai;
-  const jours = d.par_jour;
+function Releve({
+  lignes,
+}: {
+  lignes: { libelle: string; valeur: React.ReactNode }[];
+}) {
   return (
-    <CarteGraphique
-      titre="Délai de confirmation"
-      sousTitre="Du lancement à la notification finale · en secondes"
-      graphique={
-        <LigneTendance
-          resume={`Délai de confirmation par jour : médiane de ${jours
-            .map((j) => j.median_s ?? '—')
-            .join(
-              ', ',
-            )} secondes ; 95e centile de ${jours.map((j) => j.p95_s ?? '—').join(', ')} secondes.`}
-          x={jours.map((j) => String(Number(j.date.slice(8))))}
-          titresX={jours.map((j) => capitaliser(formatJourLong(j.date)))}
-          titreAxeX={data.periode.libelle.replace(/\s\d{4}$/, '')}
-          hauteur={200}
-          margeDroite={120}
-          formatValeur={(n) => formatSecondes(n)}
-          series={[
-            {
-              cle: 'median',
-              libelle: 'Médiane',
-              couleur: 'var(--dv-ligne)',
-              valeurs: jours.map((j) => j.median_s),
-              etiquetteFin:
-                d.median_s !== null
-                  ? ['médiane', formatSecondes(d.median_s)]
-                  : undefined,
-            },
-            {
-              cle: 'p95',
-              libelle: '95ᵉ centile',
-              couleur: 'var(--dv-comparaison)',
-              comparaison: true,
-              valeurs: jours.map((j) => j.p95_s),
-              etiquetteFin:
-                d.p95_s !== null
-                  ? [
-                      '95ᵉ centile',
-                      `${d.p95_s}${NBSP}s · ${formatSecondes(d.p95_s)}`,
-                    ]
-                  : undefined,
-            },
-          ]}
-        />
-      }
-      tableau={
-        <TableauSimple
-          caption="Délai de confirmation par jour, en secondes"
-          colonnes={[
-            { libelle: 'Jour' },
-            { libelle: 'Médiane', alignement: 'droite' },
-            { libelle: '95ᵉ centile', alignement: 'droite' },
-          ]}
-          lignes={jours.map((j) => ({
-            cle: j.date,
-            cellules: [
-              capitaliser(formatJourLong(j.date)),
-              j.median_s === null ? '—' : formatSecondes(j.median_s),
-              j.p95_s === null ? '—' : formatSecondes(j.p95_s),
-            ],
-          }))}
-        />
-      }
-      pied={
-        <p className="text-sm text-foreground/80">
-          {d.median_s !== null && d.p95_s !== null && (
-            <>
-              Sur {data.periode.libelle.replace(/\s\d{4}$/, '')} : médiane{' '}
-              <strong className="font-semibold text-foreground">
-                {formatSecondes(d.median_s)}
-              </strong>
-              , 95ᵉ centile{' '}
-              <strong className="font-semibold text-foreground">
-                {formatSecondes(d.p95_s)}
-              </strong>
-              .{' '}
-            </>
-          )}
-          {d.note}
-        </p>
-      }
-    />
+    <dl className="mt-3">
+      {lignes.map((l) => (
+        <div
+          key={l.libelle}
+          className="flex h-10 items-center justify-between gap-3 border-t border-border text-sm"
+        >
+          <dt className="text-foreground">{l.libelle}</dt>
+          <dd className="font-semibold tabular-nums text-foreground">
+            {l.valeur}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+const jours = (n: number | null) =>
+  n === null ? TIRET : `${n}${NBSP}jour${n > 1 ? 's' : ''}`;
+
+function Delais({ data }: { data: ActivitePlateforme }) {
+  const d = data.delais;
+  return (
+    <Carte
+      titre="Délais"
+      sousTitre={`Confirmation : du lancement à la notification finale, sur ${d.echantillon_confirmation} dons confirmés · reversement : reçus sur la période`}
+    >
+      <Releve
+        lignes={[
+          {
+            libelle: 'Confirmation, médiane',
+            valeur:
+              d.confirmation_mediane_s === null
+                ? TIRET
+                : formatSecondes(d.confirmation_mediane_s),
+          },
+          {
+            libelle: 'Confirmation, 95ᵉ centile',
+            valeur:
+              d.confirmation_p95_s === null
+                ? TIRET
+                : formatSecondes(d.confirmation_p95_s),
+          },
+          {
+            libelle: 'Reversement, moyenne',
+            valeur: jours(d.reversement_moyen_jours),
+          },
+          {
+            libelle: 'Reversement, médiane',
+            valeur: jours(d.reversement_median_jours),
+          },
+        ]}
+      />
+    </Carte>
   );
 }
 
 function Notifications({ data }: { data: ActivitePlateforme }) {
   const n = data.notifications;
-  const jours = n.par_jour;
   const lignes: {
     libelle: string;
     valeur: number;
@@ -343,123 +336,100 @@ function Notifications({ data }: { data: ActivitePlateforme }) {
     },
     { libelle: 'Rejetées (signature)', valeur: n.rejetees },
     {
-      libelle: 'Erreurs : montant incohérent',
+      libelle: 'Erreurs',
       valeur: n.erreurs,
       etat: n.erreurs > 0 ? { label: 'À examiner', tone: 'danger' } : undefined,
     },
+    { libelle: 'En cours', valeur: n.en_cours },
   ];
   return (
-    <CarteGraphique
+    <Carte
       titre="Notifications de l'agrégateur"
       sousTitre={
-        jours.length
-          ? `Reçues par jour, du ${formatJourMois(jours[0].date).replace(/\s.*/, '')} au ${formatJourMois(jours[jours.length - 1].date)}`
-          : undefined
+        n.derniere_recue
+          ? `Reçues sur la période · dernière le ${formatHorodatage(n.derniere_recue)}`
+          : 'Reçues sur la période'
       }
-      graphique={
-        <>
-          <ColonnesEmpilees
-            hauteur={120}
-            etiquettes="toutes"
-            formatValeur={nombre}
-            legende={false}
-            resume={`Notifications reçues par jour : ${jours
-              .map((j) => `${j.recues} le ${Number(j.date.slice(8))}`)
-              .join(', ')}.`}
-            series={[
-              {
-                cle: 'recues',
-                libelle: 'Reçues',
-                couleur: 'var(--dv-colonne)',
-              },
-            ]}
-            libelleTotal={() => 'reçues'}
-            periodes={jours.map((j) => ({
-              cle: j.date,
-              libelle: String(Number(j.date.slice(8))),
-              titreInfobulle: capitaliser(formatJourLong(j.date)),
-              valeurs: { recues: j.recues },
-            }))}
-          />
-          <table className="mt-4 w-full border-collapse text-sm">
-            <caption className="sr-only">
-              Traitement des notifications, {jours.length} derniers jours
-            </caption>
-            <thead>
-              <tr className="text-[13px] text-muted-foreground">
-                <th scope="col" className="pb-1 text-left font-medium">
-                  Sur {jours.length} jours
-                </th>
-                <th scope="col" className="pb-1 text-right font-medium">
-                  Nombre
-                </th>
-                <th scope="col" className="pb-1 text-right font-medium">
-                  État
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {lignes.map((l) => (
-                <tr key={l.libelle} className="h-10 border-t border-border">
-                  <th scope="row" className="text-left font-normal">
-                    {l.libelle}
-                  </th>
-                  <td className="text-right font-semibold tabular-nums">
-                    {l.valeur}
-                  </td>
-                  <td className="text-right">
-                    {l.etat && (
-                      <StatusBadge label={l.etat.label} tone={l.etat.tone} />
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      }
-      tableau={
-        <TableauSimple
-          caption="Notifications reçues par jour"
-          colonnes={[
-            { libelle: 'Jour' },
-            { libelle: 'Reçues', alignement: 'droite' },
-          ]}
-          lignes={jours.map((j) => ({
-            cle: j.date,
-            cellules: [capitaliser(formatJourLong(j.date)), j.recues],
-          }))}
-          pied={['Total', n.recues]}
-        />
-      }
-    />
+    >
+      <table className="mt-3 w-full border-collapse text-sm">
+        <caption className="sr-only">
+          Traitement des notifications de l&apos;agrégateur, en nombre
+        </caption>
+        <thead>
+          <tr className="text-[13px] text-muted-foreground">
+            <th scope="col" className="pb-1 text-left font-medium">
+              Notifications
+            </th>
+            <th scope="col" className="pb-1 text-right font-medium">
+              Nombre
+            </th>
+            <th scope="col" className="pb-1 text-right font-medium">
+              État
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {lignes.map((l) => (
+            <tr key={l.libelle} className="h-10 border-t border-border">
+              <th scope="row" className="text-left font-normal">
+                {l.libelle}
+              </th>
+              <td className="text-right font-semibold tabular-nums">
+                {l.valeur}
+              </td>
+              <td className="text-right">
+                {l.etat && (
+                  <StatusBadge label={l.etat.label} tone={l.etat.tone} />
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Carte>
   );
 }
 
+/** Grille 7 × 24 (lundi à dimanche) à partir des cases non nulles. */
+export const grilleCharge = (
+  charge: ActivitePlateforme['charge'],
+): number[][] => {
+  const grille = JOURS.map(() => Array.from({ length: 24 }, () => 0));
+  charge.forEach((c) => {
+    grille[c.jour_semaine - 1][c.heure] += c.nombre;
+  });
+  return grille;
+};
+
 function Charge({ data }: { data: ActivitePlateforme }) {
-  const c = data.charge;
-  const lignes = c.jours.map((j) => ({
-    cle: j.date,
-    libelle: formatJourSemaine(j.date),
-    libelleLong: formatJourLong(j.date),
-    heures: j.heures,
-    enGras: new Date(`${j.date}T00:00:00Z`).getUTCDay() === 0,
+  const grille = grilleCharge(data.charge);
+  const total = data.charge.reduce((s, c) => s + c.nombre, 0);
+  const max = Math.max(0, ...grille.flat());
+  const lignes = grille.map((heures, i) => ({
+    cle: String(i + 1),
+    libelle: JOURS[i],
+    libelleLong: JOURS_LONGS[i],
+    heures,
+    enGras: i === 6,
   }));
-  const max = Math.max(0, ...c.jours.flatMap((j) => j.heures));
   return (
     <CarteGraphique
       titre="Charge par jour et par heure"
-      sousTitre={`Lancements de paiement et notifications reçues, par heure · ${c.total} événements`}
+      sousTitre={`Paiements lancés, par jour de la semaine et par heure de Dakar · ${total} paiements`}
       graphique={
-        <CarteThermique
-          lignes={lignes}
-          unite="événements par heure"
-          resume={`Lancements et notifications par heure sur ${c.jours.length} jours, ${c.total} événements ; maximum ${max} en une heure.`}
-        />
+        total === 0 ? (
+          <EtatVide titre="Aucun paiement lancé sur cette période." />
+        ) : (
+          <CarteThermique
+            lignes={lignes}
+            unite="paiements lancés par heure"
+            resume={`Paiements lancés par jour de la semaine et par heure, ${total} au total ; maximum ${max} sur une même case.`}
+          />
+        )
       }
       tableau={
         <TableauSimple
-          caption="Événements par jour et par heure"
+          caption="Paiements lancés par jour de la semaine et par heure"
           colonnes={[
             { libelle: 'Jour' },
             ...Array.from({ length: 24 }, (_, h) => ({
@@ -469,112 +439,114 @@ function Charge({ data }: { data: ActivitePlateforme }) {
           ]}
           lignes={lignes.map((l) => ({
             cle: l.cle,
-            cellules: [
-              l.libelle,
-              ...Array.from({ length: 24 }, (_, h) =>
-                h < l.heures.length ? l.heures[h] : '',
-              ),
-            ],
+            cellules: [capitaliser(l.libelleLong), ...l.heures],
           }))}
         />
       }
-      pied={c.note && <p>{c.note}</p>}
     />
   );
 }
 
-function Sources({ data }: { data: ActivitePlateforme }) {
-  const total = data.sources.reduce((s, x) => s + x.nombre, 0);
+function SourcesEtMoyens({ data }: { data: ActivitePlateforme }) {
+  const total = data.par_source.reduce((s, x) => s + x.confirmes, 0);
+  const periode = sansAnnee(data.periode.libelle);
   return (
     <Carte
-      titre="Sources des parcours"
-      sousTitre={`Dons confirmés en ${data.periode.libelle.replace(/\s\d{4}$/, '')}, en nombre, par point de départ`}
+      titre="Sources et moyens"
+      sousTitre={`Dons confirmés, ${periode}, en nombre, par point de départ et par moyen`}
     >
       <TableauRepartition
         className="mt-3"
-        caption="Sources des parcours de don confirmés"
-        entete={{ libelle: 'Source', valeur: 'Dons' }}
+        caption="Dons confirmés par source du parcours"
+        entete={{ libelle: 'Source', valeur: 'Confirmés' }}
         formatValeur={nombre}
-        lignes={data.sources.map((s) => ({
-          cle: s.code,
+        lignes={data.par_source.map((s) => ({
+          cle: s.source,
           libelle: s.libelle,
-          valeur: s.nombre,
+          complement:
+            s.taux_confirmation === null
+              ? null
+              : `${s.lances} lancés · ${formatPourcent(s.taux_confirmation)}`,
+          valeur: s.confirmes,
         }))}
         total={total}
       />
-      {data.retours_ios && (
-        <p className="mt-3 text-sm text-foreground/80">
-          {data.retours_ios.revenus} parcours iPhone sur{' '}
-          {data.retours_ios.total} reviennent dans l&apos;app après le paiement.
-        </p>
-      )}
+      {data.par_source
+        .filter((s) => s.taux_retour !== null && s.lances > 0)
+        .map((s) => (
+          <p key={s.source} className="mt-2 text-sm text-foreground/80">
+            {s.libelle} : {s.retours} parcours sur {s.lances} reviennent sur la
+            page de statut après le paiement.
+          </p>
+        ))}
+      <TableauSimple
+        caption="Confirmés et échecs par moyen de paiement"
+        colonnes={[
+          { libelle: 'Moyen' },
+          { libelle: 'Confirmés', alignement: 'droite' },
+          { libelle: 'Échecs', alignement: 'droite' },
+          { libelle: "Taux d'échec", alignement: 'droite' },
+        ]}
+        lignes={data.par_moyen.map((m) => ({
+          cle: m.moyen,
+          cellules: [
+            m.libelle,
+            m.confirmes,
+            m.echecs,
+            m.taux_echec === null ? TIRET : formatPourcent(m.taux_echec),
+          ],
+        }))}
+      />
+      <p className="mt-2 text-[13px] text-muted-foreground">
+        Le moyen n&apos;est souvent connu qu&apos;à la confirmation : les échecs
+        sans moyen sont comptés en « Inconnu ».
+      </p>
     </Carte>
   );
 }
 
-function ParoissesEnFonctionnement({ data }: { data: ActivitePlateforme }) {
-  const pa = data.paroisses;
-  const autres = pa.parametrees - pa.activees.length;
-  const p = data.paiements;
+function Paroisses({ data }: { data: ActivitePlateforme }) {
+  const ouvertes = data.par_paroisse.filter((p) => p.collecte_ouverte).length;
+  const r = data.reversements;
   return (
     <Carte
       titre="Paroisses en fonctionnement"
-      sousTitre={`Paiements en ligne activés : ${pa.activees.length} paroisse${pa.activees.length > 1 ? 's' : ''} sur ${pa.parametrees} paramétrées`}
+      sousTitre={`Collecte ouverte : ${ouvertes} paroisse${ouvertes > 1 ? 's' : ''} sur ${data.par_paroisse.length} engagées · ordre alphabétique`}
     >
       <ul className="mt-3">
-        {pa.activees.map((x) => (
+        {data.par_paroisse.map((x) => (
           <li
             key={x.id}
+            data-paroisse={x.nom}
             className="flex items-center justify-between gap-3 border-t border-border py-3"
           >
             <span>
               <span className="block text-[15px] font-semibold">{x.nom}</span>
-              {x.derniere_confirmation_le && (
-                <span className="block text-[13px] text-muted-foreground">
-                  Dernière confirmation il y a{' '}
-                  {formatDuree(
-                    x.derniere_confirmation_le,
-                    data.arrete_au,
-                    true,
-                  )}{' '}
-                  · {formatHorodatage(x.derniere_confirmation_le)}
-                </span>
-              )}
+              <span className="block text-[13px] text-muted-foreground">
+                {x.lances} lancés · {x.confirmes} confirmés
+                {x.taux_confirmation !== null &&
+                  ` (${formatPourcent(x.taux_confirmation)})`}{' '}
+                · {x.quetes_saisies} quêtes saisies
+                {x.derniere_confirmation &&
+                  ` · dernière confirmation il y a ${formatDuree(x.derniere_confirmation, data.genere_le, true)}`}
+              </span>
             </span>
-            <StatusBadge tone="success" label="Paiements activés" />
+            {x.collecte_ouverte ? (
+              <StatusBadge tone="success" label="Collecte ouverte" />
+            ) : (
+              <StatusBadge tone="progress" label="En préparation" />
+            )}
           </li>
         ))}
-        {autres > 0 && (
-          <li className="flex items-center justify-between gap-3 border-t border-border py-3">
-            <span>
-              <span className="block text-[15px] font-semibold">
-                {autres} autre{autres > 1 ? 's' : ''} paroisse
-                {autres > 1 ? 's' : ''}
-              </span>
-              <span className="block text-[13px] text-muted-foreground">
-                En préparation, paiements non activés
-              </span>
-            </span>
-            <StatusBadge tone="progress" label="En préparation" />
-          </li>
-        )}
       </ul>
       <dl className="grid grid-cols-2 gap-4 border-t border-border pt-3 text-sm">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-foreground/80">Dernière notification</dt>
-          <dd className="font-semibold tabular-nums">
-            {p.derniere_notification_le
-              ? `il y a ${formatDuree(p.derniere_notification_le, data.arrete_au, true)}`
-              : '—'}
-          </dd>
+          <dt className="text-foreground/80">Reversements à rapprocher</dt>
+          <dd className="font-semibold tabular-nums">{r.a_rapprocher}</dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-foreground/80">En attente</dt>
-          <dd className="font-semibold tabular-nums">
-            {p.en_attente}
-            {p.plus_ancien_attente_depuis &&
-              ` · depuis ${formatDuree(p.plus_ancien_attente_depuis, data.arrete_au, true)}`}
-          </dd>
+          <dt className="text-foreground/80">En écart</dt>
+          <dd className="font-semibold tabular-nums">{r.en_ecart}</dd>
         </div>
       </dl>
     </Carte>
@@ -582,9 +554,7 @@ function ParoissesEnFonctionnement({ data }: { data: ActivitePlateforme }) {
 }
 
 function Incidents({ data }: { data: ActivitePlateforme }) {
-  const incidents = [...data.incidents].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  const incidents = data.incidents.liste;
   return (
     <section
       aria-labelledby="titre-incidents"
@@ -598,63 +568,63 @@ function Incidents({ data }: { data: ActivitePlateforme }) {
           Incidents de paiement
         </h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Référence du paiement et paroisse comme contexte technique, sans
-          montant ni nom
+          {data.incidents.ouverts} ouvert
+          {data.incidents.ouverts > 1 ? 's' : ''} · référence du paiement et
+          paroisse comme contexte technique, sans montant ni nom
         </p>
       </div>
       {incidents.length === 0 ? (
         <p className="px-6 pb-5 text-sm text-muted-foreground">
-          Aucun incident sur la période.
+          Aucun incident ouvert.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">
-              Incidents de paiement, du plus récent au plus ancien
+              Incidents de paiement ouverts, du plus récent au plus ancien
             </caption>
             <thead className="bg-background-surface text-[13px] text-muted-foreground">
               <tr className="h-10 border-y border-border">
                 <th scope="col" className="pl-6 text-left font-medium">
-                  Date
+                  Détecté le
                 </th>
                 <th scope="col" className="text-left font-medium">
                   Référence
                 </th>
                 <th scope="col" className="text-left font-medium">
-                  Contexte
+                  Paroisse
                 </th>
                 <th scope="col" className="text-left font-medium">
                   Nature
                 </th>
-                <th scope="col" className="text-left font-medium">
+                <th scope="col" className="pr-6 text-left font-medium">
                   État
-                </th>
-                <th scope="col" className="pr-6 text-right font-medium">
-                  Action
                 </th>
               </tr>
             </thead>
             <tbody>
               {incidents.map((i) => {
-                const etat = ETATS_INCIDENT[i.etat];
+                const etat = STATUTS_INCIDENT[i.statut] ?? {
+                  label: i.statut,
+                  tone: 'neutral' as StatusTone,
+                };
                 return (
                   <tr
-                    key={i.id}
+                    key={`${i.reference}-${i.detecte_le}`}
                     className="h-14 border-b border-border last:border-b-0"
                   >
                     <td className="whitespace-nowrap pl-6 tabular-nums">
-                      {formatHorodatage(i.date).replace(',', '')}
+                      {formatHorodatage(i.detecte_le).replace(',', '')}
                     </td>
                     <td className="whitespace-nowrap tabular-nums">
-                      {i.reference ?? '—'}
+                      {i.reference}
                     </td>
-                    <td>{i.contexte}</td>
-                    <td className="max-w-[260px] py-2 pr-4">{i.nature}</td>
-                    <td>
+                    <td>{i.paroisse ?? TIRET}</td>
+                    <td className="max-w-[280px] py-2 pr-4">
+                      {TYPES_INCIDENT[i.type] ?? i.type}
+                    </td>
+                    <td className="pr-6">
                       <StatusBadge label={etat.label} tone={etat.tone} />
-                    </td>
-                    <td className="pr-6 text-right text-sm font-semibold text-primary">
-                      {i.action && ACTIONS_INCIDENT[i.action]}
                     </td>
                   </tr>
                 );
@@ -667,46 +637,13 @@ function Incidents({ data }: { data: ActivitePlateforme }) {
   );
 }
 
-const OPTIONS = {
-  paroisses: [{ valeur: '', libelle: 'Toutes les paroisses' }],
-  moyens: [
-    { valeur: '', libelle: 'Tous les moyens' },
-    { valeur: 'wave', libelle: 'Wave' },
-    { valeur: 'orange_money', libelle: 'Orange Money' },
-    { valeur: 'free_money', libelle: 'Free Money' },
-    { valeur: 'carte', libelle: 'Carte' },
-  ],
-  sources: [
-    { valeur: '', libelle: 'Toutes les sources' },
-    { valeur: 'app_android', libelle: 'App Android' },
-    { valeur: 'web', libelle: 'Site' },
-    { valeur: 'app_ios', libelle: 'App iOS' },
-  ],
-};
-
 export function SantePaiementsVue() {
-  const [granularite, setGranularite] = React.useState<'semaine' | 'mois'>(
-    'mois',
-  );
+  const [periode, setPeriode] = React.useState<Periode>('mois');
   const [mois, setMois] = React.useState(MOIS_COURANT);
-  const [paroisse, setParoisse] = React.useState('');
-  const [moyen, setMoyen] = React.useState('');
-  const [source, setSource] = React.useState('');
-  const filtres: FiltresPlateforme = {
-    granularite,
-    date: mois,
-    paroisse: paroisse || undefined,
-    moyen: moyen || undefined,
-    source: source || undefined,
-  };
-  const { data, isLoading, error } = useActivitePlateforme(filtres);
-  const optionsParoisses = [
-    ...OPTIONS.paroisses,
-    ...(data?.paroisses.activees ?? []).map((p) => ({
-      valeur: p.id,
-      libelle: p.nom,
-    })),
-  ];
+  const { data, isLoading, error } = useActivitePlateforme({
+    periode,
+    date: codePeriode(periode, mois, MOIS_COURANT),
+  });
 
   return (
     <div className="space-y-6">
@@ -714,42 +651,17 @@ export function SantePaiementsVue() {
         Nombres, taux et délais seulement : la plateforme ne voit aucun montant.
       </p>
       <BarreFiltres
-        granularites={[
-          { valeur: 'semaine', libelle: 'Semaine' },
-          { valeur: 'mois', libelle: 'Mois' },
-        ]}
-        granularite={granularite}
-        onGranularite={setGranularite}
+        granularites={PERIODES}
+        granularite={periode}
+        onGranularite={setPeriode}
         mois={mois}
         onMois={setMois}
         moisMax={MOIS_COURANT}
-        filtres={[
-          {
-            cle: 'paroisse',
-            nom: 'Paroisse',
-            valeur: paroisse,
-            options: optionsParoisses,
-            onChange: setParoisse,
-          },
-          {
-            cle: 'moyen',
-            nom: 'Moyen',
-            valeur: moyen,
-            options: OPTIONS.moyens,
-            onChange: setMoyen,
-          },
-          {
-            cle: 'source',
-            nom: 'Source',
-            valeur: source,
-            options: OPTIONS.sources,
-            onChange: setSource,
-          },
-        ]}
+        filtres={[]}
         fin={
           data && (
             <span className="text-[13px] text-muted-foreground tabular-nums">
-              {capitaliser(`au ${formatHorodatage(data.arrete_au)}`)}
+              {capitaliser(`au ${formatHorodatage(data.genere_le)}`)}
             </span>
           )
         }
@@ -765,13 +677,13 @@ export function SantePaiementsVue() {
           <Synthese data={data} />
           <IssueParJour data={data} />
           <div className="grid items-start gap-6 lg:grid-cols-2">
-            <Delai data={data} />
+            <Delais data={data} />
             <Notifications data={data} />
           </div>
           <Charge data={data} />
           <div className="grid items-start gap-6 lg:grid-cols-2">
-            <Sources data={data} />
-            <ParoissesEnFonctionnement data={data} />
+            <SourcesEtMoyens data={data} />
+            <Paroisses data={data} />
           </div>
           <Incidents data={data} />
           <p className="text-[13px] text-muted-foreground">

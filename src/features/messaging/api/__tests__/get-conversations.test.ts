@@ -9,7 +9,11 @@ import { getConversations } from '../get-conversations';
 const makeConv = (id: string) =>
   createConversation({
     id,
-    participant_a: { id: `user-${id}`, email: `user${id}@test.sn`, full_name: `User ${id}` },
+    participant_a: {
+      id: `user-${id}`,
+      email: `user${id}@test.sn`,
+      full_name: `User ${id}`,
+    },
   });
 
 describe('getConversations — parseConversations', () => {

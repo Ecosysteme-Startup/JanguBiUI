@@ -1,16 +1,30 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { Search, ChevronRight, Loader2, ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FontSizeStepper } from '@/components/ui/font-size-stepper';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useBooks, Book } from '@/features/bible/api/get-books';
+import {
+  useBooks,
+  Book,
+  getBooksQueryOptions,
+} from '@/features/bible/api/get-books';
 import { useInfiniteVerses } from '@/features/bible/api/get-verses';
 import { useSearchBible } from '@/features/bible/api/search-bible';
 import { useDebounce } from '@/hooks/use-debounce';
+import { cn } from '@/utils/cn';
+
+import { signalerLecture } from '../utils/signaux-lecture';
+
+export type CibleBible = {
+  livreId: number;
+  chapitre: number;
+  verset: number | null;
+};
 
 function HighlightText({
   text,
@@ -95,13 +109,18 @@ const VERSE_PAGE_SIZE = 50;
 function VerseReadingSection({
   book,
   chapterNumber,
+  versetCible,
   onBack,
 }: {
   book: Book;
   chapterNumber: number;
+  versetCible?: number | null;
   onBack: () => void;
 }) {
   const [fontSize, setFontSize] = useState(16);
+  const finRef = useRef<HTMLDivElement>(null);
+  const ouvertSignale = useRef(false);
+  const termineSignale = useRef(false);
   const {
     data,
     isLoading,
@@ -114,6 +133,55 @@ function VerseReadingSection({
     chapterNumber,
     limit: VERSE_PAGE_SIZE,
   });
+
+  const charge = !!data;
+
+  // Signaux de lecture (API-PAROLE-POUR-VOUS §1) : chapitre ouvert, puis
+  // chapitre terminé quand la fin du texte est à l'écran.
+  useEffect(() => {
+    if (!charge || ouvertSignale.current) return;
+    ouvertSignale.current = true;
+    signalerLecture({
+      type: 'lu',
+      livre_id: book.id,
+      chapitre: chapterNumber,
+      termine: false,
+    });
+  }, [charge, book.id, chapterNumber]);
+
+  useEffect(() => {
+    const fin = finRef.current;
+    if (
+      !charge ||
+      hasNextPage ||
+      !fin ||
+      termineSignale.current ||
+      typeof IntersectionObserver === 'undefined'
+    )
+      return;
+    const observateur = new IntersectionObserver((entrees) => {
+      if (entrees.some((e) => e.isIntersecting) && !termineSignale.current) {
+        termineSignale.current = true;
+        signalerLecture({
+          type: 'lu',
+          livre_id: book.id,
+          chapitre: chapterNumber,
+          termine: true,
+        });
+        observateur.disconnect();
+      }
+    });
+    observateur.observe(fin);
+    return () => observateur.disconnect();
+  }, [charge, hasNextPage, book.id, chapterNumber]);
+
+  // Lien profond : on amène le verset demandé à l'écran.
+  useEffect(() => {
+    if (!charge || !versetCible) return;
+    document
+      .getElementById(`verset-${versetCible}`)
+      ?.scrollIntoView({ block: 'center' });
+  }, [charge, versetCible]);
 
   if (isLoading) {
     return (
@@ -180,7 +248,15 @@ function VerseReadingSection({
         </header>
         <div className="flex flex-col gap-5">
           {allVerses.map((verse) => (
-            <div key={verse.id} className="flex gap-3 items-start">
+            <div
+              key={verse.id}
+              id={`verset-${verse.number}`}
+              className={cn(
+                'flex gap-3 items-start',
+                versetCible === verse.number &&
+                  '-mx-2 rounded-lg bg-primary/5 px-2 py-1',
+              )}
+            >
               <span className="text-primary font-bold text-sm shrink-0 min-w-7 pt-0.5 tabular-nums select-none">
                 {verse.number}
               </span>
@@ -193,6 +269,7 @@ function VerseReadingSection({
             </div>
           ))}
         </div>
+        <div ref={finRef} aria-hidden="true" className="h-px" />
       </article>
 
       {hasNextPage && (
@@ -216,7 +293,7 @@ function VerseReadingSection({
   );
 }
 
-export function BibleBooksTab() {
+export function BibleBooksTab({ cible }: { cible?: CibleBible | null } = {}) {
   const [search, setSearch] = useState('');
   const [isHybrid, setIsHybrid] = useState(false);
   const debouncedSearch = useDebounce(search, 400);
@@ -228,6 +305,21 @@ export function BibleBooksTab() {
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
 
   const isSearching = debouncedSearch.trim().length >= 3;
+
+  // Lien profond (« Reprendre », « Commencer », référence d'un verset) : le
+  // livre est cherché dans la liste complète, sans filtre de testament.
+  const { data: tousLesLivres } = useQuery({
+    ...getBooksQueryOptions({}),
+    enabled: !!cible,
+  });
+  useEffect(() => {
+    if (!cible || selectedBook || !Array.isArray(tousLesLivres)) return;
+    const livre = tousLesLivres.find((b) => b.id === cible.livreId);
+    if (livre) {
+      setSelectedBook(livre);
+      setSelectedChapter(cible.chapitre);
+    }
+  }, [cible, selectedBook, tousLesLivres]);
 
   const {
     data: books,
@@ -252,6 +344,13 @@ export function BibleBooksTab() {
       <VerseReadingSection
         book={selectedBook}
         chapterNumber={selectedChapter}
+        versetCible={
+          cible &&
+          cible.livreId === selectedBook.id &&
+          cible.chapitre === selectedChapter
+            ? cible.verset
+            : null
+        }
         onBack={() => setSelectedChapter(null)}
       />
     );
@@ -290,7 +389,7 @@ export function BibleBooksTab() {
             htmlFor="hybrid-search"
             className="text-sm font-medium leading-none cursor-pointer"
           >
-            Sémantique IA (Recherche Intelligente)
+            Recherche par le sens
           </label>
         </div>
       </div>
@@ -360,6 +459,10 @@ export function BibleBooksTab() {
                           tabIndex={0}
                           className="p-3 bg-background rounded-lg border border-border hover:border-primary transition-colors cursor-pointer"
                           onClick={() => {
+                            signalerLecture({
+                              type: 'recherche',
+                              verset_debut_id: match.verse.id,
+                            });
                             const testament = group.book.testament as
                               | 'ancien'
                               | 'nouveau'
@@ -380,6 +483,10 @@ export function BibleBooksTab() {
                           }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
+                              signalerLecture({
+                                type: 'recherche',
+                                verset_debut_id: match.verse.id,
+                              });
                               const testament = group.book.testament as
                                 | 'ancien'
                                 | 'nouveau'

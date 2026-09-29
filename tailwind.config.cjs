@@ -77,6 +77,7 @@ module.exports = {
   			},
   			gold: 'hsl(var(--gold))',
   			success: 'hsl(var(--success, 142.1 76.2% 36.3%))',
+  			presence: 'hsl(var(--presence, 168 56% 27%))',
   			warning: 'hsl(var(--warning, 38 92% 50%))',
   			info: 'hsl(var(--info, 221.2 83.2% 53.3%))',
   			chart: {

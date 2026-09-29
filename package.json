@@ -23,6 +23,7 @@
   "dependencies": {
     "@ai-sdk/react": "^3.0.108",
     "@hookform/resolvers": "^3.3.4",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@next/env": "^14.2.5",
     "@ngneat/falso": "^7.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.15",

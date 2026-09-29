@@ -8,7 +8,6 @@ export const ORDRE_FONDS: readonly TypeFonds[] = [
   'quete_imperee',
   'campagne',
   'contribution_annuelle',
-  'autres',
 ];
 
 export const COULEUR_FONDS: Record<TypeFonds, string> = {
@@ -16,15 +15,13 @@ export const COULEUR_FONDS: Record<TypeFonds, string> = {
   quete_imperee: 'var(--dv-fonds-2)',
   campagne: 'var(--dv-fonds-3)',
   contribution_annuelle: 'var(--dv-fonds-4)',
-  autres: 'var(--dv-fonds-5)',
 };
 
 export const LIBELLE_FONDS: Record<TypeFonds, string> = {
   quete_dominicale: 'Quête dominicale',
   quete_imperee: 'Quête impérée',
-  campagne: 'Campagnes',
+  campagne: 'Campagne pour un projet',
   contribution_annuelle: 'Contribution annuelle',
-  autres: 'Autres',
 };
 
 /** Statuts de paiement : couleurs d'état technique, jamais une série de données. */

@@ -69,11 +69,7 @@ function MessageRow({
       </div>
       <div className="mt-0.5 shrink-0">
         {isRead ? (
-          <Pill
-            tone="muted"
-            className="gap-1"
-            aria-label="Message lu"
-          >
+          <Pill tone="muted" className="gap-1" aria-label="Message lu">
             <MailOpen className="size-3" aria-hidden="true" />
             Lu
           </Pill>

@@ -2106,6 +2106,11 @@
     "@types/mdx" "^2.0.0"
     "@types/react" ">=16"
 
+"@microsoft/fetch-event-source@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/@microsoft/fetch-event-source/-/fetch-event-source-2.0.1.tgz"
+  integrity sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==
+
 "@mswjs/data@^0.16.1":
   version "0.16.2"
   resolved "https://registry.npmjs.org/@mswjs/data/-/data-0.16.2.tgz"

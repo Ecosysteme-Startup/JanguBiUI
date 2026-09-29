@@ -3,704 +3,964 @@ import { HttpResponse, http } from 'msw';
 import { env } from '@/config/env';
 import type { ActivitePlateforme } from '@/features/dons-analyse/api/get-activite-plateforme';
 import type {
-  AnalyseDiocese,
-  AnalyseParoisse,
+  AnalyseDons,
+  PeriodeAnalyse,
 } from '@/features/dons-analyse/api/get-analyse-dons';
+import type { Capacite } from '@/features/dons-analyse/api/get-mes-capacites';
 
-// Jeu de données de référence des tableaux de bord des dons (spec
-// ECRANS-TABLEAU-DE-BORD-DONS §2) : Saint-Dominique, septembre 2026, arrêté au
-// 28 sept., 9:15. Fictif.
+// Jeu de référence des tableaux de bord des dons, champ pour champ celui du
+// contrat backend `docs/API-DONS-ANALYSE.md` (§2.5 paroisse, §2.6 diocèse, §3.1
+// plateforme) : Saint-Dominique, septembre 2026, requête du dimanche
+// 27 septembre à 20 h. Les UUID sont ceux, lisibles, du contrat. Fictif.
 
-const ARRETE_AU = '2026-09-28T09:15:00Z';
+export const NOEUD_SAINT_DOMINIQUE = '5d000000-0000-4000-8000-00000000000d';
+export const NOEUD_ARCHIDIOCESE = 'da000000-0000-4000-8000-00000000000a';
 
-const PERIODE_SEPTEMBRE = {
-  granularite: 'mois' as const,
+const GENERE_LE = '2026-09-27T20:00:00Z';
+
+const PERIODE_SEPTEMBRE: PeriodeAnalyse = {
+  type: 'mois',
+  code: '2026-09',
   debut: '2026-09-01',
   fin: '2026-09-30',
   libelle: 'septembre 2026',
-  en_cours: true,
 };
 
-export const analyseParoisseSeptembre: AnalyseParoisse = {
-  portee: 'paroisse',
-  lieu: {
-    id: '5d1c3a8e-0000-4000-8000-000000000001',
+const CONFIDENTIALITE = {
+  noms_donateurs: false,
+  ordre_paroisses: 'alphabetique',
+  tri_par_montant: false,
+};
+
+export const mesCapacitesDemo: Capacite[] = [
+  {
+    capacite: 'dons.voir_fonds',
+    node_id: NOEUD_SAINT_DOMINIQUE,
+    node_name: 'Saint-Dominique',
+    node_type: 'paroisse',
+    herite: false,
+    office: 'econome_paroissial',
+    office_label: 'Économe',
+  },
+  {
+    capacite: 'dons.voir_agregats',
+    node_id: NOEUD_ARCHIDIOCESE,
+    node_name: 'Archidiocèse de Dakar',
+    node_type: 'diocese',
+    herite: false,
+    office: 'econome_diocesain',
+    office_label: 'Économe diocésain',
+  },
+];
+
+const QUETE_IMPEREE_SEPTEMBRE = {
+  fonds_id: '00000000-0000-4000-8000-000000000005',
+  titre: 'Quête impérée · Grand Séminaire de Brin',
+  date: '2026-09-27',
+  echeance: '2026-10-04',
+  messe_anticipee_incluse: true,
+  paroisses: [
+    {
+      id: NOEUD_SAINT_DOMINIQUE,
+      nom: 'Saint-Dominique',
+      en_ligne: 28525,
+      especes: 646000,
+      total: 674525,
+      remis: 0,
+      remise_declaree: 0,
+      reste_a_remettre: 646000,
+      part_remise: 0,
+    },
+  ],
+};
+
+export const analyseParoisseSeptembre: AnalyseDons = {
+  niveau: 'paroisse',
+  noeud: {
+    id: NOEUD_SAINT_DOMINIQUE,
     nom: 'Saint-Dominique',
-    diocese: 'Archidiocèse de Dakar',
+    type: 'paroisse',
   },
   periode: PERIODE_SEPTEMBRE,
-  arrete_au: ARRETE_AU,
-  collecte: {
-    total: 1214830,
+  genere_le: GENERE_LE,
+  confidentialite: { arrondi: 1, ...CONFIDENTIALITE },
+  synthese: {
+    collecte: 1214830,
     en_ligne: 356330,
-    en_ligne_nombre: 47,
     especes: 858500,
-    especes_quetes: 9,
-    pour_paroisse: 540305,
-    pour_curie: 674525,
-    quete_imperee_libelle: 'Grand Séminaire de Brin',
-    a_confirmer: { montant: 64000, nombre: 1 },
+    nombre_dons_en_ligne: 47,
+    nombre_quetes: 9,
+    par_destination: { paroisse: 540305, curie: 674525 },
+    par_type_fonds: [
+      {
+        type: 'quete_dominicale',
+        libelle: 'Quête dominicale',
+        en_ligne: 47405,
+        especes: 212500,
+        total: 259905,
+        nombre: 9,
+        part: 21,
+      },
+      {
+        type: 'quete_imperee',
+        libelle: 'Quête impérée',
+        en_ligne: 28525,
+        especes: 646000,
+        total: 674525,
+        nombre: 10,
+        part: 56,
+      },
+      {
+        type: 'campagne',
+        libelle: 'Campagne pour un projet',
+        en_ligne: 236400,
+        especes: 0,
+        total: 236400,
+        nombre: 31,
+        part: 19,
+      },
+      {
+        type: 'contribution_annuelle',
+        libelle: 'Contribution annuelle',
+        en_ligne: 44000,
+        especes: 0,
+        total: 44000,
+        nombre: 6,
+        part: 4,
+      },
+    ],
+    par_fonds: [
+      {
+        fonds_id: '00000000-0000-4000-8000-000000000001',
+        titre: 'Quête dominicale',
+        type: 'quete_dominicale',
+        destination: 'paroisse',
+        en_ligne: 47405,
+        especes: 212500,
+        total: 259905,
+        nombre: 9,
+        part: 21,
+      },
+      {
+        fonds_id: '00000000-0000-4000-8000-000000000002',
+        titre: 'Quête impérée · Grand Séminaire de Brin',
+        type: 'quete_imperee',
+        destination: 'curie',
+        en_ligne: 28525,
+        especes: 646000,
+        total: 674525,
+        nombre: 10,
+        part: 56,
+      },
+      {
+        fonds_id: '00000000-0000-4000-8000-000000000003',
+        titre: 'Toiture de la chapelle',
+        type: 'campagne',
+        destination: 'paroisse',
+        en_ligne: 236400,
+        especes: 0,
+        total: 236400,
+        nombre: 31,
+        part: 19,
+      },
+      {
+        fonds_id: '00000000-0000-4000-8000-000000000004',
+        titre: 'Contribution annuelle 2026',
+        type: 'contribution_annuelle',
+        destination: 'paroisse',
+        en_ligne: 44000,
+        especes: 0,
+        total: 44000,
+        nombre: 6,
+        part: 4,
+      },
+    ],
+    par_canal: [
+      {
+        canal: 'en_ligne',
+        libelle: 'En ligne',
+        total: 356330,
+        nombre: 47,
+        part: 29,
+        sources: [
+          {
+            source: 'app_ios',
+            libelle: 'App iOS',
+            total: 61500,
+            nombre: 8,
+            part: 17,
+          },
+          {
+            source: 'app_android',
+            libelle: 'App Android',
+            total: 199000,
+            nombre: 26,
+            part: 56,
+          },
+          {
+            source: 'web',
+            libelle: 'Site',
+            total: 95830,
+            nombre: 13,
+            part: 27,
+          },
+        ],
+      },
+      {
+        canal: 'especes',
+        libelle: 'Espèces',
+        total: 858500,
+        nombre: 9,
+        part: 71,
+        sources: [],
+      },
+    ],
+    par_moyen: [
+      { moyen: 'wave', libelle: 'Wave', total: 208450, nombre: 29, part: 58 },
+      {
+        moyen: 'orange_money',
+        libelle: 'Orange Money',
+        total: 106380,
+        nombre: 14,
+        part: 30,
+      },
+      {
+        moyen: 'free_money',
+        libelle: 'Free Money',
+        total: 0,
+        nombre: 0,
+        part: 0,
+      },
+      {
+        moyen: 'carte',
+        libelle: 'Carte bancaire',
+        total: 41500,
+        nombre: 4,
+        part: 12,
+      },
+    ],
+    par_lieu: [
+      {
+        lieu_id: 1,
+        nom: 'Église Saint-Dominique',
+        en_ligne: 0,
+        especes: 775000,
+        total: 775000,
+        nombre: 7,
+        part: 64,
+      },
+      {
+        lieu_id: 2,
+        nom: 'Chapelle de la Cité universitaire',
+        en_ligne: 0,
+        especes: 83500,
+        total: 83500,
+        nombre: 2,
+        part: 7,
+      },
+      {
+        lieu_id: null,
+        nom: 'Lieu non renseigné',
+        en_ligne: 356330,
+        especes: 0,
+        total: 356330,
+        nombre: 47,
+        part: 29,
+      },
+    ],
   },
-  par_fonds: [
-    { type: 'quete_dominicale', libelle: 'Quête dominicale', montant: 259905 },
+  tendance: {
+    grain: 'semaine',
+    points: [
+      {
+        debut: '2026-09-01',
+        fin: '2026-09-06',
+        libelle: 'au dim. 6',
+        total: 71500,
+        en_ligne: 71500,
+        especes: 0,
+        par_type_fonds: {
+          quete_dominicale: 3000,
+          quete_imperee: 0,
+          campagne: 60500,
+          contribution_annuelle: 8000,
+        },
+      },
+      {
+        debut: '2026-09-07',
+        fin: '2026-09-13',
+        libelle: 'au dim. 13',
+        total: 84250,
+        en_ligne: 84250,
+        especes: 0,
+        par_type_fonds: {
+          quete_dominicale: 2905,
+          quete_imperee: 0,
+          campagne: 71345,
+          contribution_annuelle: 10000,
+        },
+      },
+      {
+        debut: '2026-09-14',
+        fin: '2026-09-20',
+        libelle: 'au dim. 20',
+        total: 297805,
+        en_ligne: 85305,
+        especes: 212500,
+        par_type_fonds: {
+          quete_dominicale: 215500,
+          quete_imperee: 0,
+          campagne: 64305,
+          contribution_annuelle: 18000,
+        },
+      },
+      {
+        debut: '2026-09-21',
+        fin: '2026-09-27',
+        libelle: 'au dim. 27',
+        total: 761275,
+        en_ligne: 115275,
+        especes: 646000,
+        par_type_fonds: {
+          quete_dominicale: 38500,
+          quete_imperee: 674525,
+          campagne: 40250,
+          contribution_annuelle: 8000,
+        },
+      },
+    ],
+  },
+  a_traiter: [
     {
-      type: 'quete_imperee',
-      libelle: 'Quête impérée · Grand Séminaire de Brin',
-      montant: 674525,
+      type: 'paiements_en_attente',
+      echeance: '2026-09-28',
+      libelle: '3 paiement(s) en attente de confirmation',
+      nombre: 3,
+      montant: 18000,
+      depuis: '2026-09-27T01:00:00Z',
+      paroisse: null,
+      objet_id: null,
     },
     {
-      type: 'campagne',
-      libelle: 'Campagne · toiture de la chapelle',
-      montant: 236400,
+      type: 'quete_a_confirmer',
+      echeance: '2026-09-29',
+      libelle:
+        'Quête à confirmer : Chapelle de la Cité universitaire, Messe de 17 h, 27/09',
+      nombre: 1,
+      montant: 64000,
+      depuis: '2026-09-27T18:30:00Z',
+      paroisse: null,
+      objet_id: '10',
     },
     {
-      type: 'contribution_annuelle',
-      libelle: 'Contribution annuelle 2026',
-      montant: 44000,
+      type: 'especes_a_deposer',
+      echeance: '2026-10-03',
+      libelle: 'Espèces à déposer en banque',
+      nombre: 5,
+      montant: 646000,
+      depuis: '2026-09-26T20:00:00Z',
+      paroisse: null,
+      objet_id: null,
+    },
+    {
+      type: 'remise_curie',
+      echeance: '2026-10-04',
+      libelle:
+        'Quête impérée · Grand Séminaire de Brin : espèces à remettre à la curie',
+      nombre: 1,
+      montant: 646000,
+      depuis: null,
+      paroisse: null,
+      objet_id: '00000000-0000-4000-8000-000000000002',
     },
   ],
-  par_semaine: [
-    {
-      debut: '2026-09-01',
-      fin: '2026-09-06',
-      libelle: '1er-6 sept.',
-      sous_libelle: 'dim. 6',
-      valeurs: {
-        quete_dominicale: 3000,
-        quete_imperee: 0,
-        campagne: 60500,
-        contribution_annuelle: 8000,
-      },
-      total: 71500,
-    },
-    {
-      debut: '2026-09-07',
-      fin: '2026-09-13',
-      libelle: '7-13 sept.',
-      sous_libelle: 'dim. 13',
-      valeurs: {
-        quete_dominicale: 2905,
-        quete_imperee: 0,
-        campagne: 71345,
-        contribution_annuelle: 10000,
-      },
-      total: 84250,
-    },
-    {
-      debut: '2026-09-14',
-      fin: '2026-09-20',
-      libelle: '14-20 sept.',
-      sous_libelle: 'dim. 20',
-      valeurs: {
-        quete_dominicale: 215500,
-        quete_imperee: 0,
-        campagne: 64305,
-        contribution_annuelle: 18000,
-      },
-      total: 297805,
-    },
-    {
-      debut: '2026-09-21',
-      fin: '2026-09-27',
-      libelle: '21-27 sept.',
-      sous_libelle: 'dim. 27',
-      valeurs: {
-        quete_dominicale: 38500,
-        quete_imperee: 674525,
-        campagne: 40250,
-        contribution_annuelle: 8000,
-      },
-      total: 761275,
-    },
-  ],
-  par_canal: [
-    {
-      code: 'en_ligne',
-      libelle: 'En ligne',
-      montant: 356330,
+  paroisses: null,
+  quetes_imperees: [QUETE_IMPEREE_SEPTEMBRE],
+  tresorerie: {
+    en_ligne: {
+      paye: 356330,
+      frais: 7120,
+      frais_reels: 7120,
+      net: 349210,
+      reverse: 301480,
+      en_attente_reversement: 47730,
+      part_reversee: 86,
+      net_pour_100: 98,
+      dons_frais_couverts: 0,
       nombre: 47,
-      niveau: 0,
-      unite: 'dons',
-      non_renseigne: false,
     },
-    {
-      code: 'app_android',
-      libelle: 'App Android',
-      montant: 199000,
-      nombre: 26,
-      niveau: 1,
-      unite: 'dons',
-      non_renseigne: false,
+    especes: {
+      validees: 858500,
+      deposees: 212500,
+      en_caisse: 646000,
+      a_confirmer: 64000,
     },
-    {
-      code: 'web',
-      libelle: 'Site',
-      montant: 95830,
-      nombre: 13,
-      niveau: 1,
-      unite: 'dons',
-      non_renseigne: false,
-    },
-    {
-      code: 'app_ios',
-      libelle: 'App iOS',
-      montant: 61500,
-      nombre: 8,
-      niveau: 1,
-      unite: 'dons',
-      non_renseigne: false,
-    },
-    {
-      code: 'especes',
-      libelle: 'Espèces',
-      montant: 858500,
-      nombre: 9,
-      niveau: 0,
-      unite: 'quêtes',
-      non_renseigne: false,
-    },
-  ],
-  par_moyen: [
-    {
-      code: 'especes',
-      libelle: 'Espèces',
-      montant: 858500,
-      nombre: 9,
-      niveau: 0,
-      unite: 'quêtes',
-      non_renseigne: false,
-    },
-    {
-      code: 'wave',
-      libelle: 'Wave',
-      montant: 208450,
-      nombre: 29,
-      niveau: 0,
-      unite: 'dons',
-      non_renseigne: false,
-    },
-    {
-      code: 'orange_money',
-      libelle: 'Orange Money',
-      montant: 106380,
-      nombre: 14,
-      niveau: 0,
-      unite: 'dons',
-      non_renseigne: false,
-    },
-    {
-      code: 'free_money',
-      libelle: 'Free Money',
-      montant: 0,
-      nombre: 0,
-      niveau: 0,
-      unite: 'dons',
-      non_renseigne: false,
-    },
-    {
-      code: 'carte',
-      libelle: 'Carte',
-      montant: 41500,
-      nombre: 4,
-      niveau: 0,
-      unite: 'dons',
-      non_renseigne: false,
-    },
-  ],
-  par_lieu: [
-    {
-      code: 'eglise',
-      libelle: 'Église Saint-Dominique',
-      montant: 775000,
-      nombre: 7,
-      niveau: 0,
-      unite: 'quêtes',
-      non_renseigne: false,
-    },
-    {
-      code: 'chapelle_cite',
-      libelle: 'Chapelle de la Cité universitaire',
-      montant: 83500,
-      nombre: 2,
-      niveau: 0,
-      unite: 'quêtes',
-      non_renseigne: false,
-    },
-    {
-      code: 'non_renseigne',
-      libelle: 'Dons en ligne : lieu non renseigné',
-      montant: 356330,
-      nombre: 47,
-      niveau: 0,
-      unite: 'dons',
-      non_renseigne: true,
-    },
-  ],
+  },
   paiements: {
     lances: 58,
     confirmes: 47,
     en_attente: 3,
     echoues: 4,
     expires: 4,
-    plus_ancien_attente_depuis: '2026-09-27T14:15:00Z',
-    delai_median_s: 41,
-  },
-  tresorerie: {
-    paye_en_ligne: 356330,
-    frais: 7120,
-    net_en_ligne: 349210,
-    reverse: 301480,
-    reverse_le: '2026-09-25',
-    en_attente_reversement: 47730,
-    dons_frais_couverts: 12,
-    net_pour_100: 98,
-    especes_validees: 858500,
-    especes_deposees: 212500,
-    especes_en_caisse: 646000,
-    quete_a_confirmer: 64000,
+    taux_confirmation: 81,
   },
   campagnes: [
     {
-      id: 'toiture',
-      titre: 'toiture de la chapelle',
-      debut: '2026-06-01',
-      fin: '2026-12-31',
+      fonds_id: '00000000-0000-4000-8000-000000000003',
+      titre: 'Toiture de la chapelle',
       objectif: 4500000,
       reuni: 1186400,
-      nombre_dons: 57,
-      montant_periode: 236400,
+      part: 26,
+      nombre: 57,
+      periode: 236400,
+      debut: '2026-06-01',
+      fin: '2026-12-31',
+      statut: 'ouvert',
       rythme_hebdo: 59100,
-      projection_fin: 1978000,
-      cumul: [
-        { mois: '2026-06', cumul: 214000 },
-        { mois: '2026-07', cumul: 482000 },
-        { mois: '2026-08', cumul: 950000 },
-        { mois: '2026-09', cumul: 1186400 },
-      ],
+      projection_fin: 1988471,
+      part_projection: 44,
     },
   ],
-  // Volontairement dans le désordre : l'écran trie par échéance.
-  a_traiter: [
-    {
-      id: 'depot-especes',
-      type: 'depot_especes',
-      titre: "646 000 FCFA d'espèces à déposer à la banque",
-      echeance: '2026-09-30T18:00:00Z',
-      detail: 'en caisse depuis le 27 sept.',
-    },
-    {
-      id: 'remise-curie',
-      type: 'remise_curie',
-      titre: 'Quête impérée : 646 000 FCFA en espèces à remettre à la curie',
-      echeance: '2026-10-04T00:00:00Z',
-      detail: 'Grand Séminaire de Brin',
-    },
-    {
-      id: 'paiements-attente',
-      type: 'paiements_en_attente',
-      titre: '3 paiements en ligne en attente',
-      echeance: '2026-09-28T14:15:00Z',
-      detail: 'le plus ancien depuis 19 h ; il expire à l’échéance',
-    },
-    {
-      id: 'quete-a-confirmer',
-      type: 'quete_a_confirmer',
-      titre:
-        'Quête de 17 h à la chapelle de la Cité universitaire : 64 000 FCFA',
-      echeance: '2026-09-28T18:00:00Z',
-      detail: 'dim. 27 · non comptée',
-    },
+  notes: [
+    'Les quêtes en espèces sont saisies sur Jàngu Bi depuis le 20 septembre.',
+    "Comparaison avec l'an dernier disponible à partir de juin 2027.",
+    'Montants en FCFA. Aucun nom de donateur dans cette vue.',
   ],
-  notes: {
-    par_semaine: [
-      'La quête impérée du 27 septembre a remplacé la quête ordinaire à toutes les messes : lisez les deux fonds ensemble.',
-      'Les quêtes en espèces sont saisies sur Jàngu Bi depuis le 20 septembre.',
-    ],
-  },
 };
 
-/** Même paroisse, période sans aucun don (état vide). */
-export const analyseParoisseVide = (
-  periode: AnalyseParoisse['periode'],
-): AnalyseParoisse => ({
+const paroisseEnPreparation = (id: string, nom: string) => ({
+  id,
+  nom,
+  statut_collecte: 'en_preparation' as const,
+  collecte: null,
+  part_en_ligne: null,
+  quetes_a_valider: null,
+  evolution: null,
+});
+
+export const analyseDioceseSeptembre: AnalyseDons = {
+  niveau: 'diocese',
+  noeud: {
+    id: NOEUD_ARCHIDIOCESE,
+    nom: 'Archidiocèse de Dakar',
+    type: 'diocese',
+  },
+  periode: PERIODE_SEPTEMBRE,
+  genere_le: GENERE_LE,
+  confidentialite: { arrondi: 1000, ...CONFIDENTIALITE },
+  synthese: {
+    collecte: 1215000,
+    en_ligne: 356000,
+    especes: 859000,
+    nombre_dons_en_ligne: 47,
+    nombre_quetes: 9,
+    par_destination: { paroisse: 540000, curie: 675000 },
+    par_type_fonds: [
+      {
+        type: 'quete_dominicale',
+        libelle: 'Quête dominicale',
+        en_ligne: 47000,
+        especes: 213000,
+        total: 260000,
+        nombre: 9,
+        part: 21,
+      },
+      {
+        type: 'quete_imperee',
+        libelle: 'Quête impérée',
+        en_ligne: 29000,
+        especes: 646000,
+        total: 675000,
+        nombre: 10,
+        part: 56,
+      },
+      {
+        type: 'campagne',
+        libelle: 'Campagne pour un projet',
+        en_ligne: 236000,
+        especes: 0,
+        total: 236000,
+        nombre: 31,
+        part: 19,
+      },
+      {
+        type: 'contribution_annuelle',
+        libelle: 'Contribution annuelle',
+        en_ligne: 44000,
+        especes: 0,
+        total: 44000,
+        nombre: 6,
+        part: 4,
+      },
+    ],
+    par_fonds: null,
+    par_canal: [
+      {
+        canal: 'en_ligne',
+        libelle: 'En ligne',
+        total: 356000,
+        nombre: 47,
+        part: 29,
+        sources: [
+          {
+            source: 'app_ios',
+            libelle: 'App iOS',
+            total: 62000,
+            nombre: 8,
+            part: 17,
+          },
+          {
+            source: 'app_android',
+            libelle: 'App Android',
+            total: 199000,
+            nombre: 26,
+            part: 56,
+          },
+          {
+            source: 'web',
+            libelle: 'Site',
+            total: 96000,
+            nombre: 13,
+            part: 27,
+          },
+        ],
+      },
+      {
+        canal: 'especes',
+        libelle: 'Espèces',
+        total: 859000,
+        nombre: 9,
+        part: 71,
+        sources: [],
+      },
+    ],
+    par_moyen: [
+      { moyen: 'wave', libelle: 'Wave', total: 208000, nombre: 29, part: 58 },
+      {
+        moyen: 'orange_money',
+        libelle: 'Orange Money',
+        total: 106000,
+        nombre: 14,
+        part: 30,
+      },
+      {
+        moyen: 'free_money',
+        libelle: 'Free Money',
+        total: 0,
+        nombre: 0,
+        part: 0,
+      },
+      {
+        moyen: 'carte',
+        libelle: 'Carte bancaire',
+        total: 42000,
+        nombre: 4,
+        part: 12,
+      },
+    ],
+    par_lieu: null,
+  },
+  tendance: {
+    grain: 'semaine',
+    points: [
+      {
+        debut: '2026-09-01',
+        fin: '2026-09-06',
+        libelle: 'au dim. 6',
+        total: 72000,
+        en_ligne: 72000,
+        especes: 0,
+        par_type_fonds: {
+          quete_dominicale: 3000,
+          quete_imperee: 0,
+          campagne: 61000,
+          contribution_annuelle: 8000,
+        },
+      },
+      {
+        debut: '2026-09-07',
+        fin: '2026-09-13',
+        libelle: 'au dim. 13',
+        total: 84000,
+        en_ligne: 84000,
+        especes: 0,
+        par_type_fonds: {
+          quete_dominicale: 3000,
+          quete_imperee: 0,
+          campagne: 71000,
+          contribution_annuelle: 10000,
+        },
+      },
+      {
+        debut: '2026-09-14',
+        fin: '2026-09-20',
+        libelle: 'au dim. 20',
+        total: 298000,
+        en_ligne: 85000,
+        especes: 213000,
+        par_type_fonds: {
+          quete_dominicale: 216000,
+          quete_imperee: 0,
+          campagne: 64000,
+          contribution_annuelle: 18000,
+        },
+      },
+      {
+        debut: '2026-09-21',
+        fin: '2026-09-27',
+        libelle: 'au dim. 27',
+        total: 761000,
+        en_ligne: 115000,
+        especes: 646000,
+        par_type_fonds: {
+          quete_dominicale: 39000,
+          quete_imperee: 675000,
+          campagne: 40000,
+          contribution_annuelle: 8000,
+        },
+      },
+    ],
+  },
+  a_traiter: [
+    {
+      type: 'quete_a_confirmer',
+      echeance: '2026-09-29',
+      libelle: 'Saint-Dominique : 1 quête(s) à confirmer',
+      nombre: 1,
+      montant: null,
+      depuis: null,
+      paroisse: { id: NOEUD_SAINT_DOMINIQUE, nom: 'Saint-Dominique' },
+      objet_id: null,
+    },
+    {
+      type: 'remise_curie',
+      echeance: '2026-10-04',
+      libelle:
+        'Quête impérée · Grand Séminaire de Brin : espèces de Saint-Dominique à remettre',
+      nombre: 1,
+      montant: 646000,
+      depuis: null,
+      paroisse: { id: NOEUD_SAINT_DOMINIQUE, nom: 'Saint-Dominique' },
+      objet_id: '00000000-0000-4000-8000-000000000002',
+    },
+  ],
+  paroisses: {
+    compteurs: { engagees: 5, collecte_ouverte: 1, en_preparation: 4 },
+    lignes: [
+      paroisseEnPreparation(
+        '00000000-0000-4000-8000-000000000006',
+        'Cathédrale Notre-Dame-des-Victoires',
+      ),
+      paroisseEnPreparation(
+        '00000000-0000-4000-8000-000000000007',
+        'Notre-Dame des Anges de Ouakam',
+      ),
+      {
+        id: NOEUD_SAINT_DOMINIQUE,
+        nom: 'Saint-Dominique',
+        statut_collecte: 'ouverte',
+        collecte: 1215000,
+        part_en_ligne: 29,
+        quetes_a_valider: 1,
+        evolution: null,
+      },
+      paroisseEnPreparation(
+        '00000000-0000-4000-8000-000000000008',
+        'Saint-Joseph de Médina',
+      ),
+      paroisseEnPreparation(
+        '00000000-0000-4000-8000-000000000009',
+        'Sainte-Thérèse de Grand-Dakar',
+      ),
+    ],
+  },
+  quetes_imperees: [QUETE_IMPEREE_SEPTEMBRE],
+  tresorerie: null,
+  paiements: null,
+  campagnes: null,
+  notes: [
+    'Les quêtes en espèces sont saisies sur Jàngu Bi depuis le 20 septembre.',
+    "Comparaison avec l'an dernier disponible à partir de juin 2027.",
+    'Montants arrondis au millier : la somme des lignes peut différer du total.',
+    'Montants en FCFA. Aucun nom de donateur dans cette vue.',
+  ],
+};
+
+/** Même paroisse, période sans aucun don (état vide) : clés toujours présentes. */
+export const analyseParoisseVide = (periode: PeriodeAnalyse): AnalyseDons => ({
   ...analyseParoisseSeptembre,
   periode,
-  collecte: {
-    ...analyseParoisseSeptembre.collecte,
-    total: 0,
+  synthese: {
+    collecte: 0,
     en_ligne: 0,
-    en_ligne_nombre: 0,
     especes: 0,
-    especes_quetes: 0,
-    pour_paroisse: 0,
-    pour_curie: 0,
-    quete_imperee_libelle: null,
-    a_confirmer: null,
+    nombre_dons_en_ligne: 0,
+    nombre_quetes: 0,
+    par_destination: { paroisse: 0, curie: 0 },
+    par_type_fonds: analyseParoisseSeptembre.synthese.par_type_fonds.map(
+      (f) => ({
+        ...f,
+        en_ligne: 0,
+        especes: 0,
+        total: 0,
+        nombre: 0,
+        part: null,
+      }),
+    ),
+    par_fonds: [],
+    par_canal: [],
+    par_moyen: [],
+    par_lieu: [],
   },
-  par_fonds: [],
-  par_semaine: [],
-  par_canal: [],
-  par_moyen: [],
-  par_lieu: [],
+  tendance: { grain: 'semaine', points: [] },
+  a_traiter: [],
+  quetes_imperees: [],
+  tresorerie: {
+    en_ligne: {
+      paye: 0,
+      frais: 0,
+      frais_reels: 0,
+      net: 0,
+      reverse: 0,
+      en_attente_reversement: 0,
+      part_reversee: null,
+      net_pour_100: null,
+      dons_frais_couverts: 0,
+      nombre: 0,
+    },
+    especes: { validees: 0, deposees: 0, en_caisse: 0, a_confirmer: 0 },
+  },
   paiements: {
     lances: 0,
     confirmes: 0,
     en_attente: 0,
     echoues: 0,
     expires: 0,
-    plus_ancien_attente_depuis: null,
-    delai_median_s: null,
-  },
-  tresorerie: {
-    paye_en_ligne: 0,
-    frais: 0,
-    net_en_ligne: 0,
-    reverse: 0,
-    reverse_le: null,
-    en_attente_reversement: 0,
-    dons_frais_couverts: 0,
-    net_pour_100: 0,
-    especes_validees: 0,
-    especes_deposees: 0,
-    especes_en_caisse: 0,
-    quete_a_confirmer: 0,
+    taux_confirmation: null,
   },
   campagnes: [],
-  a_traiter: [],
-  notes: { par_semaine: [] },
+  notes: ['Montants en FCFA. Aucun nom de donateur dans cette vue.'],
 });
 
-const PAROISSE_EN_PREPARATION = {
-  statut: 'en_preparation' as const,
-  note: null,
-  collecte: null,
-  part_en_ligne: null,
-  quetes_a_valider: null,
-  evolution: null,
-  evolution_libelle: null,
-};
+// ------------------------------------------------------------- plateforme
 
-const QUETE_NON_OUVERTE = {
-  ouverte: false,
-  en_ligne: null,
-  especes: null,
-  total: null,
-  remis: null,
-  reste: null,
-  echeance: null,
-};
+// Confirmés par jour du 3 au 26 septembre (41 au total) ; le 1er (3), le 2 (1)
+// et le 27 (2 confirmés, 3 en attente) sont ceux du contrat §3.1.
+const CONFIRMES = [
+  1, 2, 1, 2, 1, 3, 1, 1, 2, 1, 2, 1, 3, 2, 1, 1, 2, 4, 1, 2, 1, 2, 1, 3,
+];
+const JOURS_ECHEC = new Set([8, 14, 19, 25]);
+const JOURS_EXPIRE = new Set([6, 12, 20, 26]);
+const HEURES = [11, 16, 18, 20, 21, 9, 12, 19, 13, 17];
 
-// Montants arrondis au millier par le serveur ; paroisses volontairement hors
-// de l'ordre alphabétique : l'écran les trie.
-export const analyseDioceseSeptembre: AnalyseDiocese = {
-  portee: 'diocese',
-  diocese: {
-    id: '5d1c3a8e-0000-4000-8000-0000000000d1',
-    nom: 'Archidiocèse de Dakar',
-    province: 'Province de Dakar',
+const PAR_JOUR: ActivitePlateforme['par_jour'] = Array.from(
+  { length: 27 },
+  (_, i) => {
+    const jour = i + 1;
+    const date = `2026-09-${String(jour).padStart(2, '0')}`;
+    if (jour === 1)
+      return {
+        date,
+        lances: 3,
+        confirmes: 3,
+        en_attente: 0,
+        echoues: 0,
+        expires: 0,
+      };
+    if (jour === 2)
+      return {
+        date,
+        lances: 1,
+        confirmes: 1,
+        en_attente: 0,
+        echoues: 0,
+        expires: 0,
+      };
+    if (jour === 27)
+      return {
+        date,
+        lances: 5,
+        confirmes: 2,
+        en_attente: 3,
+        echoues: 0,
+        expires: 0,
+      };
+    const confirmes = CONFIRMES[jour - 3];
+    const echoues = JOURS_ECHEC.has(jour) ? 1 : 0;
+    const expires = JOURS_EXPIRE.has(jour) ? 1 : 0;
+    return {
+      date,
+      lances: confirmes + echoues + expires,
+      confirmes,
+      en_attente: 0,
+      echoues,
+      expires,
+    };
   },
-  periode: PERIODE_SEPTEMBRE,
-  arrete_au: ARRETE_AU,
-  collecte: {
-    total: 1215000,
-    pour_curie: 675000,
-    paroisses_engagees: 5,
-    paroisses_actives: 1,
-    paroisses_en_preparation: 4,
-  },
-  par_fonds: [
-    { type: 'quete_dominicale', libelle: 'Quête dominicale', montant: 260000 },
-    {
-      type: 'quete_imperee',
-      libelle: 'Quête impérée · Grand Séminaire de Brin',
-      montant: 675000,
-    },
-    { type: 'campagne', libelle: 'Campagnes', montant: 236000 },
-    {
-      type: 'contribution_annuelle',
-      libelle: 'Contribution annuelle',
-      montant: 44000,
-    },
-  ],
-  par_mois: [
-    {
-      mois: '2026-09',
-      valeurs: {
-        quete_dominicale: 260000,
-        quete_imperee: 675000,
-        campagne: 236000,
-        contribution_annuelle: 44000,
-      },
-      total: 1215000,
-    },
-  ],
-  premier_mois: '2026-09',
-  paroisses: [
-    {
-      id: 'p-saint-dominique',
-      nom: 'Saint-Dominique',
-      doyenne: 'Plateau-Médina',
-      note: 'paroisse pilote',
-      statut: 'collecte_ouverte',
-      collecte: 1215000,
-      part_en_ligne: 29,
-      quetes_a_valider: 1,
-      evolution: null,
-      evolution_libelle: 'Un seul mois',
-    },
-    {
-      id: 'p-sainte-therese',
-      nom: 'Sainte-Thérèse de Grand-Dakar',
-      doyenne: 'Grand Dakar-Yoff',
-      ...PAROISSE_EN_PREPARATION,
-    },
-    {
-      id: 'p-cathedrale',
-      nom: 'Cathédrale Notre-Dame-des-Victoires',
-      doyenne: 'Plateau-Médina',
-      ...PAROISSE_EN_PREPARATION,
-    },
-    {
-      id: 'p-saint-joseph',
-      nom: 'Saint-Joseph de Médina',
-      doyenne: 'Plateau-Médina',
-      ...PAROISSE_EN_PREPARATION,
-    },
-    {
-      id: 'p-ouakam',
-      nom: 'Notre-Dame des Anges de Ouakam',
-      doyenne: 'Grand Dakar-Yoff',
-      ...PAROISSE_EN_PREPARATION,
-    },
-  ],
-  quete_imperee: {
-    libelle: 'Grand Séminaire de Brin',
-    sous_titre:
-      'Quêtes des 26 et 27 sept., messe anticipée incluse · en FCFA, montants exacts (argent destiné à la curie)',
-    lignes: [
-      {
-        paroisse_id: 'p-saint-dominique',
-        nom: 'Saint-Dominique',
-        ouverte: true,
-        en_ligne: 28525,
-        especes: 646000,
-        total: 674525,
-        remis: 0,
-        reste: 646000,
-        echeance: '2026-10-04',
-      },
-      {
-        paroisse_id: 'p-sainte-therese',
-        nom: 'Sainte-Thérèse de Grand-Dakar',
-        ...QUETE_NON_OUVERTE,
-      },
-      {
-        paroisse_id: 'p-cathedrale',
-        nom: 'Cathédrale Notre-Dame-des-Victoires',
-        ...QUETE_NON_OUVERTE,
-      },
-      {
-        paroisse_id: 'p-saint-joseph',
-        nom: 'Saint-Joseph de Médina',
-        ...QUETE_NON_OUVERTE,
-      },
-      {
-        paroisse_id: 'p-ouakam',
-        nom: 'Notre-Dame des Anges de Ouakam',
-        ...QUETE_NON_OUVERTE,
-      },
-    ],
-  },
-  compte_marchand: {
-    recu: 301480,
-    frais: 7120,
-    confirme_non_reverse: 47730,
-    ecarts_ouverts: 0,
-    delai_moyen_jours: 9,
-    dernier_reversement_le: '2026-09-25',
-  },
-  compte_liaison: [
-    {
-      libelle: "L'économat doit à Saint-Dominique",
-      montant: 301480,
-      detail:
-        'Fonds paroissiaux reçus en ligne, net de la quête impérée en ligne.',
-    },
-    {
-      libelle: 'Saint-Dominique doit à la curie',
-      montant: 646000,
-      detail: 'Quête impérée en espèces, à remettre avant le 4 oct.',
-    },
-  ],
-};
-
-const JOURS = ['22', '23', '24', '25', '26', '27', '28'].map(
-  (j) => `2026-09-${j}`,
 );
 
-const CHARGE: number[][] = [
-  [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 1, 0, 1, 0, 0, 2, 0, 3, 4, 2, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 2, 3, 3, 1, 0],
-  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 2, 2, 0, 0, 0, 0, 2, 0, 4, 4, 2, 0],
-  [0, 0, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 2, 2, 1, 0, 0, 1, 0, 3, 5, 6, 3, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 0, 0, 0, 1, 0, 2, 3, 6, 5, 3, 0],
-  [0, 0, 0, 0, 0, 0, 0, 2, 7, 3, 4, 9, 3, 8, 2, 0, 1, 0, 1, 2, 3, 2, 0, 0],
-  [1, 0, 0, 0, 0, 0, 1, 3, 6, 3],
-];
+// Carte jour × heure des paiements lancés, cases non nulles, dans l'ordre
+// jour puis heure (1 = lundi ; le 1er septembre 2026 est un mardi).
+const CHARGE: ActivitePlateforme['charge'] = (() => {
+  const cases = new Map<string, number>();
+  PAR_JOUR.forEach((j, i) => {
+    const jourSemaine = ((i + 1) % 7) + 1;
+    for (let k = 0; k < j.lances; k += 1) {
+      const heure = HEURES[(i + k) % HEURES.length];
+      const cle = `${jourSemaine}-${heure}`;
+      cases.set(cle, (cases.get(cle) ?? 0) + 1);
+    }
+  });
+  return [...cases.entries()]
+    .map(([cle, nombre]) => {
+      const [jour_semaine, heure] = cle.split('-').map(Number);
+      return { jour_semaine, heure, nombre };
+    })
+    .sort((a, b) => a.jour_semaine - b.jour_semaine || a.heure - b.heure);
+})();
 
-const PAR_JOUR: [number, number, number, number, number][] = [
-  // lancés, confirmés, en attente, échoués, expirés
-  [3, 3, 0, 0, 0],
-  [2, 1, 0, 0, 1],
-  [3, 2, 0, 1, 0],
-  [4, 4, 0, 0, 0],
-  [5, 4, 0, 0, 1],
-  [9, 6, 2, 1, 0],
-  [2, 1, 1, 0, 0],
-];
-
-const DELAI: [number, number][] = [
-  [38, 250],
-  [45, 290],
-  [40, 310],
-  [52, 420],
-  [39, 300],
-  [36, 360],
-  [41, 330],
-];
+const paroissePlateforme = (id: string, nom: string) => ({
+  id,
+  nom,
+  collecte_ouverte: false,
+  lances: 0,
+  confirmes: 0,
+  en_attente: 0,
+  echoues: 0,
+  expires: 0,
+  taux_confirmation: null,
+  derniere_confirmation: null,
+  quetes_saisies: 0,
+});
 
 export const activitePlateformeSeptembre: ActivitePlateforme = {
-  periode: {
-    granularite: 'mois',
-    debut: '2026-09-01',
-    fin: '2026-09-30',
-    libelle: 'septembre 2026',
-  },
-  arrete_au: ARRETE_AU,
+  periode: PERIODE_SEPTEMBRE,
+  genere_le: GENERE_LE,
   paiements: {
     lances: 58,
     confirmes: 47,
     en_attente: 3,
     echoues: 4,
     expires: 4,
-    plus_ancien_attente_depuis: '2026-09-27T14:15:00Z',
-    derniere_notification_le: '2026-09-28T09:11:00Z',
+    rembourses: 0,
+    taux_confirmation: 81,
+    taux_echec: 14,
+    plus_ancien_en_attente: '2026-09-27T01:00:00Z',
   },
-  par_jour: JOURS.map((date, i) => ({
-    date,
-    lances: PAR_JOUR[i][0],
-    confirmes: PAR_JOUR[i][1],
-    en_attente: PAR_JOUR[i][2],
-    echoues: PAR_JOUR[i][3],
-    expires: PAR_JOUR[i][4],
-    partiel: i === JOURS.length - 1,
-  })),
-  delai: {
-    median_s: 41,
-    p95_s: 330,
-    par_jour: JOURS.map((date, i) => ({
-      date,
-      median_s: DELAI[i][0],
-      p95_s: DELAI[i][1],
-    })),
-    note: "Le pic du vendredi 25 suit un ralentissement de l'opérateur en soirée.",
+  delais: {
+    confirmation_mediane_s: 41,
+    confirmation_p95_s: 41,
+    reversement_moyen_jours: 13,
+    reversement_median_jours: 13,
+    echantillon_confirmation: 47,
   },
+  par_jour: PAR_JOUR,
+  par_moyen: [
+    { moyen: 'wave', libelle: 'Wave', confirmes: 29, echecs: 0, taux_echec: 0 },
+    {
+      moyen: 'orange_money',
+      libelle: 'Orange Money',
+      confirmes: 14,
+      echecs: 0,
+      taux_echec: 0,
+    },
+    {
+      moyen: 'free_money',
+      libelle: 'Free Money',
+      confirmes: 0,
+      echecs: 0,
+      taux_echec: null,
+    },
+    {
+      moyen: 'carte',
+      libelle: 'Carte bancaire',
+      confirmes: 4,
+      echecs: 0,
+      taux_echec: 0,
+    },
+    {
+      moyen: 'inconnu',
+      libelle: 'Inconnu',
+      confirmes: 0,
+      echecs: 8,
+      taux_echec: 100,
+    },
+  ],
+  par_source: [
+    {
+      source: 'app_ios',
+      libelle: 'App iOS',
+      lances: 12,
+      confirmes: 8,
+      taux_confirmation: 67,
+      retours: 0,
+      taux_retour: 0,
+    },
+    {
+      source: 'app_android',
+      libelle: 'App Android',
+      lances: 29,
+      confirmes: 26,
+      taux_confirmation: 90,
+      retours: 0,
+      taux_retour: 0,
+    },
+    {
+      source: 'web',
+      libelle: 'Site',
+      lances: 17,
+      confirmes: 13,
+      taux_confirmation: 76,
+      retours: 0,
+      taux_retour: 0,
+    },
+  ],
+  par_paroisse: [
+    paroissePlateforme(
+      '00000000-0000-4000-8000-000000000006',
+      'Cathédrale Notre-Dame-des-Victoires',
+    ),
+    paroissePlateforme(
+      '00000000-0000-4000-8000-000000000007',
+      'Notre-Dame des Anges de Ouakam',
+    ),
+    {
+      id: NOEUD_SAINT_DOMINIQUE,
+      nom: 'Saint-Dominique',
+      collecte_ouverte: true,
+      lances: 58,
+      confirmes: 47,
+      en_attente: 3,
+      echoues: 4,
+      expires: 4,
+      taux_confirmation: 81,
+      derniere_confirmation: '2026-09-27T16:08:00Z',
+      quetes_saisies: 10,
+    },
+    paroissePlateforme(
+      '00000000-0000-4000-8000-000000000008',
+      'Saint-Joseph de Médina',
+    ),
+    paroissePlateforme(
+      '00000000-0000-4000-8000-000000000009',
+      'Sainte-Thérèse de Grand-Dakar',
+    ),
+  ],
   notifications: {
-    par_jour: JOURS.map((date, i) => ({
-      date,
-      recues: [14, 11, 15, 22, 19, 38, 12][i],
-    })),
-    recues: 131,
-    traitees: 127,
-    doublons: 2,
+    recues: 0,
+    traitees: 0,
+    doublons: 0,
     rejetees: 0,
-    erreurs: 2,
+    erreurs: 0,
+    en_cours: 0,
+    derniere_recue: null,
   },
-  charge: {
-    jours: JOURS.map((date, i) => ({ date, heures: CHARGE[i] })),
-    total: 159,
-    note: "Le dimanche, l'activité suit la fin des messes de 7 h, 9 h 30 et 11 h 30. En fin de mois, les soirées entre 20 h et 22 h sont les plus chargées. Le 25 à 3 h : notifications du reversement de l'agrégateur.",
-  },
-  sources: [
-    { code: 'app_android', libelle: 'App Android', nombre: 26 },
-    { code: 'web', libelle: 'Site', nombre: 13 },
-    { code: 'app_ios', libelle: 'App iOS', nombre: 8 },
-  ],
-  retours_ios: { revenus: 6, total: 8 },
-  paroisses: {
-    parametrees: 5,
-    activees: [
-      {
-        id: 'p-saint-dominique',
-        nom: 'Saint-Dominique',
-        derniere_confirmation_le: '2026-09-28T07:12:00Z',
-      },
-    ],
-  },
-  incidents: [
-    {
-      id: 'i1',
-      date: '2026-09-27T21:48:00Z',
-      reference: '6204-7731-0958',
-      contexte: 'Saint-Dominique',
-      nature: 'Notification reçue deux fois, la seconde ignorée',
-      etat: 'doublon',
-      action: null,
-    },
-    {
-      id: 'i2',
-      date: '2026-09-27T14:15:00Z',
-      reference: '4903-3317-6620',
-      contexte: 'Saint-Dominique',
-      nature: 'Paiement en attente depuis 19 h, notification finale non reçue',
-      etat: 'en_attente',
-      action: 'relancer',
-    },
-    {
-      id: 'i3',
-      date: '2026-09-27T14:02:00Z',
-      reference: '3391-5520-8147',
-      contexte: 'Saint-Dominique',
-      nature: 'Montant de la notification différent de celui du paiement',
-      etat: 'a_examiner',
-      action: 'acces_urgence',
-    },
-    {
-      id: 'i4',
-      date: '2026-09-26T20:15:00Z',
-      reference: '7718-2046-3395',
-      contexte: 'Saint-Dominique',
-      nature: 'Montant de la notification différent de celui du paiement',
-      etat: 'a_examiner',
-      action: 'acces_urgence',
-    },
-    {
-      id: 'i5',
-      date: '2026-09-25T20:40:00Z',
-      reference: null,
-      contexte: 'Opérateur',
-      nature: 'Confirmations ralenties pendant 50 min (délai jusqu’à 7 min)',
-      etat: 'resolu',
-      action: null,
-    },
-    {
-      id: 'i6',
-      date: '2026-09-23T12:07:00Z',
-      reference: '2254-9186-4470',
-      contexte: 'Saint-Dominique',
-      nature: 'Notification reçue deux fois, la seconde ignorée',
-      etat: 'doublon',
-      action: null,
-    },
-  ],
+  charge: CHARGE,
+  incidents: { ouverts: 0, par_type: {}, liste: [] },
+  reversements: { a_rapprocher: 0, en_ecart: 0 },
 };
 
-const LIBELLES_GRANULARITE: Record<string, string> = {
-  semaine: 'semaine du 21 au 27 sept. 2026',
-  mois: 'septembre 2026',
-  trimestre: '3e trimestre 2026',
-  annee: 'année 2026',
-};
+// ---------------------------------------------------------------- handlers
 
 const MOIS_FR = [
   'janvier',
@@ -717,44 +977,166 @@ const MOIS_FR = [
   'décembre',
 ];
 
+const PERIODES_EN_COURS: Record<string, PeriodeAnalyse> = {
+  semaine: {
+    type: 'semaine',
+    code: '2026-W39',
+    debut: '2026-09-21',
+    fin: '2026-09-27',
+    libelle: 'semaine du 21 au 27 sept. 2026',
+  },
+  mois: PERIODE_SEPTEMBRE,
+  trimestre: {
+    type: 'trimestre',
+    code: '2026-T3',
+    debut: '2026-07-01',
+    fin: '2026-09-30',
+    libelle: '3e trimestre 2026',
+  },
+  annee: {
+    type: 'annee',
+    code: '2026',
+    debut: '2026-01-01',
+    fin: '2026-12-31',
+    libelle: 'année 2026',
+  },
+};
+
+const GRAIN: Record<string, 'jour' | 'semaine' | 'mois'> = {
+  semaine: 'jour',
+  mois: 'semaine',
+  trimestre: 'mois',
+  annee: 'mois',
+};
+
+const erreur = (status: number, code: string, message: string) =>
+  HttpResponse.json({ error: { code, message, details: {} } }, { status });
+
+/** Période d'un mois `AAAA-MM` sans don (le pilote démarre en septembre 2026). */
+const periodeMois = (date: string): PeriodeAnalyse => {
+  const [a, m] = date.split('-').map(Number);
+  const fin = new Date(Date.UTC(a, m, 0)).getUTCDate();
+  return {
+    type: 'mois',
+    code: date,
+    debut: `${date}-01`,
+    fin: `${date}-${fin}`,
+    libelle: `${MOIS_FR[m - 1]} ${a}`,
+  };
+};
+
+const encodeur = new TextEncoder();
+
 export const donsAnalyseHandlers = [
+  http.get(`${env.API_URL}/v1/me/capacites/`, () =>
+    HttpResponse.json(mesCapacitesDemo),
+  ),
+
   http.get(`${env.API_URL}/v1/staff/dons/analyse/`, ({ request }) => {
     const url = new URL(request.url);
-    const portee = url.searchParams.get('portee') ?? 'paroisse';
-    const granularite = url.searchParams.get('granularite') ?? 'mois';
+    const niveau = url.searchParams.get('niveau');
+    const noeud = url.searchParams.get('noeud');
+    const periode = url.searchParams.get('periode') ?? 'mois';
     const date = url.searchParams.get('date');
 
-    if (portee === 'diocese') {
-      return HttpResponse.json(analyseDioceseSeptembre);
+    if (!noeud || (niveau !== 'paroisse' && niveau !== 'diocese')) {
+      return erreur(400, 'validation_error', 'Paramètres invalides.');
+    }
+    if (!(periode in PERIODES_EN_COURS)) {
+      return erreur(400, 'invalid_period', 'Période inconnue.');
     }
 
-    // Un autre mois que septembre 2026 : période sans don (le pilote démarre en
-    // septembre 2026).
-    if (granularite === 'mois' && date && date !== '2026-09') {
-      const [a, m] = date.split('-').map(Number);
-      const fin = new Date(Date.UTC(a, m, 0)).getUTCDate();
-      return HttpResponse.json(
-        analyseParoisseVide({
-          granularite: 'mois',
-          debut: `${date}-01`,
-          fin: `${date}-${fin}`,
-          libelle: `${MOIS_FR[m - 1]} ${a}`,
-          en_cours: false,
-        }),
-      );
+    if (niveau === 'diocese') {
+      if (noeud !== NOEUD_ARCHIDIOCESE) {
+        return erreur(
+          400,
+          'not_an_aggregate_node',
+          "Ce nœud n'est ni un diocèse ni un doyenné.",
+        );
+      }
+      if (periode === 'semaine') {
+        return erreur(
+          400,
+          'period_not_allowed',
+          'La semaine est réservée à la paroisse.',
+        );
+      }
+      return HttpResponse.json({
+        ...analyseDioceseSeptembre,
+        periode: PERIODES_EN_COURS[periode],
+        tendance: {
+          ...analyseDioceseSeptembre.tendance,
+          grain: GRAIN[periode],
+        },
+      });
     }
 
+    if (noeud !== NOEUD_SAINT_DOMINIQUE) {
+      return erreur(400, 'not_a_parish', "Ce nœud n'est pas une paroisse.");
+    }
+    // Un autre mois que septembre 2026 : période sans don.
+    if (periode === 'mois' && date && date !== '2026-09') {
+      if (!/^\d{4}-\d{2}$/.test(date)) {
+        return erreur(400, 'invalid_period', 'Date mal formée.');
+      }
+      return HttpResponse.json(analyseParoisseVide(periodeMois(date)));
+    }
     return HttpResponse.json({
       ...analyseParoisseSeptembre,
-      periode: {
-        ...analyseParoisseSeptembre.periode,
-        granularite,
-        libelle: LIBELLES_GRANULARITE[granularite] ?? 'septembre 2026',
+      periode: PERIODES_EN_COURS[periode],
+      tendance: { ...analyseParoisseSeptembre.tendance, grain: GRAIN[periode] },
+    });
+  }),
+
+  // Flux SSE (TEMPS-REEL.md §3) : l'en-tête du flux, puis un battement toutes
+  // les 15 s ; le flux reste ouvert jusqu'à ce que le client s'en aille.
+  http.get(`${env.API_URL}/v1/staff/dons/flux/`, ({ request }) => {
+    const noeud = new URL(request.url).searchParams.get('noeud');
+    if (!request.headers.get('authorization')) {
+      return erreur(401, 'not_authenticated', 'Authentification requise.');
+    }
+    if (noeud !== NOEUD_SAINT_DOMINIQUE && noeud !== NOEUD_ARCHIDIOCESE) {
+      return erreur(404, 'not_found', 'Nœud inconnu.');
+    }
+    let battement: ReturnType<typeof setInterval> | undefined;
+    const flux = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(
+          encodeur.encode(`retry: 5000\n: flux dons.${noeud}\n\n`),
+        );
+        battement = setInterval(() => {
+          try {
+            controller.enqueue(encodeur.encode(': ping\n\n'));
+          } catch {
+            clearInterval(battement);
+          }
+        }, 15_000);
+        request.signal.addEventListener('abort', () => {
+          clearInterval(battement);
+          try {
+            controller.close();
+          } catch {
+            // déjà fermé
+          }
+        });
+      },
+      cancel() {
+        clearInterval(battement);
+      },
+    });
+    return new HttpResponse(flux, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
       },
     });
   }),
 
-  http.get(`${env.API_URL}/v1/platform/dons/activite/`, () =>
-    HttpResponse.json(activitePlateformeSeptembre),
-  ),
+  http.get(`${env.API_URL}/v1/platform/dons/activite/`, ({ request }) => {
+    const periode = new URL(request.url).searchParams.get('periode') ?? 'mois';
+    return HttpResponse.json({
+      ...activitePlateformeSeptembre,
+      periode: PERIODES_EN_COURS[periode] ?? PERIODE_SEPTEMBRE,
+    });
+  }),
 ];

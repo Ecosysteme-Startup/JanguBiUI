@@ -7,11 +7,18 @@ import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
 import { useUser } from '@/lib/auth';
+import { isFidele } from '@/lib/authorization';
+import { useReglagePresence } from '@/lib/personnalisation/presence';
 import { useMessagingStore } from '@/stores/messaging-store';
 
 import { useConversations } from '../api/get-conversations';
+import { usePresence } from '../api/get-presence';
 import type { Conversation } from '../types';
+import { libellePresence } from '../utils/format-presence';
+
+import { PastilleAvatar, PresenceTexte } from './presence';
 
 function formatTime(iso: string | null | undefined): string {
   if (!iso) return '';
@@ -29,12 +36,56 @@ function formatTime(iso: string | null | undefined): string {
   return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 }
 
+const getOther = (conv: Conversation, currentUserId: string) =>
+  conv.participant_a.id === currentUserId
+    ? conv.participant_b
+    : conv.participant_a;
+
 function getParticipantName(conv: Conversation, currentUserId: string): string {
-  const other =
-    conv.participant_a.id === currentUserId
-      ? conv.participant_b
-      : conv.participant_a;
+  const other = getOther(conv, currentUserId);
   return other.full_name?.trim() || other.email;
+}
+
+/**
+ * Pied de liste : mon propre réglage de présence, et pour le staff la légende
+ * (maquettes WEB-FID-Conversation-Presence, WEB-PAR-Messagerie-Presence).
+ */
+function NotePresence({ fidele }: { fidele: boolean }) {
+  const { data } = useReglagePresence();
+  if (!data) return null;
+  const lien = (
+    <Link
+      href={`${paths.app.profil.getHref()}#personnalisation`}
+      className="font-medium text-primary hover:underline"
+    >
+      Modifier
+    </Link>
+  );
+  if (fidele) {
+    return (
+      <p className="px-4 py-3 text-xs leading-5 text-muted-foreground">
+        {data.effective
+          ? 'Votre présence est affichée aux prêtres. '
+          : "Votre présence n'est pas affichée aux prêtres. "}
+        {lien}
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-1 px-4 py-3 text-xs leading-5 text-muted-foreground">
+      <p>
+        {data.effective
+          ? 'Vous apparaissez en ligne · '
+          : "Vous n'apparaissez pas en ligne · "}
+        {lien}
+      </p>
+      <p>
+        «&nbsp;En ligne&nbsp;» et «&nbsp;Vu à&nbsp;» n&apos;apparaissent que
+        pour les fidèles qui l&apos;ont activé, et seulement dans vos
+        conversations avec eux.
+      </p>
+    </div>
+  );
 }
 
 function getInitials(name: string): string {
@@ -80,6 +131,11 @@ export function ConversationList() {
   }, [data, setTotalUnread]);
 
   const currentUserId = user?.id ?? '';
+  const presences = usePresence(
+    currentUserId
+      ? (data?.results ?? []).map((c) => getOther(c, currentUserId).id)
+      : [],
+  );
 
   return (
     <div className="flex flex-col">
@@ -146,6 +202,9 @@ export function ConversationList() {
               conv.last_message?.content ??
               (hasActivity ? '...' : 'Aucun message');
             const lastAt = conv.last_message?.sent_at ?? conv.last_message_at;
+            const presence = libellePresence(
+              presences[getOther(conv, currentUserId).id],
+            );
 
             return (
               <Link
@@ -153,11 +212,14 @@ export function ConversationList() {
                 href={`/app/messages/${conv.id}`}
                 className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted active:bg-muted/70"
               >
-                <Avatar className="size-11 shrink-0">
-                  <AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">
-                    {getInitials(participantName)}
-                  </AvatarFallback>
-                </Avatar>
+                <span className="relative shrink-0">
+                  <Avatar className="size-11">
+                    <AvatarFallback className="bg-primary/10 text-sm font-bold text-primary">
+                      {getInitials(participantName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <PastilleAvatar enLigne={presence?.etat === 'en_ligne'} />
+                </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
                     <p className="truncate font-semibold text-foreground">
@@ -170,6 +232,7 @@ export function ConversationList() {
                       {formatTime(lastAt)}
                     </span>
                   </div>
+                  <PresenceTexte libelle={presence} className="mt-0.5" />
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-sm text-muted-foreground">
                       {lastContent}
@@ -186,6 +249,7 @@ export function ConversationList() {
           })}
         </div>
       )}
+      {!!user && <NotePresence fidele={isFidele(user)} />}
     </div>
   );
 }

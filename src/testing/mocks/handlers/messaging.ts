@@ -56,21 +56,87 @@ const mockMessages: Record<string, ReturnType<typeof createMessage>[]> = {
   ],
 };
 
+// Présence (TEMPS-REEL §2, maquettes C3) : seuls les interlocuteurs dont la
+// présence est visible figurent dans la réponse ; « vu à » du jour même.
+const aujourdhuiA = (h: number, m: number) => {
+  const d = new Date();
+  d.setUTCHours(h, m, 0, 0);
+  return d.toISOString();
+};
+const PRESENCES: Record<
+  string,
+  { online: boolean; last_seen_at: string | null }
+> = {
+  'user-priest': { online: true, last_seen_at: null },
+  'user-sister': { online: false, last_seen_at: aujourdhuiA(8, 2) },
+  'pere-emmanuel-tine': { online: true, last_seen_at: null },
+  'abbe-augustin-ndiaye': { online: false, last_seen_at: aujourdhuiA(8, 2) },
+  'anna-sarr': { online: true, last_seen_at: null },
+  'cecile-coly': { online: false, last_seen_at: aujourdhuiA(9, 24) },
+  // Abbé Robert Sagna, Marie-Thérèse Diouf, Paul Diatta, Joseph Mendy :
+  // présence masquée, absents de la réponse.
+};
+
+// Réglage « montrer ma présence » : défaut fidèle (désactivé).
+let reglagePresence: { montrer_presence: boolean | null; defaut: boolean } = {
+  montrer_presence: null,
+  defaut: false,
+};
+const reglagePresenceJson = () => ({
+  montrer_presence: reglagePresence.montrer_presence,
+  effective: reglagePresence.montrer_presence ?? reglagePresence.defaut,
+  default: reglagePresence.defaut,
+});
+
 export const messagingHandlers = [
+  http.get(`${env.API_URL}/v1/messaging/presence/`, ({ request }) => {
+    const users = (new URL(request.url).searchParams.get('users') ?? '')
+      .split(',')
+      .map((u) => u.trim())
+      .filter(Boolean);
+    if (!users.length || users.length > 50) {
+      return HttpResponse.json(
+        {
+          error: {
+            code: 'validation_error',
+            message: 'Liste invalide.',
+            details: {},
+          },
+        },
+        { status: 400 },
+      );
+    }
+    return HttpResponse.json(
+      users
+        .filter((u) => u in PRESENCES)
+        .map((u) => ({ user_id: u, visible: true, ...PRESENCES[u] })),
+    );
+  }),
+
+  http.get(`${env.API_URL}/v1/me/presence/`, () =>
+    HttpResponse.json(reglagePresenceJson()),
+  ),
+
+  http.put(`${env.API_URL}/v1/me/presence/`, async ({ request }) => {
+    const body = (await request.json()) as { montrer_presence: boolean | null };
+    reglagePresence = {
+      ...reglagePresence,
+      montrer_presence: body.montrer_presence,
+    };
+    return HttpResponse.json(reglagePresenceJson());
+  }),
+
   // Backend returns a flat array, not { count, results }
   http.get(`${env.API_URL}/v1/messaging/conversations/`, () => {
     return HttpResponse.json(mockConversations);
   }),
 
-  http.get(
-    `${env.API_URL}/v1/messaging/conversations/:id/`,
-    ({ params }) => {
-      const id = String(params.id);
-      const conv = mockConversations.find((c) => c.id === id);
-      if (!conv) return new HttpResponse(null, { status: 404 });
-      return HttpResponse.json(conv);
-    },
-  ),
+  http.get(`${env.API_URL}/v1/messaging/conversations/:id/`, ({ params }) => {
+    const id = String(params.id);
+    const conv = mockConversations.find((c) => c.id === id);
+    if (!conv) return new HttpResponse(null, { status: 404 });
+    return HttpResponse.json(conv);
+  }),
 
   http.post(
     `${env.API_URL}/v1/messaging/conversations/create/`,
