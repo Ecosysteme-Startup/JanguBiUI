@@ -335,6 +335,65 @@ const sansAccents = (s: string) =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 export const paroissesHandlers = [
+  // ------------------------------------------------ paroissiens (staff)
+  http.get(`${API}/hierarchy/nodes/:id/membres/`, async ({ request }) => {
+    const q = new URL(request.url).searchParams;
+    const terme = sansAccents(q.get('q') ?? '');
+    const retires = q.get('retires') === 'true';
+    const liste = membres
+      .filter((m) => (retires ? m.retire_le !== null : m.retire_le === null))
+      .filter(
+        (m) =>
+          !terme ||
+          sansAccents(`${m.first_name} ${m.last_name}`).includes(terme),
+      )
+      .sort((a, b) =>
+        `${a.last_name} ${a.first_name}`.localeCompare(
+          `${b.last_name} ${b.first_name}`,
+          'fr',
+        ),
+      );
+    return HttpResponse.json(pagine(request, liste));
+  }),
+
+  http.delete(
+    `${API}/hierarchy/nodes/:id/membres/:userId/`,
+    async ({ params }) => {
+      const m = membres.find(
+        (x) => x.user_id === params.userId && x.retire_le === null,
+      );
+      if (!m) return erreur(404, 'membre_introuvable', 'Membre introuvable.');
+      m.retire_le = new Date().toISOString();
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
+
+  http.post(
+    `${API}/hierarchy/nodes/:id/membres/:userId/retablir/`,
+    async ({ params }) => {
+      const m = membres.find(
+        (x) => x.user_id === params.userId && x.retire_le !== null,
+      );
+      if (!m) return erreur(404, 'membre_introuvable', 'Membre introuvable.');
+      m.retire_le = null;
+      return HttpResponse.json(m);
+    },
+  ),
+
+  // ------------------------------------------------ fil des autres paroisses
+  http.get(`${API}/me/feed/secondaires/`, ({ request }) => {
+    const paroisse = new URL(request.url).searchParams.get('paroisse');
+    const secondaires = new Set(
+      adhesions.filter((a) => !a.principale).map((a) => a.id),
+    );
+    const liste = ANNONCES_AUTRES_PAROISSES.filter(
+      (a) =>
+        secondaires.has(a.scope.node_id) &&
+        (!paroisse || a.scope.node_id === paroisse),
+    );
+    return HttpResponse.json(pagine(request, liste));
+  }),
+
   // ------------------------------------------------ mes paroisses
   http.get(`${API}/me/paroisses/`, async () => {
     return HttpResponse.json(mesParoissesJson());

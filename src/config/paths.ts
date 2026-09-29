@@ -139,6 +139,8 @@ export const paths = {
       /** Analyse des dons : paroisse (dons.voir_fonds) ou agrégats du diocèse (dons.voir_agregats). */
       analyse: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/analyse` },
     },
+    /** Paroissiens (membres de la paroisse, principale ou secondaire) : capacité `paroissiens.gerer`. */
+    paroissiens: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/paroissiens` },
     /** Intentions de messe reçues par la paroisse, et feuille du jour à imprimer pour la sacristie. */
     intentions: {
       root: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/intentions` },

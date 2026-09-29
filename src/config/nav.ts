@@ -187,6 +187,7 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
       title: 'Administration',
       items: [
         { label: 'Équipe', href: e.equipe.getHref(nodeId), icon: 'utilisateurs', capacites: ['offices.nommer', 'tableau_bord.voir'] },
+        { label: 'Paroissiens', href: e.paroissiens.getHref(nodeId), icon: 'utilisateurs', capacites: ['paroissiens.gerer'] },
         { label: 'Paramètres', href: e.parametres.getHref(nodeId), icon: 'reglages', capacites: ['horaires.gerer'] },
         { label: 'Comptes', href: paths.comptes(nodeId).tableau.getHref(), icon: 'profil', capacites: ['comptes.gerer'] },
         { label: 'Journal d’audit', href: e.audit.getHref(nodeId), icon: 'historique', capacites: ['audit.voir'] },

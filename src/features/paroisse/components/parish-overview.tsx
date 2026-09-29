@@ -23,6 +23,7 @@ import { ClergySection } from './clergy-section';
 import { ConfessionCard } from './confession-card';
 import { ContactCard } from './contact-card';
 import { NextMasses } from './next-masses';
+import { OtherParishesAnnouncements } from './other-parishes-announcements';
 import { ParishBanner } from './parish-banner';
 import { ParishHeader } from './parish-header';
 import { RecentAnnouncements } from './recent-announcements';
@@ -52,6 +53,7 @@ const Overview = ({ nodeId, onSelectTab }: { nodeId: string; onSelectTab: (tab: 
       ) : (
         <RecentAnnouncements items={announcements.data?.results ?? []} total={announcements.data?.count ?? 0} onSelectTab={onSelectTab} />
       )}
+      <OtherParishesAnnouncements />
       <UpcomingEvents events={(events.data?.results ?? []).filter((e) => !e.is_cancelled)} onSelectTab={onSelectTab} />
       <WorshipPlaces places={week.data?.places ?? []} />
       {empty && !failed && (
