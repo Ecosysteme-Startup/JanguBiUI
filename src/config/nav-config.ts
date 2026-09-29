@@ -15,6 +15,8 @@ import {
   Landmark,
   MessageCircle,
   Newspaper,
+  ScrollText,
+  Search,
   ShieldCheck,
   User,
   UsersRound,
@@ -62,6 +64,17 @@ const ITEM_SONOTHEQUE: NavItem = {
   label: 'Sonothèque',
   href: '/app/paroisse/sonotheque',
   icon: Library,
+};
+// Recherche transverse (GET /v1/search/) et intentions de messe (lot V1C).
+const ITEM_RECHERCHE: NavItem = {
+  label: 'Recherche',
+  href: '/app/recherche',
+  icon: Search,
+};
+const ITEM_INTENTIONS: NavItem = {
+  label: 'Intentions de messe',
+  href: '/app/intentions',
+  icon: ScrollText,
 };
 const ITEM_DOCUMENTS: NavItem = {
   label: 'Documents',
@@ -179,6 +192,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
   if (isAdmin(user) && !isClergy(user)) {
     return [
       ITEM_ACCUEIL_ADMIN,
+      ITEM_RECHERCHE,
       ITEM_ACTUS,
       ITEM_SPIRITUEL,
       ...donsStaffItems(user),
@@ -191,6 +205,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
   if (isClergy(user)) {
     return [
       ITEM_ACCUEIL,
+      ITEM_RECHERCHE,
       ITEM_ACTUS,
       ITEM_SPIRITUEL,
       ITEM_CLERGE,
@@ -214,7 +229,9 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
     ITEM_ACTUS,
     ITEM_SPIRITUEL,
     ITEM_ECOUTER,
+    ITEM_RECHERCHE,
     ITEM_DOCUMENTS,
+    ITEM_INTENTIONS,
     ITEM_DONS,
     ITEM_AGENDA,
     ITEM_CONFESSIONS,

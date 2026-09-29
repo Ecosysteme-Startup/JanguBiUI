@@ -16,6 +16,7 @@ import {
   ArticleForm,
   versContenuInput,
 } from '@/features/news/components/article-form';
+import { EpinglageAnnonce } from '@/features/news/components/epinglage-annonce';
 import { ApiError } from '@/lib/api-client';
 import { peut } from '@/lib/staff/capacites';
 
@@ -48,29 +49,33 @@ export default function EditArticlePage() {
           description="Ce contenu n’existe pas ou ne relève pas de vos communautés."
         />
       ) : (
-        <ArticleForm
-          defaultValues={{
-            title: contenu.title,
-            excerpt: contenu.excerpt,
-            content: contenu.content,
-            category_id: contenu.category?.id,
-            content_type: (TYPES_CONTENU as readonly string[]).includes(
-              contenu.content_type,
-            )
-              ? (contenu.content_type as TypeContenu)
-              : 'article',
-            is_sunday_notice: contenu.is_sunday_notice,
-            sunday_date: contenu.sunday_date ?? undefined,
-            notify_followers: contenu.notify_followers ?? true,
-          }}
-          isSubmitting={modifier.isPending}
-          submitLabel="Enregistrer les modifications"
-          onSubmit={(v) =>
-            modifier.mutate(versContenuInput(v), {
-              onSuccess: () => router.push(paths.app.admin.articles.getHref()),
-            })
-          }
-        />
+        <>
+          <ArticleForm
+            defaultValues={{
+              title: contenu.title,
+              excerpt: contenu.excerpt,
+              content: contenu.content,
+              category_id: contenu.category?.id,
+              content_type: (TYPES_CONTENU as readonly string[]).includes(
+                contenu.content_type,
+              )
+                ? (contenu.content_type as TypeContenu)
+                : 'article',
+              is_sunday_notice: contenu.is_sunday_notice,
+              sunday_date: contenu.sunday_date ?? undefined,
+              notify_followers: contenu.notify_followers ?? true,
+            }}
+            isSubmitting={modifier.isPending}
+            submitLabel="Enregistrer les modifications"
+            onSubmit={(v) =>
+              modifier.mutate(versContenuInput(v), {
+                onSuccess: () =>
+                  router.push(paths.app.admin.articles.getHref()),
+              })
+            }
+          />
+          <EpinglageAnnonce contenu={contenu} />
+        </>
       )}
     </AdminPageLayout>
   );

@@ -88,9 +88,12 @@ export function AdminArticleList({
     {
       header: 'Statut',
       cell: (a) => (
-        <Badge variant={VARIANTES[a.status] ?? 'outline'}>
-          {LIBELLES_STATUT_CONTENU[a.status] ?? a.status}
-        </Badge>
+        <div className="flex flex-wrap gap-1">
+          <Badge variant={VARIANTES[a.status] ?? 'outline'}>
+            {LIBELLES_STATUT_CONTENU[a.status] ?? a.status}
+          </Badge>
+          {a.is_pinned && <Badge variant="outline">Épinglée</Badge>}
+        </div>
       ),
     },
     {

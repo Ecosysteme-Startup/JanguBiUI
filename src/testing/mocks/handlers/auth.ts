@@ -124,6 +124,7 @@ export const CAPACITES_DEMO: Record<string, CapaciteMe[]> = {
     'dons.exporter',
     'audio.publier',
     'paroissiens.gerer',
+    'intentions.gerer',
   ].map((c) => capacite(c, 'cure', 'Curé', 'paroisse')),
   'germaine.faye@saint-dominique.sn': [
     'annonces.publier',
@@ -131,6 +132,8 @@ export const CAPACITES_DEMO: Record<string, CapaciteMe[]> = {
     'dons.voir_fonds',
     // Liste des paroissiens, retrait et rétablissement (API-AUDIO §9).
     'paroissiens.gerer',
+    // Intentions de messe (API-V1-COMPLEMENTS §4).
+    'intentions.gerer',
   ].map((c) =>
     capacite(c, 'secretaire_paroissial', 'Secrétaire paroissiale', 'paroisse'),
   ),
@@ -140,8 +143,13 @@ export const CAPACITES_DEMO: Record<string, CapaciteMe[]> = {
   ].map((c) =>
     capacite(c, 'econome_diocesain', 'Économe diocésain', 'diocese'),
   ),
-  'moustoifa.ben@numerisen.sn': ['plateforme.admin', 'tableau_bord.voir'].map(
-    (c) => capacite(c, 'plateforme', 'Administrateur plateforme', 'plateforme'),
+  'moustoifa.ben@numerisen.sn': [
+    'plateforme.admin',
+    'tableau_bord.voir',
+    // Comptes du clergé (API-V1-COMPLEMENTS §1).
+    'comptes.valider',
+  ].map((c) =>
+    capacite(c, 'plateforme', 'Administrateur plateforme', 'plateforme'),
   ),
 };
 

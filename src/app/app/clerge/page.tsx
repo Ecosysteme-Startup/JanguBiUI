@@ -14,6 +14,7 @@ import {
 import { paths } from '@/config/paths';
 import { useUser } from '@/lib/auth';
 import { isClergy } from '@/lib/authorization';
+import { type Capacite, aCapacite } from '@/lib/staff/capacites';
 import { cn } from '@/lib/utils';
 
 type Section = {
@@ -24,15 +25,17 @@ type Section = {
   color: string;
   /** Écran sans route V1 : masqué tant que l'indicateur est éteint. */
   sansRoute?: Fonctionnalite;
+  /** Capacité requise (sur au moins un nœud). */
+  capacite?: Capacite;
 };
 
 const CLERGE_SECTIONS: Section[] = [
   {
-    sansRoute: 'intentionsMesse',
-    href: paths.app.clerge.intentions.getHref(),
+    capacite: 'intentions.gerer',
+    href: paths.app.paroisse.intentions.getHref(),
     icon: Cross,
     label: 'Intentions de messe',
-    description: 'Recevoir · Accepter · Célébrer',
+    description: 'Recevoir · Planifier · Célébrer',
     color: 'bg-warning/10 text-warning',
   },
   {
@@ -91,7 +94,9 @@ export default function ClergePage() {
       <ContentContainer>
         <div className="flex flex-col gap-3">
           {CLERGE_SECTIONS.filter(
-            (s) => !s.sansRoute || fonctionnaliteActive(s.sansRoute),
+            (s) =>
+              (!s.sansRoute || fonctionnaliteActive(s.sansRoute)) &&
+              (!s.capacite || aCapacite(user, s.capacite)),
           ).map((section) => {
             const Icon = section.icon;
             return (

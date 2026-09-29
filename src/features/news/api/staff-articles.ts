@@ -62,6 +62,9 @@ export const contenuStaffSchema = z.object({
   unpublish_reason: z.string().nullish(),
   notify_followers: z.boolean().optional(),
   reads_count: z.number().default(0),
+  // Épinglage (API-V1-COMPLEMENTS §2.1) : vrai tant que la date de fin n'est pas passée.
+  is_pinned: z.boolean().default(false),
+  pinned_until: z.string().nullable().optional(),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -125,7 +128,9 @@ export const useCategoriesStaff = () =>
   useQuery({
     queryKey: ['staff-news', 'categories'],
     queryFn: async () =>
-      z.array(categorieSchema).parse(await api.get<unknown>('/v1/news/categories/')),
+      z
+        .array(categorieSchema)
+        .parse(await api.get<unknown>('/v1/news/categories/')),
     staleTime: 10 * 60 * 1000,
   });
 
@@ -153,7 +158,9 @@ export const useCreerContenu = () => {
   const invalider = useInvalider();
   return useMutation({
     mutationFn: async (data: ContenuInput) =>
-      contenuStaffSchema.parse(await api.post<unknown>('/v1/staff/news/', data)),
+      contenuStaffSchema.parse(
+        await api.post<unknown>('/v1/staff/news/', data),
+      ),
     onSuccess: invalider,
   });
 };
@@ -212,5 +219,34 @@ export const useSupprimerContenu = () => {
     mutationFn: (id: string) =>
       api.delete<null>(`/v1/staff/news/${encodeURIComponent(id)}/`),
     onSuccess: () => invalider(),
+  });
+};
+
+/** `POST /v1/staff/news/{id}/pin/ {until}` : épingle en tête (60 jours au plus). */
+export const useEpinglerContenu = () => {
+  const invalider = useInvalider();
+  return useMutation({
+    mutationFn: async ({ id, until }: { id: string; until: string }) =>
+      contenuStaffSchema.parse(
+        await api.post<unknown>(
+          `/v1/staff/news/${encodeURIComponent(id)}/pin/`,
+          { until },
+        ),
+      ),
+    onSuccess: invalider,
+  });
+};
+
+/** `DELETE /v1/staff/news/{id}/pin/`. */
+export const useDesepinglerContenu = () => {
+  const invalider = useInvalider();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      contenuStaffSchema.parse(
+        await api.delete<unknown>(
+          `/v1/staff/news/${encodeURIComponent(id)}/pin/`,
+        ),
+      ),
+    onSuccess: invalider,
   });
 };

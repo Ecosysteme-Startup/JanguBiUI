@@ -9,6 +9,7 @@ import {
   CreditCard,
   FileText,
   HandCoins,
+  HandHeart,
   History,
   Landmark,
   Library,
@@ -16,6 +17,7 @@ import {
   Settings2,
   ShieldCheck,
   UserCheck,
+  UserPlus,
   Users,
   UsersRound,
 } from 'lucide-react';
@@ -55,6 +57,13 @@ export const GROUPES_STAFF: Groupe[] = [
         href: paths.app.admin.articles.getHref(),
         icon: BookOpen,
         capacites: ['annonces.publier'],
+      },
+      {
+        label: 'Intentions de messe',
+        description: 'Planifier les intentions reçues',
+        href: paths.app.paroisse.intentions.getHref(),
+        icon: HandHeart,
+        capacites: ['intentions.gerer'],
       },
       {
         label: 'Agenda',
@@ -139,6 +148,13 @@ export const GROUPES_STAFF: Groupe[] = [
         href: paths.app.admin.users.validation.getHref(),
         icon: UserCheck,
         capacites: ['personnes.verifier'],
+      },
+      {
+        label: 'Comptes du clergé',
+        description: 'Inviter, valider, activer',
+        href: paths.app.admin.users.clerge.getHref(),
+        icon: UserPlus,
+        capacites: ['comptes.valider'],
       },
       {
         label: 'Dons du diocèse',

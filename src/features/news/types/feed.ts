@@ -31,6 +31,9 @@ export const feedArticleSchema = z.object({
     })
     .nullish(),
   is_sunday_notice: z.boolean().nullish(),
+  // Épinglage (API-V1-COMPLEMENTS §2.1) : épinglés d'abord dans le fil.
+  is_pinned: z.boolean().nullish(),
+  pinned_until: z.string().nullish(),
   sunday_date: z.string().nullish(),
   cover_image_url: z.string().nullish(),
   cover_image_alt: z.string().nullish(),

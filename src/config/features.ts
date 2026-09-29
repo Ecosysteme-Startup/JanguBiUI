@@ -12,8 +12,6 @@
 export const FEATURES = {
   /** TV catholique : aucune route `/tv/` côté backend. */
   tv: 'tv',
-  /** Intentions de messe : aucune route `/mass-intentions/`. */
-  intentions: 'intentions',
   /** Transfert paroissial : remplacé par les paroisses multiples (`/me/paroisses/`). */
   transfert: 'transfert',
   /** Assistant de questions : aucune route `/rag/`. */

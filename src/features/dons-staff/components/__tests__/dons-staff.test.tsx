@@ -210,3 +210,49 @@ describe('Quêtes impérées du diocèse', () => {
     expect(await screen.findByText('Vue non ouverte')).toBeInTheDocument();
   });
 });
+
+describe('Équipe des compteurs (/v1/staff/dons/compteurs/)', () => {
+  test('ajoute un nom récent et le propose dans la saisie', async () => {
+    const { reinitialiserV1Complements } = await import(
+      '@/testing/mocks/handlers/v1-complements'
+    );
+    reinitialiserV1Complements();
+    const { EquipeCompteurs, nomsProposes } = await import(
+      '../equipe-compteurs'
+    );
+    moi(['dons.saisir_quete']);
+    const user = userEvent.setup();
+    renderApp(
+      <EquipeCompteurs
+        noeud={{
+          id: '5d000000-0000-4000-8000-00000000000d',
+          name: 'Saint-Dominique',
+          type: 'paroisse',
+        }}
+        onClose={() => {}}
+      />,
+    );
+    const liste = await screen.findByRole('list', {
+      name: 'Compteurs habilités',
+    });
+    expect(within(liste).getByText('Awa Faye')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '+ Paul Sarr' }));
+    expect(await within(liste).findByText('Paul Sarr')).toBeInTheDocument();
+    await user.type(screen.getByLabelText('Ajouter un compteur'), 'awa faye');
+    await user.click(screen.getByRole('button', { name: 'Ajouter' }));
+    expect(
+      await screen.findByText('Cette personne fait déjà partie de l’équipe.', {
+        selector: '[role="alert"]',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      nomsProposes({
+        compteurs: [
+          { id: 1, nom: 'Jean Diouf', actif: true },
+          { id: 2, nom: 'Ancien', actif: false },
+        ],
+        noms_recents: ['Paul Sarr'],
+      }),
+    ).toEqual(['Jean Diouf', 'Paul Sarr']);
+  });
+});
