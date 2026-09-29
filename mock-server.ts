@@ -16,6 +16,8 @@ app.use(
 );
 
 app.use(express.json());
+// Point de jeton Keycloak simulé : formulaire x-www-form-urlencoded.
+app.use(express.urlencoded({ extended: false }));
 app.use(
   logger({
     level: 'info',

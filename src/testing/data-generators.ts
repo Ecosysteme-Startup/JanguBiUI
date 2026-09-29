@@ -35,7 +35,7 @@ import type { PastoralRole, User, UserRole } from '@/lib/auth';
 // User
 // ----------------------------------------------------------------
 
-// Contrat réel de /v1/auth/me/ : les deux dimensions sont des champs SÉPARÉS.
+// Contrat réel de /v1/me/ : les deux dimensions sont des champs SÉPARÉS.
 // `role` (UserRole) = capacité d'administration digitale (jamais une valeur
 // pastorale). `pastoral_role` (PastoralRole | null) = identité dans l'Église.
 // Un fidèle laïc inscrit normalement a role='fidele' et pastoral_role=null

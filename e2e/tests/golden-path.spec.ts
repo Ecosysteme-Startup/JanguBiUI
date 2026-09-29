@@ -53,7 +53,7 @@ test.describe('Golden path — don (bénéficiaire église B, espèces, online d
   test.beforeEach(async ({ page }) => {
     donateBody = null;
 
-    await page.route('**/v1/auth/me/**', async (route) =>
+    await page.route('**/v1/me/', async (route) =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',

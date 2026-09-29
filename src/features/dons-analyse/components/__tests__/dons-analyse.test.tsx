@@ -7,6 +7,7 @@ import {
   activitePlateformeSeptembre,
   analyseDioceseSeptembre,
   analyseParoisseSeptembre,
+  mesCapacitesDemo,
   NOEUD_SAINT_DOMINIQUE,
 } from '@/testing/mocks/handlers/dons-analyse';
 import {
@@ -29,6 +30,16 @@ import { SantePaiementsVue } from '../sante-paiements';
 
 const ANALYSE_URL = `${env.API_URL}/v1/staff/dons/analyse/`;
 const FLUX_URL = `${env.API_URL}/v1/staff/dons/flux/`;
+
+// Économe de Saint-Dominique et économe diocésain : les écrans trouvent leur
+// nœud d'analyse dans /v1/me/capacites/.
+beforeEach(() => {
+  server.use(
+    http.get(`${env.API_URL}/v1/me/capacites/`, () =>
+      HttpResponse.json(mesCapacitesDemo),
+    ),
+  );
+});
 
 // Garde les espaces insécables (le normaliseur par défaut les réduit en espaces).
 const brut = getDefaultNormalizer({ collapseWhitespace: false });
@@ -228,7 +239,9 @@ describe('AnalyseParoisseVue', () => {
       }),
       http.get(FLUX_URL, ({ request }) => {
         expect(request.headers.get('authorization')).toBe('Bearer jeton-test');
-        dernierId = request.headers.get('last-event-id');
+        dernierId =
+          request.headers.get('last-event-id') ??
+          new URL(request.url).searchParams.get('lastEventId');
         const corps =
           'retry: 5000\n: flux\n\n' +
           'id: 41\nevent: dons.operation\ndata: {"kind":"don"}\n\n' +

@@ -24,7 +24,7 @@ yarn check-types  # tsc --noEmit
 > `next/core-web-vitals`. La règle **anti-palette** (`no-restricted-syntax`) interdit
 > la palette Tailwind brute (`bg-blue-500`…) hors `src/features/landing` (dark forcé).
 
-API backend : `http://localhost:8001/api/v1/`
+API backend : `http://localhost:8001/api/v1/` — voir README (variables Keycloak).
 
 ---
 
@@ -95,12 +95,15 @@ export const useCreateThing = () => {
 
 ## Authentification
 
-- `useUser()` depuis `src/lib/auth.tsx` — source de vérité pour l'utilisateur connecté
-- Token JWT stocké dans localStorage (patterns existants du projet)
-- `clearAccessToken()` / `clearRefreshToken()` avant tout redirect logout
-- Le 401 handler dans `api-client.ts` redirige vers `/auth/login` UNIQUEMENT si `!window.location.pathname.startsWith('/auth/')` (évite la boucle infinie)
-
----
+- **Keycloak** (realm `jangubi`, client public `jangubi-web`, Authorization Code + PKCE) : `src/lib/oidc.ts`
+  (maison, sans dépendance). Pages : `/auth/login`, `/auth/register` (`prompt=create`), `/auth/callback`.
+- `useUser()` depuis `src/lib/auth.tsx` — lit `GET /v1/me/` + `GET /v1/me/capacites/` ; `role` est un rôle
+  d'interface dérivé des capacités, les gardes lisent `user.capabilities`.
+- Jeton d'accès en mémoire, rafraîchissement + `id_token` dans le `sessionStorage` ; `api-client.ts` pose le
+  Bearer, rafraîchit sur 401 puis relance ; échec → `/auth/login?redirectTo=` (sauf pages publiques).
+- Déconnexion : `useLogout()` → `end_session_endpoint`. Mot de passe, e-mail, OTP : console de compte Keycloak.
+- Mode mocks (`NEXT_PUBLIC_API_MOCKING=true`, jamais en production) : comptes de démonstration, point de jeton
+  simulé dans `src/testing/mocks/handlers/auth.ts`.
 
 ## Autorisation — `src/lib/authorization.ts`
 

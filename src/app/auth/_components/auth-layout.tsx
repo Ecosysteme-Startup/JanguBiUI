@@ -27,11 +27,11 @@ function CrossIcon({ className }: { className?: string }) {
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   '/auth/login': { title: 'Connexion', subtitle: 'Heureux de vous revoir' },
-  '/auth/register': { title: 'Créer un compte', subtitle: 'Rejoignez la communauté' },
-  '/auth/forgot-password': { title: 'Mot de passe oublié', subtitle: 'Réinitialisez votre accès' },
-  '/auth/reset-password': { title: 'Nouveau mot de passe', subtitle: 'Choisissez un mot de passe sécurisé' },
-  '/auth/verify-email': { title: 'Vérification email', subtitle: 'Confirmez votre adresse' },
-  '/auth/revert-email': { title: 'Annulation email', subtitle: 'Rétablissez votre ancienne adresse' },
+  '/auth/register': {
+    title: 'Créer un compte',
+    subtitle: 'Rejoignez la communauté',
+  },
+  '/auth/callback': { title: 'Connexion', subtitle: 'Un instant' },
 };
 
 export const AuthLayout = ({ children }: LayoutProps) => {
@@ -49,17 +49,22 @@ export const AuthLayout = ({ children }: LayoutProps) => {
 
   // Owner unique de la redirection post-auth : on aligne sur getRoleHomePath
   // (même destination que LoginPage → plus de course vers app.root).
+  // Le rappel OIDC gère lui-même sa redirection (vers la page demandée).
+  const isCallback = pathname === '/auth/callback';
+
   useEffect(() => {
-    if (user.data) {
+    if (user.data && !isCallback) {
       router.replace(
-        redirectTo ? decodeURIComponent(redirectTo) : getRoleHomePath(user.data),
+        redirectTo
+          ? decodeURIComponent(redirectTo)
+          : getRoleHomePath(user.data),
       );
     }
-  }, [user.data, router, redirectTo]);
+  }, [user.data, router, redirectTo, isCallback]);
 
   // Évite le flash du formulaire pour un utilisateur déjà connecté (ou en cours
   // de résolution de session).
-  if (user.isLoading || user.data) {
+  if (!isCallback && (user.isLoading || user.data)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Spinner />

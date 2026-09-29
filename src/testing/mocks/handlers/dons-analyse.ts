@@ -38,7 +38,7 @@ export const mesCapacitesDemo: Capacite[] = [
     node_id: NOEUD_SAINT_DOMINIQUE,
     node_name: 'Saint-Dominique',
     node_type: 'paroisse',
-    herite: false,
+    herite: true,
     office: 'econome_paroissial',
     office_label: 'Économe',
   },
@@ -47,7 +47,7 @@ export const mesCapacitesDemo: Capacite[] = [
     node_id: NOEUD_ARCHIDIOCESE,
     node_name: 'Archidiocèse de Dakar',
     node_type: 'diocese',
-    herite: false,
+    herite: true,
     office: 'econome_diocesain',
     office_label: 'Économe diocésain',
   },
@@ -1028,10 +1028,6 @@ const periodeMois = (date: string): PeriodeAnalyse => {
 const encodeur = new TextEncoder();
 
 export const donsAnalyseHandlers = [
-  http.get(`${env.API_URL}/v1/me/capacites/`, () =>
-    HttpResponse.json(mesCapacitesDemo),
-  ),
-
   http.get(`${env.API_URL}/v1/staff/dons/analyse/`, ({ request }) => {
     const url = new URL(request.url);
     const niveau = url.searchParams.get('niveau');

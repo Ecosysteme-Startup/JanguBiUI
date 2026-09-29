@@ -59,7 +59,7 @@ describe('Présence dans la messagerie', () => {
   test('fidèle : « En ligne », « Vu aujourd’hui à 8:02 », rien pour une présence masquée', async () => {
     let demande = '';
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(createUser({ id: 'me', role: 'fidele' })),
       ),
       http.get(`${env.API_URL}/v1/messaging/presence/`, ({ request }) => {
@@ -111,7 +111,7 @@ describe('Présence dans la messagerie', () => {
 
   test('un événement presence.changed met à jour la liste', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(createUser({ id: 'me', role: 'fidele' })),
       ),
       http.get(`${env.API_URL}/v1/messaging/presence/`, () =>
@@ -140,7 +140,7 @@ describe('Présence dans la messagerie', () => {
 
   test('staff : « Vous apparaissez en ligne » et la légende', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(
           createUser({
             id: 'me',

@@ -13,7 +13,7 @@ const mockUser = createUser({ id: 'current-user-id' });
 describe('ConversationList', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () => HttpResponse.json(mockUser)),
+      http.get(`${env.API_URL}/v1/me/`, () => HttpResponse.json(mockUser)),
     );
   });
 

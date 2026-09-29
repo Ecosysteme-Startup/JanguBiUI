@@ -43,6 +43,22 @@ const jeton = async (): Promise<string | null> => {
   return getAccessToken();
 };
 
+/**
+ * L'API accepte la reprise par l'en-tête `Last-Event-ID` ou par le paramètre
+ * `?lastEventId=`. En cross-origin, l'en-tête n'est pas autorisé par le CORS du
+ * backend (preflight refusé) : on le déplace dans l'URL, y compris quand
+ * fetch-event-source le pose lui-même lors de ses reconnexions.
+ */
+export const fetchSansEnteteReprise: typeof fetch = (input, init) => {
+  const headers = new Headers(init?.headers);
+  const id = headers.get('last-event-id');
+  if (!id || typeof input !== 'string') return fetch(input, init);
+  headers.delete('last-event-id');
+  const url = new URL(input);
+  url.searchParams.set('lastEventId', id);
+  return fetch(url.toString(), { ...init, headers });
+};
+
 interface UseFluxDonsOptions {
   niveau: Niveau;
   /** Paroisse ou diocèse ; sans nœud, pas de flux. */
@@ -92,7 +108,7 @@ export function useFluxDons({
             `${env.API_URL}/v1/staff/dons/flux/?noeud=${encodeURIComponent(noeud)}`,
             {
               signal: controleur.signal,
-              fetch: (...args) => fetch(...args),
+              fetch: fetchSansEnteteReprise,
               headers: {
                 Accept: 'text/event-stream',
                 Authorization: `Bearer ${token}`,

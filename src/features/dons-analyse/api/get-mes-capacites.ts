@@ -7,7 +7,7 @@ import { api } from '@/lib/api-client';
 // Sert à trouver le `noeud` des analyses (la paroisse de l'économe, le diocèse
 // de l'économe diocésain) sans le demander à l'écran.
 
-const capaciteSchema = z.object({
+export const capaciteSchema = z.object({
   capacite: z.string(),
   node_id: z.string().nullable(),
   node_name: z.string(),
@@ -37,8 +37,10 @@ export type NoeudAnalyse = { id: string; nom: string; type: string };
 
 /**
  * Nœud d'analyse : paroisse avec `dons.voir_fonds` par une nomination sur la
- * paroisse même (un droit hérité ne suffit pas, contrat §2.2) ; diocèse ou
- * doyenné avec `dons.voir_agregats`.
+ * paroisse même (contrat §2.2 : un droit venu du diocèse ne suffit pas, il
+ * porterait `node_type: diocese`) ; diocèse ou doyenné avec
+ * `dons.voir_agregats`. `herite` n'entre pas en compte : il dit seulement que
+ * l'office s'étend aux nœuds enfants (vrai pour le curé et l'économe).
  */
 export const choisirNoeud = (
   capacites: Capacite[] | undefined,
@@ -47,8 +49,7 @@ export const choisirNoeud = (
   const trouve = (capacites ?? []).find((c) =>
     niveau === 'paroisse'
       ? c.capacite === 'dons.voir_fonds' &&
-        c.node_type === 'paroisse' &&
-        !c.herite &&
+        (c.node_type === 'paroisse' || c.node_type === 'quasi_paroisse') &&
         c.node_id
       : c.capacite === 'dons.voir_agregats' &&
         (c.node_type === 'diocese' || c.node_type === 'doyenne') &&

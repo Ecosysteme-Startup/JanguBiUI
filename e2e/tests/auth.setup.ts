@@ -2,23 +2,28 @@ import { test as setup } from '@playwright/test';
 
 const authFile = 'e2e/.auth/user.json';
 
-// Auth e2e = login d'un utilisateur SEEDÉ déjà onboardé (onboarding_state=completed).
-// On évite le register → onboarding (sélection paroisse obligatoire) qui rendait
-// l'ancien setup fragile (et qui ne menait plus à /app/bible). Login direct via
-// l'UI actuelle → storageState authentifié réel, utilisable par tous les specs.
-//
-// Surchargeable par env si le seed change (cf. `make seed` / seed_demo).
-const EMAIL = process.env.E2E_USER_EMAIL ?? 'aminata.fall@jangubidev.sn';
-const PASSWORD = process.env.E2E_USER_PASSWORD ?? 'Jangu2024!';
+// Connexion par Keycloak (page de connexion du realm) ; en mode mocks
+// (NEXT_PUBLIC_API_MOCKING=true), choix d'un compte de démonstration.
+// Le jeton de rafraîchissement vit dans le sessionStorage (non sauvegardé par
+// storageState) : les specs retrouvent la session par le cookie SSO Keycloak.
+const EMAIL = process.env.E2E_USER_EMAIL ?? 'fidele@demo.jangubi.sn';
+const PASSWORD = process.env.E2E_USER_PASSWORD ?? '';
 
 setup('authenticate', async ({ page }) => {
   await page.goto('/auth/login');
 
-  await page.getByLabel(/adresse email/i).fill(EMAIL);
-  await page.getByLabel(/mot de passe/i).fill(PASSWORD);
-  await page.getByRole('button', { name: /se connecter/i }).click();
+  const demo = page.getByRole('button', { name: /Marie-Thérèse Diouf/ });
+  const keycloak = page.locator('#username');
+  await demo.or(keycloak).first().waitFor({ timeout: 15_000 });
 
-  // Fidèle onboardé → redirige hors de /auth vers l'espace app (getRoleHomePath = /app).
+  if (await demo.isVisible()) {
+    await demo.click();
+  } else {
+    await keycloak.fill(EMAIL);
+    await page.locator('#password').fill(PASSWORD);
+    await page.locator('#kc-login').click();
+  }
+
   await page.waitForURL((url) => url.pathname.startsWith('/app'), {
     timeout: 15_000,
   });

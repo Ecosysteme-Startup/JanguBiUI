@@ -1,218 +1,222 @@
 import { HttpResponse, http } from 'msw';
 
 import { env } from '@/config/env';
-import type { User } from '@/lib/auth';
-import { createUser } from '@/testing/data-generators';
+import { DEMO_ACCOUNTS } from '@/features/auth/utils/demo-accounts';
+import type { CapaciteMe, Me } from '@/lib/auth';
 
-// Comptes de démonstration des tableaux de bord des dons (serveur de mocks et
-// captures) : la connexion avec l'un de ces e-mails renvoie un compte staff
-// doté des capacités correspondantes, que /me renvoie ensuite.
-const COMPTES_DEMO_DONS: Record<string, Partial<User>> = {
-  'cecile.coly@saint-dominique.sn': {
-    role: 'parish_admin',
-    is_admin: true,
-    capabilities: ['dons.voir_fonds', 'dons.saisir_quete', 'dons.exporter'],
-    profile: {
-      first_name: 'Cécile',
-      last_name: 'Coly',
-      title: 'Mme',
-      primary_parish: null,
-      avatar: null,
-    },
-  },
-  'bernard.coly@archidiocese-dakar.sn': {
-    role: 'diocese_admin',
-    is_admin: true,
-    capabilities: ['dons.voir_agregats'],
-    profile: {
-      first_name: 'Bernard',
-      last_name: 'Coly',
-      title: 'M.',
-      primary_parish: null,
-      avatar: null,
-    },
-  },
-  // Sonothèque (lot C5) : secrétaire paroissiale qui publie les enregistrements.
-  'germaine.faye@saint-dominique.sn': {
-    role: 'parish_admin',
-    is_admin: true,
-    capabilities: ['audio.publier'],
-    profile: {
-      first_name: 'Germaine',
-      last_name: 'Faye',
-      title: 'Mme',
-      primary_parish: null,
-      avatar: null,
-    },
-  },
-  'moustoifa.ben@numerisen.sn': {
-    role: 'super_admin',
-    is_admin: true,
-    capabilities: ['plateforme.admin'],
-    profile: {
-      first_name: 'Moustoifa',
-      last_name: 'Ben',
-      primary_parish: null,
-      avatar: null,
-    },
-  },
+import { NOEUD_ARCHIDIOCESE, NOEUD_SAINT_DOMINIQUE } from './dons-analyse';
+
+// Keycloak simulé (point de jeton du realm) et personne connectée (/v1/me/,
+// /v1/me/capacites/) calqués sur les vraies réponses du backend V1.
+//
+// Jetons de démonstration : `demo.<e-mail en base64url>.<n>`. Le code
+// d'autorisation du mode mocks est `demo:<e-mail>` (voir lib/oidc.ts).
+
+const b64 = (s: string) =>
+  btoa(unescape(encodeURIComponent(s)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+const unb64 = (s: string) =>
+  decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
+
+let emission = 0;
+const jetons = (email: string) => {
+  emission += 1;
+  return {
+    access_token: `demo.${b64(email)}.${emission}`,
+    expires_in: 600,
+    refresh_token: `demo-refresh.${b64(email)}.${emission}`,
+    refresh_expires_in: 43200,
+    id_token: `e30.${b64(JSON.stringify({ email }))}.`,
+    token_type: 'Bearer',
+    scope: 'openid profile email',
+  };
 };
-let compteDemo: User | null = null;
+
+/** E-mail du compte de démonstration porté par le jeton Bearer, s'il y en a. */
+const emailDuJeton = (request: Request): string | null => {
+  const auth = request.headers.get('authorization') ?? '';
+  const m = /^Bearer demo\.([^.]+)\./.exec(auth);
+  if (!m) return null;
+  try {
+    return unb64(m[1]);
+  } catch {
+    return null;
+  }
+};
+
+export const PAROISSE_SAINT_DOMINIQUE = {
+  id: NOEUD_SAINT_DOMINIQUE,
+  name: 'Saint-Dominique',
+};
+
+/** Réponse de GET /v1/me/ (MeOutputSerializer). */
+export const meDemo = (overrides: Partial<Me> = {}): Me => ({
+  id: '0c7b0000-0000-4000-8000-000000000001',
+  email: 'marie-therese.diouf@example.sn',
+  profile: {
+    first_name: 'Marie-Thérèse',
+    last_name: 'Diouf',
+    title: 'MRS',
+    date_of_birth: null,
+    phone: '+221774123658',
+  },
+  etat_de_vie: 'laic',
+  degre_ordre: 'aucun',
+  statut_verification: 'declare',
+  incardination: null,
+  institut: null,
+  paroisse_suivie: PAROISSE_SAINT_DOMINIQUE,
+  consent: { version: '2026-09', accepted_at: '2026-09-01T10:00:00+00:00' },
+  ...overrides,
+});
+
+const capacite = (
+  code: string,
+  office: string,
+  office_label: string,
+  node: 'paroisse' | 'diocese' | 'plateforme',
+): CapaciteMe => ({
+  capacite: code,
+  node_id:
+    node === 'paroisse'
+      ? NOEUD_SAINT_DOMINIQUE
+      : node === 'diocese'
+        ? NOEUD_ARCHIDIOCESE
+        : null,
+  node_name:
+    node === 'paroisse'
+      ? 'Saint-Dominique'
+      : node === 'diocese'
+        ? 'Archidiocèse de Dakar'
+        : 'Plateforme',
+  node_type: node,
+  herite: true,
+  office,
+  office_label,
+});
+
+export const CAPACITES_DEMO: Record<string, CapaciteMe[]> = {
+  'marie-therese.diouf@example.sn': [],
+  'cecile.coly@saint-dominique.sn': [
+    'tableau_bord.voir',
+    'dons.voir_fonds',
+    'dons.saisir_quete',
+    'dons.exporter',
+  ].map((c) => capacite(c, 'econome_paroissial', 'Économe', 'paroisse')),
+  'germaine.faye@saint-dominique.sn': [
+    'annonces.publier',
+    'audio.publier',
+    'dons.voir_fonds',
+  ].map((c) =>
+    capacite(c, 'secretaire_paroissial', 'Secrétaire paroissiale', 'paroisse'),
+  ),
+  'bernard.coly@archidiocese-dakar.sn': [
+    'tableau_bord.voir',
+    'dons.voir_agregats',
+  ].map((c) =>
+    capacite(c, 'econome_diocesain', 'Économe diocésain', 'diocese'),
+  ),
+  'moustoifa.ben@numerisen.sn': ['plateforme.admin', 'tableau_bord.voir'].map(
+    (c) => capacite(c, 'plateforme', 'Administrateur plateforme', 'plateforme'),
+  ),
+};
+
+const meDuCompte = (email: string): Me => {
+  const index = DEMO_ACCOUNTS.findIndex((c) => c.email === email);
+  const compte = DEMO_ACCOUNTS[index];
+  if (!compte) return meDemo({ email });
+  return meDemo({
+    id: `0c7b0000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+    email,
+    profile: {
+      first_name: compte.first_name,
+      last_name: compte.last_name,
+      title: compte.title === 'M.' ? 'MR' : 'MRS',
+      date_of_birth: null,
+      phone: null,
+    },
+  });
+};
+
+let profilModifie: Partial<Me['profile']> = {};
 
 export const authHandlers = [
-  http.post(`${env.API_URL}/v1/auth/jwt/login/`, async ({ request }) => {
-    const body = (await request.json()) as { email: string; password: string };
-
-    if (body.email === 'invalid@test.com') {
-      return HttpResponse.json(
-        { message: 'Email ou mot de passe incorrect.' },
-        { status: 401 },
-      );
-    }
-
-    const demo = COMPTES_DEMO_DONS[body.email];
-    const user = createUser({ email: body.email, ...demo });
-    if (demo) compteDemo = user;
-    return HttpResponse.json({
-      access: 'fake-access-token',
-      refresh: 'fake-refresh-token',
-      user,
-    });
-  }),
-
-  http.post(`${env.API_URL}/v1/auth/jwt/refresh/`, async ({ request }) => {
-    const body = (await request.json()) as { refresh?: string };
-    if (!body.refresh) {
-      return HttpResponse.json(
-        { detail: 'No active account found with the given credentials' },
-        { status: 401 },
-      );
-    }
-    return HttpResponse.json({
-      access: 'refreshed-access-token',
-      refresh: 'rotated-refresh-token',
-    });
-  }),
-
-  http.post(`${env.API_URL}/v1/auth/jwt/logout/`, () => {
-    return HttpResponse.json({});
-  }),
-
-  http.get(`${env.API_URL}/v1/auth/me/`, () => {
-    return HttpResponse.json(compteDemo ?? createUser());
-  }),
-
-  http.post(`${env.API_URL}/v1/users/register/`, async ({ request }) => {
-    const body = (await request.json()) as {
-      email: string;
-      phone_number: string;
-      first_name: string;
-      last_name: string;
-      title: string;
-      password: string;
-    };
-
-    if (body.email === 'taken@test.com') {
-      return HttpResponse.json(
-        { message: 'Un compte existe déjà avec cet email.' },
-        { status: 400 },
-      );
-    }
-
-    const user = createUser({
-      email: body.email,
-      profile: {
-        first_name: body.first_name,
-        last_name: body.last_name,
-        title: body.title,
-        phone: body.phone_number,
-        primary_parish: null,
-        avatar: null,
-      },
-    });
-
-    return HttpResponse.json(
-      {
-        access: 'fake-access-token',
-        refresh: 'fake-refresh-token',
-        user,
-      },
-      { status: 201 },
-    );
-  }),
-
+  // --- Keycloak : point de jeton du realm (code PKCE, rafraîchissement) ---------
   http.post(
-    `${env.API_URL}/v1/users/password/reset/request/`,
+    '*/realms/:realm/protocol/openid-connect/token',
     async ({ request }) => {
-      const body = (await request.json()) as { email: string };
-      if (body.email === 'error@test.com') {
-        return HttpResponse.json(
-          { message: 'Erreur serveur' },
-          { status: 500 },
-        );
-      }
-      return HttpResponse.json({ detail: 'Email envoyé si le compte existe.' });
-    },
-  ),
-
-  http.post(
-    `${env.API_URL}/v1/users/password/reset/confirm/`,
-    async ({ request }) => {
-      const body = (await request.json()) as {
-        token: string;
-        new_password: string;
-      };
-      if (body.token === 'invalid-token') {
-        return HttpResponse.json(
-          { message: 'Lien invalide ou expiré.' },
+      // Formulaire (navigateur, tests) ; objet JSON derrière le serveur de
+      // mocks Express (@mswjs/http-middleware resérialise req.body).
+      const texte = await request.text();
+      const form = texte.trim().startsWith('{')
+        ? new URLSearchParams(JSON.parse(texte) as Record<string, string>)
+        : new URLSearchParams(texte);
+      const grant = form.get('grant_type');
+      const invalide = () =>
+        HttpResponse.json(
+          { error: 'invalid_grant', error_description: 'Session expirée' },
           { status: 400 },
         );
+      if (form.get('client_id') !== env.KEYCLOAK_CLIENT_ID) {
+        return HttpResponse.json({ error: 'invalid_client' }, { status: 401 });
       }
-      return HttpResponse.json({ detail: 'Mot de passe réinitialisé.' });
+      if (grant === 'authorization_code') {
+        const code = form.get('code') ?? '';
+        if (!code.startsWith('demo:') || !form.get('code_verifier')) {
+          return invalide();
+        }
+        return HttpResponse.json(
+          jetons(code.slice(5) || DEMO_ACCOUNTS[0].email),
+        );
+      }
+      if (grant === 'refresh_token') {
+        const refresh = form.get('refresh_token') ?? '';
+        if (!refresh || refresh === 'expired') return invalide();
+        const m = /^demo-refresh\.([^.]+)\./.exec(refresh);
+        if (m) return HttpResponse.json(jetons(unb64(m[1])));
+        // Jeton de rafraîchissement des tests : jeton d'accès neutre.
+        return HttpResponse.json({
+          ...jetons(''),
+          access_token: 'refreshed-access-token',
+        });
+      }
+      return HttpResponse.json(
+        { error: 'unsupported_grant_type' },
+        { status: 400 },
+      );
     },
   ),
 
-  http.post(`${env.API_URL}/v1/users/password/change/`, async ({ request }) => {
-    const body = (await request.json()) as {
-      old_password: string;
-      new_password: string;
-    };
-    if (body.old_password === 'wrong') {
-      return HttpResponse.json(
-        { message: 'Mot de passe actuel incorrect.' },
-        { status: 400 },
-      );
-    }
-    return HttpResponse.json({ detail: 'Mot de passe modifié.' });
-  }),
-
-  http.patch(`${env.API_URL}/v1/users/me/update/`, async ({ request }) => {
-    const body = (await request.json()) as Record<string, unknown>;
-    const user = createUser({
-      profile: {
-        first_name: String(body.first_name ?? ''),
-        last_name: String(body.last_name ?? ''),
-        phone: String(body.phone ?? ''),
-        primary_parish: null,
-        avatar: null,
-      },
+  // --- Personne connectée --------------------------------------------------------
+  http.get(`${env.API_URL}/v1/me/`, ({ request }) => {
+    const email = emailDuJeton(request);
+    const me = email ? meDuCompte(email) : meDemo();
+    return HttpResponse.json({
+      ...me,
+      profile: { ...me.profile, ...profilModifie },
     });
-    return HttpResponse.json(user);
   }),
 
-  http.delete(`${env.API_URL}/v1/users/me/delete/`, () => {
+  http.patch(`${env.API_URL}/v1/me/`, async ({ request }) => {
+    const body = (await request.json()) as Partial<Me['profile']>;
+    profilModifie = { ...profilModifie, ...body };
+    const me = meDemo();
+    return HttpResponse.json({
+      ...me,
+      profile: { ...me.profile, ...profilModifie },
+    });
+  }),
+
+  http.delete(`${env.API_URL}/v1/me/`, () => {
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.post(`${env.API_URL}/v1/users/email/change/request/`, () => {
-    return HttpResponse.json({ detail: 'Code OTP envoyé.' });
-  }),
-
-  http.post(`${env.API_URL}/v1/users/email/change/confirm/`, () => {
-    return HttpResponse.json({ detail: 'Email modifié.' });
-  }),
-
-  http.post(`${env.API_URL}/v1/users/verify-email/`, () => {
-    return HttpResponse.json({ detail: 'Email vérifié.' });
+  // Capacités du compte de démonstration connecté ; sans jeton de
+  // démonstration (tests) : aucune, comme un fidèle.
+  http.get(`${env.API_URL}/v1/me/capacites/`, ({ request }) => {
+    const email = emailDuJeton(request);
+    return HttpResponse.json(email ? (CAPACITES_DEMO[email] ?? []) : []);
   }),
 ];

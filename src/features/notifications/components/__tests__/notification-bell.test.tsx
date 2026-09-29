@@ -31,7 +31,7 @@ const mockNotifications = [
 function setupAuthenticatedUser() {
   const user = createUser();
   server.use(
-    http.get(`${env.API_URL}/v1/auth/me/`, () => HttpResponse.json(user)),
+    http.get(`${env.API_URL}/v1/me/`, () => HttpResponse.json(user)),
   );
   return user;
 }

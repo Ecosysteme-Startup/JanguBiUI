@@ -2,7 +2,7 @@
 
 import { LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import { PlayerRoot, PlayerSpacer } from '@/components/player/player-root';
 import { Link } from '@/components/ui/link/link';
@@ -40,11 +40,8 @@ function CrossIcon({ className }: { className?: string }) {
 
 function DesktopSidebar({ messageBadge }: { messageBadge?: number }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { data: user } = useUser();
-  const { mutate: logout } = useLogout({
-    onSuccess: () => router.replace('/auth/login'),
-  });
+  const { mutate: logout } = useLogout();
   const navItems = buildNavItems(user);
 
   return (

@@ -1,13 +1,9 @@
 'use client';
 
-import { Suspense } from 'react';
+import { KeycloakRedirect } from '@/features/auth/components/keycloak-redirect';
 
-import { RevertEmail } from '@/features/auth/components/revert-email';
+// Mot de passe, vérification et changement d'e-mail relèvent de Keycloak : sa
+// page de connexion propose « Mot de passe oublié ? ». Ancien lien : on y va.
+const LegacyAuthPage = () => <KeycloakRedirect action="login" />;
 
-const RevertEmailPage = () => (
-  <Suspense>
-    <RevertEmail />
-  </Suspense>
-);
-
-export default RevertEmailPage;
+export default LegacyAuthPage;

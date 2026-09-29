@@ -372,10 +372,13 @@ export async function POST(req: Request) {
     .map((c) => `${c.name}=${c.value}`)
     .join('; ');
 
-  const authRes = await fetch(`${env.API_URL}/v1/auth/me/`, {
+  // Jeton Keycloak du client (en-tête Authorization), vérifié par l'API.
+  const authorization = req.headers.get('authorization');
+  const authRes = await fetch(`${env.API_URL}/v1/me/`, {
     headers: {
       Cookie: cookieHeader,
       Accept: 'application/json',
+      ...(authorization ? { Authorization: authorization } : {}),
     },
     credentials: 'include',
   });

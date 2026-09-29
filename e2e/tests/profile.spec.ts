@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Page de profil', () => {
   test.beforeEach(async ({ page }) => {
     // Mock the profile update API so no real backend mutation occurs.
-    await page.route('**/v1/users/me/**', async (route) => {
+    await page.route('**/v1/me/', async (route) => {
       if (route.request().method() === 'PATCH') {
         await route.fulfill({
           status: 200,
@@ -90,36 +90,30 @@ test.describe('Page de profil', () => {
     });
   });
 
-  // ── Change password form ────────────────────────────────────────────────────
+  // ── Connexion et sécurité (Keycloak) ────────────────────────────────────────
 
-  test('change password form has "Mot de passe actuel" and "Nouveau mot de passe" fields', async ({
-    page,
-  }) => {
-    await expect(page.getByLabel(/mot de passe actuel/i)).toBeVisible();
-    await expect(page.getByLabel(/nouveau mot de passe/i)).toBeVisible();
-  });
-
-  test('change password submit button is labelled "Modifier le mot de passe"', async ({
+  test('mot de passe et double authentification : lien vers le compte Keycloak', async ({
     page,
   }) => {
     await expect(
-      page.getByRole('button', { name: /modifier le mot de passe/i }),
-    ).toBeVisible();
+      page.getByRole('link', { name: /gérer ma connexion/i }),
+    ).toHaveAttribute('href', /\/realms\/jangubi\/account\//);
   });
 
   // ── Logout ──────────────────────────────────────────────────────────────────
 
-  test('clicking "Se déconnecter" redirects to /auth/login', async ({
-    page,
-  }) => {
-    // Intercept the logout API call so we don't need a real backend.
-    await page.route('**/v1/auth/logout/**', async (route) =>
-      route.fulfill({ status: 204, body: '' }),
+  test('« Se déconnecter » termine la session Keycloak', async ({ page }) => {
+    const fin = page.waitForRequest((r) =>
+      r.url().includes('/protocol/openid-connect/logout'),
+    );
+    await page.route('**/protocol/openid-connect/logout**', (route) =>
+      route.fulfill({ status: 302, headers: { location: '/' } }),
     );
 
     await page.getByRole('button', { name: /se déconnecter/i }).click();
 
-    await expect(page).toHaveURL('/auth/login', { timeout: 10_000 });
+    const url = new URL((await fin).url());
+    expect(url.searchParams.get('client_id')).toBe('jangubi-web');
   });
 
   // ── Danger zone ─────────────────────────────────────────────────────────────

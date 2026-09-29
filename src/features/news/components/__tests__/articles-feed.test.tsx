@@ -129,7 +129,7 @@ describe('ArticlesFeed', () => {
 
   test('filtre « Église A » → envoie scope_type=church&scope_id et restreint le fil', async () => {
     server.use(
-      http.get(`${env.API_URL}/v1/auth/me/`, () =>
+      http.get(`${env.API_URL}/v1/me/`, () =>
         HttpResponse.json(createUser({ memberships: MEMBERSHIPS })),
       ),
       http.get(FEED, ({ request }) => {
