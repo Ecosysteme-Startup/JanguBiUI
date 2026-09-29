@@ -16,6 +16,6 @@ export const handlers = [
   ...newsHandlers,
   ...bibleHandlers,
   ...donsAnalyseHandlers,
-  ...sonothequeHandlers,
   ...audioLecteurHandlers,
+  ...sonothequeHandlers,
 ];
