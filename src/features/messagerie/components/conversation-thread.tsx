@@ -12,10 +12,13 @@ import { cn } from '@/utils/cn';
 
 import { useConversation } from '../api/get-conversation';
 import { useMessages } from '../api/get-messages';
+import { usePresence } from '../api/get-presence';
 import { useMarkRead } from '../api/mark-read';
 import { useMessagingCgu } from '../api/messaging-cgu';
 import { useSendMessage } from '../api/send-message';
 import { useConversationSocket } from '../hooks/use-conversation-socket';
+import { usePresenceSocket } from '../hooks/use-presence-socket';
+import { libellePresence } from '../utils/format-presence';
 import { otherParticipant } from '../utils/participants';
 
 import { CguGate } from './cgu-gate';
@@ -23,6 +26,7 @@ import { Composer, type QuickReply } from './composer';
 import { ConnectionStatus } from './connection-status';
 import { MessageLog } from './message-log';
 import { MessagingRefusal } from './messaging-refusal';
+import { PresenceTexte } from './presence';
 
 export type ConfessionNoticeProps = {
   bookingHref: string;
@@ -176,6 +180,9 @@ export const ConversationThread = ({
   const Heading = headingLevel;
   const peer = conversation.data ? otherParticipant(conversation.data, me.data?.id) : null;
   const peerName = peer?.full_name ?? 'votre correspondant';
+  // Présence de l'interlocuteur (décisions V2) : état initial par GET, puis la socket.
+  const presences = usePresence(peer ? [peer.id] : []);
+  usePresenceSocket(Boolean(peer));
 
   return (
     <section aria-labelledby="conversation-titre" className="flex h-full min-h-0 min-w-0 flex-col bg-paper">
@@ -192,6 +199,7 @@ export const ConversationThread = ({
             <Heading id="conversation-titre" className="m-0 truncate text-16 font-semibold text-ink">
               {peer ? peer.full_name : 'Conversation'}
             </Heading>
+            <PresenceTexte libelle={libellePresence(peer ? presences[peer.id] : undefined)} />
             <EncryptionLine />
           </div>
         </div>

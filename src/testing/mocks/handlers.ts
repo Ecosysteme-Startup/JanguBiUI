@@ -13,6 +13,7 @@ import { f8aHandlers } from '@/testing/mocks/handlers/f8a';
 import { f8bHandlers } from '@/testing/mocks/handlers/f8b';
 import { onboardingHandlers } from '@/testing/mocks/handlers/onboarding';
 import { paroissesHandlers } from '@/testing/mocks/handlers/paroisses';
+import { personnalisationHandlers } from '@/testing/mocks/handlers/personnalisation';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { shellHandlers } from '@/testing/mocks/handlers/shell';
 import { sonothequeHandlers } from '@/testing/mocks/handlers/sonotheque';
@@ -30,4 +31,6 @@ export const handlers: HttpHandler[] = [...f5bHandlers, ...shellHandlers, ...onb
   // Analyse des dons (paroisse, diocèse, plateforme).
   ...donsAnalyseHandlers,
   // Administration des comptes synchronisée avec Keycloak (/admin/).
-  ...adminComptesHandlers];
+  ...adminComptesHandlers,
+  // « Pour vous aujourd'hui », signaux de lecture, réglages, présence dans la messagerie.
+  ...personnalisationHandlers];

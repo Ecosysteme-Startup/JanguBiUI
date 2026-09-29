@@ -14,6 +14,7 @@ import { IdentitySection } from './identity-section';
 import { LifeStateSection } from './life-state-section';
 import { MesParoisses } from './mes-paroisses';
 import { NotificationSettingsSection } from './notification-settings-section';
+import { Personnalisation } from './personnalisation';
 import { DeleteAccountSection, PrivacySection } from './privacy-section';
 import { ProfileNav } from './profile-nav';
 import { SecuritySection } from './security-section';
@@ -71,6 +72,7 @@ export const ProfilePage = ({ accountUrl, onAccountDeleted = leaveAfterDeletion 
             </div>
           </SettingsCard>
           <NotificationSettingsSection />
+          <Personnalisation />
           <AppearanceSection />
           <SecuritySection accountUrl={accountUrl} />
           <PrivacySection me={me} />

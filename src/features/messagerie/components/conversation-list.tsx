@@ -1,11 +1,16 @@
 import NextLink from 'next/link';
 
 import { Avatar } from '@/components/ui/avatar';
+import type { Presence } from '@/stores/realtime-store';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 
+import { usePresence } from '../api/get-presence';
 import type { Conversation } from '../api/schemas';
+import { libellePresence } from '../utils/format-presence';
 import { otherParticipant, previewOf } from '../utils/participants';
+
+import { PastilleAvatar, PresenceTexte } from './presence';
 
 /** « 10:13 » aujourd'hui, « hier », puis « 2 août ». */
 export const whenOf = (iso: string | null | undefined, now = dayjs()) => {
@@ -22,12 +27,26 @@ const rowClass = (active: boolean) =>
     active ? 'bg-tint-50' : 'hover:bg-surface',
   );
 
-const RowContent = ({ conversation, meId, late }: { conversation: Conversation; meId: string | undefined; late: boolean }) => {
+const RowContent = ({
+  conversation,
+  meId,
+  late,
+  presence,
+}: {
+  conversation: Conversation;
+  meId: string | undefined;
+  late: boolean;
+  presence?: Presence;
+}) => {
   const peer = otherParticipant(conversation, meId);
   const unread = conversation.unread_count > 0;
+  const libelle = libellePresence(presence);
   return (
     <>
-      <Avatar name={peer.full_name} size={40} className="text-14" />
+      <span className="relative shrink-0">
+        <Avatar name={peer.full_name} size={40} className="text-14" />
+        <PastilleAvatar enLigne={libelle?.etat === 'en_ligne'} />
+      </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex items-center gap-2">
           <span className="min-w-0 flex-1 truncate text-15 font-semibold">{peer.full_name}</span>
@@ -42,6 +61,7 @@ const RowContent = ({ conversation, meId, late }: { conversation: Conversation; 
             </span>
           )}
         </span>
+        <PresenceTexte libelle={libelle} />
         <span className="line-clamp-2 text-14 text-ink-2">{previewOf(conversation, meId)}</span>
       </span>
     </>
@@ -61,12 +81,22 @@ type ConversationListProps = {
 };
 
 /** Lignes de conversation : interlocuteur, heure, non-lu, aperçu sur deux lignes (FID-Conversation, PAR-Messagerie). */
-export const ConversationList = ({ conversations, meId, hrefOf, onSelect, activeId, isLate, label }: ConversationListProps) => (
+export const ConversationList = ({ conversations, meId, hrefOf, onSelect, activeId, isLate, label }: ConversationListProps) => {
+  // Présence des interlocuteurs (« En ligne », « Vu hier à 21:05 ») ; rien si elle est masquée.
+  const presences = usePresence(conversations.map((c) => otherParticipant(c, meId).id));
+  return (
   <ul aria-label={label} className="m-0 flex list-none flex-col gap-0.5 p-0">
     {conversations.map((conversation) => {
       const active = conversation.id === activeId;
       const current = active ? 'true' : undefined;
-      const content = <RowContent conversation={conversation} meId={meId} late={isLate?.(conversation) ?? false} />;
+      const content = (
+        <RowContent
+          conversation={conversation}
+          meId={meId}
+          late={isLate?.(conversation) ?? false}
+          presence={presences[otherParticipant(conversation, meId).id]}
+        />
+      );
       return (
         <li key={conversation.id}>
           {hrefOf ? (
@@ -82,4 +112,5 @@ export const ConversationList = ({ conversations, meId, hrefOf, onSelect, active
       );
     })}
   </ul>
-);
+  );
+};

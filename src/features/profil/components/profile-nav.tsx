@@ -10,6 +10,7 @@ export const PROFILE_SECTIONS: { id: string; label: string; icon: IconName }[] =
   { id: 'compte', label: 'Compte', icon: 'profil' },
   { id: 'paroisse', label: 'Mes paroisses', icon: 'paroisse' },
   { id: 'notifications', label: 'Notifications', icon: 'cloche' },
+  { id: 'personnalisation', label: 'Personnalisation', icon: 'reglages' },
   { id: 'apparence', label: 'Apparence', icon: 'clair' },
   { id: 'securite', label: 'Sécurité et appareils', icon: 'bouclier' },
   { id: 'confidentialite', label: 'Confidentialité', icon: 'oeil' },

@@ -3,6 +3,7 @@ import { cleanup } from '@testing-library/react';
 
 import { a11yViolations } from '@/testing/a11y';
 import { resetDonsState } from '@/testing/mocks/db-dons';
+import { reinitialiserPersonnalisation } from '@/testing/mocks/handlers/personnalisation';
 import { server } from '@/testing/mocks/server';
 import { navigation } from '@/testing/navigation';
 
@@ -18,6 +19,7 @@ afterEach(async () => {
     cleanup();
     server.resetHandlers();
     resetDonsState();
+    reinitialiserPersonnalisation();
     navigation.pathname = '/';
     navigation.search = '';
   }

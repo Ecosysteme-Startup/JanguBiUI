@@ -1,7 +1,7 @@
 'use client';
 
 import NextLink from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button, buttonVariants } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -15,6 +15,7 @@ import { BookPanel } from '@/features/bible/components/book-panel';
 import { ChapterText, type Passage } from '@/features/bible/components/chapter-text';
 import { type TextSize, TextSizeButton } from '@/features/bible/components/text-size-button';
 import { chapterShortName, chapterTitle, findBook, neighbours, testamentOf } from '@/features/bible/utils/bible';
+import { signalerLecture } from '@/features/bible/utils/signaux-lecture';
 import { ApiError } from '@/lib/api-client';
 import { cn } from '@/utils/cn';
 
@@ -46,6 +47,15 @@ const ChapterArticle = ({ testaments, book, chapter, passage }: { testaments: Te
   const { prev, next } = neighbours(testaments, book, chapter);
   const testament = testamentOf(testaments, book);
   const count = verses.data?.length ?? 0;
+  // Signal de lecture (API-PAROLE-POUR-VOUS §1) : chapitre ouvert, une fois par chapitre ; il nourrit
+  // « Pour vous aujourd'hui » (rien n'est envoyé si la personnalisation est coupée).
+  const signale = useRef<string | null>(null);
+  useEffect(() => {
+    const cle = `${book.id}:${chapter}`;
+    if (!verses.isSuccess || signale.current === cle) return;
+    signale.current = cle;
+    signalerLecture({ type: 'lu', livre_id: book.id, chapitre: chapter, termine: false });
+  }, [verses.isSuccess, book.id, chapter]);
   return (
     <article aria-labelledby="bible-titre" aria-describedby="bible-versets">
       <div className="flex flex-wrap-reverse items-start justify-between gap-x-6 gap-y-2">
