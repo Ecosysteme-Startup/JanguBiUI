@@ -2,6 +2,7 @@ import type { HttpHandler } from 'msw';
 
 import { declarationHandlers } from '@/testing/mocks/handlers/declaration';
 import { donsHandlers } from '@/testing/mocks/handlers/dons';
+import { donsAnalyseHandlers } from '@/testing/mocks/handlers/dons-analyse';
 import { audioLecteurHandlers } from '@/testing/mocks/handlers/audio-lecteur';
 import { actesHandlers } from '@/testing/mocks/handlers/f6-actes';
 import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
@@ -24,4 +25,6 @@ export const handlers: HttpHandler[] = [...f5bHandlers, ...shellHandlers, ...onb
   // Sonothèque et lecteur audio global (fusion de main), paroisses multiples.
   ...audioLecteurHandlers, ...sonothequeHandlers, ...paroissesHandlers,
   // Compléments V1 : intentions de messe, recherche, comptes du clergé, tâches du jour, compteurs.
-  ...v1ComplementsHandlers];
+  ...v1ComplementsHandlers,
+  // Analyse des dons (paroisse, diocèse, plateforme).
+  ...donsAnalyseHandlers];

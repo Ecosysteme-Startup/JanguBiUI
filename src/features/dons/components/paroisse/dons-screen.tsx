@@ -190,6 +190,13 @@ export const DonsScreen = ({ nodeId }: { nodeId: string }) => {
                 router.replace(paths.espace.dons.root.getHref(nodeId, m))
               }
             />
+            <NextLink
+              href={paths.espace.dons.analyse.getHref(nodeId)}
+              className={cn(buttonVariants({ variant: 'outline' }), 'h-11 text-14')}
+            >
+              <Icon name="activite" size={18} className="text-ink-2" />
+              Analyse
+            </NextLink>
             {canManage && (
               <NextLink
                 href={paths.espace.dons.nouvelleCampagne.getHref(nodeId)}

@@ -148,6 +148,7 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
           { label: 'Nominations', href: e.nominations.getHref(nodeId), icon: 'utilisateur-ok', capacites: ['offices.nommer'] },
           { label: 'Clergé', href: e.clerge.getHref(nodeId), icon: 'utilisateurs', capacites: ['personnes.verifier'] },
           { label: 'Quêtes impérées', href: e.quetesImperees.getHref(nodeId), icon: 'don', capacites: ['dons.definir_quete_imperee'] },
+          { label: 'Dons', href: e.dons.analyse.getHref(nodeId), icon: 'activite', capacites: ['dons.voir_agregats'] },
         ],
       },
       {

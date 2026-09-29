@@ -132,6 +132,8 @@ export const paths = {
       quetes: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/quetes` },
       /** `section` : ancre de la page (« reversements »). */
       export: { getHref: (nodeId: string, section?: 'reversements') => `/espace/${enc(nodeId)}/dons/export${section ? `#${section}` : ''}` },
+      /** Analyse des dons : paroisse (dons.voir_fonds) ou agrégats du diocèse (dons.voir_agregats). */
+      analyse: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/dons/analyse` },
     },
     /** Intentions de messe reçues par la paroisse, et feuille du jour à imprimer pour la sacristie. */
     intentions: {
@@ -155,6 +157,8 @@ export const paths = {
     referentiels: { getHref: () => '/plateforme/referentiels' },
     comptes: { getHref: () => '/plateforme/comptes' },
     paiements: { getHref: () => '/plateforme/paiements' },
+    /** Activité des paiements (nombres, taux, délais ; aucun montant). */
+    activitePaiements: { getHref: () => '/plateforme/paiements/activite' },
     audit: { getHref: () => '/plateforme/audit' },
   },
 } as const;

@@ -1,13 +1,16 @@
 'use client';
 
+import NextLink from 'next/link';
 import type * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import { buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { PageHeader } from '@/components/ui/page-header';
 import { LoadingBlock } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
 import { cn } from '@/utils/cn';
 import { dayjs, fromNow, hour } from '@/utils/dates';
 
@@ -256,6 +259,11 @@ export const PaiementsPage = () => {
         compact
         title="Paiements"
         description={`Liaison avec l’agrégateur de paiement.${health.isSuccess ? ` Mis à jour à ${hour(health.dataUpdatedAt).replace(/ /g, NBSP)}.` : ''}`}
+        actions={
+          <NextLink href={paths.plateforme.activitePaiements.getHref()} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+            Activité des paiements
+          </NextLink>
+        }
       />
       {health.isPending ? (
         <Card className="mt-8">

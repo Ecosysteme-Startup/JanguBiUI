@@ -4,6 +4,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Palette données des tableaux de bord des dons (spec 03-dataviz §1, décisions
+   du 27/09). Réservée aux marques de graphique : jamais en couleur de texte.
+   Ordre fixe des fonds : 1 dominicale, 2 impérée, 3 campagnes, 4 contribution,
+   5 autres. Valeurs sombres = sortie de build_dark.py (spec §1.2-§1.3). */
+:root {
+  --dv-fonds-1: #0a6ba3;
+  --dv-fonds-2: #9a6700;
+  --dv-fonds-3: #9978cf;
+  --dv-fonds-4: #b0552c;
+  --dv-fonds-5: #8391a4;
+  --dv-barre: #3fa3dd;
+  --dv-ligne: #0a6ba3;
+  --dv-colonne: #0a6ba3;
+  --dv-comparaison: #8391a4;
+  --dv-grille: #dde5ee;
+  --dv-base: #8391a4;
+  --dv-piste: #edf3f9;
+  --dv-seq-0: #edf3f9;
+  --dv-seq-1: #d9ebf7;
+  --dv-seq-2: #b3d8f0;
+  --dv-seq-3: #3fa3dd;
+  --dv-seq-4: #0a6ba3;
+  --dv-statut-ok: #1f6b5c;
+  --dv-statut-attente: #b7801f;
+  --dv-statut-echec: #a12a22;
+  --dv-statut-expire: #8391a4;
+}
+
+.dark {
+  --dv-fonds-1: #0a6ba3;
+  --dv-fonds-2: #b48226;
+  --dv-fonds-3: #9f82d2;
+  --dv-fonds-4: #c26a42;
+  --dv-fonds-5: #5f7085;
+  --dv-barre: #3fa3dd;
+  --dv-ligne: #7cc3ee;
+  --dv-colonne: #0a6ba3;
+  --dv-comparaison: #5f7085;
+  --dv-grille: #243142;
+  --dv-base: #5f7085;
+  --dv-piste: #1a2633;
+  --dv-seq-0: #16212d;
+  --dv-seq-1: #13304a;
+  --dv-seq-2: #26618f;
+  --dv-seq-3: #3fa3dd;
+  --dv-seq-4: #7cc3ee;
+  --dv-statut-ok: #3e9e88;
+  --dv-statut-attente: #d49b36;
+  --dv-statut-echec: #b8392f;
+  --dv-statut-expire: #5f7085;
+}
+
 @layer base {
   html {
     background: var(--jb-paper);
