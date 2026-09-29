@@ -22,10 +22,14 @@ import {
 } from '@/components/org/parish-picker';
 import { Button } from '@/components/ui/button/button';
 import { Card } from '@/components/ui/card/card';
+import { paths } from '@/config/paths';
+import { ApiError } from '@/lib/api-client';
 import { useUser } from '@/lib/auth';
 
 import { CreateDocumentInput, useCreateDocument } from '../api/create-document';
+import { useDocumentOptions } from '../api/get-document-options';
 import { useUploadDocumentFile } from '../api/upload-document-file';
+import type { DocumentOptions } from '../types';
 
 // ── File upload constants ────────────────────────────────────────────────────
 
@@ -40,8 +44,11 @@ const DOCUMENT_TYPES = [
   { value: 'confirmation', label: 'Attestation de confirmation' },
   { value: 'religious_marriage', label: 'Attestation de mariage religieux' },
   { value: 'godparent', label: 'Attestation parrain / marraine' },
+  { value: 'other', label: 'Autre document' },
 ];
 
+// Repli si /documents/requests/options/ est indisponible ; sinon les libellés
+// et les motifs permis par type viennent du backend (reason_not_allowed).
 const REQUEST_REASONS = [
   { value: 'religious_marriage', label: 'Mariage religieux' },
   { value: 'godparent', label: 'Parrain / marraine' },
@@ -50,6 +57,38 @@ const REQUEST_REASONS = [
   { value: 'personal', label: 'Usage personnel' },
   { value: 'other', label: 'Autre' },
 ];
+
+const reasonAllowed = (
+  options: DocumentOptions | undefined,
+  documentType: string,
+  reason: string,
+): boolean => {
+  const t = options?.document_types.find((d) => d.value === documentType);
+  return (
+    !t || t.allowed_reasons.length === 0 || t.allowed_reasons.includes(reason)
+  );
+};
+
+/** Refus du backend (codes V1 de apps/documents) → message sobre. */
+const messageCreation = (err: unknown): string => {
+  const code = err instanceof ApiError ? err.code : null;
+  switch (code) {
+    case 'reason_not_allowed':
+    case 'details_missing':
+    case 'document_type_free_required':
+    case 'reason_free_required':
+      return (err as ApiError).message;
+    case 'not_a_parish':
+      return 'Choisissez la paroisse où le sacrement a été célébré.';
+    case 'consent_required':
+      return 'Le consentement est nécessaire pour transmettre la demande.';
+    case 'file_incomplete':
+    case 'file_not_found':
+      return 'La pièce jointe n’a pas fini d’être envoyée. Réessayez.';
+    default:
+      return 'La demande n’a pas pu être envoyée. Réessayez dans quelques instants.';
+  }
+};
 
 const inputClass =
   'w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary';
@@ -63,6 +102,7 @@ const schema = z
     document_type: z
       .string()
       .min(1, 'Veuillez sélectionner un type de document'),
+    document_type_free: z.string().optional(),
     reason: z.string().min(1, 'Veuillez sélectionner un motif'),
     reason_free: z.string().optional(),
     requester_first_names: z.string().min(1, 'Prénom(s) requis'),
@@ -71,15 +111,10 @@ const schema = z
     place_of_birth: z.string().min(1, 'Lieu de naissance requis'),
     father_last_name: z.string().min(1, 'Nom du père requis'),
     mother_last_name: z.string().min(1, 'Nom de la mère requis'),
-    // Paroisse du registre choisie via le picker (FK). parish_name/diocese sont
-    // dérivés de la paroisse sélectionnée et envoyés au back (validation).
-    parish_id: z
-      .number({
-        required_error: 'Paroisse requise',
-        invalid_type_error: 'Paroisse requise',
-      })
-      .int()
-      .positive('Paroisse requise'),
+    // Paroisse du registre (UUID du nœud, RG-02) choisie via le picker.
+    target_node_id: z
+      .string({ required_error: 'Paroisse requise' })
+      .min(1, 'Paroisse requise'),
     sacrament_approximate_date: z.string().min(1, 'Date approximative requise'),
     sacrament_location: z.string().min(1, 'Lieu du sacrement requis'),
     additional_info: z.string().optional(),
@@ -95,6 +130,20 @@ const schema = z
     celebration_type: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.document_type === 'other' && !data.document_type_free?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Précisez le document demandé',
+        path: ['document_type_free'],
+      });
+    }
+    if (data.reason === 'other' && !data.reason_free?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Précisez le motif',
+        path: ['reason_free'],
+      });
+    }
     if (data.document_type === 'religious_marriage') {
       if (!data.spouse_full_name_groom?.trim()) {
         ctx.addIssue({
@@ -153,7 +202,7 @@ const STEP_LABELS: Record<Step, string> = {
 };
 
 const STEP_FIELDS: Record<Step, (keyof FormValues)[]> = {
-  type: ['document_type', 'reason'],
+  type: ['document_type', 'document_type_free', 'reason', 'reason_free'],
   identity: [
     'requester_first_names',
     'requester_last_name',
@@ -163,7 +212,7 @@ const STEP_FIELDS: Record<Step, (keyof FormValues)[]> = {
   search: [
     'father_last_name',
     'mother_last_name',
-    'parish_id',
+    'target_node_id',
     'sacrament_approximate_date',
     'sacrament_location',
     'spouse_full_name_groom',
@@ -338,6 +387,7 @@ export function NewDocumentForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       document_type: '',
+      document_type_free: '',
       reason: '',
       reason_free: '',
       requester_first_names: user?.profile?.first_name ?? '',
@@ -346,7 +396,7 @@ export function NewDocumentForm() {
       place_of_birth: '',
       father_last_name: '',
       mother_last_name: '',
-      parish_id: undefined,
+      target_node_id: '',
       sacrament_approximate_date: '',
       sacrament_location: '',
       additional_info: '',
@@ -360,8 +410,13 @@ export function NewDocumentForm() {
     },
   });
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { data: options } = useDocumentOptions();
+  const typeOptions =
+    options?.document_types.map((t) => ({ value: t.value, label: t.label })) ??
+    DOCUMENT_TYPES;
   const { mutate, isPending } = useCreateDocument({
-    onSuccess: () => router.push('/app/documents'),
+    onSuccess: (created) => router.push(paths.app.document.getHref(created.id)),
   });
 
   const { mutate: uploadFile, isPending: isUploading } =
@@ -407,11 +462,9 @@ export function NewDocumentForm() {
 
   function handlePickParish(parish: PickedParish | null) {
     setPickedParish(parish);
-    setValue(
-      'parish_id',
-      parish ? parish.id : (undefined as unknown as number),
-      { shouldValidate: true },
-    );
+    setValue('target_node_id', parish ? parish.id : '', {
+      shouldValidate: true,
+    });
   }
 
   function buildDocumentDetails(
@@ -434,7 +487,12 @@ export function NewDocumentForm() {
   function onSubmit(values: FormValues) {
     if (!values.consent_given) return;
     const payload: CreateDocumentInput = {
+      target_node_id: values.target_node_id,
       document_type: values.document_type,
+      document_type_free:
+        values.document_type === 'other'
+          ? values.document_type_free?.trim()
+          : undefined,
       reason: values.reason,
       reason_free: values.reason_free || undefined,
       requester_last_name: values.requester_last_name,
@@ -445,8 +503,6 @@ export function NewDocumentForm() {
       contact_email: values.contact_email,
       father_last_name: values.father_last_name,
       mother_last_name: values.mother_last_name,
-      // Paroisse du registre : FK seule (B5c). Le back dérive nom + diocèse.
-      parish_id: values.parish_id,
       sacrament_approximate_date: values.sacrament_approximate_date,
       sacrament_location: values.sacrament_location,
       additional_info: values.additional_info || undefined,
@@ -454,7 +510,10 @@ export function NewDocumentForm() {
       attachment_file_id: values.attachment_file_id ?? null,
       consent_given: true,
     };
-    mutate(payload);
+    setSubmitError(null);
+    mutate(payload, {
+      onError: (err) => setSubmitError(messageCreation(err)),
+    });
   }
 
   const watchedDocumentType = watch('document_type');
@@ -508,10 +567,33 @@ export function NewDocumentForm() {
                   Type de document <span className="text-destructive">*</span>
                 </p>
                 <SelectCard
-                  options={DOCUMENT_TYPES}
+                  options={typeOptions}
                   value={watchedDocumentType}
-                  onChange={(v) => setValue('document_type', v)}
+                  onChange={(v) => {
+                    setValue('document_type', v);
+                    // Un motif non permis pour ce type est effacé.
+                    if (!reasonAllowed(options, v, watchedReason)) {
+                      setValue('reason', '');
+                    }
+                  }}
                 />
+                {watchedDocumentType === 'other' && (
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="document_type_free" className={labelClass}>
+                      Précisez le document demandé
+                    </label>
+                    <input
+                      id="document_type_free"
+                      className={inputClass}
+                      {...register('document_type_free')}
+                    />
+                    {errors.document_type_free && (
+                      <p className={errorClass} role="alert">
+                        {errors.document_type_free.message}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {errors.document_type && (
                   <p className={errorClass} role="alert">
                     {errors.document_type.message}
@@ -524,7 +606,9 @@ export function NewDocumentForm() {
                   <span className="text-destructive">*</span>
                 </p>
                 <SelectCard
-                  options={REQUEST_REASONS}
+                  options={(options?.reasons ?? REQUEST_REASONS).filter((r) =>
+                    reasonAllowed(options, watchedDocumentType, r.value),
+                  )}
                   value={watchedReason}
                   onChange={(v) => setValue('reason', v)}
                 />
@@ -544,6 +628,11 @@ export function NewDocumentForm() {
                     className={inputClass}
                     {...register('reason_free')}
                   />
+                  {errors.reason_free && (
+                    <p className={errorClass} role="alert">
+                      {errors.reason_free.message}
+                    </p>
+                  )}
                 </div>
               )}
             </>
@@ -670,9 +759,9 @@ export function NewDocumentForm() {
                   value={pickedParish}
                   onChange={handlePickParish}
                 />
-                {errors.parish_id && (
+                {errors.target_node_id && (
                   <p className={errorClass} role="alert">
-                    {errors.parish_id.message}
+                    {errors.target_node_id.message}
                   </p>
                 )}
               </div>
@@ -850,9 +939,8 @@ export function NewDocumentForm() {
                     <dt className="text-muted-foreground">Document</dt>
                     <dd className="font-medium text-foreground">
                       {
-                        DOCUMENT_TYPES.find(
-                          (d) => d.value === watchedDocumentType,
-                        )?.label
+                        typeOptions.find((d) => d.value === watchedDocumentType)
+                          ?.label
                       }
                     </dd>
                   </div>
@@ -860,8 +948,9 @@ export function NewDocumentForm() {
                     <dt className="text-muted-foreground">Motif</dt>
                     <dd className="font-medium text-foreground">
                       {
-                        REQUEST_REASONS.find((r) => r.value === watchedReason)
-                          ?.label
+                        (options?.reasons ?? REQUEST_REASONS).find(
+                          (r) => r.value === watchedReason,
+                        )?.label
                       }
                     </dd>
                   </div>
@@ -905,6 +994,11 @@ export function NewDocumentForm() {
               {errors.consent_given && (
                 <p className={errorClass} role="alert">
                   {errors.consent_given.message}
+                </p>
+              )}
+              {submitError && (
+                <p className={errorClass} role="alert">
+                  {submitError}
                 </p>
               )}
             </>

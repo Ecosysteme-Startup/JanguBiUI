@@ -8,6 +8,7 @@ export const readingPlanSchema = z.object({
   title: z.string(),
   description: z.string(),
   is_published: z.boolean(),
+  is_subscribed: z.boolean().default(false),
   author_email: z.string().email().nullable().optional(),
   created_at: z.string(),
 });

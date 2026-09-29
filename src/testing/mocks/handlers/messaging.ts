@@ -3,6 +3,8 @@ import { HttpResponse, http } from 'msw';
 import { env } from '@/config/env';
 import { createConversation, createMessage } from '@/testing/data-generators';
 
+import { PAROISSES } from './paroisses';
+
 const mockConversations = [
   createConversation({
     id: 'conv-1',
@@ -55,6 +57,51 @@ const mockMessages: Record<string, ReturnType<typeof createMessage>[]> = {
     }),
   ],
 };
+
+// Prêtres joignables (ReachablePriestOutput) — paroisses du fidèle.
+export const mockPriests = [
+  {
+    user_id: 'user-priest',
+    full_name: 'Emmanuel Tine',
+    nodes: [
+      {
+        id: PAROISSES.saintDominique.id,
+        name: PAROISSES.saintDominique.name,
+        type: 'paroisse',
+      },
+    ],
+    availability: null,
+    office: { code: 'cure', label: 'Curé' },
+  },
+  {
+    user_id: 'user-vicaire',
+    full_name: 'Paul Diouf',
+    nodes: [
+      {
+        id: PAROISSES.saintDominique.id,
+        name: PAROISSES.saintDominique.name,
+        type: 'paroisse',
+      },
+    ],
+    availability: {
+      accepts_new_conversations: false,
+      absent_until: '2026-10-12',
+      reply_windows: [],
+      note: 'En retraite jusqu’au 12 octobre.',
+    },
+    office: { code: 'vicaire_paroissial', label: 'Vicaire paroissial' },
+  },
+];
+
+// CGU de messagerie (globales) : acceptées par défaut dans les mocks.
+let cguAcceptees = true;
+export const setCguMessagerie = (accepted: boolean) => {
+  cguAcceptees = accepted;
+};
+const cguJson = () => ({
+  accepted: cguAcceptees,
+  accepted_at: cguAcceptees ? '2026-09-03T10:00:00Z' : null,
+});
 
 // Présence (TEMPS-REEL §2, maquettes C3) : seuls les interlocuteurs dont la
 // présence est visible figurent dans la réponse ; « vu à » du jour même.
@@ -143,6 +190,19 @@ export const messagingHandlers = [
       montrer_presence: body.montrer_presence,
     };
     return HttpResponse.json(reglagePresenceJson());
+  }),
+
+  http.get(`${env.API_URL}/v1/messaging/priests/`, () =>
+    HttpResponse.json(mockPriests),
+  ),
+
+  http.get(`${env.API_URL}/v1/messaging/cgu/`, () =>
+    HttpResponse.json(cguJson()),
+  ),
+
+  http.post(`${env.API_URL}/v1/messaging/cgu/`, () => {
+    cguAcceptees = true;
+    return HttpResponse.json(cguJson());
   }),
 
   // Backend returns a flat array, not { count, results }

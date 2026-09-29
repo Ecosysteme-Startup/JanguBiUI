@@ -114,7 +114,7 @@ export function ClericalComposeForm({
             { label: '— Choisir un prêtre —', value: '' },
             ...priests.map((priest) => ({
               label: priest.full_name,
-              value: priest.id,
+              value: priest.user_id,
             })),
           ]}
         />

@@ -61,6 +61,7 @@ export interface UserProfile {
   last_name: string;
   title?: string;
   phone?: string;
+  date_of_birth?: string;
   // /me renvoie la paroisse principale en {id, name} | null (et non un id brut).
   primary_parish?: OrgRef | null;
   avatar?: string | null;
@@ -226,6 +227,7 @@ export const userFromMe = (
       last_name: me.profile.last_name,
       title: me.profile.title ?? undefined,
       phone: me.profile.phone ?? undefined,
+      date_of_birth: me.profile.date_of_birth ?? undefined,
       primary_parish: null,
       avatar: null,
     },

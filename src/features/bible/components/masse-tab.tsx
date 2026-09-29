@@ -45,6 +45,10 @@ export function MasseTab() {
       </div>
 
       <ReadingsSwiper readings={readings} fontSize={fontSize} />
+
+      {readings.length > 0 && data?.notice && (
+        <p className="px-4 pb-4 text-xs text-muted-foreground">{data.notice}</p>
+      )}
     </div>
   );
 }

@@ -4,9 +4,10 @@ import { useState } from 'react';
 
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import { Button } from '@/components/ui/button/button';
 import { Card } from '@/components/ui/card/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useEvents } from '@/features/agenda/api/get-events';
+import { useInfiniteEvents } from '@/features/agenda/api/get-events';
 import { EventCard } from '@/features/agenda/components/event-card';
 import { cn } from '@/lib/utils';
 
@@ -21,9 +22,15 @@ const EVENT_TYPE_FILTERS = [
 
 export default function AgendaPage() {
   const [selectedType, setSelectedType] = useState('');
-  const { data, isLoading } = useEvents(
-    selectedType ? { event_type: selectedType } : undefined,
-  );
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteEvents(selectedType ? { type: selectedType } : {});
+  const events = data?.pages.flatMap((p) => p.results) ?? [];
 
   useRegisterPageMeta({
     title: 'Agenda',
@@ -64,7 +71,16 @@ export default function AgendaPage() {
           </div>
         )}
 
-        {!isLoading && data?.results.length === 0 && (
+        {isError && (
+          <p
+            role="alert"
+            className="py-16 text-center text-sm text-muted-foreground"
+          >
+            L’agenda n’a pas pu être chargé. Réessayez dans quelques instants.
+          </p>
+        )}
+
+        {!isLoading && !isError && events.length === 0 && (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <p className="text-sm text-muted-foreground">
               Aucun événement à venir.
@@ -72,11 +88,21 @@ export default function AgendaPage() {
           </div>
         )}
 
-        {!isLoading && data && data.results.length > 0 && (
+        {events.length > 0 && (
           <div className="space-y-4">
-            {data.results.map((event) => (
+            {events.map((event) => (
               <EventCard key={event.id} event={event} />
             ))}
+            {hasNextPage && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => void fetchNextPage()}
+                isLoading={isFetchingNextPage}
+              >
+                Voir plus d’événements
+              </Button>
+            )}
           </div>
         )}
       </ContentContainer>

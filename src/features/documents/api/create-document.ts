@@ -2,10 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
 
-import { DocumentRequest, documentRequestSchema } from '../types';
+import { type RequesterRequest, requesterRequestSchema } from '../types';
 
 export type CreateDocumentInput = {
+  /** Paroisse où le sacrement a été célébré (UUID du nœud, RG-02). */
+  target_node_id: string;
   document_type: string;
+  document_type_free?: string;
   reason: string;
   reason_free?: string;
   // Identité
@@ -21,33 +24,33 @@ export type CreateDocumentInput = {
   registered_first_names?: string;
   father_last_name: string;
   mother_last_name: string;
-  // Paroisse du registre : FK choisie via le picker (B5c). Le back exige parish_id
-  // et dérive nom + diocèse depuis la FK. parish_name/diocese ne sont plus envoyés.
-  parish_id: number;
   sacrament_approximate_date: string;
   sacrament_location: string;
   additional_info?: string;
   document_details?: Record<string, string>;
+  pickup_mode?: 'secretariat' | 'transfer_to_followed_parish';
   consent_given: boolean;
   attachment_file_id?: number | null;
 };
 
 export const createDocumentRequest = (
   data: CreateDocumentInput,
-): Promise<DocumentRequest> =>
+): Promise<RequesterRequest> =>
   api
-    .post<unknown>('/v1/documents/requests/', data)
-    .then((res) => documentRequestSchema.parse(res));
+    .post<unknown>('/v1/documents/requests/', data, { quiet: true })
+    .then((res) => requesterRequestSchema.parse(res));
 
 export const useCreateDocument = ({
   onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+}: { onSuccess?: (created: RequesterRequest) => void } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createDocumentRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['documents', 'requests'] });
-      onSuccess?.();
+    onSuccess: (created) => {
+      void queryClient.invalidateQueries({
+        queryKey: ['documents', 'requests'],
+      });
+      onSuccess?.(created);
     },
   });
 };

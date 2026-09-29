@@ -8,7 +8,7 @@ import { eventSchema, type Event } from './get-events';
 // le schéma de get-events plutôt que d'en dupliquer un.
 export const getEvent = (eventId: number): Promise<Event> =>
   api
-    .get<unknown>(`/v1/agenda/events/${eventId}/`)
+    .get<unknown>(`/v1/agenda/${eventId}/`)
     .then((data) => eventSchema.parse(data));
 
 export const getEventQueryOptions = (eventId: number, enabled = true) =>

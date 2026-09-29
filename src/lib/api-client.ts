@@ -129,6 +129,8 @@ type RequestOptions = {
   next?: NextFetchRequestConfig;
   /** Pas de notification en cas d'erreur (l'appelant gère l'état). */
   quiet?: boolean;
+  /** `blob` : corps binaire (reçu PDF, export) au lieu de JSON. */
+  responseType?: 'json' | 'blob';
 };
 
 function buildUrlWithParams(
@@ -217,6 +219,8 @@ export async function readApiError(response: Response): Promise<ApiError> {
     | undefined;
   const message =
     (typeof v1?.message === 'string' ? v1.message : undefined) ||
+    // Quelques vues renvoient encore `{"error": "texte"}` (ex. /rosary/today/).
+    (typeof body.error === 'string' ? body.error : undefined) ||
     (typeof body.detail === 'string' ? body.detail : undefined) ||
     (typeof body.message === 'string' ? body.message : undefined) ||
     response.statusText ||
@@ -241,6 +245,7 @@ async function fetchApi<T>(
     cache = 'no-store',
     next,
     quiet = false,
+    responseType = 'json',
   } = options;
 
   // Get cookies from the request when running on server
@@ -301,6 +306,7 @@ async function fetchApi<T>(
     return null as T;
   }
 
+  if (responseType === 'blob') return (await response.blob()) as T;
   return response.json();
 }
 
@@ -320,4 +326,25 @@ export const api = {
   delete<T>(url: string, options?: RequestOptions): Promise<T> {
     return fetchApi<T>(url, { ...options, method: 'DELETE' });
   },
+  /** GET authentifié d'un fichier (reçu PDF, export) : renvoie le Blob. */
+  blob(url: string, options?: RequestOptions): Promise<Blob> {
+    return fetchApi<Blob>(url, {
+      ...options,
+      headers: { Accept: '*/*', ...options?.headers },
+      method: 'GET',
+      responseType: 'blob',
+    });
+  },
 };
+
+/** Propose au navigateur d'enregistrer un Blob sous `filename`. */
+export function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

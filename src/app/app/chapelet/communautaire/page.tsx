@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 
+import { FeatureGate } from '@/components/feature-gate';
 import { ContentContainer } from '@/components/layouts/content-container';
 import { useRegisterPageMeta } from '@/components/layouts/page-meta';
+import { FEATURES } from '@/config/features';
 import type { CommunityRosary } from '@/features/chapelet/api/get-community-rosaries';
 import { CommunityRosaryList } from '@/features/chapelet/components/community-rosary-list';
 
-export default function CommunautairePage() {
+function CommunautaireContent() {
   const [joined, setJoined] = useState<CommunityRosary | null>(null);
 
   useRegisterPageMeta({
@@ -42,5 +44,18 @@ export default function CommunautairePage() {
         </ContentContainer>
       )}
     </div>
+  );
+}
+
+/** Chapelet communautaire : `/v1/rosary/community/` gelé en V1 (ADR-006). */
+export default function CommunautairePage() {
+  return (
+    <FeatureGate
+      feature={FEATURES.chapeletCommunautaire}
+      title="Chapelet communautaire"
+      back={{ href: '/app/chapelet', label: 'Revenir au chapelet' }}
+    >
+      <CommunautaireContent />
+    </FeatureGate>
   );
 }

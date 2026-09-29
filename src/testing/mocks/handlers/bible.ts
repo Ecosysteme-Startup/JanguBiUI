@@ -1,33 +1,39 @@
 import { HttpResponse, http } from 'msw';
 
 import { env } from '@/config/env';
+import { page } from '@/lib/pagination';
 import {
   createLiturgyDay,
   createRosaryDay,
   createRosaryGroup,
 } from '@/testing/data-generators';
 
+// Jour liturgique V1 (source AELF) : dimanche 27 septembre 2026.
 const mockLiturgyDay = createLiturgyDay({
-  date: new Date().toISOString().split('T')[0],
-  season: 'Temps ordinaire',
   readings: [
     {
-      id: 'reading-1',
-      type: 'Première Lecture',
-      citation: 'Is 55, 10-11',
-      text: "<p>Comme la pluie et la neige descendent des cieux et n'y retournent pas sans avoir abreuvé la terre.</p>",
+      type: 'lecture_1',
+      citation: 'Ez 18, 25-28',
+      text: '<p>Si le méchant se détourne de sa méchanceté pour pratiquer le droit et la justice, il sauvera sa vie.</p>',
+      verses: [],
     },
     {
-      id: 'reading-2',
-      type: 'Psaume',
-      citation: 'Ps 33',
-      text: '<p>Goûtez et voyez comme est bon le Seigneur.</p>',
+      type: 'psaume',
+      citation: 'Ps 24',
+      text: '<p>Rappelle-toi, Seigneur, ta tendresse.</p>',
+      verses: [],
     },
     {
-      id: 'reading-3',
-      type: 'Évangile',
-      citation: 'Mt 6, 7-15',
-      text: '<p>Voici comment vous devez prier : Notre Père qui es aux cieux...</p>',
+      type: 'lecture_2',
+      citation: 'Ph 2, 1-11',
+      text: '<p>Ayez entre vous les dispositions que l’on doit avoir dans le Christ Jésus.</p>',
+      verses: [],
+    },
+    {
+      type: 'evangile',
+      citation: 'Mt 21, 28-32',
+      text: '<p>Un homme avait deux fils. Il vint trouver le premier et lui dit : « Mon enfant, va travailler aujourd’hui à la vigne. »</p>',
+      verses: [],
     },
   ],
 });
@@ -260,14 +266,18 @@ export const bibleHandlers = [
   http.get(
     `${env.API_URL}/v1/bible/books/:id/chapters/:chapitre/verses/`,
     ({ params }) => {
+      // Page V1 (limit 200 = un chapitre entier).
       if (params.id !== '49' || params.chapitre !== '9')
-        return HttpResponse.json([]);
+        return HttpResponse.json(page([], { limit: 200 }));
       return HttpResponse.json(
-        LUC_9.map(([numero, texte]) => ({
-          id: 25870 + numero,
-          number: numero,
-          text: texte,
-        })),
+        page(
+          LUC_9.map(([numero, texte]) => ({
+            id: 25870 + numero,
+            number: numero,
+            text: texte,
+          })),
+          { limit: 200 },
+        ),
       );
     },
   ),
@@ -284,19 +294,49 @@ export const bibleHandlers = [
     return HttpResponse.json(mockLiturgyDay);
   }),
 
+  // GET /v1/liturgy/<AAAA-MM-JJ>/ (même format, autre date).
+  http.get(`${env.API_URL}/v1/liturgy/:day/`, ({ params }) => {
+    const day = String(params.day);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+    return HttpResponse.json(
+      createLiturgyDay({
+        ...mockLiturgyDay,
+        date: day,
+        calendar: { ...mockLiturgyDay.calendar, date: day },
+      }),
+    );
+  }),
+
   http.get(`${env.API_URL}/v1/rosary/today/`, () => {
     return HttpResponse.json(mockRosaryToday);
   }),
 
   http.get(`${env.API_URL}/v1/rosary/groups/`, () => {
-    return HttpResponse.json({ results: mockRosaryGroups });
+    // Liste nue (GroupSerializer many=True).
+    return HttpResponse.json(mockRosaryGroups);
   }),
 
   http.get(`${env.API_URL}/v1/bible/books/`, ({ request }) => {
     const testament = new URL(request.url).searchParams.get('testament');
     const ancien = [
-      { id: 1, name: 'Genèse', slug: 'gn', testament: 1, chapters_count: 50 },
-      { id: 2, name: 'Exode', slug: 'ex', testament: 1, chapters_count: 40 },
+      {
+        id: 1,
+        name: 'Genèse',
+        slug: 'genese',
+        order: 1,
+        testament: 'ancien',
+        verse_count: 1533,
+        chapter_count: 50,
+      },
+      {
+        id: 2,
+        name: 'Exode',
+        slug: 'exode',
+        order: 2,
+        testament: 'ancien',
+        verse_count: 1213,
+        chapter_count: 40,
+      },
     ];
     const results =
       testament === 'nouveau'
@@ -304,24 +344,19 @@ export const bibleHandlers = [
         : testament
           ? ancien
           : [...ancien, ...LIVRES_NT];
-    return HttpResponse.json({ count: results.length, results });
+    return HttpResponse.json(page(results, { limit: 50 }));
   }),
 
+  // Liste NUE (pas de pagination) : TestamentWithBooksOutput.
   http.get(`${env.API_URL}/v1/bible/testaments/`, () => {
-    return HttpResponse.json({
-      count: 2,
-      results: [
-        { id: 1, name: 'Ancien Testament' },
-        { id: 2, name: 'Nouveau Testament' },
-      ],
-    });
+    return HttpResponse.json([
+      { slug: 'ancien', name: 'Ancien Testament', order: 1, books: [] },
+      { slug: 'nouveau', name: 'Nouveau Testament', order: 2, books: [] },
+    ]);
   }),
 
-  http.get(`${env.API_URL}/v1/bible/verses/`, () => {
-    return HttpResponse.json({ count: 0, results: [] });
-  }),
-
+  // Liste NUE de groupes par livre : SearchBookGroupOutput.
   http.get(`${env.API_URL}/v1/bible/search/`, () => {
-    return HttpResponse.json({ results: [] });
+    return HttpResponse.json([]);
   }),
 ];

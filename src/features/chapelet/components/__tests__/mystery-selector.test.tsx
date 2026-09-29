@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { createRosaryGroup } from '@/testing/data-generators';
+import { createMysteries, createRosaryGroup } from '@/testing/data-generators';
 
 import { MysterySelector } from '../mystery-selector';
 
@@ -9,26 +9,46 @@ const mockGroups = [
   createRosaryGroup({
     id: 1,
     name: 'Joyeux',
-    mysteries:
-      "L'Annonciation\nLa Visitation\nLa Nativité\nLa Présentation\nLe Recouvrement",
+    mysteries: createMysteries([
+      "L'Annonciation",
+      'La Visitation',
+      'La Nativité',
+      'La Présentation',
+      'Le Recouvrement',
+    ]),
   }),
   createRosaryGroup({
     id: 2,
     name: 'Lumineux',
-    mysteries:
-      "Le Baptême\nLes Noces\nL'Annonce\nLa Transfiguration\nL'Institution",
+    mysteries: createMysteries([
+      'Le Baptême',
+      'Les Noces',
+      "L'Annonce",
+      'La Transfiguration',
+      "L'Institution",
+    ]),
   }),
   createRosaryGroup({
     id: 3,
     name: 'Douloureux',
-    mysteries:
-      "L'Agonie\nLa Flagellation\nLe Couronnement\nLe Portement\nLa Crucifixion",
+    mysteries: createMysteries([
+      "L'Agonie",
+      'La Flagellation',
+      'Le Couronnement',
+      'Le Portement',
+      'La Crucifixion',
+    ]),
   }),
   createRosaryGroup({
     id: 4,
     name: 'Glorieux',
-    mysteries:
-      "La Résurrection\nL'Ascension\nLa Pentecôte\nL'Assomption\nLe Couronnement de Marie",
+    mysteries: createMysteries([
+      'La Résurrection',
+      "L'Ascension",
+      'La Pentecôte',
+      "L'Assomption",
+      'Le Couronnement de Marie',
+    ]),
   }),
 ];
 
@@ -94,7 +114,7 @@ describe('MysterySelector', () => {
     expect(screen.getByText(/aujourd'hui/i)).toBeInTheDocument();
   });
 
-  test('displays individual mysteries list when mysteries string is parseable', () => {
+  test('displays individual mysteries list in order', () => {
     render(<MysterySelector {...defaultProps} />);
 
     expect(screen.getByText("L'Annonciation")).toBeInTheDocument();
@@ -103,7 +123,7 @@ describe('MysterySelector', () => {
   });
 
   test('does not show audio player when audio file is empty', () => {
-    const groupWithoutAudio = { ...mockGroups[0], audio_file: '' };
+    const groupWithoutAudio = { ...mockGroups[0], audio_file: null };
     render(
       <MysterySelector {...defaultProps} selectedGroup={groupWithoutAudio} />,
     );
@@ -123,6 +143,8 @@ describe('MysterySelector', () => {
     );
 
     // AudioPlayer renders a play button when audio is available
-    expect(screen.getByRole('button', { name: /lecture/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /lecture/i }),
+    ).toBeInTheDocument();
   });
 });

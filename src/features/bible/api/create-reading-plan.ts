@@ -8,8 +8,6 @@ import type { ReadingPlan } from './get-reading-plans';
 export type CreateReadingPlanInput = {
   title: string;
   description: string;
-  duration_days: number;
-  is_published: boolean;
 };
 
 export const useCreateReadingPlan = ({

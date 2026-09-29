@@ -11,24 +11,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/dropdown';
 import {
+  useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
 } from '@/hooks/use-notifications';
 import type { Notification } from '@/hooks/use-notifications';
 import { cn } from '@/lib/utils';
 
+// Types émis par le backend (apps/*/services : notification_send).
 const EVENT_LABELS: Record<string, string> = {
   new_message: 'Nouveau message reçu',
+  'message.received': 'Nouveau message reçu',
   'conversation.purge_upcoming': 'Conversation bientôt supprimée',
-  document_status_changed: 'Statut de document mis à jour',
-  document_info_requested: 'Informations demandées sur un document',
-  document_validated: 'Document validé',
-  document_rejected: 'Document rejeté',
-  document_deposited: 'Document déposé',
+  'documents.status': 'Votre demande d’acte a avancé',
+  'documents.supplement': 'Complément reçu sur une demande',
+  'news.published': 'Nouvelle annonce de votre paroisse',
+  'agenda.reminder': 'Rappel : événement demain',
+  'confessions.reminder': 'Rappel de rendez-vous',
+  'confessions.cancelled': 'Rendez-vous annulé par le prêtre',
+  'personnes.complement': 'Complément demandé sur votre déclaration',
 };
 
-function formatEventLabel(eventType: string): string {
-  return EVENT_LABELS[eventType] ?? eventType.replace(/_/g, ' ');
+function formatEventLabel(n: Notification): string {
+  const titre = typeof n.payload?.title === 'string' ? n.payload.title : null;
+  const base = EVENT_LABELS[n.event_type] ?? 'Notification';
+  return titre ? `${base} : ${titre}` : base;
 }
 
 function formatRelativeTime(createdAt: string): string {
@@ -63,7 +70,7 @@ function NotificationItem({
     >
       <div className="flex w-full items-center justify-between gap-2">
         <span className="text-sm font-medium text-foreground leading-tight">
-          {formatEventLabel(notification.event_type)}
+          {formatEventLabel(notification)}
         </span>
         {!notification.is_read && (
           <span className="size-2 shrink-0 rounded-full bg-primary" />
@@ -83,6 +90,7 @@ interface NotificationBellProps {
 export function NotificationBell({ className }: NotificationBellProps) {
   const { data: notifications = [] } = useNotifications();
   const { mutate: markRead } = useMarkNotificationRead();
+  const { mutate: markAllRead } = useMarkAllNotificationsRead();
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
@@ -121,9 +129,16 @@ export function NotificationBell({ className }: NotificationBellProps) {
         <DropdownMenuLabel className="flex items-center justify-between px-3 py-2">
           <span className="text-sm font-semibold">Notifications</span>
           {unreadCount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {unreadCount} non lue{unreadCount > 1 ? 's' : ''}
-            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                markAllRead();
+              }}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Tout marquer comme lu
+            </button>
           )}
         </DropdownMenuLabel>
 
