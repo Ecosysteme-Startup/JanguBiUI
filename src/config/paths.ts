@@ -18,6 +18,8 @@ export const paths = {
   /** Aide (en-tête et pied de page publics) : pas encore de page dédiée, renvoie au contact. */
   aide: { getHref: () => '/pour-les-paroisses#contact' },
   applicationMobile: { getHref: () => '/#application' },
+  /** Acceptation d'une invitation du clergé (lien de l'e-mail d'invitation, jeton à usage unique). */
+  acceptInvitation: { getHref: (token?: string) => (token ? `/accept-invitation?token=${enc(token)}` : '/accept-invitation') },
   /** Dons sans compte (WEB-Don-Paroisse) et retour de l'agrégateur (DONATIONS_RETURN_URL du backend). */
   dons: {
     paroisse: { getHref: (code: string, fundId?: string) => `/paroisses/${enc(code)}/don${fundId ? `?fonds=${enc(fundId)}` : ''}` },
@@ -123,6 +125,8 @@ export const paths = {
     structure: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/structure` },
     nominations: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/nominations` },
     clerge: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/clerge` },
+    /** Comptes du clergé : invitations, validation, activation (capacité `comptes.valider`). */
+    comptesClerge: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/comptes-clerge` },
     audit: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/audit` },
     dons: {
       /** WEB-PAR-Dons ; `mois` (AAAA-MM) : mois affiché, sinon le mois courant. */
@@ -175,6 +179,7 @@ export const paths = {
     paiements: { getHref: () => '/plateforme/paiements' },
     /** Activité des paiements (nombres, taux, délais ; aucun montant). */
     activitePaiements: { getHref: () => '/plateforme/paiements/activite' },
+    comptesClerge: { getHref: () => '/plateforme/comptes-clerge' },
     audit: { getHref: () => '/plateforme/audit' },
   },
 } as const;
