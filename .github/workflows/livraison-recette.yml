@@ -14,7 +14,7 @@
 # Secrets requis   : DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, INFRA_DISPATCH_TOKEN
 # Secrets facultatifs : SENTRY_AUTH_TOKEN (source maps, secret BuildKit)
 # Variables (facultatives, défauts = contrat) :
-#   INFRA_REPO (Ecosysteme-Startup/Infrastructure), IMAGE_REPO (soszaboss/jangubi-web),
+#   INFRA_REPO (Ecosysteme-Startup/Infrastructure), IMAGE_REPO (soszaboss/jangubi-frontend),
 #   NEXT_PUBLIC_SENTRY_DSN, NEXT_PUBLIC_FEATURES_STAGING, NEXT_PUBLIC_FEATURES_PROD,
 #   KEYCLOAK_CLIENT_ID_WEB (jangubi-web)
 #
@@ -38,7 +38,7 @@ env:
   INFRA_REPO: ${{ vars.INFRA_REPO || 'Ecosysteme-Startup/Infrastructure' }}
   # Doit être le dépôt déclaré dans Infrastructure envs/*/versions.env
   # (JANGUBI_WEB_IMAGE) : une autre valeur est refusée à la livraison.
-  IMAGE_REPO: ${{ vars.IMAGE_REPO || 'soszaboss/jangubi-web' }}
+  IMAGE_REPO: ${{ vars.IMAGE_REPO || 'soszaboss/jangubi-frontend' }}
 
 concurrency:
   group: livraison-jangubi-web-${{ github.ref }}
