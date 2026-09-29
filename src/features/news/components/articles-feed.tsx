@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Eye, Newspaper } from 'lucide-react';
+import { Clock, Newspaper } from 'lucide-react';
 import { useState } from 'react';
 
 import { ContentContainer } from '@/components/layouts/content-container';
@@ -14,17 +14,11 @@ import { useMesParoisses } from '@/lib/paroisses/api';
 import { cn } from '@/lib/utils';
 import { formatFrDate } from '@/utils/format-date';
 
-import { useFeedArticles } from '../api/get-articles';
-import type { Article } from '../types';
+import { useMeFeed } from '../api/get-me-feed';
+import type { FeedArticle } from '../types/feed';
 
 import { ArticleTypeBadge } from './article-type-badge';
 import { AutresParoissesFeed } from './autres-paroisses-feed';
-import {
-  ALL_SCOPE,
-  NewsScopeFilter,
-  scopeFilterToParams,
-  type ScopeFilterValue,
-} from './news-scope-filter';
 
 function ArticlesSkeleton() {
   return (
@@ -43,20 +37,33 @@ function ArticlesSkeleton() {
   );
 }
 
-function articleMeta(article: Article) {
+/** Date de publication (aucun compteur de lectures côté fidèle). */
+function articleMeta(article: FeedArticle) {
+  if (!article.published_at) return undefined;
   return (
-    <div className="flex items-center gap-3">
-      {article.published_at && (
-        <span className="flex items-center gap-1">
-          <Clock className="size-3" />
-          {formatFrDate(article.published_at, 'short')}
+    <span className="flex items-center gap-1">
+      <Clock className="size-3" aria-hidden />
+      {formatFrDate(article.published_at, 'short')}
+    </span>
+  );
+}
+
+/** Type, catégorie et portée (paroisse, diocèse ; rien pour un contenu global). */
+function articleOverline(article: FeedArticle) {
+  return (
+    <>
+      <ArticleTypeBadge contentType={article.content_type ?? undefined} />
+      {article.scope?.node_name && (
+        <span className="text-[11px] font-semibold text-foreground">
+          {article.scope.node_name}
         </span>
       )}
-      <span className="flex items-center gap-1">
-        <Eye className="size-3" />
-        {article.views_count}
-      </span>
-    </div>
+      {article.category && (
+        <span className="text-[11px] font-medium text-muted-foreground">
+          {article.category.name}
+        </span>
+      )}
+    </>
   );
 }
 
@@ -118,13 +125,9 @@ export function ArticlesFeed() {
   const [fil, setFil] = useState<Fil>('principale');
   const autres = fil === 'autres' && secondaires.length > 0;
 
-  // Fil AGRÉGÉ (Chantier 7b) filtrable par portée : « Tous » = l'agrégat inchangé,
-  // sinon le filtre serveur (?scope_type=&scope_id=) restreint à la portée choisie.
-  const [scope, setScope] = useState<ScopeFilterValue>(ALL_SCOPE);
-  const { data, isLoading, isError, refetch } = useFeedArticles({
-    limit: 20,
-    ...scopeFilterToParams(scope),
-  });
+  // Fil « Ma paroisse » : `GET /me/feed/` (global, paroisse principale et ses
+  // ancêtres), du plus récent au plus ancien.
+  const { data, isLoading, isError, refetch } = useMeFeed({ limit: 20 });
 
   const articles = data?.results ?? [];
   const [featured, ...rest] = articles;
@@ -143,10 +146,6 @@ export function ArticlesFeed() {
           <AutresParoissesFeed secondaires={secondaires} />
         ) : (
           <>
-            <div className="mb-4">
-              <NewsScopeFilter value={scope} onChange={setScope} />
-            </div>
-
             {isLoading ? (
               <ArticlesSkeleton />
             ) : isError ? (
@@ -158,7 +157,7 @@ export function ArticlesFeed() {
               <EmptyState
                 icon={<Newspaper />}
                 title="Aucune actualité"
-                description="Aucune actualité n'est disponible pour cette portée."
+                description="Aucune actualité pour le moment. Les annonces de votre paroisse et de l'Église apparaîtront ici."
               />
             ) : (
               <div className="flex flex-col gap-4">
@@ -166,20 +165,11 @@ export function ArticlesFeed() {
                 <MediaCard
                   featured
                   href={`/app/actus/${featured.id}`}
-                  image={featured.cover_image_url}
+                  image={featured.cover_image_url ?? undefined}
                   imageAlt={featured.title}
                   aspect="wide"
                   fallbackIcon={<Newspaper />}
-                  overline={
-                    <>
-                      <ArticleTypeBadge contentType={featured.content_type} />
-                      {featured.category && (
-                        <span className="text-[11px] font-medium text-muted-foreground">
-                          {featured.category.name}
-                        </span>
-                      )}
-                    </>
-                  }
+                  overline={articleOverline(featured)}
                   title={featured.title}
                   excerpt={featured.excerpt ?? undefined}
                   meta={articleMeta(featured)}
@@ -192,15 +182,11 @@ export function ArticlesFeed() {
                       <MediaCard
                         key={article.id}
                         href={`/app/actus/${article.id}`}
-                        image={article.cover_image_url}
+                        image={article.cover_image_url ?? undefined}
                         imageAlt={article.title}
                         aspect="video"
                         fallbackIcon={<Newspaper />}
-                        overline={
-                          <ArticleTypeBadge
-                            contentType={article.content_type}
-                          />
-                        }
+                        overline={articleOverline(article)}
                         title={article.title}
                         excerpt={article.excerpt ?? undefined}
                         meta={articleMeta(article)}

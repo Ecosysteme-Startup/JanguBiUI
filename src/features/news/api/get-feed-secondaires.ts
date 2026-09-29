@@ -1,7 +1,8 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
+
+import { type FeedArticle, type FeedPage, feedPageSchema } from '../types/feed';
 
 // Fil séparé des paroisses secondaires (décisions 6-8, backend
 // `docs/API-AUDIO.md` §9) : `GET /me/feed/secondaires/?paroisse=<id>`, même
@@ -9,29 +10,8 @@ import { api } from '@/lib/api-client';
 // ces paroisses et de leur sous-arbre seulement, triées par date, sans
 // notification.
 
-export const annonceSecondaireSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  excerpt: z.string().nullish(),
-  content_type: z.string().nullish(),
-  category: z.object({ id: z.number(), name: z.string() }).nullish(),
-  author_name: z.string().nullish(),
-  scope: z
-    .object({
-      node_id: z.string().nullish(),
-      node_name: z.string().nullish(),
-    })
-    .nullish(),
-  cover_image_url: z.string().nullish(),
-  published_at: z.string().nullish(),
-});
-export type AnnonceSecondaire = z.infer<typeof annonceSecondaireSchema>;
-
-const pageSchema = z.object({
-  count: z.number(),
-  results: z.array(annonceSecondaireSchema),
-});
-export type PageAnnoncesSecondaires = z.infer<typeof pageSchema>;
+export type AnnonceSecondaire = FeedArticle;
+export type PageAnnoncesSecondaires = FeedPage;
 
 export const getFeedSecondaires = async ({
   paroisse,
@@ -40,7 +20,7 @@ export const getFeedSecondaires = async ({
   paroisse?: string | null;
   limit?: number;
 }): Promise<PageAnnoncesSecondaires> =>
-  pageSchema.parse(
+  feedPageSchema.parse(
     await api.get<unknown>('/v1/me/feed/secondaires/', {
       params: { paroisse: paroisse ?? undefined, limit },
     }),

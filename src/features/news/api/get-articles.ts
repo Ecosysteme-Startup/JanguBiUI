@@ -4,14 +4,9 @@ import { api } from '@/lib/api-client';
 
 import { Article, articleSchema } from '../types';
 
-export type ScopeTypeFilter = 'global' | 'diocese' | 'parish' | 'church';
-
 export type GetArticlesParams = {
   limit?: number;
   offset?: number;
-  // Filtre de portée (feed) — borné serveur aux appartenances de l'utilisateur.
-  scope_type?: ScopeTypeFilter;
-  scope_id?: number;
 };
 export type ArticlesResponse = { count: number; results: Article[] };
 
@@ -27,12 +22,6 @@ export const getGlobalArticles = (
   params?: GetArticlesParams,
 ): Promise<ArticlesResponse> =>
   api.get<unknown>('/v1/news/', { params }).then(parseArticles);
-
-// Fil AGRÉGÉ de l'utilisateur (global ∪ église ∪ paroisse ∪ diocèse) — Chantier 7b.
-export const getFeedArticles = (
-  params?: GetArticlesParams,
-): Promise<ArticlesResponse> =>
-  api.get<unknown>('/v1/news/feed/', { params }).then(parseArticles);
 
 export const getParishArticles = (
   params?: GetArticlesParams,
@@ -69,17 +58,8 @@ export const getDioceseArticlesQueryOptions = (
     enabled: !!dioceseId,
   });
 
-export const getFeedArticlesQueryOptions = (params?: GetArticlesParams) =>
-  queryOptions({
-    queryKey: ['articles', 'feed', params],
-    queryFn: () => getFeedArticles(params),
-  });
-
 export const useGlobalArticles = (params?: GetArticlesParams) =>
   useQuery(getGlobalArticlesQueryOptions(params));
-
-export const useFeedArticles = (params?: GetArticlesParams) =>
-  useQuery(getFeedArticlesQueryOptions(params));
 
 export const useParishArticles = (params?: GetArticlesParams) =>
   useQuery(getParishArticlesQueryOptions(params));

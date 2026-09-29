@@ -232,6 +232,86 @@ export const ANNONCES_AUTRES_PAROISSES = [
   ),
 ];
 
+// ------------------------------------------------ fil « Ma paroisse »
+
+const ARCHIDIOCESE = {
+  id: 'da000000-0000-4000-8000-00000000000a',
+  name: 'Archidiocèse de Dakar',
+};
+
+/** Contenus hors paroisse : diocèse (`node`) ou globaux (`node: null`). */
+const contenu = (
+  id: string,
+  node: { id: string; name: string } | null,
+  content_type: string,
+  title: string,
+  excerpt: string,
+  category: string,
+  author_name: string,
+  published_at: string,
+) => ({
+  ...annonce(
+    id,
+    PAROISSES.saintDominique,
+    title,
+    excerpt,
+    category,
+    published_at,
+  ),
+  content_type,
+  author_name,
+  scope: {
+    node_id: node?.id ?? null,
+    node_name: node?.name ?? null,
+    place_id: null,
+    place_name: null,
+  },
+});
+
+/** Annonces des paroisses (fil principal de celle qui est principale). */
+export const ANNONCES_PAROISSES = [
+  annonce(
+    '6b000000-0000-4000-8000-000000000001',
+    PAROISSES.saintDominique,
+    'Messe des familles dimanche 4 octobre',
+    'Messe de 10 h 30 animée par les enfants du catéchisme, suivie d’un apéritif dans la cour.',
+    'Vie paroissiale',
+    '2026-09-26T18:00:00Z',
+  ),
+  annonce(
+    '6b000000-0000-4000-8000-000000000002',
+    PAROISSES.saintDominique,
+    'Inscriptions au catéchisme',
+    'Les inscriptions sont ouvertes au secrétariat du mardi au samedi, de 9 h à 12 h.',
+    'Catéchèse',
+    '2026-09-23T09:00:00Z',
+  ),
+];
+
+/** Contenus du diocèse et de l'Église universelle (fil principal de tous). */
+export const CONTENUS_GENERAUX = [
+  contenu(
+    '6c000000-0000-4000-8000-000000000001',
+    ARCHIDIOCESE,
+    'pastoral_letter',
+    'Lettre pastorale pour la rentrée',
+    'L’archevêque de Dakar invite chaque communauté à prendre soin des plus fragiles.',
+    'Diocèse',
+    'Archidiocèse de Dakar',
+    '2026-09-24T08:00:00Z',
+  ),
+  contenu(
+    '6c000000-0000-4000-8000-000000000002',
+    null,
+    'article',
+    'Journée mondiale du migrant et du réfugié',
+    'Dimanche 27 septembre, l’Église prie pour les personnes contraintes de quitter leur pays.',
+    'Église universelle',
+    'Rédaction Jàngu Bi',
+    '2026-09-21T07:00:00Z',
+  ),
+];
+
 /** Remet l'état du serveur de mocks à zéro (tests). */
 export function resetParoissesMocks() {
   adhesions = INITIALES.map((a) => ({ ...a }));
@@ -338,6 +418,20 @@ export const paroissesHandlers = [
       sunday_masses: [],
     }));
     return HttpResponse.json(pagine(request, trouves));
+  }),
+
+  // ------------------------------------------------ fil « Ma paroisse »
+  // `GET /me/feed/` : global + paroisse principale et ses ancêtres (diocèse).
+  http.get(`${API}/me/feed/`, async ({ request }) => {
+    await networkDelay();
+    const principale = adhesions.find((a) => a.principale)?.id;
+    const liste = [
+      ...CONTENUS_GENERAUX,
+      ...[...ANNONCES_PAROISSES, ...ANNONCES_AUTRES_PAROISSES].filter(
+        (a) => a.scope.node_id === principale,
+      ),
+    ].sort((a, b) => b.published_at.localeCompare(a.published_at));
+    return HttpResponse.json(pagine(request, liste));
   }),
 
   // ------------------------------------------------ fil des secondaires
