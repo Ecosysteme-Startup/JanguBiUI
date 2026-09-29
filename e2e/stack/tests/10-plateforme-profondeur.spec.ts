@@ -3,72 +3,92 @@ import { expect, test } from '@playwright/test';
 import { KC_DEMO_PASSWORD, loginViaKeycloak, logout } from '../helpers/auth';
 
 const PLATEFORME = 'plateforme@demo.jangubi.sn';
+/** Domaine réservé aux comptes créés par les agents de recette : jamais un compte de démo. */
+const DOMAINE_TEST = 'test.jangubi.sn';
 
 test.describe('Plateforme (plateforme@) en profondeur', () => {
   test('référentiels', async ({ page }, testInfo) => {
-    // DEF-08 (CRITIQUE, voir rapport) : /plateforme/referentiels plante systématiquement
-    // (TypeError: REFERENTIEL_TABS.includes is not a function, src/app/plateforme/referentiels/page.tsx:13)
-    // malgré une API backend saine (200 sur toutes les routes). On documente l'échec sans le masquer.
     await loginViaKeycloak(page, PLATEFORME, KC_DEMO_PASSWORD, { entryPath: '/plateforme/referentiels' });
     await page.waitForLoadState('networkidle').catch(() => undefined);
-    await page.screenshot({ path: `docs/v1/recette/captures/01/DEF-08-plateforme-referentiels-erreur-${testInfo.project.name}.png`, fullPage: true });
-
-    const crashed = await page.getByText(/erreur 500|un incident nous empêche/i).first().isVisible({ timeout: 5_000 }).catch(() => false);
-    if (crashed) {
-      testInfo.annotations.push({
-        type: 'defaut',
-        description:
-          "DEF-08 (CRITIQUE) : /plateforme/referentiels affiche systématiquement « Erreur 500 » — TypeError: REFERENTIEL_TABS.includes is not a function (src/app/plateforme/referentiels/page.tsx:13), alors que toutes les API backend liées répondent 200.",
-      });
-    } else {
-      await expect(page).toHaveURL(/\/referentiels/);
-    }
+    await expect(page).toHaveURL(/\/plateforme\/referentiels/);
+    await expect(page.getByText(/erreur 500|un incident nous empêche/i)).toHaveCount(0);
+    await expect(page.getByText('Le référentiel n’a pas pu être chargé')).toHaveCount(0);
+    await page.screenshot({ path: `docs/v1/recette/captures/01/plateforme-referentiels-${testInfo.project.name}.png`, fullPage: true });
     await page.goto('/app');
     await logout(page);
   });
 
-  test('comptes : recherche puis verrouille/déverrouille un compte de TEST créé par l’agent (jamais un compte de démo)', async ({
+  test('comptes (synchronisés avec Keycloak) : recherche, puis désactive et réactive un compte de TEST', async ({
     page,
   }, testInfo) => {
     await loginViaKeycloak(page, PLATEFORME, KC_DEMO_PASSWORD, { entryPath: '/plateforme/comptes' });
     await page.waitForLoadState('networkidle').catch(() => undefined);
-    await expect(page).toHaveURL(/\/comptes/);
+    await expect(page).toHaveURL(/\/plateforme\/comptes$/);
+    await expect(page.getByRole('heading', { name: 'Administration des comptes' })).toBeVisible({ timeout: 10_000 });
     await page.screenshot({ path: `docs/v1/recette/captures/01/plateforme-comptes-${testInfo.project.name}.png`, fullPage: true });
 
-    const searchField = page.getByPlaceholder(/rechercher|nom|e-mail/i).or(page.getByRole('searchbox')).first();
-    await expect(searchField).toBeVisible({ timeout: 10_000 });
-    await searchField.fill('test.jangubi.sn'); // domaine réservé aux comptes créés par les agents de recette.
-    await page.waitForTimeout(600);
+    // Onglets de la section : l'administrateur plateforme voit aussi « Synchronisation ».
+    const onglets = page.getByRole('navigation', { name: 'Administration des comptes' });
+    await expect(onglets.getByRole('link', { name: 'Synchronisation' })).toBeVisible();
+    await onglets.getByRole('link', { name: 'Comptes', exact: true }).click();
+    await expect(page).toHaveURL(/\/plateforme\/comptes\/utilisateurs/);
+    await expect(page.getByRole('heading', { name: 'Comptes', exact: true })).toBeVisible();
+
+    const recherche = page.getByRole('searchbox', { name: 'Rechercher' });
+    await expect(recherche).toBeVisible({ timeout: 10_000 });
+    await recherche.fill(DOMAINE_TEST);
+    await page.waitForLoadState('networkidle').catch(() => undefined);
     await page.screenshot({ path: `docs/v1/recette/captures/01/plateforme-comptes-recherche-${testInfo.project.name}.png`, fullPage: true });
 
-    // Le premier résultat de la recherche est déjà sélectionné dans le panneau de détail à droite.
-    const detailHeading = page.getByRole('heading', { name: /agent unTest/i }).or(page.getByRole('heading', { name: /agent01/i }));
-    const foundAccount = await detailHeading.first().isVisible({ timeout: 5_000 }).catch(() => false);
-    if (!foundAccount) {
+    const table = page.getByRole('table', { name: 'Comptes de votre périmètre' });
+    const premier = table.getByRole('row').filter({ hasText: DOMAINE_TEST }).first();
+    if (!(await premier.isVisible({ timeout: 5_000 }).catch(() => false))) {
       testInfo.annotations.push({
         type: 'observation',
-        description: 'Aucun compte de test (agent01+…@test.jangubi.sn) trouvé dans la recherche plateforme — le compte créé au parcours 02 (inscription) n’a peut-être pas de nomination/office donc n’apparaît pas dans ce registre, ou la recherche indexe différemment.',
+        description: `Aucun compte de test (@${DOMAINE_TEST}) dans la recherche : parcours 02 (inscription) non joué ou compte supprimé.`,
       });
       await logout(page);
       return;
     }
 
-    const lockButton = page.getByRole('button', { name: 'Verrouiller le compte' });
-    await lockButton.click();
-    const dialog = page.getByRole('dialog', { name: /verrouiller ce compte/i });
-    await expect(dialog).toBeVisible({ timeout: 10_000 });
-    await dialog.getByRole('button', { name: 'Verrouiller le compte' }).click();
-    await expect(page.getByRole('button', { name: 'Déverrouiller le compte' })).toBeVisible({ timeout: 10_000 });
-    await page.screenshot({ path: `docs/v1/recette/captures/01/plateforme-compte-verrouille-${testInfo.project.name}.png`, fullPage: true });
+    // Fiche du compte : nom en titre, zone sensible à droite.
+    await premier.getByRole('link').first().click();
+    await expect(page).toHaveURL(/\/plateforme\/comptes\/utilisateurs\/[^/]+$/);
+    const sensible = page.getByRole('region', { name: 'Zone sensible' });
+    await expect(sensible).toBeVisible({ timeout: 10_000 });
 
-    // Déverrouille immédiatement pour ne pas laisser le compte de test bloqué.
-    await page.getByRole('button', { name: 'Déverrouiller le compte' }).click();
-    const unlockDialog = page.getByRole('dialog');
-    if (await unlockDialog.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await unlockDialog.getByRole('button', { name: /déverrouiller/i }).last().click();
+    // Un compte laissé désactivé par un passage précédent est d'abord réactivé.
+    const reactiver = sensible.getByRole('button', { name: 'Réactiver le compte' });
+    if (await reactiver.isVisible().catch(() => false)) {
+      await reactiver.click();
+      await expect(sensible.getByRole('button', { name: 'Désactiver le compte' })).toBeVisible({ timeout: 10_000 });
     }
-    await expect(page.getByRole('button', { name: 'Verrouiller le compte' })).toBeVisible({ timeout: 10_000 });
 
+    await sensible.getByRole('button', { name: 'Désactiver le compte' }).click();
+    const dialogue = page.getByRole('dialog', { name: /^Désactiver le compte de / });
+    await expect(dialogue).toBeVisible({ timeout: 10_000 });
+    await dialogue.getByLabel(/^Motif/).fill('Recette automatisée : vérification de la désactivation.');
+    await dialogue.getByRole('button', { name: 'Désactiver', exact: true }).click();
+    await expect(dialogue).toBeHidden({ timeout: 10_000 });
+    await expect(sensible.getByRole('button', { name: 'Réactiver le compte' })).toBeVisible({ timeout: 10_000 });
+    await page.screenshot({ path: `docs/v1/recette/captures/01/plateforme-compte-desactive-${testInfo.project.name}.png`, fullPage: true });
+
+    // Réactive immédiatement : le compte de test ne reste jamais bloqué.
+    await sensible.getByRole('button', { name: 'Réactiver le compte' }).click();
+    await expect(sensible.getByRole('button', { name: 'Désactiver le compte' })).toBeVisible({ timeout: 10_000 });
+
+    await page.goto('/app');
+    await logout(page);
+  });
+
+  test('comptes : journal d’audit de la section', async ({ page }, testInfo) => {
+    await loginViaKeycloak(page, PLATEFORME, KC_DEMO_PASSWORD, { entryPath: '/plateforme/comptes/journal' });
+    await page.waitForLoadState('networkidle').catch(() => undefined);
+    await expect(page).toHaveURL(/\/plateforme\/comptes\/journal/);
+    await expect(
+      page.getByRole('navigation', { name: 'Administration des comptes' }).getByRole('link', { name: 'Journal d’audit' }),
+    ).toHaveAttribute('aria-current', 'page');
+    await page.screenshot({ path: `docs/v1/recette/captures/01/plateforme-comptes-journal-${testInfo.project.name}.png`, fullPage: true });
     await page.goto('/app');
     await logout(page);
   });
