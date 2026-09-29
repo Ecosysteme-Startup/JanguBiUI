@@ -1,146 +1,149 @@
 /** @type {import('tailwindcss').Config} */
 
-const defaultTheme = require('tailwindcss/defaultTheme');
+// Charte « Ciel produit » (docs/v1/maquettes-ciel/FONDATIONS.md) : Tailwind ne consomme QUE les tokens
+// --jb-* (src/styles/tokens.css). La palette par défaut de Tailwind est remplacée,
+// pas étendue : une classe `bg-blue-500` ne compile même pas.
+const token = (name) => `var(--jb-${name})`;
 
 module.exports = {
-    darkMode: ['class'],
-    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: ['class'],
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
-  	container: {
-  		center: true,
-  		padding: '2rem',
-  		screens: {
-  			'2xl': '1400px'
-  		}
-  	},
-  	extend: {
-  		fontFamily: {
-  			sans: [
-  				'var(--font-inter)',
-  				'Inter var',
-                    ...defaultTheme.fontFamily.sans
-                ],
-  			serif: [
-  				'var(--font-playfair)',
-  				...defaultTheme.fontFamily.serif
-  			],
-  		},
-  		maxWidth: {
-  			reading: 'var(--reading-measure)'
-  		},
-  		boxShadow: {
-  			'soft-sm': '0 1px 2px 0 hsl(var(--shadow-color) / 0.05), 0 1px 3px -1px hsl(var(--shadow-color) / 0.04)',
-  			soft: '0 2px 8px -2px hsl(var(--shadow-color) / 0.08), 0 6px 20px -6px hsl(var(--shadow-color) / 0.07)',
-  			'soft-lg': '0 10px 32px -8px hsl(var(--shadow-color) / 0.12), 0 16px 56px -16px hsl(var(--shadow-color) / 0.10)'
-  		},
-  		transitionTimingFunction: {
-  			'out-expo': 'var(--ease-out-expo)',
-  			'out-soft': 'var(--ease-out-soft)'
-  		},
-  		colors: {
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			background: {
-  				DEFAULT: 'hsl(var(--background))',
-  				surface: 'hsl(var(--background-surface))',
-  				subtle: 'hsl(var(--background-subtle))'
-  			},
-  			foreground: 'hsl(var(--foreground))',
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			gold: 'hsl(var(--gold))',
-  			success: 'hsl(var(--success, 142.1 76.2% 36.3%))',
-  			presence: 'hsl(var(--presence, 168 56% 27%))',
-  			warning: 'hsl(var(--warning, 38 92% 50%))',
-  			info: 'hsl(var(--info, 221.2 83.2% 53.3%))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
-  		keyframes: {
-  			'accordion-down': {
-  				from: { height: '0' },
-  				to: { height: 'var(--radix-accordion-content-height)' }
-  			},
-  			'accordion-up': {
-  				from: { height: 'var(--radix-accordion-content-height)' },
-  				to: { height: '0' }
-  			},
-  			'float-c': {
-  				'0%,100%': { transform: 'translateY(0)' },
-  				'50%': { transform: 'translateY(-12px)' }
-  			},
-  			'float-l': {
-  				'0%,100%': { transform: 'translateY(-8px)' },
-  				'50%': { transform: 'translateY(4px)' }
-  			},
-  			'float-r': {
-  				'0%,100%': { transform: 'translateY(4px)' },
-  				'50%': { transform: 'translateY(-12px)' }
-  			},
-  			'fade-in': {
-  				from: { opacity: '0' },
-  				to: { opacity: '1' }
-  			},
-  			'fade-in-up': {
-  				from: { opacity: '0', transform: 'translateY(8px)' },
-  				to: { opacity: '1', transform: 'translateY(0)' }
-  			},
-  			// Squelette du mobile : opacité 1 ↔ 0,55, 700 ms par demi-cycle.
-  			skeleton: {
-  				from: { opacity: '1' },
-  				to: { opacity: '0.55' }
-  			},
-  		},
-  		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out',
-  			// Flottement des téléphones : inOut sine (même courbe que le Ken Burns mobile).
-  			'float-c': 'float-c 6s cubic-bezier(0.37, 0, 0.63, 1) infinite',
-  			'float-l': 'float-l 7s cubic-bezier(0.37, 0, 0.63, 1) infinite',
-  			'float-r': 'float-r 5.5s cubic-bezier(0.37, 0, 0.63, 1) infinite',
-  			// Remplace le pulse Tailwind (2 s, 0,5) par le rythme du squelette mobile.
-  			pulse: 'skeleton 0.7s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate',
-  			'fade-in': 'fade-in var(--duration-normal) var(--ease-out-soft)',
-  			'fade-in-up': 'fade-in-up var(--duration-normal) var(--ease-out-soft)',
-  		}
-  	}
+    colors: {
+      transparent: 'transparent',
+      current: 'currentColor',
+      inherit: 'inherit',
+      paper: token('paper'),
+      surface: token('surface'),
+      'surface-2': token('surface-2'),
+      ink: token('ink'),
+      'ink-2': token('ink-2'),
+      'ink-3': token('ink-3'),
+      'ink-4': token('ink-4'),
+      line: token('line'),
+      'line-field': token('line-field'),
+      'line-strong': token('line-strong'),
+      'line-active': token('line-active'),
+      primary: token('primary'),
+      'primary-strong': token('primary-strong'),
+      'primary-fill': token('primary-fill'),
+      'primary-fill-hover': token('primary-fill-hover'),
+      'on-primary': token('on-primary'),
+      'on-primary-muted': token('on-primary-muted'),
+      'on-lit-white': token('on-lit-white'),
+      inverse: token('inverse'),
+      'on-inverse': token('on-inverse'),
+      'on-inverse-muted': token('on-inverse-muted'),
+      night: token('night'),
+      'night-2': token('night-2'),
+      'on-night': token('on-night'),
+      'on-night-muted': token('on-night-muted'),
+      tint: {
+        50: token('tint-50'),
+        100: token('tint-100'),
+        200: token('tint-200'),
+        300: token('tint-300'),
+        400: token('tint-400'),
+        500: token('tint-500'),
+        800: token('tint-800'),
+        900: token('tint-900'),
+      },
+      ok: token('ok'),
+      'ok-bg': token('ok-bg'),
+      'ok-dot': token('ok-dot'),
+      warn: token('warn'),
+      'warn-dot': token('warn-dot'),
+      'warn-bg': token('warn-bg'),
+      err: token('err'),
+      'err-bg': token('err-bg'),
+      'err-line': token('err-line'),
+      'err-fill': token('err-fill'),
+      scrim: token('scrim'),
+      lit: {
+        green: token('lit-green'),
+        violet: token('lit-violet'),
+        gold: token('lit-gold'),
+        'gold-text': token('lit-gold-text'),
+        red: token('lit-red'),
+        rose: token('lit-rose'),
+        'rose-text': token('lit-rose-text'),
+        white: token('lit-white'),
+      },
+    },
+    fontFamily: {
+      // Libre Franklin : toute l'interface. Source Serif 4 : la Parole, les citations bibliques, le logotype.
+      serif: ['var(--font-serif)', 'Georgia', 'serif'],
+      sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+    },
+    // Échelle « Ciel produit » (WEB-Design-System) : le nom est la taille en px à 100 %,
+    // la valeur en rem pour suivre le réglage « taille du texte » du navigateur (WCAG 1.4.4).
+    fontSize: {
+      11: ['0.6875rem', { lineHeight: '1rem' }],
+      12: ['0.75rem', { lineHeight: '1rem' }],
+      13: ['0.8125rem', { lineHeight: '1.125rem' }],
+      14: ['0.875rem', { lineHeight: '1.25rem' }],
+      15: ['0.9375rem', { lineHeight: '1.375rem' }],
+      16: ['1rem', { lineHeight: '1.5rem' }],
+      17: ['1.0625rem', { lineHeight: '1.5rem' }],
+      18: ['1.125rem', { lineHeight: '1.75rem' }],
+      19: ['1.1875rem', { lineHeight: '1.875rem' }],
+      20: ['1.25rem', { lineHeight: '1.75rem' }],
+      22: ['1.375rem', { lineHeight: '1.75rem' }],
+      24: ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.01em' }],
+      28: ['1.75rem', { lineHeight: '2.25rem', letterSpacing: '-0.01em' }],
+      30: ['1.875rem', { lineHeight: '2.625rem' }],
+      32: ['2rem', { lineHeight: '2.5rem', letterSpacing: '-0.01em' }],
+      36: ['2.25rem', { lineHeight: '2.75rem', letterSpacing: '-0.01em' }],
+      40: ['2.5rem', { lineHeight: '3rem', letterSpacing: '-0.015em' }],
+      48: ['3rem', { lineHeight: '3.5rem', letterSpacing: '-0.02em' }],
+      56: ['3.5rem', { lineHeight: '4rem', letterSpacing: '-0.02em' }],
+      // Anciens noms (écrans non migrés), rabattus sur l'échelle Ciel. À ne plus employer.
+      meta: ['0.75rem', { lineHeight: '1rem' }],
+      xs: ['0.8125rem', { lineHeight: '1.125rem' }],
+      sm: ['0.875rem', { lineHeight: '1.25rem' }],
+      base: ['0.9375rem', { lineHeight: '1.375rem' }],
+      body: ['1rem', { lineHeight: '1.5rem' }],
+      lead: ['1.125rem', { lineHeight: '1.75rem' }],
+      h4: ['1.25rem', { lineHeight: '1.75rem' }],
+      h3: ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.01em' }],
+      h2: ['2rem', { lineHeight: '2.5rem', letterSpacing: '-0.01em' }],
+      title: ['2rem', { lineHeight: '2.5rem', letterSpacing: '-0.01em' }],
+      h1: ['2.5rem', { lineHeight: '3rem', letterSpacing: '-0.015em' }],
+      display: ['3.5rem', { lineHeight: '4rem', letterSpacing: '-0.02em' }],
+    },
+    // Rayons : 3 pastille de légende, 6 case, 8 petit, 10 nav, 12 champ et bouton, 14 tuile de jour, 16 carte, 999 pilule.
+    borderRadius: {
+      none: '0',
+      DEFAULT: '10px',
+      sm: '6px',
+      md: '8px',
+      lg: '12px',
+      xl: '16px',
+      3: '3px',
+      4: '4px',
+      5: '5px',
+      6: '6px',
+      8: '8px',
+      9: '9px',
+      10: '10px',
+      12: '12px',
+      14: '14px',
+      16: '16px',
+      full: '9999px',
+    },
+    extend: {
+      maxWidth: { reading: '68ch', parole: '680px', content: '1120px', public: '1200px' },
+      spacing: { 5.5: '22px', 13: '52px', 15: '60px', 18: '72px', 66: '264px', 68: '272px' },
+      boxShadow: {
+        card: 'var(--jb-shadow-card)',
+        menu: 'var(--jb-shadow-menu)',
+        // Ancien nom : modale et tiroir prennent l'ombre de menu.
+        modal: 'var(--jb-shadow-menu)',
+      },
+      borderWidth: { 3: '3px', 1.5: '1.5px' },
+      keyframes: { 'jb-spin': { to: { transform: 'rotate(360deg)' } } },
+      animation: { 'jb-spin': 'jb-spin 1s linear infinite' },
+    },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
+  plugins: [],
 };

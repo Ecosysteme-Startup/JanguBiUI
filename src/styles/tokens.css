@@ -1,0 +1,142 @@
+/* Jàngu Bi — jetons de la charte « Ciel produit » (V1).
+ * Source : docs/v1/maquettes-ciel/WEB-Design-System.dc.html (clair) et Sombre-WEB-Design-System.dc.html.
+ * Le thème sombre est le remappage exact des maquettes « Sombre-WEB-* » (propriété par propriété).
+ * Une seule palette ; le thème sombre s'active par la classe `dark` sur <html> (next-themes).
+ * Copie conforme : docs/v1/design/tokens.css. Table des usages : docs/v1/maquettes-ciel/FONDATIONS.md. */
+
+:root {
+  color-scheme: light;
+
+  /* Neutres */
+  --jb-paper: #FFFFFF;          /* fond de page, cartes */
+  --jb-surface: #F7FAFD;        /* barre latérale, zones, survol de rangée */
+  --jb-surface-2: #EDF3F9;      /* pressé, pistes, bouton secondaire, contrôle segmenté */
+  --jb-line: #DDE5EE;           /* séparateurs, bordures de carte */
+  --jb-line-field: #8391A4;     /* bordure de champ, case, radio */
+  --jb-line-strong: #0E1A2B;    /* filet d'encre (rare) */
+  --jb-line-active: #B3D8F0;    /* survol de carte, filet actif, étape franchie */
+  --jb-ink: #0E1A2B;            /* texte, icônes */
+  --jb-ink-2: #3A4859;          /* texte secondaire */
+  --jb-ink-3: #586677;          /* méta, aides, placeholders */
+  --jb-ink-4: #8391A4;          /* texte désactivé */
+
+  /* Bleu Ciel (b50 → b900) */
+  --jb-primary: #0A6BA3;        /* b600 : liens, texte et filets primaires */
+  --jb-primary-strong: #085887; /* b700 : survol de lien */
+  --jb-primary-fill: #0A6BA3;   /* b600 : aplat du bouton primaire */
+  --jb-primary-fill-hover: #085887;
+  --jb-on-primary: #FFFFFF;     /* texte sur aplat primaire ou encre */
+  --jb-on-primary-muted: #D9EBF7; /* texte secondaire sur aplat b600 (carte Parole de FID-Accueil) */
+  --jb-on-lit-white: #0E1A2B;   /* encre fixe sur blanc liturgique (pastille « Vert » sur aplat) */
+  --jb-tint-50: #EEF6FC;        /* b50 : fond teinté, nav active, alerte info */
+  --jb-tint-100: #D9EBF7;       /* b100 : sélection douce, avatar, compteur */
+  --jb-tint-200: #B3D8F0;       /* b200 : aplat (barre claire, créneau) */
+  --jb-tint-300: #7FC0E8;       /* b300 : illustration */
+  --jb-tint-400: #3FA3DD;       /* b400 : points */
+  --jb-tint-500: #1A8FCC;       /* b500 : accent */
+  --jb-tint-800: #06466C;       /* b800 : texte sur b50 (nav active, badge) */
+  --jb-tint-900: #052F49;       /* b900 : texte sur b100 */
+
+  /* Aplat d'encre (pilule de filtre active, infobulle, toast) */
+  --jb-inverse: #0E1A2B;
+  --jb-on-inverse: #FFFFFF;
+  --jb-on-inverse-muted: #B3D8F0; /* compteur sur pilule active */
+
+  /* Anciennes surfaces « nuit » (conservées pour les écrans non migrés) */
+  --jb-night: #052F49;
+  --jb-night-2: #06466C;
+  --jb-on-night: #D9EBF7;
+  --jb-on-night-muted: #7FC0E8;
+
+  /* Statuts : texte sur fond, jamais la couleur seule */
+  --jb-ok: #1F6B5C;
+  --jb-ok-bg: #E4F2EE;
+  --jb-ok-dot: #1F6B5C;
+  --jb-warn: #8A5A0B;
+  --jb-warn-bg: #FBF1DF;
+  --jb-warn-dot: #B7801F;
+  --jb-err: #A12A22;
+  --jb-err-bg: #FBE8E5;
+  --jb-err-line: #A12A22;       /* bordure de champ en erreur */
+  --jb-err-fill: #A12A22;       /* aplat destructif plein (rare) */
+
+  /* Couleurs liturgiques : pastilles uniquement, jamais en aplat */
+  --jb-lit-green: #2E6B3F;
+  --jb-lit-red: #A3262A;
+  --jb-lit-violet: #5B3A7E;
+  --jb-lit-gold: #9A7A2C;       /* « Blanc » : cercle blanc cerclé d'or */
+  --jb-lit-gold-text: #7A5E1C;
+  --jb-lit-white: #FEFEFE;
+  --jb-lit-rose: #C77A93;
+  --jb-lit-rose-text: #8E3F58;
+
+  /* Ombres et voile */
+  --jb-shadow-card: 0 1px 2px rgba(14, 26, 43, 0.06);
+  --jb-shadow-menu: 0 8px 24px rgba(14, 26, 43, 0.10);
+  --jb-scrim: rgba(14, 26, 43, 0.40);
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  --jb-paper: #0B1118;
+  --jb-surface: #111A24;
+  --jb-surface-2: #18232F;
+  --jb-line: #243142;
+  --jb-line-field: #5F7085;
+  --jb-line-strong: #C7D2DE;
+  --jb-line-active: #26618F;
+  --jb-ink: #E8EEF5;
+  --jb-ink-2: #BAC6D3;
+  --jb-ink-3: #92A2B4;
+  --jb-ink-4: #92A2B4;
+
+  --jb-primary: #7CC3EE;
+  --jb-primary-strong: #A8D8F5;
+  --jb-primary-fill: #0A6BA3;
+  --jb-primary-fill-hover: #085E90;
+  --jb-on-primary: #F5F9FC;
+  --jb-on-primary-muted: #D9EBF7;
+  --jb-on-lit-white: #0E1A2B;
+  --jb-tint-50: #0F2233;
+  --jb-tint-100: #13304A;
+  --jb-tint-200: #1B4466;
+  --jb-tint-300: #26618F;
+  --jb-tint-400: #3FA3DD;
+  --jb-tint-500: #5AB3E4;
+  --jb-tint-800: #7CC3EE;
+  --jb-tint-900: #A8D8F5;
+
+  --jb-inverse: #3A4757;
+  --jb-on-inverse: #F5F9FC;
+  --jb-on-inverse-muted: #B3D8F0;
+
+  --jb-night: #061826;
+  --jb-night-2: #082438;
+  --jb-on-night: #D9EBF7;
+  --jb-on-night-muted: #7FC0E8;
+
+  --jb-ok: #7CCBB6;
+  --jb-ok-bg: #13302A;
+  --jb-ok-dot: #3E9E88;
+  --jb-warn: #E6B865;
+  --jb-warn-bg: #342710;
+  --jb-warn-dot: #D49B36;
+  --jb-err: #F2958B;
+  --jb-err-bg: #3B1815;
+  --jb-err-line: #E0776C;
+  --jb-err-fill: #B8392F;
+
+  --jb-lit-green: #4F9B63;
+  --jb-lit-red: #C4463F;
+  --jb-lit-violet: #8B66B6;
+  --jb-lit-gold: #C9A55A;
+  --jb-lit-gold-text: #DCC079;
+  --jb-lit-white: #FEFEFE;
+  --jb-lit-rose: #D99BB0;
+  --jb-lit-rose-text: #E6A7BB;
+
+  --jb-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.18);
+  --jb-shadow-menu: 0 8px 24px rgba(0, 0, 0, 0.30);
+  --jb-scrim: rgba(0, 0, 0, 0.62);
+}

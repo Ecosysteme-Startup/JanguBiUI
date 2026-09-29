@@ -1,36 +1,29 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
-import { components } from '@/types/api';
 
-export type SearchResult = components['schemas']['SearchBookGroupOutput'];
+const groupSchema = z.object({
+  book: z.object({ id: z.number(), name: z.string(), slug: z.string(), order: z.number(), testament: z.string() }),
+  matches: z.array(
+    z.object({
+      verse: z.object({ id: z.number(), number: z.number(), chapter: z.object({ number: z.number() }), text: z.string() }),
+    }),
+  ),
+});
+export type SearchGroup = z.infer<typeof groupSchema>;
 
-export type SearchBibleOptions = {
-  q: string;
-  hybrid?: boolean;
-  limit?: number;
-  testament?: string | null;
-  book_slug?: string | null;
-  chapter_number?: number | null;
-};
+export const SEARCH_MIN_LENGTH = 3; // `SearchApi.InputSerializer.q` : min_length=3
 
-export const searchBible = async (
-  options: SearchBibleOptions,
-): Promise<SearchResult[]> => {
-  const res = (await api.get<{ results: SearchResult[] } | SearchResult[]>(
-    '/v1/bible/search/',
-    { params: options },
-  )) as { results: SearchResult[] } | SearchResult[];
-  return Array.isArray(res) ? res : res.results;
-};
+export const searchBible = async (q: string, signal?: AbortSignal): Promise<SearchGroup[]> =>
+  z.array(groupSchema).parse(await api.get('/bible/search/', { params: { q, limit: 30 }, signal }));
 
-export const searchBibleQueryOptions = (options: SearchBibleOptions) => {
-  return queryOptions({
-    queryKey: ['bible-search', options],
-    queryFn: () => searchBible(options),
-    enabled: options.q.length >= 3, // API requires minLength: 3
+export const searchBibleQueryOptions = (q: string) =>
+  queryOptions({
+    queryKey: ['bible', 'search', q],
+    queryFn: ({ signal }) => searchBible(q, signal),
+    enabled: q.trim().length >= SEARCH_MIN_LENGTH,
+    placeholderData: keepPreviousData,
   });
-};
 
-export const useSearchBible = (options: SearchBibleOptions) =>
-  useQuery(searchBibleQueryOptions(options));
+export const useSearchBible = (q: string) => useQuery(searchBibleQueryOptions(q.trim()));

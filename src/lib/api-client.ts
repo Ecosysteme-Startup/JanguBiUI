@@ -1,350 +1,143 @@
-import { useNotifications } from '@/components/ui/notifications';
 import { env } from '@/config/env';
 
-import {
-  type OidcTokens,
-  readSession,
-  refreshTokens,
-  sessionFromTokens,
-  writeSession,
-} from './oidc';
-
+/** Erreur HTTP de l'API : le message est sûr à afficher (aucun détail interne). */
 export class ApiError extends Error {
   constructor(
+    readonly status: number,
     message: string,
-    public readonly status: number,
-    /** Code d'erreur V1 (`{"error": {"code"}}`) : `mfa_required`, `not_found`… */
-    public readonly code: string | null = null,
-    public readonly details: unknown = null,
+    readonly body: unknown = null,
   ) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-// --- Jetons Keycloak ----------------------------------------------------------
-// Jeton d'accès : en mémoire seulement (10 min, rafraîchi avant échéance et sur
-// 401). Jeton de rafraîchissement et id_token : sessionStorage de l'onglet
-// (voir `oidc.ts`).
+type AccessTokenProvider = () => Promise<string | null>;
+/** Rafraîchit la session après un 401 ; renvoie le nouveau jeton (ou `null`) pour rejouer la requête. */
+type UnauthorizedHandler = () => Promise<string | null> | void;
 
-let _accessToken: string | null = null;
-let _refreshTimer: ReturnType<typeof setTimeout> | null = null;
+// Branchés par la couche d'authentification (F3) : aucun jeton n'est stocké ici.
+let accessToken: AccessTokenProvider = async () => null;
+let onUnauthorized: UnauthorizedHandler = () => undefined;
 
-export function setAccessToken(token: string): void {
-  _accessToken = token;
-}
-
-export function clearAccessToken(): void {
-  _accessToken = null;
-  if (_refreshTimer) clearTimeout(_refreshTimer);
-  _refreshTimer = null;
-}
-
-export function getAccessToken(): string | null {
-  return _accessToken;
-}
-
-/** Vrai si l'onglet a une session Keycloak (jeton de rafraîchissement). */
-export function getRefreshToken(): string | null {
-  return readSession()?.refresh_token ?? null;
-}
-
-export function setRefreshToken(token: string): void {
-  writeSession({ ...emptySession, ...readSession(), refresh_token: token });
-}
-
-export function clearRefreshToken(): void {
-  writeSession(null);
-}
-
-const emptySession = {
-  refresh_token: null,
-  id_token: null,
-  refresh_expires_at: null,
+export const configureApiAuth = (options: { accessToken: AccessTokenProvider; onUnauthorized: UnauthorizedHandler }) => {
+  accessToken = options.accessToken;
+  onUnauthorized = options.onUnauthorized;
 };
 
-/** Enregistre les jetons reçus de Keycloak et planifie le rafraîchissement
- *  silencieux une minute avant l'échéance du jeton d'accès. */
-export function setSessionTokens(tokens: OidcTokens): void {
-  setAccessToken(tokens.access_token);
-  writeSession(sessionFromTokens(tokens, readSession()));
-  if (_refreshTimer) clearTimeout(_refreshTimer);
-  _refreshTimer = null;
-  if (typeof window !== 'undefined' && tokens.expires_in) {
-    const delay = Math.max(5, tokens.expires_in - 60) * 1000;
-    _refreshTimer = setTimeout(() => {
-      _refreshTimer = null;
-      tryRefreshAccess().catch(() => {
-        // session terminée : le prochain appel renverra vers la connexion
-      });
-    }, delay);
-  }
-}
-
-/** Oublie la session locale (jetons en mémoire et dans l'onglet). */
-export function clearSession(): void {
-  clearAccessToken();
-  clearRefreshToken();
-}
-
-let _refreshPromise: Promise<void> | null = null;
-
-/** Échange le jeton de rafraîchissement contre un nouveau jeton d'accès.
- *  Les appels simultanés partagent le même échange. Échec = session morte. */
-export async function tryRefreshAccess(): Promise<void> {
-  if (_refreshPromise) return _refreshPromise;
-  _refreshPromise = (async () => {
-    try {
-      const refresh = getRefreshToken();
-      if (!refresh) throw new Error('No refresh token');
-      try {
-        setSessionTokens(await refreshTokens(refresh));
-      } catch (e) {
-        clearSession();
-        throw e;
-      }
-    } finally {
-      _refreshPromise = null;
-    }
-  })();
-  return _refreshPromise;
-}
-
-const redirectToLogin = (): boolean => {
-  const { pathname, search } = window.location;
-  const isPublicPage = pathname === '/' || pathname.startsWith('/auth/');
-  if (isPublicPage) return false;
-  const redirectTo = encodeURIComponent(`${pathname}${search}`);
-  window.location.href = `/auth/login?redirectTo=${redirectTo}`;
-  return true;
-};
-
+type Params = Record<string, string | number | boolean | null | undefined>;
 type RequestOptions = {
-  method?: string;
-  headers?: Record<string, string>;
+  params?: Params;
+  signal?: AbortSignal;
   body?: unknown;
-  cookie?: string;
-  params?: Record<string, string | number | boolean | undefined | null>;
-  cache?: RequestCache;
-  next?: NextFetchRequestConfig;
-  /** Pas de notification en cas d'erreur (l'appelant gère l'état). */
-  quiet?: boolean;
-  /** `blob` : corps binaire (reçu PDF, export) au lieu de JSON. */
+  /** En-têtes propres à l'appel (ex. `Idempotency-Key` du paiement d'un don). */
+  headers?: Record<string, string>;
+  /** `blob` : fichier binaire (reçu PDF, export XLSX) au lieu de JSON. */
   responseType?: 'json' | 'blob';
 };
 
-function buildUrlWithParams(
-  url: string,
-  params?: RequestOptions['params'],
-): string {
-  if (!params) return url;
-  const filteredParams = Object.fromEntries(
-    Object.entries(params).filter(
-      ([, value]) => value !== undefined && value !== null,
-    ),
-  );
-  if (Object.keys(filteredParams).length === 0) return url;
-  const queryString = new URLSearchParams(
-    filteredParams as Record<string, string>,
-  ).toString();
-  return `${url}?${queryString}`;
-}
+const GENERIC_ERROR = 'Le service ne répond pas. Réessayez dans un instant.';
 
-// Create a separate function for getting server-side cookies that can be imported where needed
-export function getServerCookies() {
-  if (typeof window !== 'undefined') return '';
-
-  // Dynamic import next/headers only on server-side
-  return import('next/headers').then(async ({ cookies }) => {
-    try {
-      const cookieStore = await cookies();
-      return cookieStore
-        .getAll()
-        .map((c) => `${c.name}=${c.value}`)
-        .join('; ');
-    } catch {
-      return '';
-    }
+const buildUrl = (path: string, params?: Params) => {
+  const url = new URL(`${env.API_URL}${path.startsWith('/') ? path : `/${path}`}`);
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
   });
-}
+  return url.toString();
+};
 
 /**
- * Build the fetch init object for a request.
- * When body is FormData the browser must set the Content-Type with the
- * multipart boundary itself — we must NOT set it manually.
+ * Formats d'erreur de l'API : enveloppe V1 `{error: {code, message}}` (SRS §7), ancien `{detail}`
+ * ou `{message}`, ou dictionnaire de champs DRF. On garde un message lisible et sûr.
  */
-function buildFetchInit(
-  method: string,
-  body: unknown,
-  extraHeaders: Record<string, string>,
-  cookieHeader: string | undefined,
-  cache: RequestCache,
-  next: NextFetchRequestConfig | undefined,
-): RequestInit {
-  const isFormData = body instanceof FormData;
+/** 429 : DRF répond en anglais (« Expected available in 879 seconds ») ; on reformule en français. */
+const throttledMessage = (body: unknown): string => {
+  const seconds = Number(/available in (\d+) second/i.exec(JSON.stringify(body ?? ''))?.[1]);
+  if (!seconds) return 'Trop de tentatives. Réessayez un peu plus tard.';
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  return `Trop de tentatives. Réessayez dans ${minutes} minute${minutes > 1 ? 's' : ''}.`;
+};
 
-  const contentHeaders: Record<string, string> = isFormData
-    ? {}
-    : { 'Content-Type': 'application/json' };
-
-  const authHeader: Record<string, string> = _accessToken
-    ? { Authorization: `Bearer ${_accessToken}` }
-    : {};
-
-  return {
-    method,
-    headers: {
-      ...contentHeaders,
-      Accept: 'application/json',
-      ...authHeader,
-      ...extraHeaders,
-      ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-    },
-    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
-    credentials: 'include',
-    cache,
-    next,
-  };
-}
-
-/** Message et code d'une réponse en erreur : format V1
- *  `{"error": {"code", "message", "details"}}`, puis DRF `{"detail"}`. */
-export async function readApiError(response: Response): Promise<ApiError> {
-  const body = (await response.json().catch(() => ({}))) as Record<
-    string,
-    unknown
-  >;
-  const v1 = body.error as
-    | { code?: unknown; message?: unknown; details?: unknown }
-    | undefined;
-  const message =
-    (typeof v1?.message === 'string' ? v1.message : undefined) ||
-    // Quelques vues renvoient encore `{"error": "texte"}` (ex. /rosary/today/).
-    (typeof body.error === 'string' ? body.error : undefined) ||
-    (typeof body.detail === 'string' ? body.detail : undefined) ||
-    (typeof body.message === 'string' ? body.message : undefined) ||
-    response.statusText ||
-    `Erreur ${response.status}`;
-  const code =
-    (typeof v1?.code === 'string' ? v1.code : undefined) ||
-    (typeof body.code === 'string' ? body.code : undefined) ||
-    null;
-  return new ApiError(message, response.status, code, v1?.details ?? null);
-}
-
-async function fetchApi<T>(
-  url: string,
-  options: RequestOptions = {},
-): Promise<T> {
-  const {
-    method = 'GET',
-    headers = {},
-    body,
-    cookie,
-    params,
-    cache = 'no-store',
-    next,
-    quiet = false,
-    responseType = 'json',
-  } = options;
-
-  // Get cookies from the request when running on server
-  let cookieHeader = cookie;
-  if (typeof window === 'undefined' && !cookie) {
-    cookieHeader = await getServerCookies();
-  }
-
-  const fullUrl = buildUrlWithParams(`${env.API_URL}${url}`, params);
-  const send = () =>
-    fetch(
-      fullUrl,
-      buildFetchInit(method, body, headers, cookieHeader, cache, next),
-    );
-
-  let response = await send();
-
-  // 401 : jeton d'accès expiré (ou absent après un rechargement). On le
-  // rafraîchit auprès de Keycloak puis on relance la requête une fois.
-  if (response.status === 401 && typeof window !== 'undefined') {
-    if (getRefreshToken()) {
-      try {
-        await tryRefreshAccess();
-        response = await send();
-      } catch {
-        // session Keycloak terminée : traitée ci-dessous
-      }
-    }
-    if (response.status === 401) {
-      clearSession();
-      if (redirectToLogin()) return new Promise<never>(() => {});
+export const errorMessageOf = (body: unknown, status: number): string => {
+  // Seul le message anglais par défaut de DRF est reformulé ; un message métier en français est gardé.
+  if (status === 429 && (!body || /request was throttled/i.test(JSON.stringify(body)))) return throttledMessage(body);
+  if (body && typeof body === 'object') {
+    const outer = body as Record<string, unknown>;
+    const record = outer.error && typeof outer.error === 'object' ? (outer.error as Record<string, unknown>) : outer;
+    for (const key of ['message', 'detail']) {
+      if (typeof record[key] === 'string') return record[key] as string;
     }
   }
+  if (status === 403) return 'Vous n’avez pas accès à cette action.';
+  if (status === 404) return 'Élément introuvable.';
+  return GENERIC_ERROR;
+};
 
+async function request<T>(method: string, path: string, options: RequestOptions = {}, retried = false): Promise<T> {
+  const { params, signal, body, responseType = 'json' } = options;
+  const token = await accessToken();
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  const headers: Record<string, string> = { Accept: responseType === 'blob' ? '*/*' : 'application/json', ...options.headers };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
+
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(path, params), {
+      method,
+      headers,
+      signal,
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+    });
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') throw error;
+    throw new ApiError(0, 'Pas de connexion. Vérifiez votre réseau puis réessayez.');
+  }
+
+  if (response.status === 204) return undefined as T;
+  if (responseType === 'blob' && response.ok) return (await response.blob()) as T;
+  const text = await response.text();
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
   if (!response.ok) {
-    const error = await readApiError(response);
-    if (
-      typeof window !== 'undefined' &&
-      !quiet &&
-      response.status !== 404 &&
-      response.status !== 401
-    ) {
-      useNotifications.getState().addNotification({
-        type: 'error',
-        title: 'Erreur',
-        message: error.message,
-      });
+    if (response.status === 401) {
+      // Jeton expiré ou pas encore propagé : on rafraîchit la session et on rejoue UNE fois.
+      const fresh = await onUnauthorized();
+      if (token && fresh && !retried) return request<T>(method, path, options, true);
     }
-    throw error;
+    throw new ApiError(response.status, errorMessageOf(data, response.status), data);
   }
-
-  // 204 No Content (ex. DELETE) ou corps vide → pas de JSON à parser
-  // (response.json() lèverait « Unexpected end of JSON input »).
-  if (
-    response.status === 204 ||
-    response.headers.get('content-length') === '0'
-  ) {
-    return null as T;
-  }
-
-  if (responseType === 'blob') return (await response.blob()) as T;
-  return response.json();
+  return data as T;
 }
 
 export const api = {
-  get<T>(url: string, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'GET' });
-  },
-  post<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'POST', body });
-  },
-  put<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'PUT', body });
-  },
-  patch<T>(url: string, body?: unknown, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'PATCH', body });
-  },
-  delete<T>(url: string, options?: RequestOptions): Promise<T> {
-    return fetchApi<T>(url, { ...options, method: 'DELETE' });
-  },
-  /** GET authentifié d'un fichier (reçu PDF, export) : renvoie le Blob. */
-  blob(url: string, options?: RequestOptions): Promise<Blob> {
-    return fetchApi<Blob>(url, {
-      ...options,
-      headers: { Accept: '*/*', ...options?.headers },
-      method: 'GET',
-      responseType: 'blob',
-    });
-  },
+  get: <T>(path: string, options?: Omit<RequestOptions, 'body'>) => request<T>('GET', path, options),
+  post: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('POST', path, { ...options, body }),
+  patch: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PATCH', path, { ...options, body }),
+  put: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>('PUT', path, { ...options, body }),
+  delete: <T>(path: string, options?: RequestOptions) => request<T>('DELETE', path, options),
+  /** Fichier binaire authentifié (le jeton ne peut pas passer par un simple lien). */
+  blob: (path: string, options?: Omit<RequestOptions, 'body' | 'responseType'>) =>
+    request<Blob>('GET', path, { ...options, responseType: 'blob' }),
 };
 
-/** Propose au navigateur d'enregistrer un Blob sous `filename`. */
-export function saveBlob(blob: Blob, filename: string): void {
+/** Enregistre un fichier construit dans le navigateur (reçu, export). */
+export const saveBlob = (blob: Blob, filename: string) => {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+};
+
+/** Réponse paginée DRF (LimitOffsetPagination). */
+export type Paginated<T> = { count: number; next: string | null; previous: string | null; results: T[] };

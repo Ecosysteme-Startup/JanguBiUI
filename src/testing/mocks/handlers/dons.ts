@@ -1,167 +1,61 @@
-import { HttpResponse, http } from 'msw';
+import { http, HttpResponse } from 'msw';
 
-import { env } from '@/config/env';
-import { page } from '@/lib/pagination';
+import { apiUrl } from '@/testing/mocks/api-url';
+import {
+  activations,
+  campaignDetail,
+  cashCollections,
+  confirmedDonation,
+  donorSummary,
+  donsIds,
+  donsState,
+  health,
+  impereeFollow,
+  imperees,
+  myDonations,
+  operations,
+  parishSummary,
+  payouts,
+  pendingDonation,
+  publicFunds,
+  publicParish,
+  reconciliation,
+  staffFunds,
+} from '@/testing/mocks/db-dons';
 
-import { networkDelay } from '../utils';
-
-import { PAROISSES } from './paroisses';
-
-// Dons du fidèle (apps/donations, routes V1) — Marie-Thérèse Diouf,
-// paroisse Saint-Dominique, dimanche 27 septembre 2026.
-const API = `${env.API_URL}/v1`;
-
-const erreur = (status: number, code: string, message: string) =>
-  HttpResponse.json({ error: { code, message } }, { status });
-
-export const FONDS_QUETE = '7c1e4a52-0d3b-4f7e-9a61-5e2b8d4c1a01';
-export const FONDS_CAMPAGNE = '7c1e4a52-0d3b-4f7e-9a61-5e2b8d4c1a02';
-
-const fonds = [
-  {
-    id: FONDS_QUETE,
-    kind: 'quete_dominicale',
-    destination: 'paroisse',
-    title: 'Quête du dimanche 27 septembre',
-    description: '',
-    starts_on: '2026-09-27',
-    ends_on: '2026-09-27',
-    goal_amount: null,
-    raised: 0,
-    status: 'ouvert',
-    image_url: null,
-    place: null,
-    messe_anticipee_incluse: true,
-  },
-  {
-    id: FONDS_CAMPAGNE,
-    kind: 'campagne',
-    destination: 'paroisse',
-    title: 'Réfection de la toiture',
-    description: 'Remplacer les tôles du bas-côté avant l’hivernage.',
-    starts_on: '2026-09-01',
-    ends_on: '2026-12-31',
-    goal_amount: 3_000_000,
-    raised: 1_214_830,
-    status: 'ouvert',
-    image_url: null,
-    place: null,
-    messe_anticipee_incluse: false,
-  },
-];
-
-const pageSaintDominique = {
-  parish: {
-    id: PAROISSES.saintDominique.id,
-    name: 'Saint-Dominique',
-    city: 'Dakar',
-  },
-  enabled: true,
-  authorization: {
-    reference: 'ARCH-DK-2026-014',
-    date: '2026-09-01',
-    text: 'Collecte autorisée par l’Ordinaire (réf. ARCH-DK-2026-014).',
-  },
-  suggested_amounts: [1000, 2000, 5000, 10000],
-  min_amount: 200,
-  max_amount: 2_000_000,
-  fee_rate_bp: 200,
-  funds: fonds,
+const page = <T>(results: T[], url: string) => {
+  const params = new URL(url).searchParams;
+  const limit = Number(params.get('limit') ?? 20);
+  const offset = Number(params.get('offset') ?? 0);
+  return { limit, offset, count: results.length, next: null, previous: null, results: results.slice(offset, offset + limit) };
 };
 
-const mesDons = [
-  {
-    id: '9a3f6c10-5b2e-4d8a-8f41-3c7e2a1b0d01',
-    reference: 'DON-2026-000412',
-    receipt_number: 'R-2026-000187',
-    fund: {
-      id: FONDS_CAMPAGNE,
-      title: 'Réfection de la toiture',
-      kind: 'campagne',
-    },
-    parish: 'Saint-Dominique',
-    amount: 10000,
-    fee_amount: 200,
-    fees_covered: true,
-    charged_amount: 10200,
-    status: 'confirme',
-    channel: 'en_ligne',
-    payment_method: 'wave',
-    anonymous: false,
-    created_at: '2026-09-20T09:12:00Z',
-    confirmed_at: '2026-09-20T09:13:10Z',
-    receipt_available: true,
-  },
-  {
-    id: '9a3f6c10-5b2e-4d8a-8f41-3c7e2a1b0d02',
-    reference: 'DON-2026-000398',
-    receipt_number: null,
-    fund: {
-      id: FONDS_QUETE,
-      title: 'Quête du dimanche 13 septembre',
-      kind: 'quete_dominicale',
-    },
-    parish: 'Saint-Dominique',
-    amount: 2000,
-    fee_amount: 40,
-    fees_covered: false,
-    charged_amount: 2000,
-    status: 'echoue',
-    channel: 'en_ligne',
-    payment_method: null,
-    anonymous: false,
-    created_at: '2026-09-13T10:40:00Z',
-    confirmed_at: null,
-    receipt_available: false,
-  },
-];
+const error = (status: number, code: string, message: string, details: Record<string, string[]> = {}) =>
+  HttpResponse.json({ error: { code, message, details } }, { status });
 
+/** Dons et quêtes (apps/donations, ADR-017), conformes à `schema.yml`. */
 export const donsHandlers = [
-  http.get(`${API}/public/dons/paroisses/:id/`, async ({ params }) => {
-    await networkDelay();
-    if (params.id === PAROISSES.saintDominique.id)
-      return HttpResponse.json(pageSaintDominique);
-    const n = Object.values(PAROISSES).find((p) => p.id === params.id);
-    if (!n) return erreur(404, 'not_found', 'Paroisse introuvable.');
-    // Paroisse non activée : page servie, collecte fermée.
-    return HttpResponse.json({
-      ...pageSaintDominique,
-      parish: { id: n.id, name: n.name, city: n.city },
-      enabled: false,
-      authorization: null,
-      funds: [],
-    });
+  // Public
+  http.get(apiUrl('/public/dons/paroisses/:nodeId/'), () => HttpResponse.json(publicParish())),
+  http.get(apiUrl('/public/dons/fonds/:fundId/'), ({ params }) => {
+    if (params.fundId === donsIds.toiture) return HttpResponse.json(campaignDetail());
+    const f = publicFunds().find((x) => x.id === params.fundId);
+    if (!f) return error(404, 'not_found', 'Fonds introuvable.');
+    return HttpResponse.json({ ...f, parish: publicParish().parish, updates: [] });
   }),
 
-  http.get(`${API}/public/dons/fonds/:id/`, async ({ params }) => {
-    await networkDelay();
-    const f = fonds.find((x) => x.id === params.id);
-    if (!f) return erreur(404, 'not_found', 'Fonds introuvable.');
-    return HttpResponse.json({
-      ...f,
-      parish: pageSaintDominique.parish,
-      updates: [],
-    });
-  }),
-
-  http.post(`${API}/dons/checkout/`, async ({ request }) => {
-    await networkDelay();
-    const body = (await request.json()) as {
-      fund_id: string;
-      amount: number;
-      fees_covered: boolean;
-    };
-    if (!fonds.some((f) => f.id === body.fund_id))
-      return erreur(404, 'not_found', 'Fonds introuvable.');
-    if (body.amount < 200 || body.amount > 2_000_000)
-      return erreur(400, 'invalid_amount', 'Montant hors des bornes.');
-    const fee = Math.ceil((body.amount * 200) / 10_000);
+  // Paiement
+  http.post(apiUrl('/dons/checkout/'), async ({ request }) => {
+    const body = (await request.json()) as { fund_id: string; amount: number; fees_covered: boolean };
+    donsState.checkouts.push({ body, idempotencyKey: request.headers.get('Idempotency-Key') });
+    if (body.amount < 100) return error(400, 'validation_error', 'Le montant minimum est de 100 FCFA.', { amount: ['Le montant minimum est de 100 FCFA.'] });
+    const fee = Math.ceil(body.amount * 0.02);
     return HttpResponse.json(
       {
-        donation_id: '9a3f6c10-5b2e-4d8a-8f41-3c7e2a1b0d99',
-        reference: 'DON-2026-000431',
+        donation_id: donsIds.donConfirme,
+        reference: '4817-2093-6651',
         status: 'initie',
-        checkout_url: 'https://paiement.exemple.sn/checkout/DON-2026-000431',
+        checkout_url: 'https://paydunya.com/sandbox-checkout/invoice/test_4817',
         amount: body.amount,
         fee_amount: fee,
         charged_amount: body.fees_covered ? body.amount + fee : body.amount,
@@ -170,72 +64,126 @@ export const donsHandlers = [
       { status: 201 },
     );
   }),
-
-  http.get(`${API}/dons/checkout/:id/`, async ({ params }) => {
-    await networkDelay();
-    const d = mesDons.find((x) => x.id === params.id);
-    if (!d) return erreur(404, 'not_found', 'Don introuvable.');
-    return HttpResponse.json({
-      id: d.id,
-      reference: d.reference,
-      receipt_number: d.receipt_number,
-      status: d.status,
-      fund: d.fund,
-      parish: d.parish,
-      amount: d.amount,
-      fees_covered: d.fees_covered,
-      charged_amount: d.charged_amount,
-      confirmed_at: d.confirmed_at,
-    });
+  http.get(apiUrl('/dons/checkout/:donationId/'), ({ params }) => {
+    const next = donsState.statusSequence.shift();
+    if (next) return HttpResponse.json({ ...confirmedDonation(), status: next, receipt_number: next === 'confirme' ? 'SD-2026-00147' : null });
+    if (params.donationId === donsIds.donEnAttente) return HttpResponse.json(pendingDonation());
+    return HttpResponse.json(confirmedDonation());
   }),
 
-  http.get(`${API}/me/dons/`, async ({ request }) => {
-    await networkDelay();
-    const url = new URL(request.url);
-    const limit = Number(url.searchParams.get('limit') ?? 10);
-    const offset = Number(url.searchParams.get('offset') ?? 0);
+  // Fidèle
+  http.get(apiUrl('/me/dons/resume/'), ({ request }) =>
+    HttpResponse.json(donorSummary(Number(new URL(request.url).searchParams.get('year') ?? 2026))),
+  ),
+  http.get(apiUrl('/me/dons/:donationId/recu/'), () =>
+    new HttpResponse(new Blob(['%PDF-1.4 reçu'], { type: 'application/pdf' }), { headers: { 'Content-Type': 'application/pdf' } }),
+  ),
+  http.get(apiUrl('/me/dons/'), ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const year = params.get('year');
+    const fundId = params.get('fund');
+    const rows = myDonations().filter((d) => (!year || d.created_at.startsWith(year)) && (!fundId || d.fund.id === fundId));
+    return HttpResponse.json(page(rows, request.url));
+  }),
+
+  // Paroisse
+  http.get(apiUrl('/staff/dons/fonds/'), ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const kind = params.get('kind');
+    const status = params.get('status');
+    return HttpResponse.json(staffFunds().filter((f) => (!kind || f.kind === kind) && (!status || f.status === status)));
+  }),
+  http.post(apiUrl('/staff/dons/fonds/'), async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    if (body.starts_on && body.ends_on && String(body.ends_on) < String(body.starts_on)) {
+      return error(400, 'validation_error', 'La fin doit suivre le début.', { ends_on: ['La fin doit suivre le début.'] });
+    }
     return HttpResponse.json(
-      page(mesDons.slice(offset, offset + limit), {
-        limit,
-        offset,
-        count: mesDons.length,
-      }),
+      { ...staffFunds()[2], ...body, id: 'd0000000-0000-4000-8000-000000000099', status: 'brouillon', raised: 0, donations_count: 0, published_at: null },
+      { status: 201 },
     );
   }),
-
-  http.get(`${API}/me/dons/resume/`, async ({ request }) => {
-    await networkDelay();
-    const year = Number(new URL(request.url).searchParams.get('year') ?? 2026);
-    return HttpResponse.json({
-      year,
-      total: 10000,
-      count: 1,
-      by_fund: [
-        {
-          fund_id: FONDS_CAMPAGNE,
-          title: 'Réfection de la toiture',
-          parish: 'Saint-Dominique',
-          total: 10000,
-          count: 1,
-        },
-      ],
+  http.get(apiUrl('/staff/dons/fonds/:fundId/'), ({ params }) => {
+    const f = staffFunds().find((x) => x.id === params.fundId);
+    return f ? HttpResponse.json(f) : error(404, 'not_found', 'Fonds introuvable.');
+  }),
+  http.patch(apiUrl('/staff/dons/fonds/:fundId/'), async ({ params, request }) => {
+    const f = staffFunds().find((x) => x.id === params.fundId) ?? staffFunds()[2];
+    return HttpResponse.json({ ...f, ...((await request.json()) as object) });
+  }),
+  http.post(apiUrl('/staff/dons/fonds/:fundId/publier/'), ({ params }) =>
+    HttpResponse.json({ ...(staffFunds().find((x) => x.id === params.fundId) ?? staffFunds()[2]), id: params.fundId, status: 'ouvert' }),
+  ),
+  http.post(apiUrl('/staff/dons/fonds/:fundId/clore/'), ({ params }) =>
+    HttpResponse.json({ ...(staffFunds().find((x) => x.id === params.fundId) ?? staffFunds()[2]), id: params.fundId, status: 'clos' }),
+  ),
+  http.post(apiUrl('/staff/dons/fonds/:fundId/nouvelles/'), async ({ request }) =>
+    HttpResponse.json(
+      { id: 3, body: ((await request.json()) as { body: string }).body, created_at: '2026-09-28T09:00:00+00:00', author_name: 'Cécile Coly' },
+      { status: 201 },
+    ),
+  ),
+  http.get(apiUrl('/staff/dons/synthese/'), () => HttpResponse.json(parishSummary())),
+  http.get(apiUrl('/staff/dons/operations/'), ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const rows = operations().filter(
+      (o) =>
+        (!params.get('fund') || o.fund.id === params.get('fund')) &&
+        (!params.get('status') || o.status === params.get('status')) &&
+        (!params.get('channel') || o.channel === params.get('channel')),
+    );
+    return HttpResponse.json(page(rows, request.url));
+  }),
+  http.post(apiUrl('/staff/dons/operations/:donationId/rembourser/'), ({ params }) => {
+    const o = operations().find((x) => x.id === params.donationId) ?? operations()[1];
+    return HttpResponse.json({ ...o, status: 'rembourse' });
+  }),
+  http.get(apiUrl('/staff/dons/quetes/'), ({ request }) => {
+    const status = new URL(request.url).searchParams.get('status');
+    return HttpResponse.json(page(cashCollections().filter((c) => !status || c.status === status), request.url));
+  }),
+  http.post(apiUrl('/staff/dons/quetes/'), async ({ request }) => {
+    const body = (await request.json()) as { counter_one: string; counter_two: string; amount: number; mass_date: string; mass_label: string };
+    donsState.cashCreated.push(body);
+    if (body.counter_one.trim().toLowerCase() === body.counter_two.trim().toLowerCase()) {
+      return error(400, 'validation_error', 'Deux personnes différentes doivent compter la quête.', {
+        counter_two: ['Deux personnes différentes doivent compter la quête.'],
+      });
+    }
+    return HttpResponse.json({ ...cashCollections()[0], ...body, id: 6, status: 'saisie', entered_by: 'Cécile Coly' }, { status: 201 });
+  }),
+  http.post(apiUrl('/staff/dons/quetes/:id/valider/'), ({ params }) => {
+    donsState.validated.push(Number(params.id));
+    const c = cashCollections().find((x) => x.id === Number(params.id)) ?? cashCollections()[0];
+    return HttpResponse.json({ ...c, status: 'validee', validated_by: 'Cécile Coly', validated_at: '2026-09-28T09:00:00+00:00' });
+  }),
+  http.post(apiUrl('/staff/dons/quetes/:id/rejeter/'), async ({ params, request }) => {
+    const c = cashCollections().find((x) => x.id === Number(params.id)) ?? cashCollections()[0];
+    return HttpResponse.json({ ...c, status: 'rejetee', rejection_reason: ((await request.json()) as { reason: string }).reason });
+  }),
+  http.get(apiUrl('/staff/dons/export/'), ({ request }) => {
+    const file = new URL(request.url).searchParams.get('fichier') ?? 'csv';
+    donsState.exports.push(file);
+    return new HttpResponse(new Blob(['﻿date;reference;fonds;montant\n'], { type: 'text/csv' }), {
+      headers: { 'Content-Type': file === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv' },
     });
   }),
+  http.get(apiUrl('/staff/dons/rapprochement/'), () => HttpResponse.json(reconciliation())),
+  http.get(apiUrl('/staff/dons/reversements/'), ({ request }) => HttpResponse.json(page(payouts(), request.url))),
 
-  http.get(`${API}/me/dons/:id/recu/`, async ({ params }) => {
-    await networkDelay();
-    const d = mesDons.find((x) => x.id === params.id);
-    if (!d || d.status !== 'confirme')
-      return erreur(
-        404,
-        'receipt_unavailable',
-        "Le reçu n'est disponible que pour un don confirmé.",
-      );
-    return new HttpResponse(
-      new Blob(['%PDF-1.4'], { type: 'application/pdf' }),
-      {
-        headers: { 'Content-Type': 'application/pdf' },
-      },
-    );
+  // Diocèse
+  http.get(apiUrl('/staff/dons/quetes-imperees/'), () => HttpResponse.json(imperees())),
+  http.post(apiUrl('/staff/dons/quetes-imperees/'), async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ ...imperees()[1], ...body, id: 'd0000000-0000-4000-8000-000000000098', status: 'ouvert', raised: 0 }, { status: 201 });
+  }),
+  http.get(apiUrl('/staff/dons/quetes-imperees/:fundId/suivi/'), ({ params }) => HttpResponse.json(impereeFollow(String(params.fundId)))),
+
+  // Plateforme
+  http.get(apiUrl('/platform/dons/sante/'), () => HttpResponse.json(health())),
+  http.get(apiUrl('/platform/dons/activations/'), () => HttpResponse.json(activations())),
+  http.put(apiUrl('/platform/dons/activations/'), async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ ...activations()[0], ...body, node: activations()[0].node });
   }),
 ];

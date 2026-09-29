@@ -1,25 +1,19 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
+import type { RequestBody } from '@/types/api-contract';
 
-// PATCH /v1/me/ (MeProfileSerializer) : e-mail et mot de passe sont dans Keycloak.
-export type UpdateProfileInput = {
-  first_name?: string;
-  last_name?: string;
-  phone?: string;
-  title?: string;
-  date_of_birth?: string;
-};
+export type ProfileInput = RequestBody<'v1_me_partial_update'>;
 
-export const useUpdateProfile = ({
-  onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+/** Champs du profil seulement ; l'e-mail et le mot de passe se gèrent dans Keycloak. */
+export const updateProfile = (input: ProfileInput) => api.patch('/me/', input);
+
+export const useUpdateProfile = ({ onSuccess }: { onSuccess?: () => void } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: UpdateProfileInput) =>
-      api.patch<unknown>('/v1/me/', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
+    mutationFn: updateProfile,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['me'] });
       onSuccess?.();
     },
   });

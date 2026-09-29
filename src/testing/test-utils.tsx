@@ -1,45 +1,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, type RenderOptions } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import * as React from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import type { ReactElement, ReactNode } from 'react';
 
-import { MainErrorFallback } from '@/components/errors/main';
-import { Notifications } from '@/components/ui/notifications';
+import type { Grant } from '@/lib/capacites';
+import { mockState } from '@/testing/mocks/db';
 
-function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: Infinity,
-        staleTime: 0,
-      },
-      mutations: {
-        retry: false,
-      },
-    },
-  });
-}
+export const createTestQueryClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity }, mutations: { retry: false } } });
 
-function TestProviders({ children }: { children: React.ReactNode }) {
-  const [queryClient] = React.useState(() => createTestQueryClient());
-  return (
-    <ErrorBoundary FallbackComponent={MainErrorFallback}>
-      <QueryClientProvider client={queryClient}>
-        <Notifications />
-        {children}
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
-}
+type RenderAppOptions = Omit<RenderOptions, 'wrapper'> & { capacites?: Grant[] };
 
-export function renderApp(
-  ui: React.ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
-) {
-  return render(ui, { wrapper: TestProviders, ...options });
-}
-
-export * from '@testing-library/react';
-export { userEvent };
+/** Rend un composant avec les providers globaux et des capacités simulées (via MSW). */
+export const renderApp = (ui: ReactElement, { capacites = [], ...options }: RenderAppOptions = {}) => {
+  mockState.grants = capacites;
+  const queryClient = createTestQueryClient();
+  const Wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return { queryClient, ...render(ui, { wrapper: Wrapper, ...options }) };
+};

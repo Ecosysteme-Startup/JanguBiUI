@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Plateforme · Tableau de bord</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p:hover{background:#085887 !important}
+.jb-btn-o:hover{background:#F7FAFD !important;border-color:#8391A4 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-card:hover{border-color:#B3D8F0 !important}
+.jb-row:hover{background:#F7FAFD}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-lk:hover{color:#085887 !important;text-decoration:underline}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1023px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 264px minmax(0, 1fr); background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px;">
+  <!-- ===== BARRE LATÉRALE ESPACE PLATEFORME ===== -->
+  <aside style="display: flex; flex-direction: column; background: #F7FAFD; border-right: 1px solid #DDE5EE; padding: 20px 16px; box-sizing: border-box;">
+    <a href="#" class="jb-card" aria-label="Changer de contexte : Numerisen, espace plateforme" style="width: 232px; height: 56px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 0 10px 0 12px; border-radius: 12px; background: #FFFFFF; border: 1px solid #DDE5EE; color: #0E1A2B;">
+      <span style="width: 28px; height: 28px; flex: none; border-radius: 8px; background: #D9EBF7; color: #085887; display: inline-flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"></rect><rect width="20" height="8" x="2" y="14" rx="2" ry="2"></rect><line x1="6" x2="6.01" y1="6" y2="6"></line><line x1="6" x2="6.01" y1="18" y2="18"></line></svg></span>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 18px;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap;">Numerisen</span><span style="font-size: 13px; color: #586677;">Espace plateforme</span></span>
+      <span style="display: inline-flex; margin-left: -6px; color: #586677;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></span>
+    </a>
+    <nav aria-label="Navigation de l'espace plateforme" style="margin-top: 20px; display: flex; flex-direction: column; gap: 2px;">
+      <a href="WEB-PLA-Tableau-de-bord.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; background: #EEF6FC; color: #06466C; font-weight: 600; font-size: 15px;"><span style="display: inline-flex; color: #0A6BA3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg></span><span style="flex: 1;">Tableau de bord</span></a>
+      <a href="WEB-PLA-Referentiels.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12h-8"></path><path d="M21 6H8"></path><path d="M21 18h-8"></path><path d="M3 6v4c0 1.1.9 2 2 2h3"></path><path d="M3 10v6c0 1.1.9 2 2 2h3"></path></svg></span><span style="flex: 1;">Référentiels</span></a>
+      <a href="WEB-PLA-Comptes.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span style="flex: 1;">Comptes</span></a>
+      <a href="WEB-PLA-Paiements.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg></span><span style="flex: 1;">Paiements</span></a>
+      <a href="WEB-PLA-Audit.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 15px;"><span style="display: inline-flex; color: #586677;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 12h-5"></path><path d="M15 8h-5"></path><path d="M19 17V5a2 2 0 0 0-2-2H4"></path><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"></path></svg></span><span style="flex: 1;">Journal d'audit</span></a>
+    </nav>
+    <div style="flex: 1;"></div>
+    <div style="border-top: 1px solid #DDE5EE; padding-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 0 4px;">
+        <span style="width: 36px; height: 36px; flex: none; border-radius: 50%; background: #D9EBF7; color: #06466C; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">MB</span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 18px;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap;">Moustoifa Ben</span><span style="font-size: 13px; color: #586677; white-space: nowrap;">Administrateur plateforme</span></span>
+      </div>
+      <a href="WEB-FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px; color: #3A4859; font-size: 14px;"><span style="display: inline-flex; color: #586677;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg></span>Revenir à mon espace fidèle</a>
+    </div>
+  </aside>
+
+  <!-- ===== CONTENU ===== -->
+  <div style="display: flex; flex-direction: column; min-width: 0;">
+    <div style="height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid #DDE5EE;">
+      <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #586677;">Plateforme Numerisen · Production</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="#" class="jb-icon" aria-label="Notifications, 1 non lue" style="position: relative; width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #0E1A2B;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+          <span style="position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3; border: 2px solid #FFFFFF;"></span>
+        </a>
+      </div>
+    </div>
+
+    <main style="padding: 32px 40px 48px; max-width: 1120px; box-sizing: border-box; width: 100%;">
+      <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;">
+        <div>
+          <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em;">Tableau de bord</h1>
+          <p style="margin: 4px 0 0; font-size: 16px; color: #3A4859;">État de Jàngu Bi en production. Mis à jour à 11&nbsp;h&nbsp;05.</p>
+        </div>
+        <a href="#" class="jb-btn-o" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 12px; background: #FFFFFF; border: 1px solid #DDE5EE; box-sizing: border-box; color: #0E1A2B; font-size: 14px; font-weight: 600; white-space: nowrap; flex: none;"><span style="display: inline-flex; color: #3A4859;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg></span>Page de statut publique</a>
+      </header>
+
+      <div style="margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start;">
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+
+          <section aria-labelledby="t-sante" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 20px;">
+            <h2 id="t-sante" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Santé de la plateforme</h2>
+            <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Diocèses paramétrés</span><span style="font-size: 14px; color: #586677; white-space: nowrap;"><strong style="font-size: 15px; font-weight: 600; color: #0E1A2B;">1</strong> · Dakar</span></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Disponibilité, 30 jours</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">99,94&nbsp;%</strong></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Paroisses paramétrées</span><span style="font-size: 14px; color: #586677; white-space: nowrap;"><strong style="font-size: 15px; font-weight: 600; color: #0E1A2B;">5</strong> · 1 active</span></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Temps de réponse, p95</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">420&nbsp;ms</strong></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Comptes</span><span style="font-size: 14px; color: #586677; white-space: nowrap;"><strong style="font-size: 15px; font-weight: 600; color: #0E1A2B;">312</strong> · dont 14 staff</span></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Dernière sauvegarde</span><span style="font-size: 14px; color: #586677; white-space: nowrap;"><strong style="font-size: 15px; font-weight: 600; color: #0E1A2B;">3&nbsp;h&nbsp;00</strong> · vérifiée</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">MFA du staff</span><span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: #E4F2EE; color: #1F6B5C; font-size: 12px; font-weight: 600; white-space: nowrap;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>14 sur 14 · 100&nbsp;%</span></div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0 0; border-top: 1px solid #DDE5EE;"><span style="font-size: 14px; color: #3A4859;">Version déployée</span><span style="font-size: 14px; color: #586677; white-space: nowrap;"><strong style="font-size: 15px; font-weight: 600; color: #0E1A2B;">1.4.2</strong> · 22 sept.</span></div>
+            </div>
+
+            <h3 style="margin: 24px 0 0; font-size: 14px; line-height: 20px; font-weight: 600;">Services</h3>
+            <div style="margin-top: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+              <span style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #F7FAFD; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>Application et API</span>
+              <span style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #F7FAFD; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>Keycloak</span>
+              <span style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #F7FAFD; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>Messagerie chiffrée</span>
+              <span style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #F7FAFD; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>Notifications push</span>
+              <span style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #FBF1DF; color: #8A5A0B; font-size: 14px; font-weight: 600;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B7801F;"></span>SMS · ralenti</span>
+              <span style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #F7FAFD; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>E-mail</span>
+            </div>
+          </section>
+
+          <section aria-labelledby="t-insc" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 24px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+              <h2 id="t-insc" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600;">Inscriptions par semaine</h2>
+              <span style="font-size: 13px; color: #586677;">8 dernières semaines · 282 nouveaux comptes</span>
+            </div>
+            <svg width="592" height="204" viewBox="0 0 592 204" role="img" aria-label="Nouveaux comptes par semaine : 4 la semaine du 3 août, 2 le 10, 6 le 17, 9 le 24, 71 la semaine du 31 août à l'ouverture du pilote, 88 le 7 septembre, 64 le 14, et 38 depuis le 21 septembre, semaine en cours." style="margin-top: 20px; display: block; overflow: visible;">
+              <line x1="32" x2="592" y1="160" y2="160" stroke="#DDE5EE" stroke-width="1"></line>
+              <line x1="32" x2="592" y1="110" y2="110" stroke="#DDE5EE" stroke-width="1"></line>
+              <line x1="32" x2="592" y1="60" y2="60" stroke="#DDE5EE" stroke-width="1"></line>
+              <line x1="32" x2="592" y1="10" y2="10" stroke="#DDE5EE" stroke-width="1"></line>
+              <text x="0" y="160" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">0</text>
+              <text x="0" y="110" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">30</text>
+              <text x="0" y="60" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">60</text>
+              <text x="0" y="10" font-size="12" fill="#586677" dominant-baseline="middle" font-family="Libre Franklin, sans-serif">90</text>
+              <rect x="50" y="153.3" width="36" height="6.7" rx="3" fill="#0A6BA3"></rect><text x="68" y="146" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">4</text><text x="68" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">3 août</text>
+              <rect x="119" y="156.7" width="36" height="3.3" rx="1.5" fill="#0A6BA3"></rect><text x="137" y="149" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">2</text><text x="137" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">10</text>
+              <rect x="188" y="150" width="36" height="10" rx="4" fill="#0A6BA3"></rect><text x="206" y="143" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">6</text><text x="206" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">17</text>
+              <rect x="257" y="145" width="36" height="15" rx="4" fill="#0A6BA3"></rect><text x="275" y="138" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">9</text><text x="275" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">24</text>
+              <rect x="326" y="41.7" width="36" height="118.3" rx="4" fill="#0A6BA3"></rect><text x="344" y="34" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">71</text><text x="344" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">31 août</text><text x="344" y="198" font-size="12" fill="#1F6B5C" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">Pilote ouvert</text>
+              <rect x="395" y="13.3" width="36" height="146.7" rx="4" fill="#0A6BA3"></rect><text x="413" y="6" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">88</text><text x="413" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">7 sept.</text>
+              <rect x="464" y="53.3" width="36" height="106.7" rx="4" fill="#0A6BA3"></rect><text x="482" y="46" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">64</text><text x="482" y="182" font-size="12" fill="#586677" text-anchor="middle" font-family="Libre Franklin, sans-serif">14</text>
+              <rect x="533" y="96.7" width="36" height="63.3" rx="4" fill="#B3D8F0"></rect><text x="551" y="89" font-size="12" fill="#3A4859" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">38</text><text x="551" y="182" font-size="12" fill="#0E1A2B" text-anchor="middle" font-weight="600" font-family="Libre Franklin, sans-serif">21</text>
+            </svg>
+            <p style="margin: 12px 0 0; font-size: 13px; line-height: 18px; color: #586677;">Semaines commençant le lundi. La barre claire correspond à la semaine en cours. Les comptes d'avant août sont ceux de l'équipe et des tests.</p>
+          </section>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+          <section aria-labelledby="t-inc" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 20px;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;">
+              <h2 id="t-inc" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Incidents</h2>
+              <a href="#" class="jb-lk" style="font-size: 14px; font-weight: 600;">Historique</a>
+            </div>
+            <div style="margin-top: 12px; padding: 16px; border-radius: 12px; background: #FBF1DF;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8A5A0B;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B7801F;"></span>En cours depuis 10&nbsp;h&nbsp;42</span>
+                <span style="font-size: 13px; color: #8A5A0B;">Dégradé</span>
+              </div>
+              <p style="margin: 8px 0 0; font-size: 15px; line-height: 22px; font-weight: 600; color: #0E1A2B;">Envoi des SMS de vérification ralenti</p>
+              <p style="margin: 4px 0 0; font-size: 14px; line-height: 20px; color: #3A4859;">Retard de 6 à 9 minutes chez l'opérateur. Les codes arrivent, la connexion par e-mail reste possible.</p>
+              <a href="#" class="jb-btn-o" style="margin-top: 12px; display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 10px; background: #FFFFFF; border: 1px solid #DDE5EE; box-sizing: border-box; color: #0E1A2B; font-size: 14px; font-weight: 600; white-space: nowrap;">Suivre l'incident</a>
+            </div>
+            <ul style="margin: 12px 0 0; padding: 0; list-style: none;">
+              <li style="display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid #DDE5EE;"><span style="display: inline-flex; flex: none; margin-top: 2px; color: #1F6B5C;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">Notifications iOS retardées</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Résolu le 21&nbsp;sept. · 38&nbsp;min</span></span></li>
+              <li style="display: flex; gap: 10px; padding: 12px 0 0;"><span style="display: inline-flex; flex: none; margin-top: 2px; color: #1F6B5C;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></span><span style="display: flex; flex-direction: column;"><span style="font-size: 14px; line-height: 20px; font-weight: 600;">Lenteur de la recherche de paroisses</span><span style="font-size: 13px; line-height: 18px; color: #586677;">Résolu le 9&nbsp;sept. · 2&nbsp;h&nbsp;10</span></span></li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="t-files" style="border: 1px solid #DDE5EE; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(14,26,43,0.06); padding: 20px 24px 20px;">
+            <h2 id="t-files" style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">Files techniques</h2>
+            <div style="margin-top: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #3A4859;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #B7801F;"></span>SMS en attente</span><strong style="font-size: 15px; font-weight: 600; color: #8A5A0B; font-variant-numeric: tabular-nums;">37</strong></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #3A4859;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>Notifications push</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">12</strong></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #3A4859;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>E-mails</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">0</strong></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #3A4859;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1F6B5C;"></span>Tâches planifiées en échec</span><strong style="font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums;">0</strong></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #DDE5EE;"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #3A4859;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3;"></span>Imports de nominations</span><span style="font-size: 14px; color: #586677;">1 en vérification</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0 0; border-top: 1px solid #DDE5EE;"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: #3A4859;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3;"></span>Suppressions de compte</span><span style="font-size: 14px; color: #586677; white-space: nowrap;">1 · avant le 8&nbsp;oct.</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1023}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

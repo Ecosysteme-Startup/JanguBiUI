@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Sombre · Conversation</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1118;color:#E8EEF5;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#7CC3EE;text-decoration:none}a:hover{color:#A8D8F5}
+button,input,select,textarea{font-family:inherit}
+textarea::placeholder,input::placeholder{color:#92A2B4}
+:focus-visible{outline:2px solid #7CC3EE;outline-offset:2px}
+.jb-btn-p:hover{background:#085E90 !important}
+.jb-btn-o:hover{background:#111A24 !important;border-color:#5F7085 !important}
+.jb-side:hover{background:#18232F !important;color:#E8EEF5 !important}
+.jb-card:hover{border-color:#26618F !important}
+.jb-row:hover{background:#111A24}
+.jb-icon:hover{background:#18232F !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 960px; box-sizing: border-box; overflow: hidden; position: relative; display: grid; grid-template-columns: 264px 360px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); background: #0B1118; color: #E8EEF5; font-family: 'Libre Franklin', sans-serif; font-size: 16px; line-height: 24px;">
+
+  <aside style="display: flex; flex-direction: column; background: #111A24; border-right: 1px solid #243142; padding: 20px 16px; box-sizing: border-box;">
+    <a href="Sombre-WEB-FID-Accueil.dc.html" aria-label="Jàngu Bi, accueil" style="display: inline-flex; align-items: center; gap: 10px; padding: 0 8px; height: 40px; color: #E8EEF5;">
+      <span style="width: 30px; height: 30px; border-radius: 8px; background: #0A6BA3; display: inline-flex; align-items: center; justify-content: center; color: #F5F9FC;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></span>
+      <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 20px; font-weight: 600;">Jàngu Bi</span>
+    </a>
+    <label style="margin-top: 16px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 10px; background: #0B1118; border: 1px solid #243142; color: #92A2B4; font-size: 14px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input type="search" placeholder="Rechercher" aria-label="Rechercher" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 14px; color: #E8EEF5; outline: none;">
+      <span style="font-size: 12px; color: #92A2B4; border: 1px solid #243142; border-radius: 6px; padding: 0 6px; line-height: 20px;">Ctrl K</span>
+    </label>
+
+    <nav aria-label="Navigation principale" style="margin-top: 20px; display: flex; flex-direction: column; gap: 2px;">
+      <a href="Sombre-WEB-FID-Accueil.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span>Accueil
+      </a>
+      <a href="Sombre-WEB-Parole-du-jour.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg></span>La Parole
+      </a>
+      <a href="Sombre-WEB-Fiche-Paroisse.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 9h4"></path><path d="M12 7v5"></path><path d="M14 22v-4a2 2 0 0 0-4 0v4"></path><path d="M18 22V5.618a1 1 0 0 0-.553-.894l-4.553-2.277a2 2 0 0 0-1.788 0L6.553 4.724A1 1 0 0 0 6 5.618V22"></path><path d="m18 7 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-10.382a1 1 0 0 1 .553-.894L6 7"></path></svg></span>Ma paroisse
+      </a>
+      <a href="Sombre-WEB-FID-Demande-Nouvelle.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg></span><span style="flex: 1;">Mes demandes</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #13304A; color: #7CC3EE; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">1</span>
+      </a>
+      <a href="Sombre-WEB-FID-Conversation.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; background: #0F2233; color: #7CC3EE; font-size: 15px; font-weight: 600;">
+        <span style="display: inline-flex; color: #7CC3EE;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg></span><span style="flex: 1;">Parler à un prêtre</span>
+      </a>
+      <a href="Sombre-WEB-FID-Donner.dc.html" class="jb-side" style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; color: #BAC6D3; font-size: 15px;">
+        <span style="display: inline-flex; color: #92A2B4;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path><path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"></path></svg></span>Dons
+      </a>
+    </nav>
+
+    <div style="flex: 1;"></div>
+
+    <a href="Sombre-WEB-Fiche-Paroisse.dc.html" class="jb-card" style="display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; background: #0B1118; border: 1px solid #243142; color: #E8EEF5;">
+      <span style="font-size: 12px; color: #92A2B4;">Paroisse suivie</span>
+      <span style="font-size: 15px; font-weight: 600;">Saint-Dominique</span>
+      <span style="font-size: 13px; color: #BAC6D3;">Messe ce soir à 18&nbsp;h&nbsp;30</span>
+    </a>
+    <div style="margin-top: 12px; display: flex; align-items: center; gap: 10px; padding: 0 4px;">
+      <span style="width: 32px; height: 32px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">MD</span>
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><span style="font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Marie-Thérèse Diouf</span><span style="font-size: 12px; color: #92A2B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">mt.diouf@orange.sn</span></span>
+      <a href="#" class="jb-icon" aria-label="Réglages du compte" style="width: 32px; height: 32px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #BAC6D3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></a>
+    </div>
+  </aside>
+
+  <!-- ===== Liste des conversations ===== -->
+  <section aria-labelledby="liste-titre" style="display: flex; flex-direction: column; min-width: 0; border-right: 1px solid #243142; background: #0B1118;">
+    <div style="padding: 24px 20px 16px;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <h1 id="liste-titre" style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em;">Parler à un prêtre</h1>
+        <a href="#" class="jb-icon" aria-label="Nouvelle conversation" style="width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #E8EEF5;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path></svg></a>
+      </div>
+      <div role="tablist" aria-label="Affichage" style="margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: #18232F;">
+        <span role="tab" aria-selected="true" style="height: 32px; border-radius: 9px; background: #0B1118; box-shadow: 0 1px 2px rgba(0,0,0,0.18); font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">Conversations</span>
+        <a href="#" role="tab" aria-selected="false" style="height: 32px; border-radius: 9px; color: #BAC6D3; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center;">Prêtres joignables</a>
+      </div>
+    </div>
+
+    <!-- Rendez-vous -->
+    <div style="padding: 0 20px 8px;">
+      <a href="#" class="jb-card" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: #111A24; border: 1px solid #243142; color: #E8EEF5;">
+        <span style="flex: none; width: 44px; height: 48px; border-radius: 10px; background: #0B1118; border: 1px solid #243142; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #7CC3EE;"><span style="font-size: 11px; line-height: 14px;">sam.</span><span style="font-size: 17px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums;">26</span></span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <span style="font-size: 13px; line-height: 18px; color: #92A2B4;">Prochain rendez-vous</span>
+          <span style="font-size: 15px; font-weight: 600;">Confession à 16&nbsp;h&nbsp;20</span>
+          <span style="font-size: 13px; line-height: 18px; color: #BAC6D3;">Abbé Augustin Ndiaye · 10&nbsp;min</span>
+        </span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92A2B4" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="m9 18 6-6-6-6"></path></svg>
+      </a>
+    </div>
+
+    <ul aria-label="Conversations" style="margin: 8px 0 0; padding: 0 12px; list-style: none; display: flex; flex-direction: column; gap: 2px;">
+      <li>
+        <a href="Sombre-WEB-FID-Conversation.dc.html" aria-current="true" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; background: #0F2233; color: #E8EEF5;">
+          <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">ET</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+            <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;"><span style="font-size: 15px; font-weight: 600;">Père Emmanuel Tine</span><span style="font-size: 12px; color: #BAC6D3; font-variant-numeric: tabular-nums;">10:13</span></span>
+            <span style="font-size: 13px; line-height: 18px; color: #7CC3EE;">Vicaire · Préparation au mariage</span>
+            <span style="margin-top: 2px; font-size: 14px; line-height: 20px; color: #BAC6D3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Venez tous les deux. Les extraits de baptême pourront suivre.</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="jb-row" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; color: #E8EEF5;">
+          <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #18232F; color: #BAC6D3; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">AN</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+            <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;"><span style="font-size: 15px; font-weight: 600;">Abbé Augustin Ndiaye</span><span style="font-size: 12px; color: #92A2B4;">Hier</span></span>
+            <span style="font-size: 13px; line-height: 18px; color: #92A2B4;">Curé · Bénédiction de maison</span>
+            <span style="margin-top: 2px; font-size: 14px; line-height: 20px; color: #BAC6D3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Vous&nbsp;: Merci mon Père, samedi 3&nbsp;octobre à 10&nbsp;h nous convient.</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="jb-row" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; color: #E8EEF5;">
+          <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #18232F; color: #BAC6D3; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">RS</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+            <span style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px;"><span style="font-size: 15px; font-weight: 600;">Abbé Robert Sagna</span><span style="font-size: 12px; color: #92A2B4;">2&nbsp;août</span></span>
+            <span style="font-size: 13px; line-height: 18px; color: #92A2B4;">Vicaire · Messe pour un défunt</span>
+            <span style="margin-top: 2px; font-size: 14px; line-height: 20px; color: #BAC6D3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Nous prierons pour votre oncle Joseph à la messe de 7&nbsp;h.</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+
+    <div style="flex: 1;"></div>
+    <p style="margin: 0; padding: 16px 20px 20px; border-top: 1px solid #243142; display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 18px; color: #92A2B4;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      Messages chiffrés, aucun administrateur n'y a accès, ni à la paroisse ni chez Jàngu Bi. Réservé aux fidèles majeurs.
+    </p>
+  </section>
+
+  <!-- ===== Fil de la conversation ===== -->
+  <section aria-label="Conversation avec le Père Emmanuel Tine" style="display: flex; flex-direction: column; min-width: 0; background: #0B1118;">
+    <!-- En-tête chiffré -->
+    <header style="height: 72px; flex: none; box-sizing: border-box; padding: 0 24px 0 32px; border-bottom: 1px solid #243142; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+        <span style="width: 40px; height: 40px; flex: none; border-radius: 50%; background: #13304A; color: #7CC3EE; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center;">ET</span>
+        <span style="display: flex; flex-direction: column; min-width: 0;">
+          <span style="font-size: 16px; font-weight: 600;">Père Emmanuel Tine</span>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 18px; color: #BAC6D3;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7CCBB6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Messages chiffrés<span style="color: #92A2B4;">· Vicaire, paroisse Saint-Dominique</span></span>
+        </span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="#" class="jb-btn-o" style="height: 40px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid #243142; color: #E8EEF5; font-size: 14px; font-weight: 600;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>Vérifier la sécurité</a>
+        <a href="#" class="jb-icon" aria-label="Plus d'options" style="width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #BAC6D3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></a>
+      </div>
+    </header>
+
+    <!-- Note épinglée : confession -->
+    <div role="note" aria-label="Note épinglée" style="flex: none; padding: 12px 24px 12px 32px; background: #0F2233; border-bottom: 1px solid #DCE5F2; display: flex; align-items: center; gap: 12px; color: #A8D8F5;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7CC3EE" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none;"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg>
+      <p style="margin: 0; flex: 1; font-size: 14px; line-height: 20px;"><strong style="display: block; font-weight: 600;">La confession ne se fait pas par message.</strong>Prenez rendez-vous pour une confession en présentiel.</p>
+      <a href="#" class="jb-btn-o" style="flex: none; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 10px; border: 1px solid #26618F; background: #0B1118; color: #7CC3EE; font-size: 14px; font-weight: 600;">Prendre rendez-vous</a>
+    </div>
+
+    <!-- Messages -->
+    <div role="log" aria-label="Messages" style="flex: 1; min-height: 0; overflow: hidden; padding: 24px 32px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;">
+      <div style="align-self: center; margin-bottom: 16px; padding: 8px 14px; border-radius: 999px; background: #111A24; border: 1px solid #243142; font-size: 13px; line-height: 18px; color: #BAC6D3;">Mardi 22&nbsp;septembre · conversation ouverte sur la <span style="font-weight: 600; color: #E8EEF5;">préparation au mariage</span></div>
+
+      <div style="align-self: flex-end; max-width: 520px; display: flex; flex-direction: column; align-items: flex-end;">
+        <p style="margin: 0; padding: 12px 16px; border-radius: 16px 16px 4px 16px; background: #13304A; color: #E8EEF5; font-size: 15px; line-height: 22px;">Bonjour mon Père, Jean-Baptiste et moi souhaitons nous marier en juin prochain. Par où commencer&nbsp;?</p>
+        <span style="margin-top: 4px; font-size: 12px; line-height: 16px; color: #92A2B4; font-variant-numeric: tabular-nums;">18:21</span>
+      </div>
+
+      <div style="margin-top: 12px; align-self: flex-start; max-width: 520px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+        <p style="margin: 0; padding: 12px 16px; border-radius: 16px 16px 16px 4px; background: #111A24; border: 1px solid #243142; font-size: 15px; line-height: 22px;">Quelle belle nouvelle, Marie-Thérèse. Comptez environ neuf mois&nbsp;: un entretien avec vous deux, puis un parcours avec un couple accompagnateur.</p>
+        <p style="margin: 0; padding: 12px 16px; border-radius: 4px 16px 16px 4px; background: #111A24; border: 1px solid #243142; font-size: 15px; line-height: 22px;">Demandez déjà vos extraits de baptême, chacun à sa paroisse de baptême.</p>
+        <span style="font-size: 12px; line-height: 16px; color: #92A2B4; font-variant-numeric: tabular-nums;">18:40</span>
+      </div>
+
+      <div style="margin-top: 12px; align-self: flex-end; max-width: 520px; display: flex; flex-direction: column; align-items: flex-end;">
+        <p style="margin: 0; padding: 12px 16px; border-radius: 16px 16px 4px 16px; background: #13304A; color: #E8EEF5; font-size: 15px; line-height: 22px;">C'est fait pour moi à Sainte-Thérèse de Grand-Dakar. Quand pourrions-nous vous rencontrer&nbsp;?</p>
+        <span style="margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; line-height: 16px; color: #92A2B4; font-variant-numeric: tabular-nums;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7CC3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 7 17l-5-5"></path><path d="m22 10-7.5 7.5L13 16"></path></svg>Lu · 18:47</span>
+      </div>
+
+      <div style="align-self: center; margin: 20px 0 12px; font-size: 13px; line-height: 18px; color: #92A2B4; font-weight: 500;">Aujourd'hui</div>
+
+      <div style="align-self: flex-start; max-width: 520px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+        <p style="margin: 0; padding: 12px 16px; border-radius: 16px 16px 16px 4px; background: #111A24; border: 1px solid #243142; font-size: 15px; line-height: 22px;">Nous pouvons nous voir mardi 29&nbsp;septembre à 19&nbsp;h&nbsp;15, après la messe du soir, au bureau paroissial.</p>
+        <p style="margin: 0; padding: 12px 16px; border-radius: 4px 16px 16px 4px; background: #111A24; border: 1px solid #243142; font-size: 15px; line-height: 22px;">Venez tous les deux. Les extraits de baptême pourront suivre.</p>
+        <span style="font-size: 12px; line-height: 16px; color: #92A2B4; font-variant-numeric: tabular-nums;">10:13</span>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <form aria-label="Écrire un message" style="flex: none; padding: 16px 24px 20px 32px; border-top: 1px solid #243142; background: #0B1118;">
+      <div style="display: flex; align-items: flex-end; gap: 12px;">
+        <a href="#" class="jb-icon" aria-label="Joindre un fichier" style="width: 48px; height: 48px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: #BAC6D3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></a>
+        <label style="flex: 1; min-width: 0;">
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Message au Père Emmanuel Tine</span>
+          <textarea rows="1" style="display: block; width: 100%; box-sizing: border-box; height: 48px; resize: none; padding: 12px 14px; border-radius: 12px; border: 2px solid #7CC3EE; background: #0B1118; font-size: 15px; line-height: 20px; color: #E8EEF5; outline: none;">Parfait, nous y serons tous les deux. Merci mon Père.</textarea>
+        </label>
+        <button type="submit" class="jb-btn-p" style="height: 48px; flex: none; padding: 0 20px; border: 0; border-radius: 12px; background: #0A6BA3; color: #F5F9FC; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>Envoyer</button>
+      </div>
+      <p style="margin: 8px 0 0 60px; font-size: 12px; line-height: 16px; color: #92A2B4;">Entrée pour envoyer, Maj + Entrée pour aller à la ligne.</p>
+    </form>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

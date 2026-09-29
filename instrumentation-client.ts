@@ -1,5 +1,6 @@
-import * as Sentry from '@sentry/nextjs';
+import { captureRouterTransitionStart, startSentry } from '@/lib/sentry-client';
 
-import './sentry.client.config';
+// Sentry est chargé à la demande (src/lib/sentry-client.ts) : hors du JS du premier affichage.
+startSentry();
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export const onRouterTransitionStart = captureRouterTransitionStart;

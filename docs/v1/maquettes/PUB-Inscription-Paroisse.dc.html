@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Inscription · paroisse</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#0E1A2B;font-family:'Libre Franklin',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#0A6BA3;text-decoration:none}a:hover{color:#085887}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0A6BA3;outline-offset:2px}
+.jb-btn-p{transition:background-color .15s ease,border-color .15s ease}.jb-btn-p:hover{background:#085887 !important;border-color:#085887 !important;color:#F7FAFD !important}
+.jb-btn-s{transition:background-color .15s ease,color .15s ease}.jb-btn-s:hover{background:#0E1A2B !important;color:#FFFFFF !important}
+.jb-btn-t:hover{color:#085887 !important;border-color:#085887 !important}
+.jb-btn-d:hover{background:#A12A22 !important;color:#F7FAFD !important;border-color:#A12A22 !important}
+.jb-nav:hover{color:#0A6BA3 !important}
+.jb-side:hover{background:#EDF3F9 !important;color:#0E1A2B !important}
+.jb-row:hover{background:#EDF3F9}
+.jb-chip:hover{border-color:#0E1A2B !important}
+.jb-icon:hover{background:#EDF3F9 !important}
+.jb-card:hover{border-color:#0E1A2B !important}
+.jb-slot:hover{border-color:#0A6BA3 !important;color:#0A6BA3 !important}
+.jb-foot:hover{color:#F7FAFD !important}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1180px; box-sizing: border-box; overflow: hidden; position: relative; display: flex; flex-direction: column; background: #FFFFFF; color: #0E1A2B; font-family: 'Libre Franklin', sans-serif;">
+
+  <!-- BANDEAU LITURGIQUE -->
+  <div style="display: flex; align-items: center; justify-content: space-between; height: 40px; flex: none; padding: 0 64px; box-sizing: border-box; border-bottom: 3px double #0E1A2B; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0E1A2B; font-variant-numeric: tabular-nums;">
+    <span style="display: flex; align-items: center; gap: 16px;">
+      <span>Jeudi 24 septembre 2026</span>
+      <span style="color: #586677;">Jour 267</span>
+    </span>
+    <span style="display: flex; align-items: center; gap: 12px;">
+      <span>Jeudi de la 25<sup style="font-size: 0.62em; text-transform: none; letter-spacing: 0;">e</sup> semaine du temps ordinaire</span>
+      <span title="Couleur liturgique du jour : vert" style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border: 1px solid #2E6B3F; border-radius: 999px; color: #2E6B3F; box-sizing: border-box;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #2E6B3F;"></span>Vert</span>
+    </span>
+    <a href="PUB-Parole-du-jour.dc.html" class="jb-btn-t" style="color: #0A6BA3; border-bottom: 1px solid #B3D8F0; padding-bottom: 1px;">Ec 1, 2-11 · Ps 89 (90) · Lc 9, 7-9</a>
+  </div>
+
+  <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: 480px minmax(0, 1fr);">
+
+    <!-- PANNEAU ÉDITORIAL -->
+    <aside style="position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 48px 56px; background: #052F49; color: #D9EBF7; box-sizing: border-box;">
+      <svg viewBox="0 0 480 1140" width="480" height="1140" aria-hidden="true" style="position: absolute; top: 0; left: 0; display: block;">
+        <path d="M90 1140V620a150 150 0 0 1 300 0v520" fill="none" stroke="#06466C" stroke-width="1.5"></path>
+        <path d="M240 470v670" stroke="#06466C" stroke-width="1"></path>
+      </svg>
+      <a href="Main.dc.html" aria-label="Jàngu Bi, page d'accueil" style="position: relative; display: flex; align-items: baseline; gap: 12px; color: #F7FAFD;">
+        <span style="font-family: 'Source Serif 4', Georgia, serif; font-size: 36px; line-height: 1; letter-spacing: -0.01em;">Jàngu Bi</span>
+        <span style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7FC0E8; font-variant-numeric: tabular-nums;">La Leçon</span>
+      </a>
+      <div style="position: relative;">
+        <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #7FC0E8; font-variant-numeric: tabular-nums;">Première lecture</p>
+        <p style="margin: 20px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 36px; line-height: 1.12; color: #F7FAFD;">«&nbsp;Une génération s'en va, une autre vient, et la terre subsiste toujours.&nbsp;»</p>
+        <p style="margin: 20px 0 0 0; font-family: 'Libre Franklin', sans-serif; font-size: 13px; letter-spacing: 0.01em; color: #B3D8F0; font-variant-numeric: tabular-nums;">Ec 1, 4 · traduction Louis Segond</p>
+        <p style="margin: 48px 0 0 0; padding-top: 16px; border-top: 1px solid #06466C; font-size: 15px; line-height: 1.6; color: #D9EBF7;">Suivre une paroisse, c'est recevoir ses annonces du dimanche, voir ses horaires et pouvoir écrire à ses prêtres. Vous pourrez en changer à tout moment dans votre profil.</p>
+      </div>
+      <p style="position: relative; margin: 0; font-size: 15px; color: #B3D8F0;">Besoin d'aide&nbsp;? Le secrétariat de votre paroisse peut vous accompagner.</p>
+    </aside>
+
+    <!-- ÉTAPES 2 ET 3 -->
+    <main style="padding: 40px 64px 32px 64px; box-sizing: border-box;">
+      <div style="width: 832px; margin: 0 auto;">
+        <ol aria-label="Étapes de l'inscription" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+          <li style="padding-top: 12px; border-top: 2px solid #0A6BA3;">
+            <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0A6BA3; font-variant-numeric: tabular-nums;">01 · Terminé</span>
+            <a href="PUB-Inscription-Compte.dc.html" style="display: block; margin-top: 4px; font-size: 15px; font-weight: 500; color: #0E1A2B;">Votre compte</a>
+          </li>
+          <li aria-current="step" style="padding-top: 12px; border-top: 2px solid #0E1A2B;">
+            <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0E1A2B; font-variant-numeric: tabular-nums;">02 · En cours</span>
+            <span style="display: block; margin-top: 4px; font-size: 15px; font-weight: 600; color: #0E1A2B;">Votre paroisse</span>
+          </li>
+          <li style="padding-top: 12px; border-top: 2px solid #DDE5EE;">
+            <span style="display: block; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">03 · À valider</span>
+            <span style="display: block; margin-top: 4px; font-size: 15px; color: #3A4859;">Récapitulatif et consentements</span>
+          </li>
+        </ol>
+
+        <div style="margin-top: 32px;">
+          <p style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0A6BA3; font-variant-numeric: tabular-nums;">Étapes 2 et 3 sur 3</p>
+          <h1 style="margin: 8px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1.02; letter-spacing: -0.01em;">Choisir la paroisse que je suis</h1>
+          <p style="margin: 8px 0 0 0; font-size: 15px; line-height: 1.5; color: #3A4859;">En général, celle où vous allez à la messe le dimanche. Ce n'est pas forcément votre paroisse de baptême.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; margin-top: 24px; align-items: start;">
+
+          <!-- Étape 2 : choix -->
+          <fieldset style="margin: 0; padding: 0; border: 0; min-width: 0;">
+            <legend style="padding: 0; font-size: 14px; font-weight: 600;">Rechercher une paroisse</legend>
+            <div style="position: relative; margin-top: 8px;">
+              <label for="p-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Nom, quartier ou ville</label>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A4859" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 14px; top: 14px; pointer-events: none;"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5.5 5.5"></path></svg>
+              <input id="p-q" type="search" value="Dakar" style="width: 100%; height: 48px; padding: 0 14px 0 44px; background: #F7FAFD; border: 1px solid #8391A4; border-radius: 2px; font-size: 16px; color: #0E1A2B; box-sizing: border-box;">
+            </div>
+            <p style="display: flex; justify-content: space-between; margin: 12px 0 8px 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;"><span>62 résultats · Archidiocèse de Dakar</span><span>Actives en premier</span></p>
+            <div role="radiogroup" aria-label="Paroisse suivie" style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 12px 16px; background: #EEF6FC; border: 1px solid #0A6BA3; border-radius: 2px; cursor: pointer; box-sizing: border-box;">
+                <input type="radio" name="paroisse" checked style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">
+                <span style="flex: 1; min-width: 0;"><span style="display: block; font-size: 16px; font-weight: 600;">Saint-Dominique</span><span style="display: block; font-size: 14px; color: #3A4859;">Point E · doyenné Plateau-Médina</span></span>
+                <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #0A6BA3; white-space: nowrap;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0A6BA3;"></span>Active</span>
+              </label>
+              <label class="jb-card" style="display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 12px 16px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; cursor: pointer; box-sizing: border-box;">
+                <input type="radio" name="paroisse" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">
+                <span style="flex: 1; min-width: 0;"><span style="display: block; font-size: 16px; font-weight: 600;">Cathédrale Notre-Dame-des-Victoires</span><span style="display: block; font-size: 14px; color: #3A4859;">Plateau · doyenné Plateau-Médina</span></span>
+                <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #0A6BA3; box-sizing: border-box;"></span>En préparation</span>
+              </label>
+              <label class="jb-card" style="display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 12px 16px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; cursor: pointer; box-sizing: border-box;">
+                <input type="radio" name="paroisse" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">
+                <span style="flex: 1; min-width: 0;"><span style="display: block; font-size: 16px; font-weight: 600;">Sainte-Thérèse de Grand-Dakar</span><span style="display: block; font-size: 14px; color: #3A4859;">Grand-Dakar · doyenné Grand Dakar-Yoff</span></span>
+                <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #0A6BA3; box-sizing: border-box;"></span>En préparation</span>
+              </label>
+              <label class="jb-card" style="display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 12px 16px; background: #F7FAFD; border: 1px solid #DDE5EE; border-radius: 2px; cursor: pointer; box-sizing: border-box;">
+                <input type="radio" name="paroisse" style="width: 20px; height: 20px; margin: 0; accent-color: #0A6BA3; flex: none;">
+                <span style="flex: 1; min-width: 0;"><span style="display: block; font-size: 16px; font-weight: 600;">Saint-Joseph de Médina</span><span style="display: block; font-size: 14px; color: #3A4859;">Médina · doyenné Plateau-Médina</span></span>
+                <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; white-space: nowrap;"><span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #0A6BA3; box-sizing: border-box;"></span>En préparation</span>
+              </label>
+            </div>
+            <p style="margin: 12px 0 0 0; font-size: 14px; line-height: 1.5; color: #586677;">Une paroisse « en préparation » peut être suivie : vous verrez ses horaires, et ses annonces dès son ouverture.</p>
+          </fieldset>
+
+          <!-- Récapitulatif (aperçu de l'étape 3) -->
+          <section aria-labelledby="recap-titre" style="padding: 24px; background: #F7FAFD; border: 1px solid #0E1A2B; border-radius: 2px;">
+            <p id="recap-titre" style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #0A6BA3; font-variant-numeric: tabular-nums;">03 · Récapitulatif</p>
+            <dl style="margin: 16px 0 0 0;">
+              <div style="padding: 12px 0; border-top: 1px solid #DDE5EE;">
+                <dt style="display: flex; justify-content: space-between; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;"><span>Compte</span><a href="PUB-Inscription-Compte.dc.html" style="color: #0A6BA3; text-transform: none; letter-spacing: 0; font-family: 'Libre Franklin', sans-serif; font-size: 14px;">Modifier</a></dt>
+                <dd style="margin: 6px 0 0 0; font-size: 16px; font-weight: 600;">Marie-Thérèse Diouf</dd>
+                <dd style="margin: 2px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">marie-therese.diouf@gmail.com<br><span style="font-family: 'Libre Franklin', sans-serif; font-size: 13px; font-variant-numeric: tabular-nums;">+221 77 412 36 58</span></dd>
+              </div>
+              <div style="padding: 12px 0; border-top: 1px solid #DDE5EE;">
+                <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Paroisse suivie</dt>
+                <dd style="margin: 6px 0 0 0; font-family: 'Source Serif 4', Georgia, serif; font-size: 26px; line-height: 1.1;">Saint-Dominique</dd>
+                <dd style="margin: 2px 0 0 0; font-size: 14px; color: #3A4859;">Point E · Archidiocèse de Dakar</dd>
+              </div>
+              <div style="padding: 12px 0; border-top: 1px solid #DDE5EE; border-bottom: 1px solid #DDE5EE;">
+                <dt style="font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #586677; font-variant-numeric: tabular-nums;">Paroisse de baptême</dt>
+                <dd style="margin: 6px 0 0 0; font-size: 14px; line-height: 1.5; color: #3A4859;">Demandée seulement lors d'une demande d'extrait d'acte.</dd>
+              </div>
+            </dl>
+            <p style="display: flex; align-items: center; gap: 8px; margin: 16px 0 0 0; font-size: 14px; color: #3A4859;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg>Premières annonces : dimanche 27 septembre</p>
+          </section>
+        </div>
+
+        <!-- Étape 3 : consentements -->
+        <section aria-labelledby="consent-titre" style="margin-top: 32px; padding-top: 12px; border-top: 1px solid #0E1A2B;">
+          <p id="consent-titre" style="margin: 0; font-family: 'Libre Franklin', sans-serif; font-size: 12px; letter-spacing: 0.01em; color: #3A4859; font-variant-numeric: tabular-nums;"><span style="color: #0A6BA3;">03</span> — Consentements</p>
+          <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 32px; margin-top: 16px;">
+            <div role="note" style="display: flex; gap: 12px; padding: 16px 20px; background: #FBF1DF; border: 1px solid #B7801F; border-radius: 2px; align-self: start;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A5A0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px;"><path d="M12 3.5 21 19.5H3z"></path><path d="M12 10v4.5M12 17.2v.1"></path></svg>
+              <div>
+                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #8A5A0B;">Une donnée sensible</p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; line-height: 1.5;">Suivre une paroisse révèle une appartenance religieuse. La loi n° 2008-12 sur les données personnelles exige votre accord exprès, distinct des conditions d'utilisation.</p>
+                <a href="#" style="display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 500; color: #0A6BA3; border-bottom: 1px solid #0A6BA3;">Lire la politique de confidentialité</a>
+              </div>
+            </div>
+            <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 14px;">
+              <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Consentements</legend>
+              <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; cursor: pointer;">
+                <input type="checkbox" checked style="width: 20px; height: 20px; margin: 1px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                <span>J'accepte que Jàngu Bi enregistre mon appartenance à la paroisse Saint-Dominique, et que son secrétariat et ses prêtres en aient connaissance. <span style="color: #A12A22;" aria-hidden="true">*</span></span>
+              </label>
+              <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; cursor: pointer;">
+                <input type="checkbox" checked style="width: 20px; height: 20px; margin: 1px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                <span>J'accepte les <a href="#" style="color: #0A6BA3; border-bottom: 1px solid #0A6BA3;">conditions d'utilisation</a>. <span style="color: #A12A22;" aria-hidden="true">*</span></span>
+              </label>
+              <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; cursor: pointer;">
+                <input type="checkbox" checked style="width: 20px; height: 20px; margin: 1px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                <span>Recevoir une notification pour les annonces du dimanche. <span style="color: #586677;">Facultatif</span></span>
+              </label>
+              <label style="display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; cursor: pointer;">
+                <input type="checkbox" style="width: 20px; height: 20px; margin: 1px 0 0 0; accent-color: #0A6BA3; flex: none;">
+                <span>Recevoir les rappels de rendez-vous par SMS. <span style="color: #586677;">Facultatif</span></span>
+              </label>
+            </fieldset>
+          </div>
+        </section>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 20px; border-top: 1px solid #DDE5EE;">
+          <a href="PUB-Inscription-Compte.dc.html" class="jb-btn-t" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; color: #0A6BA3; font-size: 15px; font-weight: 500;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19.5 12h-15M10.5 6l-6 6 6 6"></path></svg><span style="border-bottom: 1px solid #0A6BA3; padding-bottom: 2px;">Retour · mon compte</span></a>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <span style="font-size: 14px; color: #586677;">Vous pourrez retirer ces accords à tout moment.</span>
+            <a href="FID-Accueil.dc.html" class="jb-btn-p" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 28px; background: #0A6BA3; color: #F7FAFD; border: 1px solid #0A6BA3; border-radius: 2px; font-size: 16px; font-weight: 500; box-sizing: border-box;">Créer mon compte<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg></a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

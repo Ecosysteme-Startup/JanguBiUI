@@ -1,22 +1,20 @@
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 
-const Textarea = React.forwardRef<
-  HTMLTextAreaElement,
-  React.ComponentProps<'textarea'>
->(({ className, ...props }, ref) => {
-  return (
+import { type ControlSize, controlClasses } from './field';
+
+type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & { controlSize?: ControlSize };
+
+/** Zone de texte (WEB-Design-System) : hauteur 92 px minimum, 16/24, mêmes états que <Input>. */
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, rows = 3, controlSize = 'lg', ...props }, ref) => (
     <textarea
-      className={cn(
-        'flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-        className,
-      )}
       ref={ref}
+      rows={rows}
+      className={cn(controlClasses(props['aria-invalid'] === true, false, controlSize), 'min-h-[92px] resize-y py-2.5 leading-6', className)}
       {...props}
     />
-  );
-});
+  ),
+);
 Textarea.displayName = 'Textarea';
-
-export { Textarea };

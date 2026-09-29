@@ -1,5 +1,9 @@
-import { BibleContent } from '@/features/bible/components/bible-content';
+import type { Metadata } from 'next';
 
-export default function BiblePage() {
-  return <BibleContent />;
-}
+import { BibleHome } from '@/features/bible/components/bible-home';
+
+export const metadata: Metadata = { title: 'Bible' };
+
+const BiblePage = () => <BibleHome />;
+
+export default BiblePage;

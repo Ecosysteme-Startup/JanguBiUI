@@ -48,3 +48,19 @@ tsconfig.tsbuildinfo
 
 # sentry wizard logs
 sentry-wizard-installation-error-*.logpackage-lock.json
+
+# Recette : captures et rapports Playwright (volumineux, régénérables)
+docs/v1/recette/captures/
+playwright-report-stack/
+playwright-report-audit/
+e2e/**/.auth/
+e2e/**/test-results/
+
+# Maquettes Ciel produit : rendus et captures régénérables (scripts/maquettes-*.)
+docs/v1/maquettes-ciel/rendu/
+docs/v1/maquettes-ciel/captures/
+e2e/visuel/resultats/
+
+# harnais visuel (e2e/visuel) : sessions Keycloak et captures générées, jamais versionnées
+/e2e/visuel/.auth/
+/e2e/visuel/resultats/

@@ -1,30 +1,42 @@
-'use client';
-
-import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import { Check } from 'lucide-react';
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 
-const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <CheckboxPrimitive.Root
-    ref={ref}
-    className={cn(
-      'grid place-content-center peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
-      className,
-    )}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator
-      className={cn('grid place-content-center text-current')}
-    >
-      <Check className="size-4" />
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-));
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+import { Icon } from './icon';
 
-export { Checkbox };
+type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> & {
+  /** Nom accessible obligatoire : la case n'a pas de libellé visible. */
+  label: string;
+  /** Case partielle (en-tête de table quand une partie des rangées est cochée). */
+  indeterminate?: boolean;
+};
+
+/**
+ * Case à cocher nue pour les tables (WEB-PAR-Demandes) : 18 px rayon 5, cible de 44 px, libellé
+ * uniquement pour le lecteur d'écran. Cochée ou partielle : aplat b600.
+ */
+export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(({ label, indeterminate = false, className, ...props }, ref) => {
+  const inner = React.useRef<HTMLInputElement>(null);
+  React.useImperativeHandle(ref, () => inner.current!);
+  React.useEffect(() => {
+    if (inner.current) inner.current.indeterminate = indeterminate;
+  }, [indeterminate]);
+  return (
+    <span className={cn('hit relative inline-flex size-[18px] shrink-0', className)}>
+      <input
+        ref={inner}
+        type="checkbox"
+        aria-label={label}
+        className="peer size-[18px] cursor-pointer appearance-none rounded-5 border-1.5 border-line-field bg-paper checked:border-primary-fill checked:bg-primary-fill indeterminate:border-primary-fill indeterminate:bg-primary-fill disabled:cursor-not-allowed disabled:border-line disabled:bg-surface-2"
+        {...props}
+      />
+      <Icon
+        name={indeterminate ? 'moins' : 'check'}
+        size={12}
+        strokeWidth={3}
+        className="pointer-events-none absolute left-[3px] top-[3px] hidden text-on-primary peer-checked:block peer-indeterminate:block"
+      />
+    </span>
+  );
+});
+Checkbox.displayName = 'Checkbox';

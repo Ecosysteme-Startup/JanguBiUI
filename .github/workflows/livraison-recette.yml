@@ -16,7 +16,11 @@
 # Variables (facultatives, défauts = contrat) :
 #   INFRA_REPO (Ecosysteme-Startup/Infrastructure), IMAGE_REPO (soszaboss/jangubi-frontend),
 #   NEXT_PUBLIC_SENTRY_DSN, NEXT_PUBLIC_FEATURES_STAGING, NEXT_PUBLIC_FEATURES_PROD,
-#   KEYCLOAK_CLIENT_ID_WEB (jangubi-web)
+#   NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_STAGING, NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_PROD
+#
+# Connexion Keycloak (Auth.js) : variables d'EXÉCUTION du conteneur, fournies
+# par l'Infrastructure (AUTH_SECRET, AUTH_URL, AUTH_KEYCLOAK_ID,
+# AUTH_KEYCLOAK_ISSUER, AUTH_KEYCLOAK_INTERNAL_ISSUER) ; rien ici.
 #
 # Runners : tout sur `ceac` (pas de runner hébergé, plan gratuit) — mêmes
 # précautions que l'API : permissions minimales, secrets étape par étape,
@@ -64,7 +68,7 @@ jobs:
       - name: TypeScript
         run: yarn check-types
       - name: Vitest
-        run: yarn vitest run
+        run: yarn test --run
       - name: Rendre l espace de travail au runner
         if: always()
         run: chown -R "$(stat -c %u:%g "$GITHUB_WORKSPACE/..")" "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
@@ -113,15 +117,11 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_REPO }}:sha-${{ steps.vars.outputs.commit }}-staging
           build-args: |
-            NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.dev/api
-            NEXT_PUBLIC_URL=https://jangubi.ceac.dev
+            NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.dev/api/v1
             NEXT_PUBLIC_WS_URL=wss://api-jangubi.ceac.dev
-            NEXT_PUBLIC_KEYCLOAK_URL=https://accounts.ceac.dev
-            NEXT_PUBLIC_KEYCLOAK_REALM=jangubi-staging
-            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=${{ vars.KEYCLOAK_CLIENT_ID_WEB || 'jangubi-web' }}
+            NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_STAGING }}
             NEXT_PUBLIC_FEATURES=${{ vars.NEXT_PUBLIC_FEATURES_STAGING }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
-            NEXT_PUBLIC_API_MOCKING=false
           # Jeton Sentry : secret BuildKit, absent des couches de l'image.
           secrets: |
             sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -138,15 +138,11 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_REPO }}:sha-${{ steps.vars.outputs.commit }}-prod
           build-args: |
-            NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.sn/api
-            NEXT_PUBLIC_URL=https://jangubi.ceac.sn
+            NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.sn/api/v1
             NEXT_PUBLIC_WS_URL=wss://api-jangubi.ceac.sn
-            NEXT_PUBLIC_KEYCLOAK_URL=https://accounts.ceac.sn
-            NEXT_PUBLIC_KEYCLOAK_REALM=jangubi
-            NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=${{ vars.KEYCLOAK_CLIENT_ID_WEB || 'jangubi-web' }}
+            NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_PROD }}
             NEXT_PUBLIC_FEATURES=${{ vars.NEXT_PUBLIC_FEATURES_PROD }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
-            NEXT_PUBLIC_API_MOCKING=false
           # Jeton Sentry : secret BuildKit, absent des couches de l'image.
           secrets: |
             sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}

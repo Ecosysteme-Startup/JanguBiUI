@@ -1,18 +1,15 @@
-import { Link } from '@/components/ui/link';
-import { paths } from '@/config/paths';
+import type { Metadata } from 'next';
 
-const NotFoundPage = () => {
-  return (
-    <div className="mt-52 flex flex-col items-center font-semibold">
-      <h1>404 - Not Found</h1>
-      <p>Sorry, the page you are looking for does not exist.</p>
-      <Link href={paths.home.getHref()} replace>
-        Go to Home
-      </Link>
-    </div>
-  );
-};
+import { NotFoundScreen } from '@/components/errors/not-found-screen';
+import { PublicShell } from '@/components/layouts/public-shell';
 
-export default NotFoundPage;
+export const metadata: Metadata = { title: 'Page introuvable', robots: { index: false } };
 
-export const dynamic = 'force-dynamic';
+/** 404 (WEB-Erreur-404) : dans la coquille publique, quel que soit l'espace d'origine. */
+const NotFound = () => (
+  <PublicShell>
+    <NotFoundScreen />
+  </PublicShell>
+);
+
+export default NotFound;

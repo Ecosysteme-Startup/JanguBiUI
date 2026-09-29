@@ -1,59 +1,35 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 3000;
+const PORT = Number(process.env.E2E_PORT ?? 3100);
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
- * See https://playwright.dev/docs/test-configuration.
+ * E2E (F2 : fumée des shells). Les parcours connectés (tag @keycloak) exigent le Keycloak
+ * local et ne tournent pas en CI.
  */
 export default defineConfig({
-  testDir: './e2e',
-  /* Run tests in files in parallel */
+  testDir: './e2e/tests',
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  reporter: process.env.CI ? 'github' : 'list',
+  grepInvert: process.env.E2E_KEYCLOAK ? undefined : /@keycloak/,
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: `http://localhost:${PORT}`,
     trace: 'on-first-retry',
-
-    /* Capture screenshot on failure */
     screenshot: 'only-on-failure',
+    locale: 'fr-FR',
   },
-
-  /* Configure projects for major browsers */
   projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
-    {
-      name: 'chromium',
-      testMatch: /.*\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'e2e/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
+    { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
-
-  /* Run your local dev server before starting the tests */
   webServer: {
     command: `yarn dev --port ${PORT}`,
-    timeout: 10 * 1000,
-    port: PORT,
+    // Auth.js exige un secret même pour les pages publiques (le SessionProvider interroge la session).
+    env: { AUTH_SECRET: process.env.AUTH_SECRET ?? 'e2e-local-secret-not-for-production-0000' },
+    url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
   },
 });
