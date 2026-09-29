@@ -16,6 +16,7 @@ import { BottomNav } from './bottom-nav';
 import { NotificationBell } from './notification-bell';
 import { OnboardingGuard } from './onboarding-guard';
 import { PageMetaProvider, usePageMetaValue } from './page-meta';
+import { RealtimeBridge } from './realtime-bridge';
 import { ThemeToggle } from './theme-toggle';
 
 interface AppShellProps {
@@ -139,6 +140,7 @@ function AppShellLayout({ children }: AppShellProps) {
 
   return (
     <div className="flex min-h-dvh bg-background">
+      <RealtimeBridge />
       <DesktopSidebar messageBadge={totalUnread} />
       <div className="flex flex-1 flex-col min-w-0">
         <AppHeader />

@@ -6,10 +6,17 @@ import { useEffect, useRef, useState } from 'react';
 import {
   clearAccessToken,
   clearRefreshToken,
-  getAccessToken,
   tryRefreshAccess,
 } from '@/lib/api-client';
 import { useUser } from '@/lib/auth';
+import {
+  getWsTicket,
+  PRESENCE_PING_MS,
+  WS_CODE_INTERDIT,
+  WS_CODES_AUTH,
+  wsUrl,
+} from '@/lib/realtime/ws';
+import { presenceDepuisTrame, useRealtimeStore } from '@/stores/realtime-store';
 
 import { Message, MessagesResponse, messageSchema } from '../types';
 
@@ -27,39 +34,6 @@ export type ChatSocketStatus =
   | 'online'
   | 'reconnecting'
   | 'offline';
-
-// WebSocket close codes used by the backend for auth rejection
-const AUTH_CLOSE_CODES = new Set([4001, 4003]);
-
-function resolveWsBase(): string {
-  const explicit = process.env.NEXT_PUBLIC_WS_URL;
-  if (explicit) return explicit.replace(/\/$/, '');
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (apiUrl) {
-    try {
-      const u = new URL(apiUrl);
-      const wsProto = u.protocol === 'https:' ? 'wss:' : 'ws:';
-      return `${wsProto}//${u.host}`;
-    } catch {
-      // fall through to default
-    }
-  }
-  return 'ws://localhost:8001';
-}
-
-async function getFreshToken(): Promise<string | null> {
-  let token = getAccessToken();
-  if (!token) {
-    try {
-      await tryRefreshAccess();
-      token = getAccessToken();
-    } catch {
-      return null;
-    }
-  }
-  return token;
-}
 
 export function useChatSocket(conversationId: string) {
   const queryClient = useQueryClient();
@@ -83,28 +57,38 @@ export function useChatSocket(conversationId: string) {
     unmountedRef.current = false;
     attemptRef.current = 0;
     setStatus('connecting');
+    let battement: ReturnType<typeof setInterval> | null = null;
 
-    const wsBase = resolveWsBase();
+    const planifier = () => {
+      const delay = RECONNECT_DELAYS[attemptRef.current] ?? 10000;
+      attemptRef.current = Math.min(
+        attemptRef.current + 1,
+        RECONNECT_DELAYS.length - 1,
+      );
+      timerRef.current = setTimeout(() => void connect(), delay);
+    };
 
     async function connect() {
       if (unmountedRef.current) return;
 
-      // Always connect with a valid, fresh access token
-      const token = await getFreshToken();
-      // Le composant a pu être démonté pendant l'await → ne touche plus au state.
-      if (unmountedRef.current) return;
-      if (!token) {
-        // No valid token — cannot establish WS; redirect to login
-        setStatus('offline');
-        clearAccessToken();
-        clearRefreshToken();
-        const redirectTo = encodeURIComponent(window.location.pathname);
-        window.location.href = `/auth/login?redirectTo=${redirectTo}`;
+      // Ticket à usage unique (TEMPS-REEL §1) : un nouveau à chaque ouverture.
+      // Le jeton d'accès ne passe jamais dans l'URL.
+      let ticket: string;
+      try {
+        ticket = await getWsTicket();
+      } catch {
+        // Le composant a pu être démonté pendant l'await.
+        if (unmountedRef.current) return;
+        // Réseau coupé, ou session morte (le client API redirige alors).
+        setStatus('reconnecting');
+        planifier();
         return;
       }
+      if (unmountedRef.current) return;
 
-      const url = `${wsBase}/ws/messaging/conversations/${conversationId}/?token=${encodeURIComponent(token)}`;
-      const ws = new WebSocket(url);
+      const ws = new WebSocket(
+        wsUrl(`messaging/conversations/${conversationId}`, ticket),
+      );
       wsRef.current = ws;
 
       ws.onmessage = (event) => {
@@ -112,7 +96,12 @@ export function useChatSocket(conversationId: string) {
           const payload = JSON.parse(event.data as string) as {
             type: string;
             message: unknown;
-          };
+          } & Record<string, unknown>;
+          if (payload.type === 'presence.changed') {
+            const presence = presenceDepuisTrame(payload);
+            if (presence) useRealtimeStore.getState().setPresences([presence]);
+            return;
+          }
           if (payload.type === 'message.received') {
             const parsed = messageSchema.parse(payload.message);
             const uid = userIdRef.current;
@@ -142,23 +131,34 @@ export function useChatSocket(conversationId: string) {
       ws.onopen = () => {
         attemptRef.current = 0;
         setStatus('online');
+        // Battement de présence sur la conversation seulement si la socket de
+        // notifications n'est pas ouverte (TEMPS-REEL §2.2).
+        battement = setInterval(() => {
+          const notificationsOuverte =
+            useRealtimeStore.getState().notificationsSocket === 'ouverte';
+          if (!notificationsOuverte && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'presence.ping' }));
+          }
+        }, PRESENCE_PING_MS);
       };
 
       ws.onclose = async (event) => {
+        if (battement) clearInterval(battement);
+        battement = null;
         if (unmountedRef.current) return;
 
-        const isAuthClose = AUTH_CLOSE_CODES.has(event.code);
+        if (event.code === WS_CODE_INTERDIT) {
+          // Pas participant de la conversation : inutile de réessayer.
+          setStatus('offline');
+          return;
+        }
+
+        const isAuthClose = WS_CODES_AUTH.has(event.code);
 
         // Sur fermeture auth, on tente un refresh silencieux : statut neutre
         // (`connecting`) plutôt qu'un flash « Reconnexion… » trompeur. Le statut
         // `reconnecting` est réservé aux coupures réseau (close codes non-auth).
         setStatus(isAuthClose ? 'connecting' : 'reconnecting');
-
-        const delay = RECONNECT_DELAYS[attemptRef.current] ?? 10000;
-        attemptRef.current = Math.min(
-          attemptRef.current + 1,
-          RECONNECT_DELAYS.length - 1,
-        );
 
         if (isAuthClose) {
           // Auth rejection from server — try refreshing before reconnecting
@@ -179,7 +179,7 @@ export function useChatSocket(conversationId: string) {
           if (unmountedRef.current) return;
         }
 
-        timerRef.current = setTimeout(() => void connect(), delay);
+        planifier();
       };
 
       ws.onerror = (event) => {
@@ -192,6 +192,7 @@ export function useChatSocket(conversationId: string) {
 
     return () => {
       unmountedRef.current = true;
+      if (battement) clearInterval(battement);
       if (timerRef.current) clearTimeout(timerRef.current);
       wsRef.current?.close();
       wsRef.current = null;

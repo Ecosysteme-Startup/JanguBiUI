@@ -39,6 +39,8 @@
     --duration-slow: 450ms;
     /* Couleurs sémantiques (badges de statut, etc.) — theme-aware. */
     --success: 142 71% 36%;
+    /* Présence « En ligne » (okT #1F6B5C, 6,6:1 sur blanc), toujours avec texte. */
+    --presence: 168 56% 27%;
     --warning: 38 92% 42%;
     --info: 201 85% 42%;
   }
@@ -71,6 +73,7 @@
     --hairline-gold: 40 60% 58%;
     --shadow-color: 212 90% 2%;
     --success: 142 60% 50%;
+    --presence: 166 48% 58%;
     --warning: 38 90% 58%;
     --info: 201 90% 62%;
   }

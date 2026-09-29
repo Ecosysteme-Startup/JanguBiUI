@@ -18,12 +18,15 @@ import { Button } from '@/components/ui/button/button';
 import { cn } from '@/lib/utils';
 
 import { useGetMessages } from '../api/get-messages';
+import { usePresence } from '../api/get-presence';
 import { useMarkRead } from '../api/mark-read';
 import { OPTIMISTIC_ID_PREFIX, useSendMessage } from '../api/send-message';
 import { useChatSocket } from '../hooks/use-chat-socket';
 import type { Message } from '../types';
+import { libellePresence } from '../utils/format-presence';
 
 import { ConnectionBanner } from './connection-banner';
+import { PastilleAvatar, PresenceTexte } from './presence';
 
 /** Tolérance (px) pour considérer que l'utilisateur est « collé en bas ». */
 const SCROLL_BOTTOM_THRESHOLD = 80;
@@ -34,6 +37,8 @@ const GROUP_TIME_GAP_MS = 3 * 60 * 1000; // 3 minutes
 interface ChatWindowProps {
   conversationId: string;
   participantName?: string;
+  /** Identifiant de l'interlocuteur, pour sa présence. */
+  participantId?: string;
 }
 
 type MessagePosition = 'alone' | 'first' | 'middle' | 'last';
@@ -253,6 +258,7 @@ function MessageBubble({
 export function ChatWindow({
   conversationId,
   participantName,
+  participantId,
 }: ChatWindowProps) {
   const router = useRouter();
   const [text, setText] = useState('');
@@ -269,6 +275,10 @@ export function ChatWindow({
   const { mutate: send, isPending } = useSendMessage(conversationId);
   const { mutate: markRead } = useMarkRead(conversationId);
   const { status: socketStatus } = useChatSocket(conversationId);
+  const presences = usePresence(participantId ? [participantId] : []);
+  const presence = libellePresence(
+    participantId ? presences[participantId] : undefined,
+  );
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior) => {
     bottomRef.current?.scrollIntoView({ behavior });
@@ -357,14 +367,20 @@ export function ChatWindow({
         >
           <ArrowLeft className="size-5" />
         </Button>
-        <Avatar className="size-9 shrink-0">
-          <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
-            {participantInitials}
-          </AvatarFallback>
-        </Avatar>
+        <span className="relative shrink-0">
+          <Avatar className="size-9">
+            <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
+              {participantInitials}
+            </AvatarFallback>
+          </Avatar>
+          <PastilleAvatar enLigne={presence?.etat === 'en_ligne'} />
+        </span>
         <div className="min-w-0 flex-1">
-          <span className="block truncate font-semibold text-foreground">
-            {participantName ?? 'Conversation'}
+          <span className="flex min-w-0 items-baseline gap-2">
+            <span className="truncate font-semibold text-foreground">
+              {participantName ?? 'Conversation'}
+            </span>
+            <PresenceTexte libelle={presence} className="shrink-0" />
           </span>
         </div>
       </div>

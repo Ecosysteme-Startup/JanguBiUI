@@ -15,14 +15,21 @@ export default function ConversationPage({ params }: ConversationPageProps) {
   const { data: user } = useUser();
   const { data: conversation } = useGetConversation(id);
 
-  const participantName = (() => {
-    if (!conversation || !user) return undefined;
-    const other =
-      conversation.participant_a.id === user.id
+  const other =
+    conversation && user
+      ? conversation.participant_a.id === user.id
         ? conversation.participant_b
-        : conversation.participant_a;
-    return other.full_name?.trim() || other.email;
-  })();
+        : conversation.participant_a
+      : undefined;
+  const participantName = other
+    ? other.full_name?.trim() || other.email
+    : undefined;
 
-  return <ChatWindow conversationId={id} participantName={participantName} />;
+  return (
+    <ChatWindow
+      conversationId={id}
+      participantName={participantName}
+      participantId={other?.id}
+    />
+  );
 }

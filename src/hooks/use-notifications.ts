@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
 import { useUser } from '@/lib/auth';
+import { useRealtimeStore } from '@/stores/realtime-store';
 
 const notificationSchema = z.object({
   id: z.string(),
@@ -23,12 +24,19 @@ const parseNotifications = (data: unknown): Notification[] => {
 export const getNotifications = (): Promise<Notification[]> =>
   api.get<unknown>('/v1/messaging/notifications/').then(parseNotifications);
 
+/** Polling de secours : seulement quand la socket `ws/notifications/` est fermée. */
+export const NOTIFICATIONS_POLLING_MS = 30_000;
+
 export const useNotifications = () => {
   const { data: user } = useUser();
+  const socketOuverte = useRealtimeStore(
+    (s) => s.notificationsSocket === 'ouverte',
+  );
   return useQuery({
     queryKey: ['notifications'],
     queryFn: getNotifications,
-    refetchInterval: 30_000,
+    // Temps réel par `ws/notifications/` ; sans socket, polling toutes les 30 s.
+    refetchInterval: socketOuverte ? false : NOTIFICATIONS_POLLING_MS,
     enabled: !!user?.id,
     retry: false,
   });
