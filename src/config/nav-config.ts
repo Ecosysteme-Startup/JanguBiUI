@@ -7,8 +7,10 @@ import {
   CreditCard,
   FileText,
   HandCoins,
+  Headphones,
   Heart,
   Home,
+  Library,
   Landmark,
   MessageCircle,
   Newspaper,
@@ -20,6 +22,7 @@ import { User as UserType } from '@/lib/auth';
 import {
   canViewDioceseDonsAggregates,
   canViewParishDonsAnalysis,
+  canPublishAudio,
   canViewPlatformPayments,
   isAdmin,
   isClergy,
@@ -43,6 +46,18 @@ const ITEM_SPIRITUEL: NavItem = {
   label: 'Spirituel',
   href: '/app/spirituel',
   icon: BookOpen,
+};
+// Sonothèque (lot C5) : « Écouter » pour le fidèle, « Sonothèque » pour le
+// staff qui a la capacité audio.publier.
+const ITEM_ECOUTER: NavItem = {
+  label: 'Écouter',
+  href: '/app/ecouter',
+  icon: Headphones,
+};
+const ITEM_SONOTHEQUE: NavItem = {
+  label: 'Sonothèque',
+  href: '/app/paroisse/sonotheque',
+  icon: Library,
 };
 const ITEM_DOCUMENTS: NavItem = {
   label: 'Documents',
@@ -131,6 +146,9 @@ const donsStaffItems = (user: UserType | null | undefined): NavItem[] => [
   ...(canViewPlatformPayments(user) ? [ITEM_PAIEMENTS] : []),
 ];
 
+const sonothequeStaffItems = (user: UserType | null | undefined): NavItem[] =>
+  canPublishAudio(user) ? [ITEM_SONOTHEQUE] : [];
+
 export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
   // Les deux dimensions (role admin / pastoral_role) sont INDÉPENDANTES : un curé
   // peut être à la fois parish_admin et pretre. Le guard `!isClergy` est donc
@@ -142,6 +160,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_ACTUS,
       ITEM_SPIRITUEL,
       ...donsStaffItems(user),
+      ...sonothequeStaffItems(user),
       ITEM_MESSAGES,
       ITEM_PROFIL,
     ];
@@ -154,7 +173,9 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
       ITEM_SPIRITUEL,
       ITEM_CLERGE,
       ITEM_ANALYTIQUE,
+      ITEM_ECOUTER,
       ...donsStaffItems(user),
+      ...sonothequeStaffItems(user),
       // Clergé qui est aussi admin digital → passerelle vers l'admin.
       ...(isAdmin(user) ? [ITEM_ADMIN] : []),
       ITEM_MESSAGES,
@@ -167,6 +188,7 @@ export const buildNavItems = (user: UserType | null | undefined): NavItem[] => {
     ITEM_ACCUEIL,
     ITEM_ACTUS,
     ITEM_SPIRITUEL,
+    ITEM_ECOUTER,
     ITEM_DOCUMENTS,
     ITEM_DONS,
     ITEM_AGENDA,

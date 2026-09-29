@@ -5,6 +5,7 @@ import { donsAnalyseHandlers } from './dons-analyse';
 import { messagingHandlers } from './messaging';
 import { newsHandlers } from './news';
 import { notificationsHandlers } from './notifications';
+import { sonothequeHandlers } from './sonotheque';
 
 export const handlers = [
   ...authHandlers,
@@ -14,4 +15,5 @@ export const handlers = [
   ...newsHandlers,
   ...bibleHandlers,
   ...donsAnalyseHandlers,
+  ...sonothequeHandlers,
 ];

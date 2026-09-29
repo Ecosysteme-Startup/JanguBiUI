@@ -32,6 +32,19 @@ const COMPTES_DEMO_DONS: Record<string, Partial<User>> = {
       avatar: null,
     },
   },
+  // Sonothèque (lot C5) : secrétaire paroissiale qui publie les enregistrements.
+  'germaine.faye@saint-dominique.sn': {
+    role: 'parish_admin',
+    is_admin: true,
+    capabilities: ['audio.publier'],
+    profile: {
+      first_name: 'Germaine',
+      last_name: 'Faye',
+      title: 'Mme',
+      primary_parish: null,
+      avatar: null,
+    },
+  },
   'moustoifa.ben@numerisen.sn': {
     role: 'super_admin',
     is_admin: true,

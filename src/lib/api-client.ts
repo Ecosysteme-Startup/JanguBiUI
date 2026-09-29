@@ -261,9 +261,12 @@ async function fetchApi<T>(
     >;
     // DRF renvoie l'erreur sous `detail` ({"detail": "..."}). On lit `detail`
     // en priorité, puis `message` (autres backends), puis le statut HTTP.
+    // Format V1 : {"error": {"code", "message", "details"}}.
+    const v1Error = body.error as { message?: unknown } | undefined;
     let message =
       (body.detail as string | undefined) ||
       (body.message as string | undefined) ||
+      (typeof v1Error?.message === 'string' ? v1Error.message : undefined) ||
       response.statusText;
     // Message clair et en français pour un échec d'authentification au login
     // (SimpleJWT renvoie un message anglais peu parlant pour le fidèle).
