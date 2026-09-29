@@ -225,8 +225,9 @@ const messeSchema = z.object({
   language: z.string().default(''),
   note: z.string().default(''),
   intentions_count: z.number(),
-  max_intentions: z.number(),
-  remaining: z.number(),
+  max_intentions: z.number().nullable(),
+  cap_source: z.enum(['date', 'horaire', 'paroisse']).default('paroisse'),
+  remaining: z.number().nullable(),
   is_full: z.boolean(),
 });
 export type MesseDuJour = z.infer<typeof messeSchema>;
@@ -236,7 +237,7 @@ const nodeRefSchema = z.object({ id: z.string(), name: z.string() });
 export const messesDuJourSchema = z.object({
   node: nodeRefSchema,
   date: z.string(),
-  max_per_mass: z.number(),
+  max_per_mass: z.number().nullable(),
   masses: z.array(messeSchema),
   without_time_count: z.number().default(0),
 });
@@ -267,7 +268,7 @@ export type FeuilleIntentions = z.infer<typeof feuilleSchema>;
 
 export const reglagesSchema = z.object({
   node: z.string(),
-  max_per_mass: z.number(),
+  max_per_mass: z.number().nullable(),
 });
 
 /** « 10:00:00 » → « 10:00 » (valeur attendue par `accept`). */
@@ -316,10 +317,79 @@ export const useReglagesIntentions = (node: string) =>
 export const useModifierReglages = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { node: string; max_per_mass: number }) =>
+    mutationFn: async (data: { node: string; max_per_mass: number | null }) =>
       reglagesSchema.parse(
         await api.patch<unknown>('/v1/mass-intentions/parish/reglages/', data),
       ),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['mass-intentions', 'parish'] }),
+  });
+};
+
+// --- Plafond propre à une messe (§5.2) -------------------------------------------
+
+export type SourcePlafond = MesseDuJour['cap_source'];
+
+export const LIBELLES_SOURCE_PLAFOND: Record<SourcePlafond, string> = {
+  date: 'Plafond de ce jour',
+  horaire: 'Plafond de chaque semaine à cette heure',
+  paroisse: 'Plafond de la paroisse',
+};
+
+export const plafondMesseSchema = z.object({
+  id: z.number(),
+  place_id: z.number(),
+  start_time: z.string(),
+  weekday: z.number().nullable(),
+  date: z.string().nullable(),
+  max_intentions: z.number().nullable(),
+});
+export type PlafondMesse = z.infer<typeof plafondMesseSchema>;
+
+/** Cible d'un plafond propre : exactement l'un de `weekday` ou `date`. */
+export type CiblePlafond = {
+  node: string;
+  place_id: number;
+  start_time: string;
+} & ({ weekday: number; date?: null } | { date: string; weekday?: null });
+
+/** 0 = lundi … 6 = dimanche (convention de l'API). */
+export const jourSemaineApi = (dateIso: string) =>
+  (new Date(`${dateIso}T12:00:00Z`).getUTCDay() + 6) % 7;
+
+export const useFixerPlafondMesse = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      data: CiblePlafond & { max_intentions: number | null },
+    ) =>
+      plafondMesseSchema.parse(
+        await api.put<unknown>('/v1/mass-intentions/parish/messes/plafond/', {
+          weekday: null,
+          date: null,
+          ...data,
+        }),
+      ),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ['mass-intentions', 'parish'] }),
+  });
+};
+
+export const useRetirerPlafondMesse = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (cible: CiblePlafond) => {
+      const params: Record<string, string | number> = {
+        node: cible.node,
+        place_id: cible.place_id,
+        start_time: cible.start_time,
+      };
+      if (cible.date) params.date = cible.date;
+      else params.weekday = cible.weekday as number;
+      await api.delete<unknown>('/v1/mass-intentions/parish/messes/plafond/', {
+        params,
+      });
+    },
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ['mass-intentions', 'parish'] }),
   });

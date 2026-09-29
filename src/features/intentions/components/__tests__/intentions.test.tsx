@@ -286,6 +286,107 @@ describe('Intentions de messe — secrétariat (intentions.gerer)', () => {
   });
 });
 
+describe('Intentions de messe — plafond dynamique', () => {
+  beforeEach(() =>
+    server.use(
+      http.get(`${env.API_URL}/v1/me/`, () =>
+        HttpResponse.json(createStaffUser(['intentions.gerer'])),
+      ),
+    ),
+  );
+
+  test('« Sans plafond » pour la paroisse envoie null et affiche « n intentions »', async () => {
+    let corps: Record<string, unknown> = {};
+    server.use(
+      http.patch(
+        `${env.API_URL}/v1/mass-intentions/parish/reglages/`,
+        async ({ request }) => {
+          corps = (await request.clone().json()) as Record<string, unknown>;
+          return undefined;
+        },
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp(<IntentionsParoisse />);
+    const form = await screen.findByRole('form', {
+      name: 'Réglages des intentions',
+    });
+    await vi.waitFor(() =>
+      expect(within(form).getByLabelText('Intentions par messe')).toHaveValue(
+        5,
+      ),
+    );
+    await user.click(within(form).getByLabelText('Sans plafond'));
+    await user.click(within(form).getByRole('button', { name: 'Enregistrer' }));
+    await vi.waitFor(() => expect(corps).toMatchObject({ max_per_mass: null }));
+    const messes = screen.getByRole('region', { name: 'Messes du jour' });
+    expect(await within(messes).findAllByText('sans plafond')).toHaveLength(3);
+    expect(within(messes).getAllByText('0 intention')).toHaveLength(3);
+    expect(within(messes).queryByText(/\/ 5/)).not.toBeInTheDocument();
+  });
+
+  test('plafond propre chaque semaine, puis retour au plafond de la paroisse', async () => {
+    let corps: Record<string, unknown> = {};
+    server.use(
+      http.put(
+        `${env.API_URL}/v1/mass-intentions/parish/messes/plafond/`,
+        async ({ request }) => {
+          corps = (await request.clone().json()) as Record<string, unknown>;
+          return undefined;
+        },
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp(<IntentionsParoisse />);
+    const messes = await screen.findByRole('region', {
+      name: 'Messes du jour',
+    });
+    expect(
+      await within(messes).findAllByText('Plafond de la paroisse'),
+    ).toHaveLength(3);
+    await user.click(
+      within(messes).getByRole('button', { name: 'Plafond de Messe de 10 h' }),
+    );
+    const form = within(messes).getByRole('form', {
+      name: 'Plafond propre de Messe de 10 h',
+    });
+    await user.click(
+      within(form).getByLabelText('Chaque semaine à cette heure'),
+    );
+    const champ = within(form).getByLabelText('Intentions pour cette messe');
+    await user.clear(champ);
+    await user.type(champ, '2');
+    await user.click(
+      within(form).getByRole('button', { name: 'Enregistrer ce plafond' }),
+    );
+    await vi.waitFor(() =>
+      expect(corps).toMatchObject({
+        place_id: 12,
+        start_time: '10:00',
+        date: null,
+        max_intentions: 2,
+      }),
+    );
+    expect(typeof corps.weekday).toBe('number');
+    expect(
+      await within(messes).findByText(
+        'Plafond de chaque semaine à cette heure',
+      ),
+    ).toBeInTheDocument();
+    expect(within(messes).getByText('0 / 2 intentions')).toBeInTheDocument();
+    await user.click(
+      within(messes).getByRole('button', {
+        name: 'Revenir au plafond de la paroisse',
+      }),
+    );
+    await vi.waitFor(() =>
+      expect(
+        within(messes).getAllByText('Plafond de la paroisse'),
+      ).toHaveLength(3),
+    );
+  });
+});
+
 describe('Feuille des intentions (imprimable)', () => {
   test('liste les intentions par messe, sans aucun montant', async () => {
     renderApp(

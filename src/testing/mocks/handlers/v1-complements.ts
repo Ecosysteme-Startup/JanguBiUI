@@ -137,7 +137,35 @@ const MESSES_SD = [
   { start_time: '10:00:00', label: 'Messe de 10 h', language: 'fr' },
   { start_time: '18:30:00', label: 'Messe de 18 h 30', language: 'fr' },
 ];
-let plafond = 5;
+let plafond: number | null = 5;
+type PlafondMesse = {
+  id: number;
+  place_id: number;
+  start_time: string;
+  weekday: number | null;
+  date: string | null;
+  max_intentions: number | null;
+};
+let plafondsMesses: PlafondMesse[] = [];
+const heureLongue = (t: string) => (t.length === 5 ? `${t}:00` : t);
+/** 0 = lundi … 6 = dimanche. */
+const jourSemaine = (date: string) =>
+  (new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7;
+const plafondEffectif = (
+  date: string,
+  heure: string,
+): { max: number | null; source: 'date' | 'horaire' | 'paroisse' } => {
+  const d = plafondsMesses.find(
+    (p) => p.date === date && heureLongue(p.start_time) === heure,
+  );
+  if (d) return { max: d.max_intentions, source: 'date' };
+  const h = plafondsMesses.find(
+    (p) =>
+      p.weekday === jourSemaine(date) && heureLongue(p.start_time) === heure,
+  );
+  if (h) return { max: h.max_intentions, source: 'horaire' };
+  return { max: plafond, source: 'paroisse' };
+};
 
 const comptees = (date: string, heure: string, sauf?: string) =>
   intentions.filter(
@@ -151,15 +179,17 @@ const comptees = (date: string, heure: string, sauf?: string) =>
 const messesDuJour = (date: string) =>
   MESSES_SD.map((m) => {
     const n = comptees(date, m.start_time).length;
+    const { max, source } = plafondEffectif(date, m.start_time);
     return {
       place_id: EGLISE_SD.id,
       place_name: EGLISE_SD.name,
       ...m,
       note: '',
       intentions_count: n,
-      max_intentions: plafond,
-      remaining: Math.max(0, plafond - n),
-      is_full: n >= plafond,
+      max_intentions: max,
+      cap_source: source,
+      remaining: max === null ? null : Math.max(0, max - n),
+      is_full: max !== null && n >= max,
     };
   });
 
@@ -273,9 +303,9 @@ const intentionsHandlers = [
     HttpResponse.json({ node: SD.id, max_per_mass: plafond }),
   ),
   http.patch(`${API}/mass-intentions/parish/reglages/`, async ({ request }) => {
-    const b = (await request.json()) as { max_per_mass?: number };
-    const v = Number(b.max_per_mass);
-    if (!Number.isInteger(v) || v < 1 || v > 50)
+    const b = (await request.json()) as { max_per_mass?: number | null };
+    const v = b.max_per_mass === null ? null : Number(b.max_per_mass);
+    if (v !== null && (!Number.isInteger(v) || v < 1 || v > 50))
       return erreur(
         400,
         'max_invalid',
@@ -284,6 +314,71 @@ const intentionsHandlers = [
     plafond = v;
     return HttpResponse.json({ node: SD.id, max_per_mass: plafond });
   }),
+  http.get(`${API}/mass-intentions/parish/messes/plafond/`, () =>
+    HttpResponse.json(plafondsMesses),
+  ),
+  http.put(
+    `${API}/mass-intentions/parish/messes/plafond/`,
+    async ({ request }) => {
+      const b = (await request.json()) as Omit<PlafondMesse, 'id'>;
+      const aJour = b.weekday !== null && b.weekday !== undefined;
+      const aDate = !!b.date;
+      if (aJour === aDate)
+        return erreur(
+          400,
+          'weekday_or_date',
+          'Indiquez soit un jour de la semaine, soit une date.',
+        );
+      if (aJour && (b.weekday! < 0 || b.weekday! > 6))
+        return erreur(400, 'weekday_invalid', 'Jour de la semaine invalide.');
+      const v = b.max_intentions;
+      if (v !== null && (!Number.isInteger(v) || v < 1 || v > 50))
+        return erreur(
+          400,
+          'max_invalid',
+          'Le nombre d’intentions par messe va de 1 à 50.',
+        );
+      if (b.place_id !== EGLISE_SD.id)
+        return erreur(
+          400,
+          'place_outside',
+          'Ce lieu n’est pas de la paroisse.',
+        );
+      const cle = (p: PlafondMesse | Omit<PlafondMesse, 'id'>) =>
+        `${p.place_id}|${heureLongue(p.start_time)}|${p.weekday ?? ''}|${p.date ?? ''}`;
+      const cap: PlafondMesse = {
+        id: plafondsMesses.length + 1,
+        place_id: b.place_id,
+        start_time: heureLongue(b.start_time),
+        weekday: aJour ? b.weekday : null,
+        date: aDate ? b.date : null,
+        max_intentions: v,
+      };
+      plafondsMesses = [
+        ...plafondsMesses.filter((p) => cle(p) !== cle(cap)),
+        cap,
+      ];
+      return HttpResponse.json(cap);
+    },
+  ),
+  http.delete(
+    `${API}/mass-intentions/parish/messes/plafond/`,
+    ({ request }) => {
+      const u = new URL(request.url).searchParams;
+      const heure = heureLongue(u.get('start_time') ?? '');
+      const wd = u.get('weekday');
+      const date = u.get('date');
+      plafondsMesses = plafondsMesses.filter(
+        (p) =>
+          !(
+            heureLongue(p.start_time) === heure &&
+            String(p.place_id) === u.get('place_id') &&
+            (date ? p.date === date : String(p.weekday) === wd)
+          ),
+      );
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
   http.post(
     `${API}/mass-intentions/:id/accept/`,
     async ({ params, request }) => {
@@ -305,7 +400,11 @@ const intentionsHandlers = [
             'place_required',
             'Choisissez le lieu de la messe.',
           );
-        if (comptees(b.scheduled_date, heure, i.id).length >= plafond)
+        const { max } = plafondEffectif(b.scheduled_date, heure);
+        if (
+          max !== null &&
+          comptees(b.scheduled_date, heure, i.id).length >= max
+        )
           return erreur(
             409,
             'mass_full',
@@ -868,6 +967,7 @@ const staffHandlers = [
 export const reinitialiserV1Complements = () => {
   intentions = intentionsInitiales();
   plafond = 5;
+  plafondsMesses = [];
   invitations = invitationsInitiales();
   comptes = comptesInitiaux();
   compteurs = compteursInitiaux();
