@@ -15,6 +15,17 @@ describe('Accueil public', () => {
     expect(screen.getByText('Messes')).toBeInTheDocument();
   });
 
+  it('met les badges App Store et Google Play dans l’ouverture, cible du lien « Application mobile »', () => {
+    const { container } = render(
+      <HomeHero parole={(className) => <div className={className}>Parole</div>} masses={(className) => <div className={className}>Messes</div>} />,
+    );
+
+    const badges = container.querySelector('section #application');
+    expect(badges).not.toBeNull();
+    expect(badges).toHaveTextContent(/app store/i);
+    expect(badges).toHaveTextContent(/google play/i);
+  });
+
   it('présente les quatre services et rappelle les règles de l’Église', () => {
     render(<HomeServices paroleVisual={null} parishVisual={null} />);
 
