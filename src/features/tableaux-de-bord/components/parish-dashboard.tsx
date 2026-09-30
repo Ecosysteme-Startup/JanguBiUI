@@ -16,6 +16,7 @@ import { useConfessionGlance } from '../api/get-next-confessions';
 import { useNodeDashboard } from '../api/get-node-dashboard';
 import { useOverdueRequests } from '../api/get-overdue-requests';
 import { useSundaySheetGlance } from '../api/get-sunday-sheet';
+import { useTodayTasks } from '../api/get-today-tasks';
 
 import { confessionDayLine, ConfessionsGlance, nextConfessionDay } from './confessions-glance';
 import { OverdueRequestsCard } from './overdue-requests-card';
@@ -62,6 +63,10 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
   const overdue = useOverdueRequests(nodeId, canActes);
   const confessions = useConfessionGlance(nodeId, canConfessions || canPlanning);
   const sheet = useSundaySheetGlance(nodeId, canAnnonces);
+  const canSaisirQuete = useCan('dons.saisir_quete', nodeId);
+  const canGererFonds = useCan('dons.gerer_fonds', nodeId);
+  const canIntentions = useCan('intentions.gerer', nodeId);
+  const today = useTodayTasks(nodeId, canSaisirQuete || canGererFonds || canIntentions);
   const { data: me } = useMe();
 
   if (dashboard.isPending) return <LoadingBlock label="Chargement du tableau de bord…" lines={6} />;
@@ -120,6 +125,7 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
             data={data}
             nodeId={nodeId}
             overdue={overdueRows}
+            today={today.data}
             confessionsDetail={nextDay ? `${confessionDayLine(nextDay)} · ${plural(nextDay.booked, 'rendez-vous pris', 'rendez-vous pris')}` : undefined}
             sundayDetail={sundayDetail}
           />

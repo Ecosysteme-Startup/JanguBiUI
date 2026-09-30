@@ -12,22 +12,37 @@ import { plural } from '@/utils/plural';
 
 import type { NodeDashboard } from '../api/get-node-dashboard';
 import type { OverdueRequest } from '../api/get-overdue-requests';
+import { TODAY_TASK_CODES, taskCount, type TodayTasks } from '../api/get-today-tasks';
 
 type Todo = { key: string; icon: IconName; title: React.ReactNode; detail: string; href?: string; action?: string; label?: string; urgent?: boolean };
 
 /** « JB-1 et JB-2 », « JB-1, JB-2 et JB-3 » */
 const refsList = (refs: string[]) => (refs.length < 2 ? (refs[0] ?? '') : `${refs.slice(0, -1).join(', ')} et ${refs[refs.length - 1]}`);
 
-type ParishTodoProps = { data: NodeDashboard; nodeId: string; overdue: OverdueRequest[]; confessionsDetail?: string; sundayDetail?: string };
+type ParishTodoProps = {
+  data: NodeDashboard;
+  nodeId: string;
+  overdue: OverdueRequest[];
+  /** Tâches du jour (/staff/taches-du-jour/) : quêtes à confirmer, intentions à planifier et du jour. */
+  today?: TodayTasks;
+  confessionsDetail?: string;
+  sundayDetail?: string;
+};
 
 /** « Reste à faire aujourd'hui » (maquette PAR-Tableau-de-bord) : liens limités aux capacités. */
-export const ParishTodo = ({ data, nodeId, overdue, confessionsDetail, sundayDetail }: ParishTodoProps) => {
+export const ParishTodo = ({ data, nodeId, overdue, today, confessionsDetail, sundayDetail }: ParishTodoProps) => {
   const canActes = useCan('actes.traiter', nodeId);
   const canMessages = useCan('messagerie.recevoir_fideles', nodeId);
   const canConfessions = useCan('confessions.gerer', nodeId);
   const canPlanning = useCan('confessions.voir_planning', nodeId);
   const canAnnonces = useCan('annonces.publier', nodeId);
+  const canSaisirQuete = useCan('dons.saisir_quete', nodeId);
+  const canGererFonds = useCan('dons.gerer_fonds', nodeId);
+  const canIntentions = useCan('intentions.gerer', nodeId);
   const c = data.actes.counts;
+  const quetes = canSaisirQuete || canGererFonds ? taskCount(today, TODAY_TASK_CODES.quetes) : 0;
+  const aPlanifier = canIntentions ? taskCount(today, TODAY_TASK_CODES.intentionsAPlanifier) : 0;
+  const duJour = canIntentions ? taskCount(today, TODAY_TASK_CODES.intentionsDuJour) : 0;
   const demandes = paths.espace.demandes.list.getHref(nodeId);
   const toProcess = (c.submitted ?? 0) + (c.under_verification ?? 0);
   const late = data.actes.overdue;
@@ -74,6 +89,33 @@ export const ParishTodo = ({ data, nodeId, overdue, confessionsDetail, sundayDet
       href: canConfessions || canPlanning ? paths.espace.confessions.getHref(nodeId) : undefined,
       action: 'Voir le planning',
       label: 'Voir le planning des confessions',
+    },
+    quetes > 0 && {
+      key: 'quetes',
+      icon: 'especes',
+      title: `${plural(quetes, 'quête en espèces', 'quêtes en espèces')} à confirmer`,
+      detail: 'Une autre personne que les compteurs valide la saisie.',
+      href: canSaisirQuete ? paths.espace.dons.quetes.getHref(nodeId) : paths.espace.dons.root.getHref(nodeId),
+      action: 'Confirmer',
+      label: 'Confirmer les quêtes en espèces',
+    },
+    aPlanifier > 0 && {
+      key: 'intentions-a-planifier',
+      icon: 'calendrier-plus',
+      title: `${plural(aPlanifier, 'intention de messe', 'intentions de messe')} à planifier`,
+      detail: 'Choisissez la messe de chaque intention reçue.',
+      href: paths.espace.intentions.root.getHref(nodeId),
+      action: 'Planifier',
+      label: 'Planifier les intentions de messe',
+    },
+    duJour > 0 && {
+      key: 'intentions-du-jour',
+      icon: 'calendrier-ok',
+      title: `${plural(duJour, 'intention de messe', 'intentions de messe')} aujourd’hui`,
+      detail: 'À annoncer aux messes du jour.',
+      href: paths.espace.intentions.feuille.getHref(nodeId, today?.date ?? ''),
+      action: 'Voir la feuille',
+      label: 'Voir la feuille des intentions du jour',
     },
     (c.info_requested ?? 0) > 0 && {
       key: 'complement',

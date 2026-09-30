@@ -903,6 +903,11 @@ const staffHandlers = [
           count: 2,
         },
         {
+          code: 'intentions_du_jour',
+          label: 'Intentions de messe du jour',
+          count: 3,
+        },
+        {
           code: 'confessions_du_jour',
           label: 'Créneaux de confession du jour',
           count: 1,
