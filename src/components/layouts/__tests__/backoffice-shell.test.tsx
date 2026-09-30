@@ -7,7 +7,16 @@ import { grantsChancelier, grantsPlateforme, grantsSecretaire, ids } from '@/tes
 import { navigation } from '@/testing/navigation';
 import { apiUrl } from '@/testing/mocks/api-url';
 import { server } from '@/testing/mocks/server';
+import { FakeWebSocket } from '@/testing/fake-web-socket';
 import { renderApp } from '@/testing/test-utils';
+
+// La coquille ouvre la socket ws/notifications/ de l'onglet (RealtimeBridge) : WebSocket simulé,
+// retiré seulement en fin de fichier (le démontage de la coquille suit les afterEach du fichier).
+beforeEach(() => {
+  FakeWebSocket.reset();
+  vi.stubGlobal('WebSocket', FakeWebSocket);
+});
+afterAll(() => vi.unstubAllGlobals());
 
 const navOf = async (name: RegExp) => within(await screen.findByRole('navigation', { name }));
 

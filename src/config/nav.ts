@@ -30,6 +30,7 @@ export const FIDELE_NAV: (NavLeaf & { children?: NavLeaf[] })[] = [
       { label: 'Annonces', href: paths.app.paroisse.root.getHref('annonces'), match: 'exact' },
       { label: 'Horaires', href: paths.app.paroisse.root.getHref('horaires'), match: 'exact' },
       { label: 'Agenda', href: paths.app.paroisse.root.getHref('agenda'), match: 'exact' },
+      { label: 'Tout l’agenda', href: paths.app.paroisse.agenda.getHref() },
     ],
   },
   { label: 'Mes demandes', href: paths.app.demandes.list.getHref(), icon: 'document' },
@@ -83,6 +84,7 @@ export const MOBILE_MENU: { title: string; items: NavLeaf[] }[] = [
     title: 'Ma paroisse',
     items: [
       { label: 'Agenda paroissial', href: paths.app.paroisse.root.getHref('agenda') },
+      { label: 'Tout l’agenda', href: paths.app.paroisse.agenda.getHref() },
       { label: 'Mes rendez-vous', href: paths.app.confession.getHref() },
       { label: 'Intentions de messe', href: paths.app.intentions.getHref() },
       { label: 'Donner', href: paths.app.dons.root.getHref() },

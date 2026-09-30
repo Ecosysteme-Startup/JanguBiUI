@@ -231,7 +231,7 @@ export const ParishSheet = ({
 
   const address = [parish.address, parish.city].filter(Boolean).join(', ');
   return (
-    <div className="jb-container pb-24 pt-8">
+    <div className="jb-cascade jb-container pb-24 pt-8">
       <ParishHeader parish={parish} />
       <div className="mt-12 grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-24">
         <div className="flex min-w-0 flex-col gap-14">

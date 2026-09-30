@@ -47,12 +47,12 @@ export const Modal = ({ open, onOpenChange, title, description, children, footer
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim data-[state=open]:animate-jb-fade-in data-[state=closed]:animate-jb-fade-out" />
         <Dialog.Content
           onOpenAutoFocus={rememberTrigger}
           onCloseAutoFocus={restoreFocus}
           className={cn(
-            'fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-16 border border-line bg-paper p-6 shadow-menu focus:outline-none',
+            'data-[state=open]:animate-jb-pop-in data-[state=closed]:animate-jb-pop-out fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-16 border border-line bg-paper p-6 shadow-menu focus:outline-none',
             { md: 'max-w-[480px]', lg: 'max-w-[720px]', form: 'max-w-[600px]' }[size],
             size === 'form' && 'overflow-hidden',
           )}

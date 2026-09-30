@@ -28,8 +28,11 @@ export const DateTile = ({ date, highlight = false, className }: { date: string;
   );
 };
 
-/** Carte d'événement (FID-Ma-Paroisse « Événements à venir ») : date, titre 16/600, jour et lieu. */
-export const EventRow = ({ event, highlight = false }: { event: ParishEvent; highlight?: boolean }) => {
+/**
+ * Carte d'événement (FID-Ma-Paroisse « Événements à venir ») : date, titre 16/600, jour et lieu.
+ * `showOrigin` : ajoute le nœud organisateur (agenda agrégé : paroisse, doyenné, diocèse).
+ */
+export const EventRow = ({ event, highlight = false, showOrigin = false }: { event: ParishEvent; highlight?: boolean; showOrigin?: boolean }) => {
   const start = dayjs(event.start_at);
   return (
     <li>
@@ -44,7 +47,7 @@ export const EventRow = ({ event, highlight = false }: { event: ParishEvent; hig
             {frenchTypo(event.title)}
           </span>
           <span className="text-14 text-ink-2">
-            {[`${capitalize(start.format('dddd'))}, ${hour(event.start_at)}`, event.location].filter(Boolean).join(' · ')}
+            {[`${capitalize(start.format('dddd'))}, ${hour(event.start_at)}`, event.location, showOrigin ? event.node_name : null].filter(Boolean).join(' · ')}
             {event.is_cancelled && <span className="font-semibold text-err"> · annulé</span>}
             {event.is_registered && !event.is_cancelled && <span className="font-semibold text-primary"> · vous êtes inscrit(e)</span>}
           </span>

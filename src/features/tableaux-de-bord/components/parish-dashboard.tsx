@@ -16,6 +16,7 @@ import { useConfessionGlance } from '../api/get-next-confessions';
 import { useNodeDashboard } from '../api/get-node-dashboard';
 import { useOverdueRequests } from '../api/get-overdue-requests';
 import { useSundaySheetGlance } from '../api/get-sunday-sheet';
+import { useTodayTasks } from '../api/get-today-tasks';
 
 import { confessionDayLine, ConfessionsGlance, nextConfessionDay } from './confessions-glance';
 import { OverdueRequestsCard } from './overdue-requests-card';
@@ -62,6 +63,10 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
   const overdue = useOverdueRequests(nodeId, canActes);
   const confessions = useConfessionGlance(nodeId, canConfessions || canPlanning);
   const sheet = useSundaySheetGlance(nodeId, canAnnonces);
+  const canSaisirQuete = useCan('dons.saisir_quete', nodeId);
+  const canGererFonds = useCan('dons.gerer_fonds', nodeId);
+  const canIntentions = useCan('intentions.gerer', nodeId);
+  const today = useTodayTasks(nodeId, canSaisirQuete || canGererFonds || canIntentions);
   const { data: me } = useMe();
 
   if (dashboard.isPending) return <LoadingBlock label="Chargement du tableau de bord…" lines={6} />;
@@ -115,11 +120,12 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
       </header>
 
       <div className={cn('mt-8 grid grid-cols-1 items-start gap-6', hasSide && 'lg:grid-cols-[minmax(0,1fr)_360px]')}>
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="jb-cascade flex min-w-0 flex-col gap-6">
           <ParishTodo
             data={data}
             nodeId={nodeId}
             overdue={overdueRows}
+            today={today.data}
             confessionsDetail={nextDay ? `${confessionDayLine(nextDay)} · ${plural(nextDay.booked, 'rendez-vous pris', 'rendez-vous pris')}` : undefined}
             sundayDetail={sundayDetail}
           />
@@ -127,7 +133,7 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
           <WeekActivity data={data} />
         </div>
         {hasSide && (
-          <div className="flex min-w-0 flex-col gap-6">
+          <div className="jb-cascade flex min-w-0 flex-col gap-6">
             {(canConfessions || canPlanning) && !confessions.isPending && <ConfessionsGlance nodeId={nodeId} day={nextDay} />}
             {canAnnonces && sheet.data && <SundaySheetCard nodeId={nodeId} sheet={sheet.data} />}
           </div>

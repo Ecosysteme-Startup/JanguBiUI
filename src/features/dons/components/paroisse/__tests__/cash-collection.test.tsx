@@ -5,7 +5,7 @@ import { http, HttpResponse } from 'msw';
 import QuetesPage from '@/app/espace/[nodeId]/dons/quetes/page';
 import { apiUrl } from '@/testing/mocks/api-url';
 import { ids } from '@/testing/mocks/db';
-import { donsIds, donsState, grantsEconome, grantsSecretaireDons } from '@/testing/mocks/db-dons';
+import { donsIds, donsState, grantsEconome, grantsSecretaireDons, staffFunds } from '@/testing/mocks/db-dons';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 
@@ -78,6 +78,7 @@ describe('Saisie d’une quête en espèces (WEB-PAR-Quete-Saisie)', () => {
     const user = userEvent.setup();
     await renderPage();
 
+    fireEvent.change(await screen.findByLabelText(/Date de la messe/), { target: { value: '2026-09-27' } });
     await screen.findByRole('option', { name: `Messe de 11${NBSP}h${NBSP}30` });
     await user.selectOptions(screen.getByLabelText('Lieu'), '22');
     await vi.waitFor(() => expect(screen.queryByRole('option', { name: `Messe de 11${NBSP}h${NBSP}30` })).not.toBeInTheDocument());
@@ -161,5 +162,78 @@ describe('Saisie d’une quête en espèces (WEB-PAR-Quete-Saisie)', () => {
     await renderPage(grantsEconome.filter((g) => g.capacite !== 'dons.saisir_quete'));
 
     expect(await screen.findByText('Quêtes en espèces : accès réservé')).toBeInTheDocument();
+  });
+
+  describe('fonds proposés selon la date de la messe', () => {
+    let asked: { node: string | null; date: string | null }[] = [];
+    const fund = (id: string) => staffFunds().find((f) => f.id === id)!;
+
+    beforeEach(() => {
+      asked = [];
+      server.use(
+        http.get(apiUrl('/staff/dons/quetes/fonds-proposes/'), ({ request }) => {
+          const params = new URL(request.url).searchParams;
+          asked.push({ node: params.get('node'), date: params.get('date') });
+          // Le 27 : quête impérée du jour en tête ; le 20 : aucune quête ouverte.
+          const date = params.get('date');
+          return HttpResponse.json(date === '2026-09-27' ? [fund(donsIds.brin), fund(donsIds.quete)] : date === '2026-10-04' ? [fund(donsIds.quete)] : []);
+        }),
+      );
+    });
+
+    it('demande les fonds de la date et présélectionne la quête impérée du jour', async () => {
+      await renderPage();
+
+      fireEvent.change(await screen.findByLabelText(/Date de la messe/), { target: { value: '2026-09-27' } });
+      await vi.waitFor(() => expect(screen.getByRole('radio', { name: /Quête impérée pour le Grand Séminaire de Brin/ })).toBeChecked());
+      expect(asked).toContainEqual({ node: nodeId, date: '2026-09-27' });
+
+      fireEvent.change(screen.getByLabelText(/Date de la messe/), { target: { value: '2026-10-04' } });
+      await vi.waitFor(() => expect(screen.queryByRole('radio', { name: /Quête impérée/ })).not.toBeInTheDocument());
+      expect(screen.getByRole('radio', { name: /Quête du dimanche 27 septembre/ })).toBeChecked();
+
+      fireEvent.change(screen.getByLabelText(/Date de la messe/), { target: { value: '2026-09-20' } });
+      expect(await screen.findByText('Aucune quête pour cette date')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Enregistrer la saisie' })).toBeDisabled();
+    });
+
+    it('enregistre la saisie sur le fonds proposé', async () => {
+      const user = userEvent.setup();
+      await renderPage();
+
+      fireEvent.change(await screen.findByLabelText(/Date de la messe/), { target: { value: '2026-09-27' } });
+      await screen.findByRole('option', { name: `Messe de 11${NBSP}h${NBSP}30` });
+      await user.selectOptions(screen.getByLabelText(/^Messe/), `Messe de 11${NBSP}h${NBSP}30`);
+      await vi.waitFor(() => expect(screen.getByRole('radio', { name: /Quête impérée pour le Grand Séminaire de Brin/ })).toBeChecked());
+      await user.type(screen.getByLabelText(/Montant compté/), '50000');
+      await user.type(screen.getByLabelText(/Premier compteur/), 'Joseph Mendy');
+      await user.type(screen.getByLabelText(/Second compteur/), 'Cécile Coly');
+      await user.click(screen.getByRole('button', { name: 'Enregistrer la saisie' }));
+
+      await vi.waitFor(() => expect(donsState.cashCreated).toHaveLength(1));
+      expect(donsState.cashCreated[0]).toMatchObject({ fund_id: donsIds.brin, mass_date: '2026-09-27', amount: 50_000 });
+    });
+
+    it('garde les quêtes ouvertes du nœud en secours si l’appel échoue', async () => {
+      server.use(
+        http.get(apiUrl('/staff/dons/quetes/fonds-proposes/'), () =>
+          HttpResponse.json({ error: { code: 'server_error', message: 'Indisponible.', details: {} } }, { status: 500 }),
+        ),
+      );
+      await renderPage();
+
+      fireEvent.change(await screen.findByLabelText(/Date de la messe/), { target: { value: '2026-09-20' } });
+      expect(await screen.findByRole('radio', { name: /Quête impérée pour le Grand Séminaire de Brin/ })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /Quête du dimanche 27 septembre/ })).toBeInTheDocument();
+      expect(screen.queryByRole('radio', { name: /Toiture/ })).not.toBeInTheDocument();
+      expect(screen.queryByText('Aucune quête pour cette date')).not.toBeInTheDocument();
+    });
+
+    it('n’appelle pas les fonds proposés sans dons.saisir_quete', async () => {
+      await renderPage(grantsEconome.filter((g) => g.capacite !== 'dons.saisir_quete'));
+
+      expect(await screen.findByText('Quêtes en espèces : accès réservé')).toBeInTheDocument();
+      expect(asked).toHaveLength(0);
+    });
   });
 });

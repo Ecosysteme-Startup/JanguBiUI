@@ -1,6 +1,7 @@
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { RealtimeBridge } from '@/components/layouts/realtime-bridge';
 import { NotificationsCenter } from '@/features/notifications/components/notifications-center';
 import { f5bState, resetF5bState } from '@/testing/mocks/db-f5b';
 import { renderApp } from '@/testing/test-utils';
@@ -73,7 +74,8 @@ describe('Notifications (/app/notifications)', () => {
     renderApp(<NotificationsCenter />);
     const list = await screen.findByRole('region', { name: /liste des notifications/i });
 
-    await user.click(within(list).getByRole('button', { name: /^confession/i }));
+    // La région existe dès le chargement : on attend que la liste soit arrivée (puce « Confession »).
+    await user.click(await within(list).findByRole('button', { name: /^confession/i }));
     expect(within(list).getAllByRole('listitem')).toHaveLength(1);
     expect(within(list).getByText(/rappel : rendez-vous de confession/i)).toBeInTheDocument();
 
@@ -98,8 +100,14 @@ describe('Notifications (/app/notifications)', () => {
     expect(screen.queryAllByRole('img', { name: 'Non lue' })).toHaveLength(0);
   });
 
-  it('se met à jour en temps réel quand une notification arrive', async () => {
-    renderApp(<NotificationsCenter />);
+  it('se met à jour en temps réel quand une notification arrive (socket unique du shell)', async () => {
+    // En vrai, RealtimeBridge est monté par le shell (AppFrame) ; l'écran n'ouvre pas de socket.
+    renderApp(
+      <>
+        <RealtimeBridge />
+        <NotificationsCenter />
+      </>,
+    );
     await screen.findByText('Père Emmanuel Tine vous a écrit');
     await vi.waitFor(() => expect(FakeWebSocket.instances).toHaveLength(1));
     expect(FakeWebSocket.instances[0].url).toContain('/ws/notifications/?ticket=ticket-test');

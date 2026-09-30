@@ -22,6 +22,10 @@ function itemVariants(delay = 0): Variants {
 
 const staticItemVariants = itemVariants();
 
+/** Élément rendu : garder la sémantique (liste, section) quand on anime un bloc. */
+type Tag = 'div' | 'section' | 'article' | 'ul' | 'li' | 'header';
+const tagOf = (as: Tag) => motion[as] as typeof motion.div;
+
 interface RevealProps {
   children: ReactNode;
   className?: string;
@@ -30,6 +34,7 @@ interface RevealProps {
   id?: string;
   /** Anime aussi s'il est déjà visible au montage (contenu client uniquement). */
   appear?: boolean;
+  as?: Tag;
 }
 
 /**
@@ -43,11 +48,13 @@ export function Reveal({
   delay = 0,
   id,
   appear = false,
+  as = 'div',
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const phase = useRevealPhase(ref, appear);
+  const Comp = tagOf(as);
   return (
-    <motion.div
+    <Comp
       ref={ref}
       id={id}
       className={className}
@@ -56,7 +63,7 @@ export function Reveal({
       variants={itemVariants(delay)}
     >
       {children}
-    </motion.div>
+    </Comp>
   );
 }
 
@@ -69,6 +76,7 @@ interface StaggerProps {
   step?: number;
   /** Anime aussi s'il est déjà visible au montage (contenu client uniquement). */
   appear?: boolean;
+  as?: Tag;
 }
 
 /**
@@ -81,11 +89,13 @@ export function Stagger({
   delay = 0,
   step = staggerStep,
   appear = false,
+  as = 'div',
 }: StaggerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const phase = useRevealPhase(ref, appear);
+  const Comp = tagOf(as);
   return (
-    <motion.div
+    <Comp
       ref={ref}
       className={className}
       initial={false}
@@ -96,7 +106,7 @@ export function Stagger({
       }}
     >
       {children}
-    </motion.div>
+    </Comp>
   );
 }
 
@@ -104,13 +114,16 @@ export function Stagger({
 export function StaggerItem({
   children,
   className,
+  as = 'div',
 }: {
   children: ReactNode;
   className?: string;
+  as?: Tag;
 }) {
+  const Comp = tagOf(as);
   return (
-    <motion.div className={className} variants={staticItemVariants}>
+    <Comp className={className} variants={staticItemVariants}>
       {children}
-    </motion.div>
+    </Comp>
   );
 }

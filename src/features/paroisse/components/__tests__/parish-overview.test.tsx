@@ -5,7 +5,7 @@ import { http, HttpResponse } from 'msw';
 import { ParishOverview } from '@/features/paroisse/components/parish-overview';
 import { apiUrl } from '@/testing/mocks/api-url';
 import { me } from '@/testing/mocks/db';
-import { resetF5bState } from '@/testing/mocks/db-f5b';
+import { announcements, resetF5bState } from '@/testing/mocks/db-f5b';
 import { server } from '@/testing/mocks/server';
 import { renderApp } from '@/testing/test-utils';
 import { f5bHandlers } from '@/testing/mocks/handlers/f5b';
@@ -127,6 +127,20 @@ describe('Ma paroisse (/app/paroisse)', () => {
     renderApp(<ParishOverview />);
 
     expect(await screen.findByRole('heading', { level: 1, name: /saint-dominique/i })).toBeInTheDocument();
+  });
+
+  it('met en tête les annonces épinglées de la paroisse, marquées « Épinglée »', async () => {
+    const base = announcements.map((a) => ({ ...a, is_pinned: false }));
+    // Le serveur renvoie l’épinglée en dernier : la page la remonte quand même.
+    const pinned = { ...base[2], is_pinned: true };
+    server.use(http.get(apiUrl('/news/'), () => HttpResponse.json({ count: 3, next: null, previous: null, results: [base[0], base[1], pinned] })));
+    renderApp(<ParishOverview />);
+
+    const annonces = await screen.findByRole('region', { name: 'Annonces récentes' });
+    const rows = within(annonces).getAllByRole('listitem');
+    expect(within(rows[0]).getByRole('link', { name: /inscriptions au catéchisme/i })).toBeInTheDocument();
+    expect(within(rows[0]).getByText('Épinglée')).toBeInTheDocument();
+    expect(within(rows[1]).queryByText('Épinglée')).not.toBeInTheDocument();
   });
 
   it('signale une erreur de chargement des annonces', async () => {

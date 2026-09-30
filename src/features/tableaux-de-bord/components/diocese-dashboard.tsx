@@ -192,7 +192,7 @@ const DeploymentCard = ({
               aria-label={`Sur ${plural(deployment.total, 'paroisse', 'paroisses')} : ${n(deployment.active)} ouverte${deployment.active > 1 ? 's' : ''}, ${n(pending)} pas encore ouverte${pending > 1 ? 's' : ''}`}
               className="mt-4 flex h-2.5 overflow-hidden rounded-full bg-surface-2"
             >
-              <span className="bg-ok-dot" style={{ width: `${share}%` }} />
+              <span className="origin-left animate-jb-grow bg-ok-dot" style={{ width: `${share}%` }} />
             </div>
             <div
               aria-hidden="true"
@@ -622,7 +622,7 @@ export const DioceseDashboard = ({ nodeId }: { nodeId: string }) => {
         }
       />
       <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="jb-cascade flex min-w-0 flex-col gap-6">
           <DeploymentCard
             deployment={deployment.data}
             failed={deployment.isError}
@@ -631,7 +631,7 @@ export const DioceseDashboard = ({ nodeId }: { nodeId: string }) => {
           />
           <ActesCard data={data} openParishes={deployment.data?.active} />
         </div>
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="jb-cascade flex min-w-0 flex-col gap-6">
           {canAppoint && <NominationsCard nodeId={nodeId} />}
           <FidelesCard data={data} />
           <WatchCard data={data} nodeId={nodeId} />

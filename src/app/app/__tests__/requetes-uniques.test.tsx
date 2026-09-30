@@ -6,6 +6,7 @@ import FideleLayout from '@/app/app/layout';
 import FideleHomePage from '@/app/app/page';
 import { ChapeletView } from '@/features/chapelet/components/chapelet-view';
 import { resetF5bState } from '@/testing/mocks/db-f5b';
+import { FakeWebSocket } from '@/testing/fake-web-socket';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { server } from '@/testing/mocks/server';
 import { navigation } from '@/testing/navigation';
@@ -19,7 +20,14 @@ import { createTestQueryClient, renderApp } from '@/testing/test-utils';
  * (`OPTIONS`, API sur un autre port + en-tête Authorization), pas un second GET.
  */
 describe('Espace fidèle : une seule requête par ressource', () => {
-  beforeEach(() => resetF5bState());
+  beforeEach(() => {
+    resetF5bState();
+    // Le shell ouvre la socket ws/notifications/ de l'onglet (RealtimeBridge) : WebSocket simulé,
+    // retiré en fin de fichier (le démontage suit les afterEach du fichier).
+    FakeWebSocket.reset();
+    vi.stubGlobal('WebSocket', FakeWebSocket);
+  });
+  afterAll(() => vi.unstubAllGlobals());
 
   it('accueil + shell sous StrictMode : aucun GET dupliqué', async () => {
     navigation.pathname = '/app';

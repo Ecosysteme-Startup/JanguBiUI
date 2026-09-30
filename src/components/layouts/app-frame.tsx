@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import type { ReactNode } from 'react';
 
 import { NavDrawer } from '@/components/layouts/nav-drawer';
+import { RealtimeBridge } from '@/components/layouts/realtime-bridge';
 import { TopbarEndTarget, TopbarSlotTargets, useShellSlots } from '@/components/layouts/shell-slots';
 import { Icon } from '@/components/ui/icon';
 import { iconButtonClasses, UnreadDot } from '@/components/ui/icon-button';
@@ -59,6 +60,8 @@ export const AppFrame = ({ sidebar, topbarFallback, bottomNav, homeHref, childre
   const hideTopbar = useShellSlots((s) => s.hideTopbar > 0);
   return (
     <div className="min-h-dvh bg-paper lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
+      {/* Socket ws/notifications/ unique de l'onglet (cloche, présence, lecteur). */}
+      <RealtimeBridge />
       <SkipLink />
       {/* À l'impression (feuille d'annonces…), seul le contenu de la page sort. */}
       <aside className="hidden border-r border-line bg-surface print:hidden lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:overflow-y-auto">

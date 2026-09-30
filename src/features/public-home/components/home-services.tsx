@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
+import { Reveal } from '@/lib/motion/reveal';
 import { cn } from '@/utils/cn';
 
 type Service = {
@@ -161,10 +162,12 @@ export const HomeServices = ({ paroleVisual, parishVisual }: HomeServicesProps) 
   };
   return (
     <section aria-labelledby="services-titre" className="jb-container pt-16 md:pt-24">
-      <h2 id="services-titre" className="m-0 text-28 font-semibold text-ink md:text-32">
-        Ce que vous pouvez faire avec Jàngu Bi
-      </h2>
-      <p className="m-0 mt-2 text-18 text-ink-2">Quatre services pensés avec la paroisse Saint-Dominique et l&apos;archidiocèse de Dakar.</p>
+      <Reveal>
+        <h2 id="services-titre" className="m-0 text-28 font-semibold text-ink md:text-32">
+          Ce que vous pouvez faire avec Jàngu Bi
+        </h2>
+        <p className="m-0 mt-2 text-18 text-ink-2">Quatre services pensés avec la paroisse Saint-Dominique et l&apos;archidiocèse de Dakar.</p>
+      </Reveal>
       {SERVICES.map((service, index) => (
         <article
           key={service.id}
@@ -174,8 +177,13 @@ export const HomeServices = ({ paroleVisual, parishVisual }: HomeServicesProps) 
             index === 0 ? 'mt-12 md:mt-16' : 'mt-14 md:mt-20',
           )}
         >
-          <ServiceText service={service} />
-          <Frame className={cn(index % 2 === 1 && 'lg:order-first')}>{visuals[service.id]}</Frame>
+          <Reveal>
+            <ServiceText service={service} />
+          </Reveal>
+          {/* L'aperçu suit le texte de 70 ms (cascade du mobile). */}
+          <Reveal delay={0.07} className={cn(index % 2 === 1 && 'lg:order-first')}>
+            <Frame>{visuals[service.id]}</Frame>
+          </Reveal>
         </article>
       ))}
     </section>
