@@ -147,7 +147,7 @@ const ParishHeader = ({ parish }: { parish: ParishSheetData }) => {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <ShareButton title={parish.name} />
-          <NextLink
+          <NextLink prefetch={false}
             href={paths.auth.inscription.getHref()}
             className={buttonVariants({ size: 'lg' })}
           >

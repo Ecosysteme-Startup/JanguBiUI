@@ -52,7 +52,7 @@ export const HomeHero = ({ parole, masses }: HomeHeroProps) => (
         un prêtre. Pour les catholiques du Sénégal.
       </p>
       <div className="mt-10 flex flex-wrap items-center gap-3">
-        <NextLink href={paths.auth.inscription.getHref()} className={buttonVariants({ size: 'xl' })}>
+        <NextLink prefetch={false} href={paths.auth.inscription.getHref()} className={buttonVariants({ size: 'xl' })}>
           Créer un compte gratuit
         </NextLink>
         <NextLink href={paths.parole.getHref()} className={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'gap-2.5')}>
