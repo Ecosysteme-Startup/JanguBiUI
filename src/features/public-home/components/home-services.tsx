@@ -64,7 +64,7 @@ const ServiceText = ({ service }: { service: Service }) => (
         </li>
       ))}
     </ul>
-    <NextLink href={service.link.href} className="hit mt-6 inline-block text-16 font-semibold">
+    <NextLink prefetch={false} href={service.link.href} className="hit mt-6 inline-block text-16 font-semibold">
       {service.link.label}
     </NextLink>
   </div>

@@ -6,6 +6,9 @@ const PublicEnv = z.object({
   SENTRY_DSN: z.string().optional(),
   /** Console d'administration Keycloak (lien externe de PLA-Comptes) ; absente : lien masqué. */
   KEYCLOAK_CONSOLE_URL: z.string().url().optional(),
+  /** Fiches de l'application mobile dans les stores ; absentes : « Bientôt disponible ». */
+  APP_STORE_URL: z.string().url().optional(),
+  PLAY_STORE_URL: z.string().url().optional(),
 });
 
 /** Variables publiques (intégrées au bundle au build). Aucun secret ici. */
@@ -14,4 +17,6 @@ export const env = PublicEnv.parse({
   WS_URL: process.env.NEXT_PUBLIC_WS_URL || undefined,
   SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN || undefined,
   KEYCLOAK_CONSOLE_URL: process.env.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL || undefined,
+  APP_STORE_URL: process.env.NEXT_PUBLIC_APP_STORE_URL || undefined,
+  PLAY_STORE_URL: process.env.NEXT_PUBLIC_PLAY_STORE_URL || undefined,
 });

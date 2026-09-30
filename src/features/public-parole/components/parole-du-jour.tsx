@@ -125,7 +125,7 @@ const ReadingTabs = ({ data }: { data: LiturgyDayFull }) => {
       ))}
       <p className="m-0 mt-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-t border-line pt-4 text-13 text-ink-3">
         <span>{data.notice || 'Textes liturgiques du jour.'}</span>
-        <NextLink href={paths.auth.inscription.getHref()} className="font-semibold">
+        <NextLink prefetch={false} href={paths.auth.inscription.getHref()} className="font-semibold">
           Recevoir la Parole chaque matin
         </NextLink>
       </p>

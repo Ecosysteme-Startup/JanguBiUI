@@ -36,7 +36,7 @@ export const ParishAnnouncements = ({ nodeId }: { nodeId: string }) => {
         <h2 id="h-annonces" className="m-0 text-24 font-semibold text-ink">
           Annonces du dimanche
         </h2>
-        <NextLink href={paths.auth.inscription.getHref()} className="hit text-15 font-semibold">
+        <NextLink prefetch={false} href={paths.auth.inscription.getHref()} className="hit text-15 font-semibold">
           Recevoir les annonces chaque dimanche
         </NextLink>
       </div>

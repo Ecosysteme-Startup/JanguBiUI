@@ -121,7 +121,7 @@ export function AccepterInvitation({ token }: { token: string }) {
             <a href={invitation.register_url}>Créer mon compte</a>
           </Button>
           <Button asChild variant="outline" block>
-            <Link
+            <Link prefetch={false}
               href={paths.auth.connexion.getHref(
                 paths.acceptInvitation.getHref(token),
               )}
