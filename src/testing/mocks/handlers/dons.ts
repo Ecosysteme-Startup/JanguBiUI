@@ -138,6 +138,21 @@ export const donsHandlers = [
     const o = operations().find((x) => x.id === params.donationId) ?? operations()[1];
     return HttpResponse.json({ ...o, status: 'rembourse' });
   }),
+  // Fonds proposés pour la quête d'une messe : quête impérée d'abord (samedi soir compris si la
+  // messe anticipée est incluse), puis la quête dominicale ouverte à cette date.
+  http.get(apiUrl('/staff/dons/quetes/fonds-proposes/'), ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const date = params.get('date');
+    if (!params.get('node') || !date) return error(400, 'validation_error', 'Le nœud et la date sont obligatoires.');
+    const eve = (d: string) => new Date(Date.parse(`${d}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+    const opens = (f: ReturnType<typeof staffFunds>[number]) =>
+      f.kind === 'quete_imperee' && f.messe_anticipee_incluse && f.starts_on ? eve(f.starts_on) : f.starts_on;
+    const rows = staffFunds()
+      .filter((f) => f.status === 'ouvert' && (f.kind === 'quete_imperee' || f.kind === 'quete_dominicale'))
+      .filter((f) => (!opens(f) || opens(f)! <= date) && (!f.ends_on || date <= f.ends_on))
+      .sort((a, b) => Number(b.kind === 'quete_imperee') - Number(a.kind === 'quete_imperee'));
+    return HttpResponse.json(rows);
+  }),
   http.get(apiUrl('/staff/dons/quetes/'), ({ request }) => {
     const status = new URL(request.url).searchParams.get('status');
     return HttpResponse.json(page(cashCollections().filter((c) => !status || c.status === status), request.url));

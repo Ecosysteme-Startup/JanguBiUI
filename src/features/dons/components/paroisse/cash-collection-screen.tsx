@@ -68,6 +68,7 @@ const RULES = [
 /** WEB-PAR-Quete-Saisie : saisie d'une quête en espèces et validation par une autre personne. */
 export const CashCollectionScreen = ({ nodeId }: { nodeId: string }) => {
   const funds = useStaffFunds(nodeId, { status: 'ouvert' });
+  // Secours du formulaire : il lit les fonds proposés pour la date de la messe (quête impérée comprise).
   const cashFunds = (funds.data ?? []).filter((f) => CASH_KINDS.includes(f.kind));
 
   return (

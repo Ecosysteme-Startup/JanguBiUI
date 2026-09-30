@@ -24,6 +24,7 @@ import { dayjs } from '@/utils/dates';
 import { useCreateCashCollection } from '../../api/cash-collections';
 import { nomsProposes, useEquipeCompteurs } from '../../api/compteurs';
 import { type MassTime, usePlaceMasses } from '../../api/get-place-masses';
+import { useProposedCashFunds } from '../../api/get-proposed-cash-funds';
 import type { StaffFund } from '../../types/schemas';
 import { fundKindLabel } from '../../utils/format';
 
@@ -125,10 +126,14 @@ const massesOn = (masses: MassTime[], date: string) => {
 
 const toInt = (v: string) => Number(v.replace(/\s/g, ''));
 
+/** `funds` : quêtes ouvertes du nœud, filtrées par type ; en secours si les fonds proposés échouent. */
 type Props = { nodeId: string; funds: StaffFund[] };
 
-/** « Nouvelle saisie » (WEB-PAR-Quete-Saisie) : deux compteurs, une autre personne valide. */
-export const CashCollectionForm = ({ nodeId, funds }: Props) => {
+/**
+ * « Nouvelle saisie » (WEB-PAR-Quete-Saisie) : deux compteurs, une autre personne valide.
+ * Les fonds viennent du serveur selon la date de la messe (quête impérée du jour d'abord).
+ */
+export const CashCollectionForm = ({ nodeId, funds: fallbackFunds }: Props) => {
   const places = useBackofficePlaces(nodeId);
   // Noms de l'équipe des compteurs et noms récents, proposés sans être imposés.
   const noms = nomsProposes(useEquipeCompteurs(nodeId).data);
@@ -152,7 +157,7 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
       mass_choice: '',
       mass_other: '',
       place_id: '',
-      fund_id: funds.length === 1 ? funds[0].id : '',
+      fund_id: fallbackFunds.length === 1 ? fallbackFunds[0].id : '',
       amount: '',
       counter_one: '',
       counter_two: '',
@@ -163,6 +168,21 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
   const placeId = watch('place_id');
   const massDate = watch('mass_date');
   const massChoice = watch('mass_choice');
+
+  // Fonds proposés pour la date ; la liste filtrée par type sert de secours (échec, date incomplète).
+  const proposed = useProposedCashFunds(nodeId, massDate);
+  const fromServer = Boolean(proposed.data) && !proposed.isError;
+  const funds = fromServer ? proposed.data! : fallbackFunds;
+  const fundIds = funds.map((f) => f.id).join(',');
+
+  // Le fonds choisi doit rester proposé : sinon la quête impérée (en tête) ou le fonds unique.
+  useEffect(() => {
+    const current = getValues('fund_id');
+    const ids = fundIds ? fundIds.split(',') : [];
+    if (current && ids.includes(current)) return;
+    const next = fromServer ? (ids[0] ?? '') : ids.length === 1 ? ids[0] : '';
+    if (next !== current) setValue('fund_id', next);
+  }, [fundIds, fromServer, getValues, setValue]);
 
   // Lieu principal par défaut, dès que les lieux sont chargés.
   useEffect(() => {
@@ -318,7 +338,14 @@ export const CashCollectionForm = ({ nodeId, funds }: Props) => {
               <span className="sr-only"> (obligatoire)</span>
             </legend>
             {funds.length === 0 ? (
-              <Notice tone="warn" title="Aucune quête ouverte">
+              <Notice
+                tone="warn"
+                title={
+                  fromServer
+                    ? 'Aucune quête pour cette date'
+                    : 'Aucune quête ouverte'
+                }
+              >
                 Ouvrez d’abord le fonds de la quête du dimanche, ou attendez la
                 quête impérée publiée par le diocèse.
               </Notice>
