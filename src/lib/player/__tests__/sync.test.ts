@@ -1,8 +1,11 @@
+import { QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
+import { createElement } from 'react';
 import { http, HttpResponse } from 'msw';
 
 import { env } from '@/config/env';
 import { dispatchNotificationFrameForTests } from '@/lib/realtime/notifications-socket';
+import { useNotificationsSocket } from '@/lib/realtime/use-notifications-socket';
 import {
   GLORIA_ID,
   messeTracks,
@@ -27,7 +30,9 @@ import { resetStateSyncForTests, STATE_INTERVAL_MS } from '../state-sync';
 import { EVENTS_INTERVAL_MS, usePlayerSync } from '../use-player-sync';
 
 import { FakeEngine } from './fake-engine';
+import { FakeWebSocket } from '@/testing/fake-web-socket';
 import { simulerSession, terminerSession } from '@/testing/session';
+import { createTestQueryClient } from '@/testing/test-utils';
 
 // Chaque store zustand repart de son état initial après chaque test (__mocks__/zustand.ts).
 vi.mock('zustand');
@@ -343,6 +348,24 @@ describe('une lecture à la fois (décision 10)', () => {
     await vi.waitFor(() => expect(puts).toHaveLength(2));
     expect(puts[1].playing).toBe(true);
     expect(store().pausedElsewhere).toBe(false);
+  });
+
+  it('reçoit la pause par la socket ws/notifications/ unique de l’onglet (bus), sans socket à lui', async () => {
+    const client = createTestQueryClient();
+    renderHook(() => useNotificationsSocket(true), {
+      wrapper: ({ children }) =>
+        createElement(QueryClientProvider, { client }, children),
+    });
+    renderHook(() => usePlayerSync(true));
+    await store().playTracks(messeTracks, 2);
+    await vi.waitFor(() => expect(FakeWebSocket.last()?.readyState).toBe(1));
+    // Le lecteur n'ouvre aucune socket : seule celle de l'onglet existe.
+    expect(FakeWebSocket.instances).toHaveLength(1);
+
+    FakeWebSocket.last()!.emit(pauseFrame('android-mt-diouf'));
+    expect(store().status).toBe('paused');
+    expect(engine.playing).toBe(false);
+    expect(store().pausedElsewhere).toBe(true);
   });
 
   it('ignore la pause qui l’exclut (sauf_device_id = cet appareil)', async () => {

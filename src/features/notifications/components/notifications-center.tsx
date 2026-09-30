@@ -1,18 +1,17 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Chip, ChipGroup } from '@/components/ui/chip';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
-import { useSocket } from '@/hooks/use-socket';
+import { retryNotificationsSocket } from '@/lib/realtime/notifications-socket';
+import { useRealtimeStore } from '@/stores/realtime-store';
 
 import {
   type AppNotification,
-  notificationsQueryOptions,
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotifications,
@@ -41,23 +40,18 @@ const matches = (n: AppNotification, filter: Filter) => {
 
 const unreadLabel = (count: number) => `${count} non lue${count > 1 ? 's' : ''}`;
 
-/** Notifications (FID-Notifications) : liste filtrable par jour, marquage lu, temps réel, préférences. */
+/**
+ * Notifications (FID-Notifications) : liste filtrable par jour, marquage lu, temps réel, préférences.
+ * Temps réel : la socket ws/notifications/ unique de l'onglet (RealtimeBridge du shell) invalide la
+ * liste à chaque notification ; l'écran n'ouvre pas de socket, il en montre l'état.
+ */
 export const NotificationsCenter = () => {
   const [filter, setFilter] = useState<Filter>('toutes');
-  const queryClient = useQueryClient();
   const { data, isPending, isError, refetch } = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAll = useMarkAllNotificationsRead();
 
-  const onSocketMessage = useCallback(
-    (frame: unknown) => {
-      if (frame && typeof frame === 'object' && (frame as { type?: unknown }).type === 'notification') {
-        void queryClient.invalidateQueries({ queryKey: notificationsQueryOptions().queryKey });
-      }
-    },
-    [queryClient],
-  );
-  const socket = useSocket('/ws/notifications/', onSocketMessage);
+  const socketStatus = useRealtimeStore((s) => s.notificationsSocket);
 
   const items = data ?? [];
   const unread = items.filter((n) => !n.is_read).length;
@@ -83,10 +77,10 @@ export const NotificationsCenter = () => {
           Tout marquer comme lu
         </Button>
       </div>
-      {socket.status === 'offline' && (
+      {socketStatus === 'offline' && (
         <p role="status" className="m-0 mt-4 flex items-center gap-3 text-14 text-ink-2">
           Mises à jour en direct interrompues.
-          <Button variant="ghost" size="sm" onClick={socket.retry}>
+          <Button variant="ghost" size="sm" onClick={retryNotificationsSocket}>
             Réessayer
           </Button>
         </p>

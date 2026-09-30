@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 
+import type { SocketStatus } from '@/lib/ws';
+
 // État temps réel partagé par onglet (backend `docs/TEMPS-REEL.md` §2) :
 // - l'état de la socket `ws/notifications/` (le polling des notifications ne
 //   sert qu'en secours, quand elle n'est pas ouverte) ;
 // - la présence des interlocuteurs, alimentée par `GET messaging/presence/`
 //   puis par les événements `presence.changed`.
 
-export type EtatSocket = 'inactive' | 'connexion' | 'ouverte' | 'reconnexion';
+/** `inactive` : aucune socket (personne non connectée, shell non monté). */
+export type EtatSocket = SocketStatus | 'inactive';
 
 export type Presence = {
   user_id: string;
