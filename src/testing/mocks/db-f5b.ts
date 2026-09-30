@@ -229,7 +229,7 @@ export const laicDeclaration = (overrides: Record<string, unknown> = {}) => ({
 });
 
 /**
- * Événements des nœuds parents (diocèse), présents seulement dans le fil agrégé du fidèle
+ * Événements des nœuds parents (diocèse), renvoyés seulement par /agenda/ sans `node` (toute la plateforme)
  * (`GET /agenda/` sans `node`).
  */
 export const dioceseEvents = () => [

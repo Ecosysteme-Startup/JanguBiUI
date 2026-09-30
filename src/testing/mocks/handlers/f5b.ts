@@ -40,8 +40,9 @@ export const f5bHandlers = [
     return HttpResponse.json({ first_read: true });
   }),
   http.get(apiUrl('/public/nodes/:id/week/'), () => HttpResponse.json(parishWeek)),
-  // Agenda (`agenda_list`) : `node` = la paroisse ; sans `node`, fil agrégé du fidèle (paroisse
-  // suivie et nœuds parents). Filtre `type`, tri par date, enveloppe LimitOffset du contrat.
+  // Agenda (`agenda_list`) : `node` = la paroisse et son sous-arbre ; sans `node`, le serveur
+  // renvoie toute la plateforme (ici : paroisse + diocèse). Filtre `type`, tri par date,
+  // enveloppe LimitOffset du contrat.
   http.get(apiUrl('/agenda/'), ({ request }) => {
     const params = new URL(request.url).searchParams;
     const type = params.get('type');

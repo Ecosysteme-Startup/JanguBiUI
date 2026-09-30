@@ -18,7 +18,7 @@ beforeEach(() => resetF5bState());
 const liste = () => screen.getByRole('region', { name: 'Événements à venir' });
 
 describe('Agenda complet du fidèle (/app/paroisse/agenda)', () => {
-  it('présente le fil agrégé (paroisse et diocèse), trié par date, avec l’organisateur et le lien vers le détail', async () => {
+  it('présente l’agenda de la paroisse suivie, trié par date, avec le lien vers le détail', async () => {
     const seen: URL[] = [];
     server.events.on('request:start', ({ request }) => {
       if (request.url.includes('/agenda/')) seen.push(new URL(request.url));
@@ -27,13 +27,12 @@ describe('Agenda complet du fidèle (/app/paroisse/agenda)', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Agenda' })).toBeInTheDocument();
     const items = await within(liste()).findAllByRole('listitem');
-    expect(items).toHaveLength(4);
-    expect(within(liste()).getByText('4 événements à venir')).toBeInTheDocument();
+    expect(items).toHaveLength(2);
+    expect(within(liste()).getByText('2 événements à venir')).toBeInTheDocument();
     expect(within(items[0]).getByRole('link', { name: /répétition de la chorale/i })).toHaveAttribute('href', '/app/paroisse/evenements/43');
-    expect(within(items[1]).getByText(/archidiocèse de dakar/i)).toBeInTheDocument();
-    expect(within(items[1]).getByRole('link', { name: /ordinations sacerdotales/i })).toHaveAttribute('href', '/app/paroisse/evenements/50');
-    // Fil agrégé : jamais de `node` dans la requête.
-    expect(seen[0]?.searchParams.has('node')).toBe(false);
+    // Toujours filtré sur la paroisse suivie : sans `node`, le serveur renverrait toute la plateforme.
+    expect(seen[0]?.searchParams.get('node')).toBeTruthy();
+    expect(within(liste()).queryByText(/ordinations sacerdotales/i)).not.toBeInTheDocument();
     expect(seen[0]?.searchParams.get('limit')).toBe(String(AGENDA_PAGE_SIZE));
     server.events.removeAllListeners();
   });
@@ -44,13 +43,13 @@ describe('Agenda complet du fidèle (/app/paroisse/agenda)', () => {
     await within(liste()).findAllByRole('listitem');
 
     const filtres = screen.getByRole('group', { name: 'Filtrer par type d’événement' });
-    await user.click(within(filtres).getByRole('button', { name: 'Messes' }));
+    await user.click(within(filtres).getByRole('button', { name: 'Retraites' }));
 
     await waitFor(() => expect(within(liste()).getAllByRole('listitem')).toHaveLength(1));
-    expect(within(liste()).getByRole('link', { name: /messe chrismale/i })).toBeInTheDocument();
-    expect(within(filtres).getByRole('button', { name: 'Messes' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(liste()).getByRole('link', { name: /journée de récollection/i })).toBeInTheDocument();
+    expect(within(filtres).getByRole('button', { name: 'Retraites' })).toHaveAttribute('aria-pressed', 'true');
 
-    await user.click(within(filtres).getByRole('button', { name: 'Conférences' }));
+    await user.click(within(filtres).getByRole('button', { name: 'Messes' }));
     expect(await screen.findByText('Aucun événement de ce type à venir.')).toBeInTheDocument();
   });
 

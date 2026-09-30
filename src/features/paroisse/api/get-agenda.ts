@@ -5,9 +5,10 @@ import { api } from '@/lib/api-client';
 
 import { eventSchema } from './get-events';
 
-// Agenda complet du fidèle : `GET /agenda/` sans `node` (opération `agenda_list`), fil agrégé côté
-// serveur (paroisses suivies et leurs nœuds parents), événements à venir triés par date,
-// enveloppe `PaginatedEventOutputList` (limit/offset). Filtre facultatif `type`.
+// Agenda complet de la paroisse du fidèle : `GET /agenda/?node=<paroisse>` (opération `agenda_list`,
+// nœud et sous-arbre), événements à venir triés par date, enveloppe `PaginatedEventOutputList`
+// (limit/offset). Filtre facultatif `type`. Sans `node`, le serveur renverrait TOUTE la plateforme
+// (event_list_public n'agrège pas les paroisses du fidèle) : le nœud est donc obligatoire.
 
 export const EVENT_TYPES = ['mass', 'conference', 'retreat', 'ordination', 'other'] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -22,15 +23,16 @@ const pageSchema = z.object({
 });
 export type AgendaPage = z.infer<typeof pageSchema>;
 
-export const getAgenda = async ({ type, offset = 0 }: { type?: EventType; offset?: number } = {}) =>
-  pageSchema.parse(await api.get('/agenda/', { params: { type, limit: AGENDA_PAGE_SIZE, offset } }));
+export const getAgenda = async ({ nodeId, type, offset = 0 }: { nodeId: string; type?: EventType; offset?: number }) =>
+  pageSchema.parse(await api.get('/agenda/', { params: { node: nodeId, type, limit: AGENDA_PAGE_SIZE, offset } }));
 
-export const agendaQueryOptions = (type?: EventType) =>
+export const agendaQueryOptions = (nodeId: string, type?: EventType) =>
   infiniteQueryOptions({
-    queryKey: ['paroisse', 'agenda-complet', type ?? 'tous'],
-    queryFn: ({ pageParam }) => getAgenda({ type, offset: pageParam }),
+    queryKey: ['paroisse', nodeId, 'agenda-complet', type ?? 'tous'],
+    queryFn: ({ pageParam }) => getAgenda({ nodeId, type, offset: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (last, pages) => (last.next ? pages.reduce((n, p) => n + p.results.length, 0) : undefined),
   });
 
-export const useAgenda = (type?: EventType) => useInfiniteQuery(agendaQueryOptions(type));
+export const useAgenda = (nodeId: string | null, type?: EventType) =>
+  useInfiniteQuery({ ...agendaQueryOptions(nodeId ?? '', type), enabled: Boolean(nodeId) });

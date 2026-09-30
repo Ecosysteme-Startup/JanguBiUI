@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PageHeader } from '@/components/ui/page-header';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
+import { useMe } from '@/hooks/use-me';
 import { plural } from '@/utils/plural';
 
 import { type EventType, useAgenda } from '../api/get-agenda';
@@ -26,13 +27,15 @@ const FILTERS: { value: EventType | null; label: string }[] = [
 ];
 
 /**
- * Agenda complet du fidèle (/app/paroisse/agenda) : événements à venir de ses paroisses et des
- * nœuds parents (doyenné, diocèse), filtrables par type, chargés par pages de 20. Chaque carte
- * ouvre le détail existant (inscription comprise).
+ * Agenda complet du fidèle (/app/paroisse/agenda) : événements à venir de sa paroisse (et de ses
+ * lieux), filtrables par type, chargés par pages de 20. Chaque carte ouvre le détail existant
+ * (inscription comprise).
  */
 export const FullAgenda = () => {
   const [type, setType] = useState<EventType | null>(null);
-  const agenda = useAgenda(type ?? undefined);
+  const { data: me, isPending: mePending } = useMe();
+  const paroisse = me?.paroisse_suivie ?? null;
+  const agenda = useAgenda(paroisse?.id ?? null, type ?? undefined);
   const events = agenda.data?.pages.flatMap((p) => p.results) ?? [];
   const total = agenda.data?.pages[0]?.count;
 
@@ -45,7 +48,7 @@ export const FullAgenda = () => {
       />
       <PageHeader
         title="Agenda"
-        description="Les événements à venir de vos paroisses, de votre doyenné et de votre diocèse."
+        description={paroisse ? `Les événements à venir de ${paroisse.name}.` : 'Les événements à venir de votre paroisse.'}
       />
       <ChipGroup label="Filtrer par type d’événement">
         {FILTERS.map((filter) => (
@@ -58,7 +61,11 @@ export const FullAgenda = () => {
         <h2 id="ag-liste" className="sr-only">
           Événements à venir
         </h2>
-        {agenda.isPending ? (
+        {!mePending && !paroisse ? (
+          <EmptyState icon="paroisse" title="Aucune paroisse suivie.">
+            Choisissez votre paroisse pour voir son agenda.
+          </EmptyState>
+        ) : agenda.isPending ? (
           <LoadingBlock label="Chargement de l’agenda…" lines={4} />
         ) : agenda.isError ? (
           <EmptyState tone="err" title="L’agenda n’a pas pu être chargé.">
@@ -66,7 +73,7 @@ export const FullAgenda = () => {
           </EmptyState>
         ) : events.length === 0 ? (
           <EmptyState icon="calendrier" title={type ? 'Aucun événement de ce type à venir.' : 'Aucun événement à venir.'}>
-            Les rencontres, retraites et célébrations de vos paroisses et de votre diocèse apparaîtront ici.
+            Les rencontres, retraites et célébrations de votre paroisse apparaîtront ici.
           </EmptyState>
         ) : (
           <>
