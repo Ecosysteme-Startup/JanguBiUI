@@ -1,21 +1,33 @@
 'use client';
 
+import NextLink from 'next/link';
+
 import { EmptyState } from '@/components/ui/empty-state';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { LoadingBlock } from '@/components/ui/skeleton';
+import { paths } from '@/config/paths';
 
 import { useEvents } from '../api/get-events';
 
 import { EventRow } from './event-row';
 
-/** Onglet « Agenda » : tous les événements à venir de la paroisse. */
+/** Onglet « Agenda » : les prochains événements de la paroisse, lien vers l'agenda complet (paroisses et diocèse). */
 export const AgendaSection = ({ nodeId }: { nodeId: string }) => {
   const { data, isPending, isError } = useEvents(nodeId);
   const events = data?.results ?? [];
 
   return (
     <section id="agenda" aria-labelledby="mp-agenda">
-      <SectionHeading id="mp-agenda" size="md" title="Agenda" />
+      <SectionHeading
+        id="mp-agenda"
+        size="md"
+        title="Agenda"
+        aside={
+          <NextLink href={paths.app.paroisse.agenda.getHref()} className="text-15 font-medium text-primary hover:text-primary-strong">
+            Tout l’agenda
+          </NextLink>
+        }
+      />
       {isPending ? (
         <LoadingBlock label="Chargement de l’agenda…" />
       ) : isError ? (

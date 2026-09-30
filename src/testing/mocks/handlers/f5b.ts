@@ -6,6 +6,7 @@ import {
   announcementDetails,
   announcements,
   currentRequests,
+  dioceseEvents,
   f5bState,
   meFeed,
   parishNode,
@@ -39,7 +40,20 @@ export const f5bHandlers = [
     return HttpResponse.json({ first_read: true });
   }),
   http.get(apiUrl('/public/nodes/:id/week/'), () => HttpResponse.json(parishWeek)),
-  http.get(apiUrl('/agenda/'), () => HttpResponse.json(page(Object.values(f5bState.events)))),
+  // Agenda (`agenda_list`) : `node` = la paroisse ; sans `node`, fil agrégé du fidèle (paroisse
+  // suivie et nœuds parents). Filtre `type`, tri par date, enveloppe LimitOffset du contrat.
+  http.get(apiUrl('/agenda/'), ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const type = params.get('type');
+    const limit = Number(params.get('limit') ?? 10);
+    const offset = Number(params.get('offset') ?? 0);
+    const all = [...Object.values(f5bState.events), ...(params.get('node') ? [] : dioceseEvents())]
+      .filter((e) => !type || e.event_type === type)
+      .sort((a, b) => a.start_at.localeCompare(b.start_at));
+    const results = all.slice(offset, offset + limit);
+    const next = offset + limit < all.length ? `${apiUrl('/agenda/')}?limit=${limit}&offset=${offset + limit}` : null;
+    return HttpResponse.json({ limit, offset, count: all.length, next, previous: null, results });
+  }),
   http.get(apiUrl('/agenda/:id/'), ({ params }) => {
     const event = f5bState.events[Number(params.id)];
     return event ? HttpResponse.json(event) : HttpResponse.json({ message: 'Événement introuvable.' }, { status: 404 });

@@ -228,6 +228,35 @@ export const laicDeclaration = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+/**
+ * Événements des nœuds parents (diocèse), présents seulement dans le fil agrégé du fidèle
+ * (`GET /agenda/` sans `node`).
+ */
+export const dioceseEvents = () => [
+  event(50, 'Ordinations sacerdotales à la cathédrale', 9, {
+    event_type: 'ordination',
+    location: 'Cathédrale du Souvenir africain',
+    node_id: ids.dakar,
+    node_name: 'Archidiocèse de Dakar',
+    max_participants: null,
+    registrations_count: 0,
+    seats_taken: 0,
+    seats_remaining: null,
+    registrations_open: false,
+  }),
+  event(51, 'Messe chrismale', 12, {
+    event_type: 'mass',
+    location: 'Cathédrale du Souvenir africain',
+    node_id: ids.dakar,
+    node_name: 'Archidiocèse de Dakar',
+    max_participants: null,
+    registrations_count: 0,
+    seats_taken: 0,
+    seats_remaining: null,
+    registrations_open: false,
+  }),
+];
+
 const now = () => dayjs();
 
 export const resetF5bState = () => {

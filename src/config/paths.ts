@@ -64,6 +64,8 @@ export const paths = {
       root: { getHref: (section?: 'annonces' | 'horaires' | 'agenda') => `/app/paroisse${section ? `#${section}` : ''}` },
       annonce: { getHref: (id: number | string) => `/app/paroisse/annonces/${id}` },
       evenement: { getHref: (id: number | string) => `/app/paroisse/evenements/${id}` },
+      /** Agenda complet du fidèle : paroisses suivies et nœuds parents (doyenné, diocèse). */
+      agenda: { getHref: () => '/app/paroisse/agenda' },
     },
     notifications: { getHref: () => '/app/notifications' },
     demandes: {
