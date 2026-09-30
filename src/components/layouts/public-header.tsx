@@ -41,10 +41,10 @@ export const PublicHeader = () => {
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" className="hidden sm:inline-flex">
-            <NextLink href={paths.auth.connexion.getHref()}>Se connecter</NextLink>
+            <NextLink prefetch={false} href={paths.auth.connexion.getHref()}>Se connecter</NextLink>
           </Button>
           <Button asChild className="hidden sm:inline-flex">
-            <NextLink href={paths.auth.inscription.getHref()}>Créer un compte</NextLink>
+            <NextLink prefetch={false} href={paths.auth.inscription.getHref()}>Créer un compte</NextLink>
           </Button>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger className="hit inline-flex size-10 items-center justify-center rounded-10 border border-line text-ink hover:bg-surface lg:hidden" aria-label="Ouvrir le menu">
@@ -75,10 +75,10 @@ export const PublicHeader = () => {
                 </nav>
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <Button asChild variant="outline" size="lg">
-                    <NextLink href={paths.auth.connexion.getHref()}>Se connecter</NextLink>
+                    <NextLink prefetch={false} href={paths.auth.connexion.getHref()}>Se connecter</NextLink>
                   </Button>
                   <Button asChild size="lg">
-                    <NextLink href={paths.auth.inscription.getHref()}>Créer un compte</NextLink>
+                    <NextLink prefetch={false} href={paths.auth.inscription.getHref()}>Créer un compte</NextLink>
                   </Button>
                 </div>
               </Dialog.Content>

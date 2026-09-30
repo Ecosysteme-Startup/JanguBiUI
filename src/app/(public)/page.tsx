@@ -5,6 +5,7 @@ import { ACTIVE_COUNT_PARAMS, diocesesQueryOptions, directoryQueryOptions, EXCER
 import { HomeDirectory } from '@/features/public-annuaire/components/home-directory';
 import { NextMassesCard } from '@/features/public-annuaire/components/next-masses-card';
 import { ParishWeekPreview } from '@/features/public-annuaire/components/parish-week-preview';
+import { HomeApp } from '@/features/public-home/components/home-app';
 import { HomeHero } from '@/features/public-home/components/home-hero';
 import { HomeOffer } from '@/features/public-home/components/home-offer';
 import { HomeServices } from '@/features/public-home/components/home-services';
@@ -62,6 +63,7 @@ const HomePage = async () => {
       <ParoleTodaySection />
       <HomeDirectory />
       <HomeServices paroleVisual={<PsalmPreview />} parishVisual={<ParishWeekPreview />} />
+      <HomeApp />
       <HomeOffer />
       <FaqSection
         id="faq-titre"

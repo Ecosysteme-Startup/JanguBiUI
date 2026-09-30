@@ -124,6 +124,8 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.dev/api/v1
             NEXT_PUBLIC_WS_URL=wss://api-jangubi.ceac.dev
             NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_STAGING }}
+            NEXT_PUBLIC_APP_STORE_URL=${{ vars.NEXT_PUBLIC_APP_STORE_URL }}
+            NEXT_PUBLIC_PLAY_STORE_URL=${{ vars.NEXT_PUBLIC_PLAY_STORE_URL }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
           # Jeton Sentry : secret BuildKit, absent des couches de l'image.
           secrets: |
@@ -144,6 +146,8 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api-jangubi.ceac.sn/api/v1
             NEXT_PUBLIC_WS_URL=wss://api-jangubi.ceac.sn
             NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL=${{ vars.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL_PROD }}
+            NEXT_PUBLIC_APP_STORE_URL=${{ vars.NEXT_PUBLIC_APP_STORE_URL }}
+            NEXT_PUBLIC_PLAY_STORE_URL=${{ vars.NEXT_PUBLIC_PLAY_STORE_URL }}
             NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
           # Jeton Sentry : secret BuildKit, absent des couches de l'image.
           secrets: |
