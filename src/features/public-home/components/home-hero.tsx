@@ -7,6 +7,8 @@ import { paths } from '@/config/paths';
 import { Tilt3D } from '@/lib/motion/tilt-3d';
 import { cn } from '@/utils/cn';
 
+import { StoreBadges } from './store-badges';
+
 /** Carte flottante de l'aperçu (rayon 16, bordure line, ombre de menu). */
 export const PREVIEW_CARD = 'rounded-16 border border-line bg-paper shadow-menu';
 
@@ -32,8 +34,8 @@ type HomeHeroProps = {
 };
 
 /**
- * Ouverture de l'accueil public (WEB-Accueil) : accroche, deux actions, et un aperçu de
- * l'application (dessin, carte de la Parole du jour, prochaines messes de la paroisse pilote).
+ * Ouverture de l'accueil public (WEB-Accueil) : accroche, deux actions, les badges App Store et
+ * Google Play (ancre `#application`), et un aperçu de l'application (dessin, carte de la Parole du jour, prochaines messes de la paroisse pilote).
  */
 export const HomeHero = ({ parole, masses }: HomeHeroProps) => (
   <section
@@ -61,7 +63,8 @@ export const HomeHero = ({ parole, masses }: HomeHeroProps) => (
           Lire la Parole du jour
         </NextLink>
       </div>
-      <p className="jb-rise m-0 mt-6 text-14 text-ink-3 [--jb-delay:480ms]">Sur le web, iPhone et Android. La Parole du jour se lit sans compte.</p>
+      <StoreBadges className="jb-rise mt-6 [--jb-delay:480ms]" />
+      <p className="jb-rise m-0 mt-5 text-14 text-ink-3 [--jb-delay:550ms]">Sur le web, iPhone et Android. La Parole du jour se lit sans compte.</p>
     </div>
 
     {/* Aperçu : cartes posées sur le dessin (1440 px) ; empilées sous 1024 px. Mouvement : entrée
