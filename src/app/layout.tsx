@@ -25,6 +25,9 @@ const sans = Libre_Franklin({
 });
 
 export const metadata = {
+  // Adresse publique du site (AUTH_URL, lue à l'exécution) : sert aux liens absolus
+  // de l'image de partage (og:image). Repli local pour le développement et le build.
+  metadataBase: new URL(process.env.AUTH_URL ?? 'http://localhost:3000'),
   title: { default: 'Jàngu Bi', template: '%s · Jàngu Bi' },
   description: 'La Parole, la vie de votre paroisse et vos démarches, pour les fidèles catholiques du Sénégal.',
 };
