@@ -7,6 +7,7 @@ import {
   announcements,
   currentRequests,
   f5bState,
+  meFeed,
   parishNode,
   parishWeek,
   priests,
@@ -20,6 +21,15 @@ export const f5bHandlers = [
   // Ma paroisse
   http.get(apiUrl(`/hierarchy/nodes/${ids.saintDominique}/`), () => HttpResponse.json(parishNode)),
   http.get(apiUrl('/news/'), () => HttpResponse.json(page(announcements))),
+  // Fil du fidèle (`me_feed`) : enveloppe LimitOffset du contrat.
+  http.get(apiUrl('/me/feed/'), ({ request }) => {
+    const params = new URL(request.url).searchParams;
+    const limit = Number(params.get('limit') ?? 10);
+    const offset = Number(params.get('offset') ?? 0);
+    const results = meFeed.slice(offset, offset + limit);
+    const next = offset + limit < meFeed.length ? `${apiUrl('/me/feed/')}?limit=${limit}&offset=${offset + limit}` : null;
+    return HttpResponse.json({ limit, offset, count: meFeed.length, next, previous: null, results });
+  }),
   http.get(apiUrl('/news/:id/'), ({ params }) => {
     const detail = announcementDetails[String(params.id)];
     return detail ? HttpResponse.json(detail) : HttpResponse.json({ message: 'Article introuvable.' }, { status: 404 });

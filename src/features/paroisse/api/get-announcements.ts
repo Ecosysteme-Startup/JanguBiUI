@@ -16,6 +16,8 @@ export const announcementSummarySchema = z.object({
   is_sunday_notice: z.boolean(),
   sunday_date: z.string().nullable(),
   published_at: z.string().nullable(),
+  /** Épinglée en tête par la paroisse (date de fin non dépassée), API-V1-COMPLEMENTS §2.1. */
+  is_pinned: z.boolean().optional().default(false),
 });
 export type AnnouncementSummary = z.infer<typeof announcementSummarySchema>;
 
@@ -23,9 +25,17 @@ const pageSchema = z.object({ count: z.number(), results: z.array(announcementSu
 
 export const ANNOUNCEMENTS_LIMIT = 20;
 
-/** Annonces publiées de la paroisse et de ses lieux (`node` = nœud et sous-arbre), récentes d'abord. */
-export const getAnnouncements = async (nodeId: string) =>
-  pageSchema.parse(await api.get('/news/', { params: { node: nodeId, type: 'announcement', limit: ANNOUNCEMENTS_LIMIT } }));
+/** Épinglées d'abord ; l'ordre du serveur (récentes d'abord) est conservé dans chaque groupe. */
+export const pinnedFirst = <T extends { is_pinned?: boolean }>(items: T[]): T[] => [
+  ...items.filter((item) => item.is_pinned),
+  ...items.filter((item) => !item.is_pinned),
+];
+
+/** Annonces publiées de la paroisse et de ses lieux (`node` = nœud et sous-arbre) : épinglées en tête, puis récentes d'abord. */
+export const getAnnouncements = async (nodeId: string) => {
+  const page = pageSchema.parse(await api.get('/news/', { params: { node: nodeId, type: 'announcement', limit: ANNOUNCEMENTS_LIMIT } }));
+  return { ...page, results: pinnedFirst(page.results) };
+};
 
 export const announcementsQueryOptions = (nodeId: string) =>
   queryOptions({ queryKey: ['paroisse', nodeId, 'annonces'], queryFn: () => getAnnouncements(nodeId) });

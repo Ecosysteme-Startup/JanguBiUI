@@ -20,8 +20,8 @@ export const isNewAnnouncement = (a: AnnouncementSummary, now: Date = new Date()
   Boolean(a.published_at && dayjs(now).diff(dayjs(a.published_at), 'day') < NEW_DAYS);
 
 /**
- * Rangée d'annonce dans une carte (FID-Ma-Paroisse) : méta 13, titre 16/600, extrait 15 sur une
- * ligne, chevron. Filet intercalaire en retrait de 24 px (sauf la première rangée).
+ * Rangée d'annonce dans une carte (FID-Ma-Paroisse) : méta 13 (« Épinglée » à l'épingle, sinon
+ * « Nouveau »), titre 16/600, extrait 15 sur une ligne, chevron. Filet intercalaire en retrait de 24 px (sauf la première rangée).
  */
 export const AnnouncementRow = ({ item, first }: { item: AnnouncementSummary; first: boolean }) => {
   const kicker = announcementKicker(item);
@@ -33,8 +33,15 @@ export const AnnouncementRow = ({ item, first }: { item: AnnouncementSummary; fi
       >
         <span className="min-w-0 flex-1">
           <span className="tnum flex flex-wrap items-center gap-x-1.5 text-13 text-ink-3">
-            {isNewAnnouncement(item) && <span className="font-medium text-primary">Nouveau</span>}
-            {isNewAnnouncement(item) && kicker && <span aria-hidden="true">·</span>}
+            {item.is_pinned ? (
+              <>
+                <Icon name="epingle" size={14} className="text-primary" />
+                <span className="font-medium text-primary">Épinglée</span>
+              </>
+            ) : (
+              isNewAnnouncement(item) && <span className="font-medium text-primary">Nouveau</span>
+            )}
+            {(item.is_pinned || isNewAnnouncement(item)) && kicker && <span aria-hidden="true">·</span>}
             {kicker}
           </span>
           <span className="mt-1 block text-16 font-semibold">{frenchTypo(item.title)}</span>
