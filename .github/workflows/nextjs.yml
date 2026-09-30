@@ -1,11 +1,10 @@
-name: CI/CD JanguBi Frontend
+name: CI JanguBi Frontend
 
 on:
   push:
-    # `stage` : .github/workflows/livraison-recette.yml (runner ceac, contrat
-    # de l'Infrastructure Ecosysteme-Startup).
+    # Qualité seule. Livraison : push `stage` → .github/workflows/livraison-recette.yml
+    # (runner ceac, contrat de l'Infrastructure Ecosysteme-Startup).
     branches: [main, develop]
-    tags: ['v*']
     paths-ignore: ['docs/**', '**/*.md']
   pull_request:
     branches: [main, develop, stage]
@@ -75,97 +74,3 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           # ↑ Désactive l'envoi de données à Vercel pendant le build CI
         run: yarn build
-
-  # ═══════════════════════════════════════════════
-  # JOB 2 : Build image Docker + Push Docker Hub
-  # Identique au backend, adapté au frontend
-  # ═══════════════════════════════════════════════
-  build-docker:
-    needs: lint-and-typecheck
-    # ↑ Lance seulement si lint + types + build sont OK
-    # Et uniquement sur push (branches + tags), jamais sur PR : pas de push
-    # DockerHub sur PR (secrets indispo sur forks, {{branch}} vide → tag invalide).
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
-        with:
-          fetch-depth: 0
-          # ↑ Historique complet pour git describe → tags 1.2.3-0003-g69c9beb
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@22b48a429f10e1de233237b5c534c9c3d2e41597 #v4.1.0
-
-      - name: Login to DockerHub
-        uses: docker/login-action@946f94de75ea52995b6aa1e54fd3e0aeed6cc573 #v4.2.0
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Docker metadata (tags + labels)
-        id: meta
-        uses: docker/metadata-action@3caf19fbe3db1a1a6a8bdce189e09ac0ed35d513 #v6.1.0
-        with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/jangubi-frontend
-          # ↑ Différence clé vs backend : jangubi-frontend (pas jangubi-backend)
-          tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix=sha-
-
-      - name: Build and push
-        uses: docker/build-push-action@f72b3cf665d7d5fe435407befecb40d10b4266d2 #v7.2.0
-        with:
-          context: .
-          file: Dockerfile
-          # ↑ Différence vs backend : Dockerfile à la racine (pas docker/Dockerfile)
-          # Pas de "target:" → Docker utilise le dernier stage (runner)
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-          build-args: |
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
-            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-          # ↑ Différence majeure vs backend
-          #   Next.js intègre ces variables AU BUILD (pas au runtime)
-          #   Elles doivent être passées comme ARG dans le Dockerfile
-          #   → C'est pourquoi ton Dockerfile a des ARG/ENV pour ces valeurs
-
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  trigger-deploy:
-    needs: build-docker
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Calculer le tag
-        id: tag
-        # Le compose déploie django ET nextjs avec le MÊME ${TAG}. Seul un tag
-        # mouvant de branche (develop/stage/main) existe pour les deux images à
-        # la fois (les sha par-commit diffèrent entre les 2 repos). On envoie
-        # donc le nom de branche.
-        run: echo "value=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-
-      - name: Déclencher le deploy
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.DEPLOY_TOKEN }}
-          script: |
-            const tag = '${{ steps.tag.outputs.value }}'
-            const ref = '${{ github.ref_name }}'
-
-            await github.rest.repos.createDispatchEvent({
-              owner: 'Kamal-Fils',
-              repo: 'infrastructure',
-              event_type: 'deploy-frontend',
-              client_payload: { tag, ref, sha: '${{ github.sha }}' }
-            })
-
-            console.log(`✅ Deploy frontend déclenché — tag: ${tag}`)

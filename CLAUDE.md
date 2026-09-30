@@ -69,7 +69,7 @@ src/testing/      MSW (handlers conformes au contrat), factories, renderApp
 
 ## 7. Vérification AVANT push — CI locale OBLIGATOIRE (ADR-F09)
 
-> **Aucun push ni PR vers `develop`, `stage` ou `main` sans `make act` vert.** Un push vert déclenche le build Docker et le déploiement.
+> **Aucun push ni PR vers `develop`, `stage` ou `main` sans `make act` vert.** Un push sur `stage` livre en recette.
 
 ```bash
 make act          # act push --job lint-and-typecheck : lint + types + tests + build
@@ -77,7 +77,7 @@ make ci-docker    # build local de l'image de prod, SANS push
 make hooks        # hook pre-push qui lance make act vers develop/stage/main
 ```
 
-- **Jamais via act** : `build-docker` (push DockerHub) et `trigger-deploy`.
+- **Jamais via act** : `livraison-recette.yml` (push DockerHub et livraison en recette, sur push `stage` seulement).
 - Plan B : `yarn lint && yarn check-types && yarn test --run && yarn build`, à mentionner dans la PR.
 - Claude Code travaille sur `feat/v1-fX-…`, ouvre une PR et **ne merge jamais** lui-même.
 

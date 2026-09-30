@@ -1,7 +1,7 @@
 # JanguBiUI — Git flow et CI locale (`act`)
 
 > **Règle d'or : aucun push ni PR vers `develop`, `stage` ou `main` sans `make act` vert en local.**
-> Un push vert sur ces branches construit l'image, la pousse sur DockerHub et **déclenche le déploiement** (`trigger-deploy` → repo `infrastructure`). Un push raté consomme des minutes GitHub Actions pour rien.
+> Un push raté consomme des minutes GitHub Actions pour rien. Seul un push sur `stage` livre en recette (`livraison-recette.yml` → `Ecosysteme-Startup/Infrastructure`) ; `develop` et `main` ne lancent que la qualité.
 > Branches, conventions de commit et règles de merge : identiques au backend (`../../JanguBi/docs/v1/04-CI-LOCALE-ET-GIT.md` §1).
 
 ## 1. Jobs de `.github/workflows/nextjs.yml`
@@ -9,8 +9,8 @@
 | Job | Contenu | Avec `act` ? |
 |---|---|---|
 | `lint-and-typecheck` | `yarn install --frozen-lockfile`, `yarn lint`, `yarn check-types`, **`yarn test --run` (à ajouter en F0)**, `yarn build` | **Oui, toujours** : c'est le gate |
-| `build-docker` | Build et **push** de l'image `jangubi-frontend` | **Non.** `make ci-docker` (build local, sans push) |
-| `trigger-deploy` | Déploiement | **Jamais** |
+
+Livraison en recette : `.github/workflows/livraison-recette.yml` (push `stage`, runner `ceac`), **jamais via `act`** ; pour tester le Dockerfile : `make ci-docker` (build local, sans push). L'ancien déploiement `trigger-deploy` vers `Kamal-Fils/infrastructure` est supprimé (30/09/2026).
 
 ## 2. Commandes
 

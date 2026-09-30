@@ -6,7 +6,7 @@
 
 .DEFAULT_GOAL := help
 .PHONY: help install dev build start lint lint-fix format check-types test test-watch \
-        generate-api ci-list ci act ci-docker ci-docker-act hooks
+        generate-api ci-list ci act ci-docker hooks
 
 help: ## Affiche cette aide
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) \
@@ -86,9 +86,3 @@ ci-docker: ## Build local de l'image frontend (jangubi-frontend:local, sans push
 		--build-arg SENTRY_AUTH_TOKEN=$(SENTRY_AUTH_TOKEN) \
 		-t jangubi-frontend:local .
 
-# Lance le job build-docker via act (build + push DockerHub). Nécessite un fichier
-# `.secrets` (git-ignoré) avec : DOCKERHUB_USERNAME, DOCKERHUB_TOKEN,
-# NEXT_PUBLIC_API_URL, NEXT_PUBLIC_SENTRY_DSN, SENTRY_AUTH_TOKEN.
-# ⚠️ pousse réellement l'image sur DockerHub.
-ci-docker-act: ## Lance le job build-docker via act (build + push, requiert .secrets)
-	act push -P $(ACT_RUNNER) --rm --job build-docker --secret-file .secrets

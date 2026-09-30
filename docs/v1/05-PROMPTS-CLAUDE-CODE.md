@@ -21,7 +21,7 @@ Règles non négociables :
 - Autorisation d'affichage via useCan(capacite, nodeId) ; plus aucune fonction par rôle.
 - Aucun jeton dans localStorage.
 - TDD : react-feature-architect → react-tdd-assistant → implémentation → react-reviewer.
-- Aucun push vers develop/stage/main sans `make act` vert ; jamais les jobs build-docker/trigger-deploy via act.
+- Aucun push vers develop/stage/main sans `make act` vert ; jamais livraison-recette.yml via act.
   Tu travailles sur feat/v1-fX-…, tu ouvres une PR, tu ne merges pas.
 
 Résume en 10 lignes le lot <FX>, liste les fichiers et routes touchés, puis attends mon « go ».
