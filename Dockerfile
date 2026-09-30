@@ -60,6 +60,8 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
 # SENTRY_AUTH_TOKEN (envoi des source maps) arrive par un SECRET BuildKit
 # (`--secret id=sentry_auth_token`), jamais par ARG/ENV : il ne reste ainsi
 # dans aucune couche ni dans l'historique de l'image. Absent → pas d'envoi.
+# Même plafond de tas que la CI (tsc + build Next dépassent le défaut de Node).
+ENV NODE_OPTIONS=--max-old-space-size=2048
 RUN --mount=type=secret,id=sentry_auth_token \
     if [ -s /run/secrets/sentry_auth_token ]; then \
       export SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token)"; \

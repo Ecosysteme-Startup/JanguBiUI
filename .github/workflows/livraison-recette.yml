@@ -57,6 +57,10 @@ jobs:
     container:
       image: node:22-alpine
       options: --memory=2g --memory-swap=2g --cpus=1.5 --oom-score-adj=800
+    # Tas V8 explicite : sans lui, Node le plafonne vers 1 Go dans ce conteneur
+    # de 2 Go et `tsc` meurt (« JavaScript heap out of memory »).
+    env:
+      NODE_OPTIONS: --max-old-space-size=1536
     steps:
       - uses: actions/checkout@v4
         with:
