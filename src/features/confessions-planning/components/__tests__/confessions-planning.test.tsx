@@ -169,4 +169,114 @@ describe('ConfessionsPlanning (PAR-Confessions)', () => {
     ).toBeDisabled();
     expect(f7State.ruleBodies).toHaveLength(0);
   });
+
+  describe('présence à un rendez-vous passé', () => {
+    // Samedi 26 septembre, 19 h : les rendez-vous de 16 h et 17 h sont passés.
+    beforeEach(() => vi.setSystemTime(new Date('2026-09-26T19:00:00')));
+
+    it('prêtre : note « Venu » sur SON rendez-vous passé et affiche l’état enregistré', async () => {
+      const user = userEvent.setup();
+      renderApp(<ConfessionsPlanning nodeId={ids.saintDominique} />, {
+        capacites: grantsPretre,
+      });
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: /17 h, pris par aminata kane/i,
+        }),
+      );
+      // Passé : plus d’annulation, seulement la présence ; aucun champ de contenu.
+      expect(
+        screen.queryByRole('button', { name: /annuler le rendez-vous/i }),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole('button', {
+          name: /venu au rendez-vous de 17 h \(aminata kane\)/i,
+        }),
+      );
+
+      await vi.waitFor(() =>
+        expect(f7State.attendance).toEqual([
+          { bookingId: 2, body: { attended: true } },
+        ]),
+      );
+      await vi.waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: /venu au rendez-vous/i }),
+        ).not.toBeInTheDocument(),
+      );
+      expect(screen.getByText('Venu')).toBeInTheDocument();
+    });
+
+    it('prêtre : note « Absent »', async () => {
+      const user = userEvent.setup();
+      renderApp(<ConfessionsPlanning nodeId={ids.saintDominique} />, {
+        capacites: grantsPretre,
+      });
+
+      await user.click(
+        await screen.findByRole('button', {
+          name: /17 h, pris par aminata kane/i,
+        }),
+      );
+      await user.click(
+        screen.getByRole('button', { name: /absent au rendez-vous de 17 h/i }),
+      );
+
+      await vi.waitFor(() =>
+        expect(f7State.attendance).toEqual([
+          { bookingId: 2, body: { attended: false } },
+        ]),
+      );
+      await vi.waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: /absent au rendez-vous/i }),
+        ).not.toBeInTheDocument(),
+      );
+      expect(screen.getByText('Absent')).toBeInTheDocument();
+    });
+
+    it('ni sur le rendez-vous d’un autre prêtre, ni pour le secrétariat', async () => {
+      const user = userEvent.setup();
+      const { unmount } = renderApp(
+        <ConfessionsPlanning nodeId={ids.saintDominique} />,
+        { capacites: grantsPretre },
+      );
+      await user.click(
+        await screen.findByRole('button', { name: /16 h, pris par r\. d\./i }),
+      );
+      expect(
+        screen.queryByRole('button', { name: /^venu/i }),
+      ).not.toBeInTheDocument();
+      unmount();
+
+      renderApp(<ConfessionsPlanning nodeId={ids.saintDominique} />, {
+        capacites: grantsSecretaire,
+      });
+      await user.click(
+        await screen.findByRole('button', { name: /17 h, pris par A\. K\./i }),
+      );
+      expect(
+        screen.queryByRole('button', { name: /^venu/i }),
+      ).not.toBeInTheDocument();
+      expect(f7State.attendance).toHaveLength(0);
+    });
+  });
+
+  it('prêtre : pas de présence à noter sur un rendez-vous à venir', async () => {
+    const user = userEvent.setup();
+    renderApp(<ConfessionsPlanning nodeId={ids.saintDominique} />, {
+      capacites: grantsPretre,
+    });
+
+    await user.click(
+      await screen.findByRole('button', { name: /17 h, pris par aminata kane/i }),
+    );
+    expect(
+      screen.getByRole('button', { name: /annuler le rendez-vous de 17 h/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^venu/i })).not.toBeInTheDocument();
+  });
 });

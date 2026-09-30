@@ -91,7 +91,7 @@ export const PlatformDashboardView = () => {
         }
       />
       <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="jb-cascade flex min-w-0 flex-col gap-6">
           <Card as="section" padding="none" aria-labelledby="p-sante" className="px-6 py-5">
             <h2 id="p-sante" className="m-0 text-20 font-semibold text-ink">
               Santé de la plateforme

@@ -22,10 +22,10 @@ export const DialogContent = ({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) => (
   <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-scrim" />
+    <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-scrim data-[state=open]:animate-jb-fade-in data-[state=closed]:animate-jb-fade-out" />
     <DialogPrimitive.Content
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100vw-32px)] max-w-[480px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-y-auto rounded-16 border border-line bg-paper p-6 text-ink shadow-menu focus:outline-none',
+        'data-[state=open]:animate-jb-pop-in data-[state=closed]:animate-jb-pop-out fixed left-1/2 top-1/2 z-50 flex max-h-[90vh] w-[calc(100vw-32px)] max-w-[480px] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-y-auto rounded-16 border border-line bg-paper p-6 text-ink shadow-menu focus:outline-none',
         className,
       )}
       {...props}

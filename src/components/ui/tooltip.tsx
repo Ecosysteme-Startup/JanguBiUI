@@ -15,7 +15,7 @@ export const Tooltip = ({ content, children, side = 'top' }: { content: React.Re
         <TooltipPrimitive.Content
           side={side}
           sideOffset={6}
-          className="z-50 rounded-8 bg-inverse px-2.5 py-1.5 text-13 text-on-inverse shadow-menu"
+          className="data-[state=open]:animate-jb-pop-in data-[state=closed]:animate-jb-pop-out origin-[var(--radix-tooltip-content-transform-origin)] z-50 rounded-8 bg-inverse px-2.5 py-1.5 text-13 text-on-inverse shadow-menu"
         >
           {content}
           <TooltipPrimitive.Arrow className="fill-inverse" width={10} height={5} />

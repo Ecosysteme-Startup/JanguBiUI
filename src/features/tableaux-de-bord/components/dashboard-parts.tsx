@@ -20,7 +20,7 @@ export const Figure = ({ value, children, size = 'lg' }: { value: React.ReactNod
 /** Barre de proportion horizontale (décorative : la valeur est toujours écrite à côté). */
 export const Meter = ({ value, max, className }: { value: number; max: number; className?: string }) => (
   <span aria-hidden="true" className={cn('block h-1 bg-tint-50', className)}>
-    <span className="block h-1 bg-primary" style={{ width: `${max ? Math.min(100, (value / max) * 100) : 0}%` }} />
+    <span className="block h-1 origin-left animate-jb-grow bg-primary" style={{ width: `${max ? Math.min(100, (value / max) * 100) : 0}%` }} />
   </span>
 );
 
@@ -57,5 +57,5 @@ export const Panel = ({
 );
 
 export const Grid = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12', className)}>{children}</div>
+  <div className={cn('jb-cascade mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12', className)}>{children}</div>
 );

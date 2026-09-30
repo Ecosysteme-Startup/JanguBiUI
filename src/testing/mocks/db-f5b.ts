@@ -27,7 +27,9 @@ const summary = (a: {
   excerpt: string;
   cat: [number, string];
   sunday?: boolean;
+  pinned?: boolean;
   publishedOffset: number;
+  scope?: { node_id: string | null; node_name: string | null; place_id: number | null; place_name: string | null };
 }) => ({
   id: a.id,
   content_type: 'announcement',
@@ -37,9 +39,11 @@ const summary = (a: {
   content_format: 'html',
   category: category(...a.cat),
   author_name: 'Abbé Augustin Ndiaye',
-  scope,
+  scope: a.scope ?? scope,
   is_sunday_notice: Boolean(a.sunday),
   sunday_date: a.sunday ? day(3) : null,
+  is_pinned: Boolean(a.pinned),
+  pinned_until: a.pinned ? at(6, '23:59:00') : null,
   cover_image_url: null,
   cover_image_alt: '',
   cover_image_decorative: false,
@@ -54,6 +58,7 @@ export const announcements = [
     excerpt: 'À toutes les messes de ce dimanche.',
     cat: [1, 'Quête'],
     sunday: true,
+    pinned: true,
     publishedOffset: -1,
   }),
   summary({
@@ -70,6 +75,33 @@ export const announcements = [
     cat: [3, 'Catéchèse'],
     publishedOffset: -20,
   }),
+];
+
+/**
+ * Fil du fidèle (`GET /me/feed/`) : annonces de la paroisse, du diocèse et contenus globaux
+ * (portée nulle), épinglés en tête puis du plus récent au plus ancien, comme le serveur.
+ */
+export const meFeed = [
+  summary({
+    id: '1a000000-0000-4000-8000-000000000010',
+    title: 'Lettre pastorale pour l’année de la famille',
+    excerpt: 'Message de l’archevêque à tous les diocésains.',
+    cat: [4, 'Diocèse'],
+    pinned: true,
+    publishedOffset: -3,
+    scope: { node_id: ids.dakar, node_name: 'Archidiocèse de Dakar', place_id: null, place_name: null },
+  }),
+  announcements[0],
+  announcements[1],
+  summary({
+    id: '1a000000-0000-4000-8000-000000000011',
+    title: 'Nouveau : la Parole du jour à écouter',
+    excerpt: 'Les lectures de la messe sont désormais lues à voix haute.',
+    cat: [5, 'Jàngu Bi'],
+    publishedOffset: -2,
+    scope: { node_id: null, node_name: null, place_id: null, place_name: null },
+  }),
+  announcements[2],
 ];
 
 export const announcementDetails: Record<string, Record<string, unknown>> = {
@@ -195,6 +227,35 @@ export const laicDeclaration = (overrides: Record<string, unknown> = {}) => ({
   attachments: [],
   ...overrides,
 });
+
+/**
+ * Événements des nœuds parents (diocèse), renvoyés seulement par /agenda/ sans `node` (toute la plateforme)
+ * (`GET /agenda/` sans `node`).
+ */
+export const dioceseEvents = () => [
+  event(50, 'Ordinations sacerdotales à la cathédrale', 9, {
+    event_type: 'ordination',
+    location: 'Cathédrale du Souvenir africain',
+    node_id: ids.dakar,
+    node_name: 'Archidiocèse de Dakar',
+    max_participants: null,
+    registrations_count: 0,
+    seats_taken: 0,
+    seats_remaining: null,
+    registrations_open: false,
+  }),
+  event(51, 'Messe chrismale', 12, {
+    event_type: 'mass',
+    location: 'Cathédrale du Souvenir africain',
+    node_id: ids.dakar,
+    node_name: 'Archidiocèse de Dakar',
+    max_participants: null,
+    registrations_count: 0,
+    seats_taken: 0,
+    seats_remaining: null,
+    registrations_open: false,
+  }),
+];
 
 const now = () => dayjs();
 

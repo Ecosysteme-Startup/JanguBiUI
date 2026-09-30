@@ -9,6 +9,8 @@ import { Icon } from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { paths } from '@/config/paths';
+import { CountUp } from '@/lib/motion/count-up';
+import { Reveal, Stagger, StaggerItem } from '@/lib/motion/reveal';
 import { cn } from '@/utils/cn';
 import { frenchTypo } from '@/utils/french-typo';
 
@@ -73,10 +75,12 @@ export const HomeDirectory = () => {
 
   return (
     <section aria-labelledby="annuaire-titre" className="jb-container pt-16 md:pt-24">
-      <h2 id="annuaire-titre" className="m-0 text-28 font-semibold text-ink md:text-32">
-        Trouver votre paroisse
-      </h2>
-      <p className="m-0 mt-2 text-18 text-ink-2">Horaires des messes, annonces et contacts, publiés par la paroisse elle-même.</p>
+      <Reveal>
+        <h2 id="annuaire-titre" className="m-0 text-28 font-semibold text-ink md:text-32">
+          Trouver votre paroisse
+        </h2>
+        <p className="m-0 mt-2 text-18 text-ink-2">Horaires des messes, annonces et contacts, publiés par la paroisse elle-même.</p>
+      </Reveal>
 
       <form role="search" aria-label="Rechercher une paroisse" action={paths.paroisses.list.getHref()} className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_280px_auto]">
         <Input name="q" type="search" icon="recherche" aria-label="Nom de la paroisse, quartier ou ville" placeholder="Nom de la paroisse, quartier ou ville" autoComplete="off" />
@@ -94,18 +98,18 @@ export const HomeDirectory = () => {
       </form>
 
       {parishes.length > 0 && (
-        <ul className="m-0 mt-8 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-3">
+        <Stagger as="ul" className="m-0 mt-8 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-3">
           {parishes.map((parish, index) => (
-            <li key={parish.id} className="flex">
+            <StaggerItem as="li" key={parish.id} className="flex">
               <ParishCard parish={parish} drawing={DRAWINGS[index % DRAWINGS.length] ?? 'arche'} />
-            </li>
+            </StaggerItem>
           ))}
-        </ul>
+        </Stagger>
       )}
       {list.isError && <p className="m-0 mt-8 text-16 text-ink-2">L&apos;annuaire n&apos;a pas pu être chargé.</p>}
       {list.data && (
         <p className="m-0 mt-6 text-15 text-ink-2">
-          {list.data.count > 1 ? `${list.data.count} paroisses figurent dans l’annuaire.` : `${list.data.count} paroisse figure dans l’annuaire.`}{' '}
+          <CountUp to={list.data.count} className="tnum" /> {list.data.count > 1 ? 'paroisses figurent dans l’annuaire.' : 'paroisse figure dans l’annuaire.'}{' '}
           <NextLink href={paths.paroisses.list.getHref()} className="font-semibold">
             Voir l&apos;annuaire complet
           </NextLink>

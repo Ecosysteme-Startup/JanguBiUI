@@ -165,8 +165,44 @@ export const f7PretreHandlers = [
     HttpResponse.json(
       makePlanning(
         mockState.grants.some((g) => g.capacite === 'confessions.gerer'),
-      ),
+      ).map((slot) => {
+        // Dernière présence notée sur ce rendez-vous : honoree ou absent.
+        const noted = f7State.attendance.findLast(
+          (a) => a.bookingId === slot.booking?.id,
+        );
+        return noted && slot.booking
+          ? {
+              ...slot,
+              booking: {
+                ...slot.booking,
+                status: noted.body.attended ? 'honoree' : 'absent',
+              },
+            }
+          : slot;
+      }),
     ),
+  ),
+  http.post(
+    apiUrl('/staff/confessions/bookings/:id/attendance/'),
+    async ({ params, request }) => {
+      const body = (await request.json()) as { attended?: unknown };
+      if (typeof body.attended !== 'boolean')
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'validation_error',
+              message: 'Indiquez si la personne est venue.',
+              details: { attended: ['Ce champ est obligatoire.'] },
+            },
+          },
+          { status: 400 },
+        );
+      f7State.attendance.push({
+        bookingId: Number(params.id),
+        body: { attended: body.attended },
+      });
+      return new HttpResponse(null, { status: 204 });
+    },
   ),
   http.get(apiUrl('/staff/confessions/rules/'), () =>
     HttpResponse.json(f7State.rules),

@@ -4,7 +4,6 @@ import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { useEffect, useRef } from 'react';
 
 import { useMe } from '@/hooks/use-me';
-import { useSocket } from '@/hooks/use-socket';
 import { easings, playerMotion } from '@/lib/motion/tokens';
 import { useMotionOK } from '@/lib/motion/use-motion-ok';
 import { type AudioEngine, HtmlAudioEngine } from '@/lib/player/engine';
@@ -12,10 +11,6 @@ import { attachPlayerEngine, usePlayerStore } from '@/lib/player/player-store';
 import { useMediaSession } from '@/lib/player/use-media-session';
 import { usePlayerShortcuts } from '@/lib/player/use-player-shortcuts';
 import { usePlayerSync } from '@/lib/player/use-player-sync';
-import {
-  type NotificationFrame,
-  publishNotificationFrame,
-} from '@/lib/realtime/notifications-socket';
 
 import { PlayerBar } from './player-bar';
 import { PlayerPanel } from './player-panel';
@@ -54,14 +49,10 @@ export function PlayerRoot({ createEngine }: PlayerRootProps) {
     };
   }, [createEngine]);
 
+  // Une lecture à la fois (décision 10) : `usePlayerSync` écoute sur le bus les trames
+  // `playback.state` de la socket `ws/notifications/` unique de l'onglet (`RealtimeBridge`,
+  // monté par le shell) et met ce lecteur en pause quand un autre appareil lance la lecture.
   usePlayerSync(!!me);
-  // Une lecture à la fois (décision 10) : pendant qu'une piste est chargée, les trames
-  // `playback.state` de `ws/notifications/` mettent ce lecteur en pause quand un autre
-  // appareil du compte lance la lecture.
-  useSocket(me && current ? '/ws/notifications/' : null, (data) => {
-    if (data && typeof data === 'object')
-      publishNotificationFrame(data as NotificationFrame);
-  });
   usePlayerShortcuts();
   useMediaSession();
 

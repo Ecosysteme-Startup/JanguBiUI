@@ -6,28 +6,28 @@ import { cardClasses } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { SkeletonLine } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
-import { useMe } from '@/hooks/use-me';
 import { cn } from '@/utils/cn';
 import { dayjs } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
 
-import { type HomeAnnouncement, HOME_ANNOUNCEMENTS, useAnnouncements } from '../api/get-announcements';
+import { type FeedItem, feedOrigin, HOME_FEED_LIMIT, useMeFeed } from '../api/get-me-feed';
 
 import { HomeSection } from './home-section';
 
 const rowClass = 'flex items-center gap-4 px-6 py-4';
 
-const AnnouncementRow = ({ item }: { item: HomeAnnouncement }) => {
-  const meta = [item.category?.name, item.published_at && dayjs(item.published_at).format('ddd D MMM')].filter(Boolean).join(' · ');
+const AnnouncementRow = ({ item }: { item: FeedItem }) => {
+  const meta = [feedOrigin(item), item.category?.name, item.published_at && dayjs(item.published_at).format('ddd D MMM')].filter(Boolean).join(' · ');
+  const flag = item.is_pinned ? 'Épinglée' : item.is_sunday_notice ? 'Annonce du dimanche' : null;
   return (
     <li className="border-b border-line last:border-b-0">
       <NextLink href={paths.app.paroisse.annonce.getHref(item.id)} className={cn(rowClass, 'text-ink transition-colors hover:bg-surface hover:text-ink')}>
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-1.5 text-13 text-ink-3">
-            {item.is_sunday_notice && (
+            {flag && (
               <>
                 <Icon name="epingle" size={14} className="text-primary" />
-                <span className="font-medium text-primary">Annonce du dimanche</span>
+                <span className="font-medium text-primary">{flag}</span>
                 {meta && <span aria-hidden="true">·</span>}
               </>
             )}
@@ -42,13 +42,13 @@ const AnnouncementRow = ({ item }: { item: HomeAnnouncement }) => {
   );
 };
 
-/** « Dernières annonces » (FID-Accueil) : les trois dernières annonces de la paroisse suivie. */
+/**
+ * « Dernières annonces » (FID-Accueil) : le fil du fidèle (`/me/feed/`), annonces de sa paroisse,
+ * de son doyenné, de son diocèse et contenus de Jàngu Bi, épinglées en tête, provenance visible.
+ */
 export const LatestAnnouncements = ({ className }: { className?: string }) => {
-  const { data: me } = useMe();
-  const nodeId = me?.paroisse_suivie?.id ?? null;
-  const { data, isPending, isError } = useAnnouncements(nodeId);
-  if (me && !nodeId) return null;
-  const items = data?.results.slice(0, HOME_ANNOUNCEMENTS) ?? [];
+  const { data, isPending, isError } = useMeFeed({ limit: HOME_FEED_LIMIT });
+  const items = data?.results.slice(0, HOME_FEED_LIMIT) ?? [];
 
   return (
     <HomeSection
@@ -57,7 +57,7 @@ export const LatestAnnouncements = ({ className }: { className?: string }) => {
       className={className}
       action={<NextLink href={paths.app.paroisse.root.getHref('annonces')}>Toutes les annonces</NextLink>}
     >
-      {!me || isPending ? (
+      {isPending ? (
         <div role="status" data-testid="annonces-squelette" className={cardClasses({ padding: 'none' })}>
           <span className="sr-only">Chargement des annonces…</span>
           {[0, 1, 2].map((i) => (

@@ -82,28 +82,36 @@ parallaxe légère.
 `appear` : à réserver au contenu **monté côté client** (tableaux de bord chargés
 après `useUser`) ; le masquage a lieu avant la première peinture.
 
-## Où c'est utilisé
+## Où c'est utilisé (front V1 « Ciel produit », depuis le 30/09/2026)
 
-- **Landing** (`src/features/landing/components/`) : hero en CSS (`.jb-rise`,
-  cascade de 250 à 730 ms, titre révélé ligne par ligne) + `HeroSweep` ; étoiles en
-  parallaxe (12 % du défilement, thème sombre) ; téléphone central en `Tilt3D`
-  (pointeur suivi dans la fenêtre) avec flottement CSS en inOut sine sur un
-  élément distinct ; `CountUp` + `Stagger` pour les chiffres ; `Reveal` / `Stagger`
-  sur chaque section ; `PressScale lift` sur les boutons des stores et les cartes
-  « Pour qui » ; flèche des CTA qui glisse de 2 px ; fond de nav en fondu.
-- **Espace connecté** : fondu de page (`app/app/template.tsx`) ; tableau de bord
-  fidèle en `Stagger appear` ; onglets (`components/ui/tabs`), pastille de la
-  bottom-nav et barre active de la sidebar en `layoutId` avec le ressort
-  d'indicateur ; toasts en `AnimatePresence` (fondu + 8 px, 180 ms) ; dialogues
-  180 ms out-cubic, zoom 0,97 ; drawer 240 ms ; squelettes (`animate-pulse`
-  redéfini : 700 ms, 1 ↔ 0,55) ; lecteur audio avec `Equalizer`.
-- **Lecteur audio global** (`src/components/player/`, voir `docs/LECTEUR-AUDIO.md`) :
-  pochette partagée barre → panneau (`layoutId`, `springs.indicator`), `KenBurns`
-  sur le fond flouté, `Equalizer` dans la barre et la file, décalage des commandes,
-  onde en `transform`.
-- Disponibles mais pas encore branchés : `KenBurns`, `Pulse`, `GrowBar` (pas de
-  pochette, de grain de chapelet ni de barre de segment sur le web aujourd'hui ;
-  destinés au lecteur plein écran C1 et aux tableaux de bord des dons A4).
+L'ancienne landing (`src/features/landing`) a été remplacée par l'accueil Ciel lors de la fusion
+avec develop ; le mouvement a été reporté sur les nouveaux composants.
+
+- **Accueil public** (`src/features/public-home`, `public-parole`, `public-annuaire`) : haut de page
+  en CSS (`.jb-rise`, cascade 200 → 560 ms via `--jb-delay`) ; aperçu (dessin + cartes Parole et
+  messes) en `Tilt3D` suivant la souris (≤ 4°, cartes décalées en `translateZ`) ; carte des messes
+  qui flotte (`animate-jb-float`, 6 px, inOut sine) ; `Reveal` / `Stagger` sur la Parole du jour,
+  l'annuaire, les quatre services (texte puis aperçu à 70 ms), l'application, l'offre et la FAQ ;
+  `CountUp` sur le nombre de paroisses ; flèches qui glissent de 2 px au survol ; réponse de FAQ
+  qui monte à l'ouverture.
+- **Autres pages publiques** : `jb-cascade` sur la Parole du jour, l'annuaire et la fiche
+  paroisse ; « Pour les paroisses » en `.jb-rise` puis `Reveal` par section.
+- **Transitions de page** : `PageTransition` (fondu 180 ms) dans les `template.tsx` de `(public)`,
+  `/app`, `/espace/[nodeId]` et `/plateforme`.
+- **Primitives** : dialogues, modales, recherche rapide (`animate-jb-pop-in/out`, 180 ms, 0,97) ;
+  voiles (`animate-jb-fade-in/out`) ; tiroir de navigation (`animate-jb-drawer-in/out`, 240 ms) ;
+  menu mobile public (`animate-jb-drop-in/out`) ; menus et infobulles (pop depuis l'origine Radix) ;
+  toasts en `AnimatePresence` (fondu + 8 px, 180 ms, `layout`) ; onglets Radix : soulignement
+  partagé (`layoutId`, `springs.indicator`) ; barres latérales : fond de la rubrique courante qui
+  glisse (`layoutId`, un `LayoutGroup` par barre) ; boutons et bottom-nav : pression 0,97 ; cartes
+  interactives : élévation 2 px au survol ; squelettes : `animate-pulse` au rythme mobile.
+- **Tableaux de bord** (paroisse, diocèse, plateforme) et accueil fidèle : `jb-cascade` (chaque bloc
+  monte de 8 px, 70 ms après le précédent) ; barres de proportion en `animate-jb-grow`
+  (`scale` depuis la gauche : jauges des dons, collectes, créneaux de confession, places).
+- **Lecteur audio global** (`src/components/player/`, voir `docs/LECTEUR-AUDIO.md`) : inchangé.
+
+Les images clés de Tailwind n'animent que `opacity` et les propriétés individuelles `scale` /
+`translate`, qui se composent avec les `transform` de positionnement des primitives.
 
 ## Vérifier
 

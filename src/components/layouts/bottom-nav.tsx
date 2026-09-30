@@ -13,7 +13,7 @@ export const BottomNav = () => (
         key={tab.href}
         href={tab.href}
         match={tab.match}
-        className="flex h-14 flex-col items-center justify-center gap-1 text-12 font-medium text-ink-3 hover:text-ink"
+        className="flex h-14 flex-col items-center justify-center gap-1 text-12 font-medium text-ink-3 transition-[color,transform] duration-150 hover:text-ink motion-safe:active:scale-[0.97]"
         activeClassName="font-semibold text-primary hover:text-primary"
       >
         {tab.icon && <Icon name={tab.icon} size={22} />}

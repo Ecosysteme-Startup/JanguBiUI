@@ -19,7 +19,7 @@ export const MenuContent = ({ className, sideOffset = 6, align = 'start', ...pro
     <DropdownMenu.Content
       sideOffset={sideOffset}
       align={align}
-      className={cn('z-50 min-w-[220px] rounded-12 border border-line bg-paper p-1.5 text-ink shadow-menu', className)}
+      className={cn('data-[state=open]:animate-jb-pop-in data-[state=closed]:animate-jb-pop-out origin-[var(--radix-dropdown-menu-content-transform-origin)] z-50 min-w-[220px] rounded-12 border border-line bg-paper p-1.5 text-ink shadow-menu', className)}
       {...props}
     />
   </DropdownMenu.Portal>

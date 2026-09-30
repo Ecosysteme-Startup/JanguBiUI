@@ -81,8 +81,8 @@ export const QuickSearch = ({
         <Kbd>Ctrl K</Kbd>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim" />
-        <Dialog.Content className="fixed left-1/2 top-[12vh] z-50 w-[min(600px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-12 border border-line bg-paper shadow-menu focus:outline-none">
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim data-[state=open]:animate-jb-fade-in data-[state=closed]:animate-jb-fade-out" />
+        <Dialog.Content className="fixed left-1/2 top-[12vh] data-[state=open]:animate-jb-pop-in data-[state=closed]:animate-jb-pop-out z-50 w-[min(600px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-12 border border-line bg-paper shadow-menu focus:outline-none">
           <Dialog.Title className="sr-only">Recherche rapide</Dialog.Title>
           <Dialog.Description className="sr-only">Tapez pour filtrer les rubriques, puis Entrée pour ouvrir.</Dialog.Description>
           <div className="flex h-12 items-center gap-2.5 border-b border-line px-4">

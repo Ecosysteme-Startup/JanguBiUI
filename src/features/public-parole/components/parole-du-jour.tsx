@@ -191,7 +191,7 @@ export const ParoleDuJour = ({ date }: { date?: string }) => {
   const hasReadings = data.readings_available && data.readings.length > 0;
 
   return (
-    <div className="jb-container pb-24 pt-12">
+    <div className="jb-cascade jb-container pb-24 pt-12">
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
         <div>
           <h1 className="m-0 text-32 font-semibold text-ink md:text-40">La Parole du jour</h1>

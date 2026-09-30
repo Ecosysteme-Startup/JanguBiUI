@@ -18,6 +18,8 @@ interface Tilt3DProps {
    * (idéal pour un objet central du hero).
    */
   track?: 'self' | 'window';
+  /** Classes de l'élément incliné (mise en page des enfants). */
+  innerClassName?: string;
 }
 
 const clamp = (v: number) => Math.max(-1, Math.min(1, v));
@@ -32,6 +34,7 @@ export function Tilt3D({
   className,
   max = 6,
   track = 'self',
+  innerClassName,
 }: Tilt3DProps) {
   const ref = useRef<HTMLDivElement>(null);
   const ok = useMotionOK();
@@ -115,6 +118,7 @@ export function Tilt3D({
       {...selfHandlers}
     >
       <motion.div
+        className={innerClassName}
         style={{
           rotateX,
           rotateY,

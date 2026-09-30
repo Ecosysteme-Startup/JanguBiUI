@@ -142,8 +142,42 @@ module.exports = {
         modal: 'var(--jb-shadow-menu)',
       },
       borderWidth: { 3: '3px', 1.5: '1.5px' },
-      keyframes: { 'jb-spin': { to: { transform: 'rotate(360deg)' } } },
-      animation: { 'jb-spin': 'jb-spin 1s linear infinite' },
+      // Langage de mouvement commun avec le mobile (docs/ANIMATIONS.md). Les images clés
+      // n'animent que `opacity` et les propriétés individuelles `scale` / `translate`, qui se
+      // composent avec les `transform` de positionnement (-translate-x-1/2 des dialogues).
+      keyframes: {
+        'jb-spin': { to: { transform: 'rotate(360deg)' } },
+        'jb-fade-in': { from: { opacity: '0' } },
+        'jb-fade-out': { to: { opacity: '0' } },
+        'jb-pop-in': { from: { opacity: '0', scale: '0.97' } },
+        'jb-pop-out': { to: { opacity: '0', scale: '0.97' } },
+        'jb-drawer-in': { from: { translate: '-100% 0' } },
+        'jb-drawer-out': { to: { translate: '-100% 0' } },
+        'jb-drop-in': { from: { opacity: '0', translate: '0 -8px' } },
+        'jb-drop-out': { to: { opacity: '0', translate: '0 -8px' } },
+        // Barre qui se remplit (le mobile anime la largeur ; ici `scale` depuis la gauche).
+        'jb-grow': { from: { scale: '0 1' } },
+        'jb-float': { to: { translate: '0 -6px' } },
+        // Squelette du mobile : opacité 1 ↔ 0,55, 700 ms par demi-cycle.
+        'jb-skeleton': { to: { opacity: '0.55' } },
+      },
+      animation: {
+        'jb-spin': 'jb-spin 1s linear infinite',
+        'jb-fade-in': 'jb-fade-in 180ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-fade-out': 'jb-fade-out 160ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-pop-in': 'jb-pop-in 180ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-pop-out': 'jb-pop-out 140ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-drawer-in': 'jb-drawer-in 240ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-drawer-out': 'jb-drawer-out 200ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-drop-in': 'jb-drop-in 240ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-drop-out': 'jb-drop-out 180ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        // Images clés `jb-rise` : dans globals.css (partagées avec .jb-rise et .jb-cascade).
+        'jb-rise': 'jb-rise 300ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'jb-grow': 'jb-grow 420ms cubic-bezier(0.33, 1, 0.68, 1) 200ms both',
+        'jb-float': 'jb-float 3s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate',
+        // Remplace le pulse Tailwind (2 s, 0,5) par le rythme du squelette mobile.
+        pulse: 'jb-skeleton 700ms cubic-bezier(0.37, 0, 0.63, 1) infinite alternate',
+      },
     },
   },
   plugins: [],

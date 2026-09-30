@@ -43,7 +43,7 @@ export function Jauge({
         style={{ background: 'var(--dv-piste)' }}
       >
         <div
-          className="h-full rounded-[3px]"
+          className="h-full origin-left animate-jb-grow rounded-[3px]"
           style={{ width: `${largeur}%`, background: 'var(--dv-colonne)' }}
         />
       </div>

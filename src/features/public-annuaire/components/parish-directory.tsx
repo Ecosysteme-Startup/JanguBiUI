@@ -60,7 +60,7 @@ export const ParishDirectory = ({ filters }: { filters: DirectoryFilters }) => {
   const selected: DirectoryNode | undefined = results.find((p) => p.id === selectedId) ?? results[0];
 
   return (
-    <div className="jb-container pb-20 pt-10">
+    <div className="jb-cascade jb-container pb-20 pt-10">
       <h1 className="m-0 text-32 font-semibold text-ink md:text-40">Trouver une paroisse</h1>
       <p className="m-0 mt-2 max-w-[900px] text-18 text-ink-2">
         {total ? `Les ${total} paroisses de l’annuaire. ` : ''}Celles qui sont sur Jàngu Bi publient elles-mêmes leurs horaires, annonces et

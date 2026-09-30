@@ -190,6 +190,8 @@ export const f7State = {
   bookingBodies: [] as unknown[],
   cancelledBookings: [] as number[],
   cancelledSlots: [] as { slotId: number; body: unknown }[],
+  /** POST /staff/confessions/bookings/{id}/attendance/ reçus (le planning en tient compte). */
+  attendance: [] as { bookingId: number; body: { attended: boolean } }[],
   rules: [] as unknown[],
   ruleBodies: [] as unknown[],
   deletedRules: [] as number[],
@@ -213,6 +215,7 @@ export const resetF7State = () => {
     bookingBodies: [],
     cancelledBookings: [],
     cancelledSlots: [],
+    attendance: [],
     rules: [],
     ruleBodies: [],
     deletedRules: [],

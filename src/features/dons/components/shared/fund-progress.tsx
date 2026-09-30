@@ -29,7 +29,7 @@ export const FundProgress = ({
       )}
     >
       <div
-        className="h-1.5 rounded-[3px] bg-primary-fill"
+        className="h-1.5 origin-left animate-jb-grow rounded-[3px] bg-primary-fill"
         style={{ width: `${percent}%` }}
       />
     </div>

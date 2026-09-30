@@ -53,7 +53,7 @@ const Registrations = ({ event }: { event: StaffEvent }) => {
       </p>
       {max && (
         <span role="img" aria-label={`${plural(event.seats_taken, 'place réservée', 'places réservées')} sur ${max}`} className="mt-2 block h-1.5 w-full rounded-full bg-surface-2">
-          <span className="block h-full rounded-full bg-primary-fill" style={{ width: `${Math.min(100, (event.seats_taken / max) * 100)}%` }} />
+          <span className="block h-full origin-left animate-jb-grow rounded-full bg-primary-fill" style={{ width: `${Math.min(100, (event.seats_taken / max) * 100)}%` }} />
         </span>
       )}
       <p className="m-0 mt-1.5 text-13 text-ink-3">

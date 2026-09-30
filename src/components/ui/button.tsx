@@ -14,9 +14,10 @@ import { Icon } from './icon';
  *
  * Texte agrandi (A11Y-14) : hauteur minimale et non fixe, largeur plafonnée à celle du
  * conteneur. Cible tactile : `hit` agrandit la zone cliquable à 44 px sans changer le rendu.
+ * Pression : échelle 0,97 à l'appui, comme le mobile (coupée si l'on réduit les animations).
  */
 const buttonCva = cva(
-  'inline-flex max-w-full shrink-0 items-center justify-center gap-2 rounded-12 border border-transparent text-center font-semibold transition-colors duration-150 disabled:cursor-not-allowed aria-disabled:cursor-not-allowed',
+  'inline-flex max-w-full shrink-0 items-center justify-center gap-2 rounded-12 border border-transparent text-center font-semibold transition-[color,background-color,border-color,transform] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] motion-safe:active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 aria-disabled:active:scale-100 aria-disabled:cursor-not-allowed',
   {
     variants: {
       variant: {

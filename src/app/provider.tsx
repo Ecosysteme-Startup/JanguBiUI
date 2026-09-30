@@ -1,6 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MotionConfig } from 'motion/react';
 import { ThemeProvider } from 'next-themes';
 import * as React from 'react';
 
@@ -12,12 +13,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = React.useState(() => new QueryClient({ defaultOptions: queryConfig }));
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          {children}
-          <Toaster />
-        </QueryClientProvider>
-      </AuthProvider>
+      {/* reducedMotion="user" : les animations `motion` de transform sont coupées quand le
+          système demande de réduire les animations (l'opacité est conservée). */}
+      <MotionConfig reducedMotion="user">
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+            <Toaster />
+          </QueryClientProvider>
+        </AuthProvider>
+      </MotionConfig>
     </ThemeProvider>
   );
 };
