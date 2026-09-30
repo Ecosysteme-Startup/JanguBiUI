@@ -67,7 +67,7 @@ export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; c
   );
 
   return (
-    <AppFrame sidebar={sidebar} topbarFallback={<TopbarText>{[context.name, parentName].filter(Boolean).join(' · ')}</TopbarText>}>
+    <AppFrame sidebar={sidebar} homeHref={homeHref} topbarFallback={<TopbarText>{[context.name, parentName].filter(Boolean).join(' · ')}</TopbarText>}>
       {children}
     </AppFrame>
   );

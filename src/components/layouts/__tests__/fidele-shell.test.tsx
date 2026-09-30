@@ -32,6 +32,15 @@ describe('FideleShell', () => {
     expect(screen.getByText(/\d{4}$/)).toBeInTheDocument();
   });
 
+  it('signe la barre latérale et la barre supérieure mobile du logo officiel', () => {
+    renderApp(<FideleShell>contenu</FideleShell>);
+
+    const sidebar = screen.getByRole('link', { name: 'Jàngu Bi, accueil de mon espace' });
+    expect(sidebar).toHaveAttribute('href', '/app');
+    expect(sidebar.querySelector('svg[viewBox="86 71 203 233"]')).toBeInTheDocument();
+    expect(within(screen.getByRole('banner')).getByRole('link', { name: /jàngu bi, accueil de l’espace/i })).toHaveAttribute('href', '/app');
+  });
+
   it('montre la paroisse suivie et le menu du compte (déconnexion) dans la barre latérale', async () => {
     const user = userEvent.setup();
     renderApp(<FideleShell>contenu</FideleShell>);

@@ -31,6 +31,7 @@ module.exports = {
       'on-primary': token('on-primary'),
       'on-primary-muted': token('on-primary-muted'),
       'on-lit-white': token('on-lit-white'),
+      brand: token('brand'),
       inverse: token('inverse'),
       'on-inverse': token('on-inverse'),
       'on-inverse-muted': token('on-inverse-muted'),

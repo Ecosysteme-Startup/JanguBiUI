@@ -34,6 +34,17 @@ describe('BackofficeShell', () => {
     expect(screen.getByRole('link', { name: /revenir à mon espace fidèle/i })).toHaveAttribute('href', '/app');
   });
 
+  it('signe la barre latérale et la barre supérieure mobile du logo officiel, vers l’accueil de l’espace', async () => {
+    navigation.pathname = `/espace/${ids.saintDominique}/demandes`;
+    renderApp(<BackofficeShell nodeId={ids.saintDominique}>contenu</BackofficeShell>, { capacites: grantsSecretaire });
+
+    const brand = await screen.findByRole('link', { name: /jàngu bi, accueil de l’espace paroisse/i });
+    expect(brand).toHaveAttribute('href', `/espace/${ids.saintDominique}`);
+    expect(brand.querySelector('svg[viewBox="86 71 203 233"]')).toBeInTheDocument();
+    const mobile = within(screen.getByRole('banner')).getByRole('link', { name: /jàngu bi, accueil de l’espace/i });
+    expect(mobile).toHaveAttribute('href', `/espace/${ids.saintDominique}`);
+  });
+
   it('montre dans le pied le titre réel de la nomination, jamais la double forme du catalogue', async () => {
     navigation.pathname = `/espace/${ids.saintDominique}`;
     const grantsAdministrateur = grantsSecretaire.map((g) => ({ ...g, office: 'cure', office_label: 'Administrateur paroissial' }));

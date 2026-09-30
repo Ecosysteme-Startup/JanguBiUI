@@ -7,6 +7,7 @@ import { BottomNav } from '@/components/layouts/bottom-nav';
 import { FideleSidebar } from '@/components/layouts/fidele-sidebar';
 import { OnboardingGate } from '@/components/layouts/onboarding-gate';
 import { PlayerRoot, PlayerSpacer } from '@/components/player/player-root';
+import { paths } from '@/config/paths';
 import { longDate } from '@/utils/dates';
 
 /**
@@ -17,7 +18,7 @@ import { longDate } from '@/utils/dates';
 export const FideleShell = ({ children }: { children: ReactNode }) => (
   <>
     <OnboardingGate />
-    <AppFrame sidebar={<FideleSidebar />} topbarFallback={<TopbarText>{longDate(new Date())}</TopbarText>} bottomNav={<BottomNav />}>
+    <AppFrame sidebar={<FideleSidebar />} topbarFallback={<TopbarText>{longDate(new Date())}</TopbarText>} bottomNav={<BottomNav />} homeHref={paths.app.root.getHref()}>
       {children}
       <PlayerSpacer />
     </AppFrame>

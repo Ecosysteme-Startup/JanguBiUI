@@ -1,5 +1,6 @@
 import NextLink from 'next/link';
 
+import { Brand } from '@/components/layouts/brand';
 import { ThemeToggle } from '@/components/layouts/theme-toggle';
 import { paths } from '@/config/paths';
 
@@ -38,7 +39,7 @@ export const PublicFooter = () => (
   <footer className="border-t border-line bg-surface">
     <div className="jb-container grid grid-cols-1 gap-8 pb-8 pt-12 sm:grid-cols-2 lg:grid-cols-4">
       <div className="flex flex-col gap-2.5">
-        <span className="font-serif text-20 font-semibold text-ink">Jàngu Bi</span>
+        <Brand href={paths.home.getHref()} label="Jàngu Bi, accueil" className="self-start" />
         <p className="m-0 max-w-[40ch] text-14 text-ink-2">La Parole, votre paroisse et vos démarches, au même endroit. Une application Numerisen.</p>
       </div>
       {COLUMNS.map((column) => (

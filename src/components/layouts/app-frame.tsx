@@ -7,6 +7,7 @@ import { NavDrawer } from '@/components/layouts/nav-drawer';
 import { TopbarEndTarget, TopbarSlotTargets, useShellSlots } from '@/components/layouts/shell-slots';
 import { Icon } from '@/components/ui/icon';
 import { iconButtonClasses, UnreadDot } from '@/components/ui/icon-button';
+import { Logo } from '@/components/ui/logo';
 import { paths } from '@/config/paths';
 import { useUnreadNotifications } from '@/hooks/use-unread-notifications';
 import { cn } from '@/utils/cn';
@@ -42,6 +43,8 @@ type AppFrameProps = {
   topbarFallback: ReactNode;
   /** Barre du bas (mobile, espace fidèle). */
   bottomNav?: ReactNode;
+  /** Accueil de l'espace : sous 1024 px, le logo de la barre supérieure y mène (la barre latérale est repliée). */
+  homeHref?: string;
   children: ReactNode;
 };
 
@@ -51,7 +54,7 @@ type AppFrameProps = {
  * padding 32/40/48, largeur 1120 max. Les pages remplissent la barre par <TopbarContent> et passent
  * en plein cadre par <ShellLayout fullBleed hideTopbar> (shell-slots.tsx).
  */
-export const AppFrame = ({ sidebar, topbarFallback, bottomNav, children }: AppFrameProps) => {
+export const AppFrame = ({ sidebar, topbarFallback, bottomNav, homeHref, children }: AppFrameProps) => {
   const fullBleed = useShellSlots((s) => s.fullBleed > 0);
   const hideTopbar = useShellSlots((s) => s.hideTopbar > 0);
   return (
@@ -70,6 +73,11 @@ export const AppFrame = ({ sidebar, topbarFallback, bottomNav, children }: AppFr
         >
           <div className="flex min-w-0 items-center gap-3">
             <NavDrawer>{sidebar}</NavDrawer>
+            {homeHref && (
+              <NextLink href={homeHref} aria-label="Jàngu Bi, accueil de l’espace" className="hit inline-flex shrink-0 items-center lg:hidden">
+                <Logo size={26} decorative />
+              </NextLink>
+            )}
             <TopbarSlotTargets fallback={topbarFallback} />
           </div>
           <div className="flex shrink-0 items-center gap-4">

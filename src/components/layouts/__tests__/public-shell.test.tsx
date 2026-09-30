@@ -18,6 +18,16 @@ describe('PublicShell', () => {
     expect(screen.getByRole('contentinfo')).toHaveTextContent('loi n° 2008-12');
   });
 
+  it('signe l’en-tête et le pied de page du logo officiel, lien vers l’accueil', () => {
+    renderApp(<PublicShell>contenu</PublicShell>);
+    for (const region of [screen.getByRole('banner'), screen.getByRole('contentinfo')]) {
+      const brand = within(region).getByRole('link', { name: 'Jàngu Bi, accueil' });
+      expect(brand).toHaveAttribute('href', '/');
+      expect(brand).toHaveTextContent('Jàngu Bi');
+      expect(brand.querySelector('svg[viewBox="86 71 203 233"]')).toHaveClass('fill-brand');
+    }
+  });
+
   it('laisse le <main> pleine largeur, sans padding : chaque page pose son conteneur', () => {
     renderApp(<PublicShell>contenu</PublicShell>);
     expect(screen.getByRole('main')).toHaveClass('flex-1');

@@ -1,7 +1,7 @@
 import NextLink from 'next/link';
 import type { ReactNode } from 'react';
 
-import { Brand, Logo } from '@/components/layouts/brand';
+import { Brand, Logotype } from '@/components/layouts/brand';
 import { Button } from '@/components/ui/button';
 import { paths } from '@/config/paths';
 import { cn } from '@/utils/cn';
@@ -87,14 +87,14 @@ export const AsideVerse = ({ eyebrow, verse, reference, children }: { eyebrow: s
 );
 
 /**
- * Page centrée (WEB-Connexion) : fond surface, logotype 40 px, carte de 440 px (rayon 16, padding
+ * Page centrée (WEB-Connexion) : fond surface, logotype (logo 40 px), carte de 440 px (rayon 16, padding
  * 40, ombre carte), pied de page mince. Pour les écrans hors coquille (erreurs de connexion…).
  */
 export const CenteredShell = ({ children, below }: { children: ReactNode; below?: ReactNode }) => (
   <div className="flex min-h-dvh flex-col bg-surface">
     <div className="flex flex-1 flex-col items-center px-4 pb-10 pt-10">
       <NextLink href={paths.home.getHref()} aria-label="Jàngu Bi, retour à l’accueil" className="hover:text-ink">
-        <Logo size="lg" />
+        <Logotype size="lg" />
       </NextLink>
       <main id="contenu" className="mt-6 w-full max-w-[440px] rounded-16 border border-line bg-paper p-6 shadow-card sm:p-10">
         {children}

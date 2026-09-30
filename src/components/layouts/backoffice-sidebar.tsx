@@ -3,6 +3,7 @@
 import NextLink from 'next/link';
 import { Fragment } from 'react';
 
+import { Brand } from '@/components/layouts/brand';
 import { hrefOfContext, NodeContextSwitcher } from '@/components/layouts/node-context-switcher';
 import { SidebarFrame, SidebarLink, SidebarSeparator } from '@/components/layouts/sidebar-nav';
 import { UserMenu } from '@/components/layouts/user-menu';
@@ -27,11 +28,11 @@ type Props = {
 };
 
 /**
- * Barre latérale du back-office (WEB-PAR-*, WEB-DIO-*, WEB-PLA-*) : sélecteur de nœud, rubriques
+ * Barre latérale du back-office (WEB-PAR-*, WEB-DIO-*, WEB-PLA-*) : logotype, sélecteur de nœud, rubriques
  * filtrées par capacités (groupes séparés d'un filet), pied avec l'identité, l'office, le menu du
  * compte et le retour à l'espace fidèle. Colonne de 264 px à partir de lg, tiroir « Menu » en dessous.
  */
-export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups }: Props) => {
+export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups, homeHref }: Props) => {
   const { data: me } = useMe();
   const catalogueLabel = useOfficeLabel(context.offices[0]);
   const office = officeTitle(context, context.offices[0], catalogueLabel);
@@ -41,6 +42,7 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups 
     .filter((k) => k.first);
   return (
     <SidebarFrame>
+      <Brand href={homeHref} label={`Jàngu Bi, accueil de l’espace ${KIND_TAB[kind].toLowerCase()}`} size="sm" className="mb-4 h-10 self-start px-2" />
       <NodeContextSwitcher
         kind={kind}
         current={{ name: context.name, space: BACKOFFICE_LABEL[kind], parent: parentName }}

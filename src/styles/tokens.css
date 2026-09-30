@@ -36,6 +36,7 @@
   --jb-tint-500: #1A8FCC;       /* b500 : accent */
   --jb-tint-800: #06466C;       /* b800 : texte sur b50 (nav active, badge) */
   --jb-tint-900: #052F49;       /* b900 : texte sur b100 */
+  --jb-brand: #70CBFF;          /* bleu du logo officiel (fill-brand) : identique au mobile */
 
   /* Aplat d'encre (pilule de filtre active, infobulle, toast) */
   --jb-inverse: #0E1A2B;
@@ -106,6 +107,7 @@
   --jb-tint-500: #5AB3E4;
   --jb-tint-800: #7CC3EE;
   --jb-tint-900: #A8D8F5;
+  --jb-brand: #70CBFF;          /* 10:1 sur paper sombre */
 
   --jb-inverse: #3A4757;
   --jb-on-inverse: #F5F9FC;

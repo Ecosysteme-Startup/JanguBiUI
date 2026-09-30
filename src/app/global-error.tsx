@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 
+import { Logo } from '@/components/ui/logo';
 import { captureException } from '@/lib/sentry-client';
 
 import '@/styles/globals.css';
@@ -20,7 +21,8 @@ const GlobalError = ({ error, reset }: GlobalErrorProps) => {
     <html lang="fr">
       <body className="bg-paper text-ink">
         <main className="mx-auto flex min-h-dvh max-w-reading flex-col justify-center px-4 py-16">
-          <p className="tnum m-0 text-meta text-ink-3">Erreur 500</p>
+          <Logo size={40} />
+          <p className="tnum m-0 mt-8 text-meta text-ink-3">Erreur 500</p>
           <h1 className="m-0 mt-3 text-32 font-semibold">Jàngu Bi est momentanément indisponible.</h1>
           <p className="mt-4 text-body text-ink-2">Réessayez dans un instant.</p>
           <p className="mt-6">

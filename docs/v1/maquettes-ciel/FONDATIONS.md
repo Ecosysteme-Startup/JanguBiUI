@@ -45,6 +45,7 @@ selon l'usage**, pas selon le hex clair.
 | `tint-500` (b500) | #1A8FCC | #5AB3E4 | accent |
 | `tint-800` (b800) | #06466C | #7CC3EE | texte sur b50 / b100 (nav active, badges, avatar) |
 | `tint-900` (b900) | #052F49 | #A8D8F5 | texte d'alerte info, pilule cumulable |
+| `brand` | #70CBFF | #70CBFF | logo officiel uniquement (`<Logo />`, `src/components/ui/logo.tsx`), jamais pour du texte |
 | `inverse` | #0E1A2B | #3A4757 | aplat d'encre : pilule de filtre active, toast, infobulle |
 | `on-inverse` | #FFFFFF | #F5F9FC | texte sur `inverse` |
 | `on-inverse-muted` | #B3D8F0 | #B3D8F0 | compteur de pilule active, icône de toast, lien « Suivre » d'un toast |

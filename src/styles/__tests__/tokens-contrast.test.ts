@@ -87,3 +87,15 @@ test('aucune classe du code ne combine un fond et un texte de tokens sous 4,5:1'
   }
   expect(found).toEqual([]);
 });
+
+// Logo officiel (graphisme, WCAG 1.4.11 : 3:1) : bleu de marque sur les fonds sombres où il est posé.
+// En clair, il accompagne toujours le nom écrit (logotype) ou reste sur l'encre (icônes, image Open Graph).
+test.each(['paper', 'surface', 'surface-2'])('le logo (brand) passe 3:1 sur %s en sombre', (bg) => {
+  const dark = themes.get(':root.dark')!;
+  expect(ratio(dark.brand, dark[bg])).toBeGreaterThanOrEqual(3);
+});
+
+test('le logo (brand) passe 3:1 sur l’encre des icônes et de l’image Open Graph', () => {
+  const [light] = [...themes.values()];
+  expect(ratio(light.brand, light.ink)).toBeGreaterThanOrEqual(3);
+});
