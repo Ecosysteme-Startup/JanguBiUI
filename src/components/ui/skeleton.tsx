@@ -35,6 +35,6 @@ export const Progress = ({ value, max = 100, label, className }: { value: number
     aria-valuemax={max}
     className={cn('h-1.5 overflow-hidden rounded-full bg-surface-2', className)}
   >
-    <div className="h-1.5 rounded-full bg-primary-fill" style={{ width: `${Math.min(100, Math.max(0, (value / max) * 100))}%` }} />
+    <div className="h-1.5 origin-left animate-jb-grow rounded-full bg-primary-fill" style={{ width: `${Math.min(100, Math.max(0, (value / max) * 100))}%` }} />
   </div>
 );

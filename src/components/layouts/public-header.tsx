@@ -51,8 +51,8 @@ export const PublicHeader = () => {
               <Icon name="menu" size={20} />
             </Dialog.Trigger>
             <Dialog.Portal>
-              <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim" />
-              <Dialog.Content className="fixed inset-x-0 top-0 z-50 border-b border-line bg-paper px-4 pb-6 pt-3 shadow-menu focus:outline-none">
+              <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim data-[state=open]:animate-jb-fade-in data-[state=closed]:animate-jb-fade-out" />
+              <Dialog.Content className="fixed inset-x-0 top-0 z-50 data-[state=open]:animate-jb-drop-in data-[state=closed]:animate-jb-drop-out border-b border-line bg-paper px-4 pb-6 pt-3 shadow-menu focus:outline-none">
                 <div className="flex items-center justify-between">
                   <Dialog.Title className="m-0 text-15 font-semibold text-ink">Menu</Dialog.Title>
                   <Dialog.Close aria-label="Fermer le menu" className="inline-flex size-11 items-center justify-center rounded-10 text-ink hover:bg-surface-2">

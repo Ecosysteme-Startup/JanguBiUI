@@ -18,7 +18,10 @@ describe('« Trouver votre paroisse » de l’accueil', () => {
     expect(cards[0]).toHaveTextContent('Saint-Dominique');
     expect(cards[0]).toHaveTextContent('Sur Jàngu Bi');
     expect(cards[1]).toHaveTextContent('Pas encore sur Jàngu Bi');
-    expect(await screen.findByText(/12 paroisses figurent dans l.annuaire/i)).toBeInTheDocument();
+    // Le nombre est un compteur animé (<CountUp>) : on lit la phrase entière du paragraphe.
+    expect(
+      await screen.findByText((_, el) => el?.tagName === 'P' && /12 paroisses figurent dans l.annuaire/i.test(el.textContent ?? '')),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /voir l.annuaire complet/i })).toHaveAttribute('href', '/paroisses');
   });
 

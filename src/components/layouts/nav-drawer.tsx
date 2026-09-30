@@ -23,10 +23,10 @@ export const NavDrawer = ({ children }: { children: ReactNode }) => {
         Menu
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-scrim data-[state=open]:animate-jb-fade-in data-[state=closed]:animate-jb-fade-out" />
         <Dialog.Content
           onClick={closeOnLink}
-          className="fixed inset-y-0 left-0 z-50 flex w-[min(300px,calc(100vw-48px))] flex-col overflow-y-auto border-r border-line bg-surface shadow-menu focus:outline-none"
+          className="fixed inset-y-0 left-0 z-50 flex data-[state=open]:animate-jb-drawer-in data-[state=closed]:animate-jb-drawer-out w-[min(300px,calc(100vw-48px))] flex-col overflow-y-auto border-r border-line bg-surface shadow-menu focus:outline-none"
         >
           <div className="flex items-center justify-between px-4 pt-3">
             <Dialog.Title className="m-0 px-2 text-14 font-semibold text-ink">Menu</Dialog.Title>

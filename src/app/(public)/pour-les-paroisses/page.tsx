@@ -5,6 +5,7 @@ import { OfferContact } from '@/features/public-offre/components/offer-contact';
 import { OfferHero } from '@/features/public-offre/components/offer-hero';
 import { OfferRoles } from '@/features/public-offre/components/offer-roles';
 import { OfferSteps } from '@/features/public-offre/components/offer-steps';
+import { Reveal } from '@/lib/motion/reveal';
 
 import { FaqSection, type FaqItem } from '../_components/faq-section';
 
@@ -40,10 +41,18 @@ const QUESTIONS: FaqItem[] = [
 /** Offre aux paroisses et formulaire de contact (WEB-Pour-les-paroisses). */
 const PourLesParoissesPage = () => (
   <>
-    <OfferHero />
-    <OfferBenefits />
-    <OfferSteps />
-    <OfferRoles />
+    <div className="jb-rise">
+      <OfferHero />
+    </div>
+    <Reveal>
+      <OfferBenefits />
+    </Reveal>
+    <Reveal>
+      <OfferSteps />
+    </Reveal>
+    <Reveal>
+      <OfferRoles />
+    </Reveal>
     <FaqSection
       id="faq-paroisses-titre"
       title="Questions des curés et des secrétariats"
@@ -58,7 +67,9 @@ const PourLesParoissesPage = () => (
         </>
       }
     />
-    <OfferContact />
+    <Reveal>
+      <OfferContact />
+    </Reveal>
   </>
 );
 

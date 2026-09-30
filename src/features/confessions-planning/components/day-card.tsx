@@ -55,7 +55,7 @@ export const DayCard = ({ title, slots, current, canManage, onSelect, onDone, em
               sur {open} place{open > 1 ? 's' : ''} ouverte{open > 1 ? 's' : ''}
             </span>
             <span aria-hidden="true" className="flex h-1.5 w-[200px] overflow-hidden rounded-full bg-surface-2">
-              <span className="bg-primary-fill" style={{ width: `${Math.round((taken / open) * 100)}%` }} />
+              <span className="origin-left animate-jb-grow bg-primary-fill" style={{ width: `${Math.round((taken / open) * 100)}%` }} />
             </span>
           </div>
         )}

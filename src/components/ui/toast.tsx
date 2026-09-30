@@ -1,7 +1,9 @@
 'use client';
 
+import { AnimatePresence, motion } from 'motion/react';
 import { create } from 'zustand';
 
+import { durations, easings } from '@/lib/motion/tokens';
 import { cn } from '@/utils/cn';
 
 import { Icon } from './icon';
@@ -46,17 +48,25 @@ export const Toaster = () => {
   const { toasts, dismiss } = useToasts();
   return (
     <div aria-live="polite" className="fixed bottom-4 right-4 z-50 flex w-[min(420px,calc(100vw-32px))] flex-col gap-2">
+      <AnimatePresence initial={false}>
       {toasts.map((t) => (
-        <div
+        // Entrée et sortie du mobile : fondu + 8 px, 180 ms out-cubic ; les suivants glissent en place.
+        <motion.div
           key={t.id}
+          layout
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 8 }}
+          transition={{ duration: durations.toast, ease: easings.outCubic }}
           role={t.tone === 'err' ? 'alert' : 'status'}
           className={cn('flex items-center gap-2.5 rounded-12 py-2 pl-4 pr-2 text-14 shadow-menu', TONE[t.tone].box)}
         >
           <Icon name={TONE[t.tone].icon} size={18} className={cn('shrink-0', TONE[t.tone].cls)} />
           <p className="m-0 flex-1 py-1">{t.message}</p>
           <IconButton icon="x" label="Fermer la notification" size="sm" className={TONE[t.tone].close} onClick={() => dismiss(t.id)} />
-        </div>
+        </motion.div>
       ))}
+      </AnimatePresence>
     </div>
   );
 };

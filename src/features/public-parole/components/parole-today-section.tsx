@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { paths } from '@/config/paths';
+import { Reveal, Stagger, StaggerItem } from '@/lib/motion/reveal';
 import { cn } from '@/utils/cn';
 import { longDate } from '@/utils/dates';
 import { frenchTypo } from '@/utils/french-typo';
@@ -25,14 +26,14 @@ const ReadingRow = ({ reading, last }: { reading: Reading; last: boolean }) => {
   return (
     <NextLink
       href={`${paths.parole.getHref()}#${readingTabKey(reading)}`}
-      className={cn('flex items-center gap-4 px-6 py-6 text-ink hover:bg-surface hover:text-ink md:px-8 md:py-7', !last && 'border-b border-line')}
+      className={cn('group flex items-center gap-4 px-6 py-6 text-ink transition-colors hover:bg-surface hover:text-ink md:px-8 md:py-7', !last && 'border-b border-line')}
     >
       <span className="min-w-0 flex-1">
         <span className="block text-13 text-ink-3">{readingLabel(reading.type)}</span>
         <span className="mt-0.5 block text-17 font-semibold">{readingTitle(reading)}</span>
         {excerpt && <span className="mt-1.5 block font-serif text-17 leading-[26px] text-ink-2">{frenchTypo(excerpt.text)}</span>}
       </span>
-      <Icon name="chevron-droite" size={20} className="shrink-0 text-ink-3" />
+      <Icon name="chevron-droite" size={20} className="shrink-0 text-ink-3 transition-transform duration-150 motion-safe:group-hover:translate-x-0.5" />
     </NextLink>
   );
 };
@@ -82,7 +83,7 @@ export const ParoleTodaySection = () => {
             </NextLink>
           </p>
         ) : (
-          <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-16 border border-line bg-paper shadow-card lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          <Reveal className="mt-10 grid grid-cols-1 overflow-hidden rounded-16 border border-line bg-paper shadow-card lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
             <div className="flex flex-col border-b border-line p-6 md:p-12 lg:border-b-0 lg:border-r">
               <ColorTag color={data.calendar.color}>{seasonAndColor(data.calendar.season_label, data.calendar.color)}</ColorTag>
               {quote && gospel ? (
@@ -105,13 +106,15 @@ export const ParoleTodaySection = () => {
               </div>
             </div>
             {rows.length > 0 && (
-              <div className="flex flex-col">
+              <Stagger className="flex flex-col" delay={0.14}>
                 {rows.map((reading, index) => (
-                  <ReadingRow key={`${reading.type}-${index}`} reading={reading} last={index === rows.length - 1} />
+                  <StaggerItem key={`${reading.type}-${index}`}>
+                    <ReadingRow reading={reading} last={index === rows.length - 1} />
+                  </StaggerItem>
                 ))}
-              </div>
+              </Stagger>
             )}
-          </div>
+          </Reveal>
         )}
       </div>
     </section>

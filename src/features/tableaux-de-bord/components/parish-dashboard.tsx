@@ -115,7 +115,7 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
       </header>
 
       <div className={cn('mt-8 grid grid-cols-1 items-start gap-6', hasSide && 'lg:grid-cols-[minmax(0,1fr)_360px]')}>
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="jb-cascade flex min-w-0 flex-col gap-6">
           <ParishTodo
             data={data}
             nodeId={nodeId}
@@ -127,7 +127,7 @@ export const ParishDashboard = ({ nodeId, offices, officeLabels }: ParishDashboa
           <WeekActivity data={data} />
         </div>
         {hasSide && (
-          <div className="flex min-w-0 flex-col gap-6">
+          <div className="jb-cascade flex min-w-0 flex-col gap-6">
             {(canConfessions || canPlanning) && !confessions.isPending && <ConfessionsGlance nodeId={nodeId} day={nextDay} />}
             {canAnnonces && sheet.data && <SundaySheetCard nodeId={nodeId} sheet={sheet.data} />}
           </div>

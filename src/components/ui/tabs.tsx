@@ -1,9 +1,11 @@
 'use client';
 
 import * as TabsPrimitive from '@radix-ui/react-tabs';
+import { motion } from 'motion/react';
 import NextLink from 'next/link';
 import * as React from 'react';
 
+import { springs } from '@/lib/motion/tokens';
 import { cn } from '@/utils/cn';
 
 /**
@@ -40,7 +42,41 @@ const Count = ({ value, active, pill }: { value: number; active: boolean; pill?:
 
 const TabsSizeContext = React.createContext<TabSize>('md');
 
-export const Tabs = TabsPrimitive.Root;
+/** Onglet courant et identifiant du groupe, pour faire glisser le soulignement d'un onglet à l'autre. */
+const TabsValueContext = React.createContext<{ value?: string; id: string } | null>(null);
+
+/**
+ * Racine des onglets : suit l'onglet courant (contrôlé ou non) pour que le soulignement b600
+ * glisse vers le nouvel onglet avec le ressort de la barre d'onglets mobile (`springs.indicator`).
+ */
+export const Tabs = ({ value, defaultValue, onValueChange, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) => {
+  const [inner, setInner] = React.useState(defaultValue);
+  const current = value ?? inner;
+  const id = React.useId();
+  const context = React.useMemo(() => ({ value: current, id }), [current, id]);
+  return (
+    <TabsValueContext.Provider value={context}>
+      <TabsPrimitive.Root
+        value={current}
+        onValueChange={(next) => {
+          if (value === undefined) setInner(next);
+          onValueChange?.(next);
+        }}
+        {...props}
+      />
+    </TabsValueContext.Provider>
+  );
+};
+
+/** Soulignement de l'onglet actif : 2 px b600 posés sur le filet, partagé entre onglets (`layoutId`). */
+const ActiveUnderline = ({ group }: { group: string }) => (
+  <motion.span
+    aria-hidden="true"
+    layoutId={`${group}-onglet-actif`}
+    transition={springs.indicator}
+    className="pointer-events-none absolute inset-x-0 -bottom-0.5 h-0.5 bg-primary"
+  />
+);
 
 export const TabsList = ({ className, size = 'md', ...props }: React.ComponentProps<typeof TabsPrimitive.List> & { size?: TabSize }) => (
   <TabsSizeContext.Provider value={size}>
@@ -56,15 +92,20 @@ export const TabsTrigger = ({
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger> & { count?: number; countPill?: boolean }) => {
   const size = React.useContext(TabsSizeContext);
+  const tabs = React.useContext(TabsValueContext);
+  // Hors de <Tabs> (racine Radix directe) : soulignement par la bordure, sans glissement.
+  const sliding = tabs !== null;
   return (
     <TabsPrimitive.Trigger
       className={cn(
         triggerBase(size),
-        'group data-[state=active]:border-primary data-[state=active]:font-semibold data-[state=active]:text-ink',
+        'group relative data-[state=active]:font-semibold data-[state=active]:text-ink',
+        !sliding && 'data-[state=active]:border-primary',
         className,
       )}
       {...props}
     >
+      {sliding && tabs.value === props.value && <ActiveUnderline group={tabs.id} />}
       {children}
       {count !== undefined &&
         (countPill ? (

@@ -51,7 +51,7 @@ export const NodeContextSwitcher = ({ kind, current, contexts, currentId }: Prop
         <DropdownMenu.Content
           align="start"
           sideOffset={6}
-          className="z-50 max-h-[60vh] w-[260px] overflow-y-auto rounded-12 border border-line bg-paper p-1.5 shadow-menu"
+          className="z-50 max-h-[60vh] w-[260px] origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-y-auto rounded-12 data-[state=open]:animate-jb-pop-in data-[state=closed]:animate-jb-pop-out border border-line bg-paper p-1.5 shadow-menu"
         >
           {groups.map((group) => (
             <DropdownMenu.Group key={group.kind}>

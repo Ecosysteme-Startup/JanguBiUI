@@ -176,11 +176,49 @@
   }
 }
 
+/* Mouvement — langage commun avec le mobile (docs/ANIMATIONS.md).
+   Apparition du haut de page en CSS pur : elle joue même sans JS, et le contenu
+   n'est jamais bloqué masqué si le JS tarde. 450 ms, out-cubic, +8 px ; délai
+   réglé par --jb-delay (cascade de 70 ms). */
+@keyframes jb-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+.jb-rise {
+  animation: jb-rise 450ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: var(--jb-delay, 250ms);
+}
+
+/* Cascade d'entrée des blocs d'un écran (tableaux de bord, accueil de l'espace) : chaque
+   enfant direct monte de 8 px, 70 ms après le précédent. En CSS : joue au premier rendu
+   serveur comme à chaque navigation, sans jamais laisser un bloc masqué. */
+.jb-cascade > * {
+  animation: jb-rise 450ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: calc(var(--jb-cascade-start, 60ms) + var(--jb-i, 7) * 70ms);
+}
+.jb-cascade > :nth-child(1) { --jb-i: 0; }
+.jb-cascade > :nth-child(2) { --jb-i: 1; }
+.jb-cascade > :nth-child(3) { --jb-i: 2; }
+.jb-cascade > :nth-child(4) { --jb-i: 3; }
+.jb-cascade > :nth-child(5) { --jb-i: 4; }
+.jb-cascade > :nth-child(6) { --jb-i: 5; }
+.jb-cascade > :nth-child(7) { --jb-i: 6; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Boucles et entrées décoratives : état final immédiat, sans clignotement. */
+  .jb-rise,
+  .jb-cascade > *,
+  .animate-jb-float,
+  .animate-jb-grow,
+  .animate-pulse {
+    animation: none !important;
   }
 }

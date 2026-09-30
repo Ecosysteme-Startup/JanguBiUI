@@ -12,7 +12,7 @@ const row = 'mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 xl:grid-cols-[minmax(0,1f
 
 /** Accueil de l'espace fidèle (FID-Accueil) : Parole, messes, demande, confession, annonces, prêtre. */
 const FideleHomePage = () => (
-  <div className="min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
+  <div className="jb-cascade min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
     <HomeGreeting />
     <div className={row}>
       <WordOfTheDay />

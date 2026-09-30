@@ -16,7 +16,9 @@ export const cardClasses = ({
     'block rounded-16 border border-line text-ink',
     tone === 'paper' ? 'bg-paper shadow-card' : 'bg-surface',
     { none: '', sm: 'p-4', md: 'p-5', lg: 'p-6' }[padding],
-    interactive && 'transition-colors hover:border-line-active hover:text-ink',
+    // Survol : élévation de 2 px et pression 0,97 du mobile (coupées si l'on réduit les animations).
+    interactive &&
+      'transition-[color,border-color,transform] duration-150 ease-[cubic-bezier(0.33,1,0.68,1)] hover:border-line-active hover:text-ink motion-safe:hover:-translate-y-0.5 motion-safe:active:scale-[0.99]',
   );
 
 type CardProps = React.HTMLAttributes<HTMLElement> & {
