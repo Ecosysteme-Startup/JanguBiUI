@@ -17,7 +17,6 @@ import { useMarkRead } from '../api/mark-read';
 import { useMessagingCgu } from '../api/messaging-cgu';
 import { useSendMessage } from '../api/send-message';
 import { useConversationSocket } from '../hooks/use-conversation-socket';
-import { usePresenceSocket } from '../hooks/use-presence-socket';
 import { libellePresence } from '../utils/format-presence';
 import { otherParticipant } from '../utils/participants';
 
@@ -180,9 +179,10 @@ export const ConversationThread = ({
   const Heading = headingLevel;
   const peer = conversation.data ? otherParticipant(conversation.data, me.data?.id) : null;
   const peerName = peer?.full_name ?? 'votre correspondant';
-  // Présence de l'interlocuteur (décisions V2) : état initial par GET, puis la socket.
+  // Présence de l'interlocuteur (décisions V2) : état initial par GET, puis les `presence.changed`
+  // de la socket ws/notifications/ unique de l'onglet (RealtimeBridge du shell, qui porte aussi le
+  // battement presence.ping).
   const presences = usePresence(peer ? [peer.id] : []);
-  usePresenceSocket(Boolean(peer));
 
   return (
     <section aria-labelledby="conversation-titre" className="flex h-full min-h-0 min-w-0 flex-col bg-paper">
