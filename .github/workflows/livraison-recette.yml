@@ -114,7 +114,7 @@ jobs:
 
       - name: Construire et pousser (-staging)
         id: build-staging
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
@@ -136,7 +136,7 @@ jobs:
 
       - name: Construire et pousser (-prod)
         id: build-prod
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
