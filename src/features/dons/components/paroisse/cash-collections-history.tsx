@@ -15,6 +15,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { LoadingBlock } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
+import { displayName, useMe } from '@/hooks/use-me';
 import { apiErrorMessage } from '@/utils/api-errors';
 import { dayjs } from '@/utils/dates';
 import { plural } from '@/utils/plural';
@@ -75,6 +76,12 @@ export const CashCollectionsHistory = ({ nodeId }: { nodeId: string }) => {
   const [rejecting, setRejecting] = useState<CashCollection | null>(null);
   const [reason, setReason] = useState('');
   const [reasonError, setReasonError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<CashCollection | null>(null);
+  const { data: me } = useMe();
+  const myName = displayName(me).full;
+  // Auteur de la saisie : par id si le backend le fournit, sinon par nom affiché (repli).
+  const isAuthor = (c: CashCollection) =>
+    (c.entered_by_id != null && me?.id != null && c.entered_by_id === me.id) || (myName !== '' && c.entered_by === myName);
 
   const validate = useValidateCashCollection(nodeId, { onSuccess: () => toast.ok('Saisie validée.') });
   const reject = useRejectCashCollection(nodeId, {
@@ -93,7 +100,15 @@ export const CashCollectionsHistory = ({ nodeId }: { nodeId: string }) => {
 
   const onValidate = (c: CashCollection) => {
     setActionError(null);
-    validate.mutate(c.id, { onError: (e) => setActionError(apiErrorMessage(e)) });
+    validate.mutate(c.id, {
+      // On referme la confirmation dans les deux cas : le message d'erreur s'affiche alors dans
+      // le panneau (et n'est pas masqué derrière la fenêtre modale).
+      onError: (e) => {
+        setConfirming(null);
+        setActionError(apiErrorMessage(e));
+      },
+      onSuccess: () => setConfirming(null),
+    });
   };
 
   const onReject = () => {
@@ -201,9 +216,16 @@ export const CashCollectionsHistory = ({ nodeId }: { nodeId: string }) => {
                 <DTd align="right">
                   {c.status === 'saisie' && (
                     <span className="inline-flex items-center gap-1">
-                      <Button size="sm" loading={validate.isPending && validate.variables === c.id} onClick={() => onValidate(c)}>
-                        Valider<span className="sr-only"> la saisie : {describe(c)}</span>
-                      </Button>
+                      {isAuthor(c) ? (
+                        // L'auteur ne peut pas valider sa propre saisie (double regard) : bouton grisé expliqué.
+                        <Button size="sm" disabled title="Vous ne pouvez pas valider votre propre saisie.">
+                          Valider<span className="sr-only"> la saisie : {describe(c)} (indisponible : vous êtes l’auteur de la saisie)</span>
+                        </Button>
+                      ) : (
+                        <Button size="sm" loading={validate.isPending && validate.variables === c.id} onClick={() => setConfirming(c)}>
+                          Valider<span className="sr-only"> la saisie : {describe(c)}</span>
+                        </Button>
+                      )}
                       <Menu>
                         <MenuTrigger className={iconButtonClasses({ size: 'sm' })} aria-label={`Autres actions : ${describe(c)}`}>
                           <Icon name="plus-horizontal" size={18} />
@@ -226,6 +248,25 @@ export const CashCollectionsHistory = ({ nodeId }: { nodeId: string }) => {
         <Icon name="info" size={16} className="shrink-0" />
         Vous ne pouvez pas valider une saisie que vous avez faite. Chaque validation est inscrite au journal d’audit.
       </p>
+
+      <Modal
+        open={confirming !== null}
+        onOpenChange={(open) => !open && setConfirming(null)}
+        title="Valider cette saisie ?"
+        description={confirming ? `${describe(confirming)} · ${fcfa(confirming.amount)}. La validation est inscrite au journal d’audit.` : undefined}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setConfirming(null)}>
+              Annuler
+            </Button>
+            <Button loading={validate.isPending} onClick={() => confirming && onValidate(confirming)}>
+              Valider la saisie
+            </Button>
+          </>
+        }
+      >
+        <p className="m-0 text-14 text-ink-2">Confirmez le montant compté avant de valider : une fois validée, la saisie entre dans les totaux de la paroisse.</p>
+      </Modal>
 
       <Modal
         open={rejecting !== null}
