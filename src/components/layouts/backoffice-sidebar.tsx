@@ -6,6 +6,7 @@ import { Fragment } from 'react';
 import { Brand } from '@/components/layouts/brand';
 import { NodeContextSwitcher } from '@/components/layouts/node-context-switcher';
 import { SidebarFrame, SidebarLink, SidebarSeparator } from '@/components/layouts/sidebar-nav';
+import { preferFideleSpace } from '@/components/layouts/staff-home-redirect';
 import { UserMenu } from '@/components/layouts/user-menu';
 import { Avatar } from '@/components/ui/avatar';
 import { Icon } from '@/components/ui/icon';
@@ -90,6 +91,7 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups,
         </div>
         <NextLink
           href={paths.app.root.getHref()}
+          onClick={preferFideleSpace}
           className="flex min-h-9 items-center gap-2 rounded-10 px-3 text-14 text-ink-2 hover:bg-surface-2 hover:text-ink"
         >
           <Icon name="fleche-gauche" size={18} className="text-ink-3" />
