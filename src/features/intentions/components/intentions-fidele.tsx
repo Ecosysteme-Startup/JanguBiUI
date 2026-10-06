@@ -4,6 +4,7 @@ import { useId, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { Icon } from '@/components/ui/icon';
@@ -60,6 +61,7 @@ function FormulaireIntention({
   );
   const [texte, setTexte] = useState(preremplie?.intention ?? '');
   const [anonyme, setAnonyme] = useState(preremplie?.is_anonymous ?? false);
+  const [erreur, setErreur] = useState('');
   const demander = useDemanderIntention();
   const paroisseId = paroisse || paroisses[0]?.paroisse.id || '';
 
@@ -67,9 +69,23 @@ function FormulaireIntention({
     <form
       className="space-y-4"
       aria-label="Nouvelle demande"
+      noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        if (!paroisseId || (!sansDate && !date) || !texte.trim()) return;
+        // Message explicite plutôt qu'un simple focus silencieux (JB-WEB-027).
+        if (!paroisseId) {
+          setErreur('Choisissez d’abord votre paroisse dans votre profil.');
+          return;
+        }
+        if (!sansDate && !date) {
+          setErreur(`Choisissez une date de messe, ou cochez « ${PAS_DE_DATE} ».`);
+          return;
+        }
+        if (!texte.trim()) {
+          setErreur('Écrivez le texte de votre intention.');
+          return;
+        }
+        setErreur('');
         demander.mutate(
           {
             node: paroisseId,
@@ -214,9 +230,9 @@ function FormulaireIntention({
         </div>
       </div>
       <NoteOffrande />
-      {demander.isError && (
+      {(erreur || demander.isError) && (
         <p role="alert" className="text-14 text-err">
-          {messageErreur(demander.error)}
+          {erreur || messageErreur(demander.error)}
         </p>
       )}
       <div className="space-y-1">
@@ -244,6 +260,7 @@ function CarteIntention({
   onAutreMesse: (i: MassIntention) => void;
 }) {
   const annuler = useAnnulerIntention();
+  const [confirmer, setConfirmer] = useState(false);
   const ouverte =
     intention.status === 'recue' || intention.status === 'planifiee';
   return (
@@ -275,12 +292,24 @@ function CarteIntention({
             size="sm"
             variant="ghost"
             loading={annuler.isPending}
-            onClick={() => annuler.mutate(intention.id)}
+            onClick={() => setConfirmer(true)}
           >
             Annuler la demande
           </Button>
         )}
       </div>
+      <ConfirmDialog
+        open={confirmer}
+        onOpenChange={setConfirmer}
+        title="Annuler cette intention ?"
+        description={intention.intention}
+        confirmLabel="Annuler la demande"
+        tone="danger"
+        pending={annuler.isPending}
+        onConfirm={() => annuler.mutate(intention.id, { onSuccess: () => setConfirmer(false) })}
+      >
+        Cette demande ne sera plus transmise à la paroisse. Vous pourrez en refaire une à tout moment.
+      </ConfirmDialog>
     </Card>
   );
 }
