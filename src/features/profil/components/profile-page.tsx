@@ -75,7 +75,7 @@ export const ProfilePage = ({ accountUrl, onAccountDeleted = leaveAfterDeletion 
           <Personnalisation />
           <AppearanceSection />
           <SecuritySection accountUrl={accountUrl} />
-          <PrivacySection me={me} />
+          <PrivacySection me={me} onAccountDeleted={onAccountDeleted} />
           <LifeStateSection />
           <DeleteAccountSection onAccountDeleted={onAccountDeleted} />
         </div>
