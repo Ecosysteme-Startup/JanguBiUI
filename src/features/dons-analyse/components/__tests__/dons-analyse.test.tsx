@@ -262,6 +262,34 @@ describe('AnalyseParoisseVue', () => {
     expect(dernierId).toBeNull();
     terminerSession();
   });
+
+  test('masque « Exporter » sans la capacité dons.exporter (JB-WEB-035)', async () => {
+    // mesCapacitesDemo n'accorde pas dons.exporter sur la paroisse.
+    renderApp(<AnalyseParoisseVue nodeId={NOEUD_SAINT_DOMINIQUE} />);
+    await screen.findByText('1 214 830', { selector: '[data-chiffre-titre]', normalizer: brut });
+    expect(screen.queryByRole('button', { name: 'Exporter' })).not.toBeInTheDocument();
+  });
+
+  test('affiche « Exporter » avec la capacité dons.exporter (JB-WEB-035)', async () => {
+    server.use(
+      http.get(`${env.API_URL}/me/capacites/`, () =>
+        HttpResponse.json([
+          ...mesCapacitesDemo,
+          {
+            capacite: 'dons.exporter',
+            node_id: NOEUD_SAINT_DOMINIQUE,
+            node_name: 'Saint-Dominique',
+            node_type: 'paroisse',
+            herite: false,
+            office: 'econome_paroissial',
+            office_label: 'Économe',
+          },
+        ]),
+      ),
+    );
+    renderApp(<AnalyseParoisseVue nodeId={NOEUD_SAINT_DOMINIQUE} />);
+    expect(await screen.findByRole('button', { name: 'Exporter' })).toBeInTheDocument();
+  });
 });
 
 describe('AnalyseDioceseVue', () => {
