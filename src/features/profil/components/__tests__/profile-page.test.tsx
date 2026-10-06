@@ -89,9 +89,17 @@ describe('Profil (/app/profil)', () => {
     renderApp(<ProfilePage accountUrl={ACCOUNT_URL} />);
     const section = await screen.findByRole('region', { name: 'Mes paroisses' });
 
+    const identite = await screen.findByRole('region', { name: 'Compte' });
+    expect(within(identite).getByText('Toutes vos informations sont enregistrées')).toBeInTheDocument();
+
     await user.click(await within(section).findByRole('button', { name: /définir cathédrale notre-dame-des-victoires comme principale/i }));
     const autres = await within(section).findByRole('list', { name: 'Autres paroisses' });
     expect(await within(autres).findByText('Saint-Dominique')).toBeInTheDocument();
+
+    // JB-WEB-022 : le rafraîchissement de /me/ ne doit pas afficher de fausse « modification
+    // non enregistrée » sur le formulaire Compte.
+    expect(within(identite).getByText('Toutes vos informations sont enregistrées')).toBeInTheDocument();
+    expect(within(identite).queryByText(/modification non enregistrée/i)).not.toBeInTheDocument();
   });
 
   it('enregistre les préférences de notification', async () => {
