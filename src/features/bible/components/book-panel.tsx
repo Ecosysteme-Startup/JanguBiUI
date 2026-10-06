@@ -8,7 +8,7 @@ import { SegmentedControl } from '@/components/ui/segmented-control';
 import { paths } from '@/config/paths';
 import type { Book, Testament } from '@/features/bible/api/get-testaments';
 import { BibleSearchResults } from '@/features/bible/components/bible-search';
-import { bookGroups, filterBooks } from '@/features/bible/utils/bible';
+import { bookGroups, filterBooks, parseReference } from '@/features/bible/utils/bible';
 import { cn } from '@/utils/cn';
 
 /**
@@ -21,8 +21,19 @@ export const BookPanel = ({ testaments, current }: { testaments: Testament[]; cu
   const [testament, setTestament] = useState(current?.testament ?? sorted.find((t) => t.slug === 'nouveau')?.slug ?? sorted[0]?.slug ?? '');
   const [query, setQuery] = useState('');
   const searching = query.trim().length > 0;
-  const books = searching ? sorted.flatMap((t) => filterBooks(t.books, query)) : (sorted.find((t) => t.slug === testament)?.books ?? []);
+  const allBooks = sorted.flatMap((t) => t.books);
+  // Référence saisie (« Jn 3, 16 », « Jean 3 ») : on ouvre le livre au bon chapitre (et verset).
+  const reference = searching ? parseReference(query, allBooks) : undefined;
+  const books = reference
+    ? [reference.book]
+    : searching
+      ? sorted.flatMap((t) => filterBooks(t.books, query))
+      : (sorted.find((t) => t.slug === testament)?.books ?? []);
   const groups = searching ? [{ label: null, books }] : bookGroups(books);
+  const hrefOfBook = (b: Book) =>
+    reference && b.id === reference.book.id
+      ? `${paths.app.bible.chapitre.getHref(b.slug, reference.chapter)}${reference.verse ? `#v${reference.verse}` : ''}`
+      : paths.app.bible.chapitre.getHref(b.slug, 1);
 
   return (
     <nav aria-label="Livres de la Bible" className="flex min-w-0 flex-col rounded-16 border border-line bg-surface p-4">
@@ -64,7 +75,7 @@ export const BookPanel = ({ testaments, current }: { testaments: Testament[]; cu
               return (
                 <li key={b.id}>
                   <NextLink
-                    href={paths.app.bible.chapitre.getHref(b.slug, 1)}
+                    href={hrefOfBook(b)}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
                       'flex min-h-10 items-center justify-between gap-3 rounded-10 px-3 text-15 transition-colors',
