@@ -12,6 +12,13 @@ import { type AnnouncementSummary, useAnnouncements } from '../api/get-announcem
 
 import { AnnouncementList } from './announcement-row';
 
+/**
+ * Filtres. « Tout » montre toutes les annonces publiées (y compris « Vie paroissiale » comme les
+ * inscriptions au catéchisme) ; « Annonces du dimanche » suit le drapeau `is_sunday_notice` ;
+ * « Vie paroissiale » regroupe les annonces de la vie de la paroisse (hors annonces du dimanche).
+ * Chaque rangée affiche en revanche sa VRAIE catégorie (Quête, Liturgie, Catéchèse…) : il n'y a
+ * donc plus d'étiquette « Vie paroissiale » apposée à tort sur une annonce du dimanche.
+ */
 const FILTERS = {
   tout: { label: 'Tout', test: () => true },
   dimanche: { label: 'Annonces du dimanche', test: (a: AnnouncementSummary) => a.is_sunday_notice },
