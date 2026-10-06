@@ -247,7 +247,7 @@ export const DonsScreen = ({ nodeId }: { nodeId: string }) => {
               <strong className="tnum font-semibold">
                 {fcfa(summary.data.total)}
               </strong>{' '}
-              affectés en {monthName(month)}, dont{' '}
+              affectés en {monthName(month)} (par date de messe), dont{' '}
               <span className="tnum">{amount(summary.data.online)}</span> en
               ligne et <span className="tnum">{amount(summary.data.cash)}</span>{' '}
               en espèces.{' '}
@@ -408,8 +408,8 @@ export const DonsScreen = ({ nodeId }: { nodeId: string }) => {
             <>
               <strong className="font-semibold">Reversements.</strong> Les
               reversements de l’agrégateur arrivent sur le compte de
-              l’archidiocèse. Montant affecté à la paroisse en{' '}
-              {monthName(month)}&nbsp;:{' '}
+              l’archidiocèse. Montant net des paiements en ligne validés en{' '}
+              {monthName(month)} (par date de validation)&nbsp;:{' '}
               <span className="tnum">
                 {fcfa(reconciliation.data.online_net)}
               </span>
