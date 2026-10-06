@@ -53,8 +53,17 @@ describe('PAR-Demande-Detail', () => {
 
     const button = within(decision()).getByRole('button', { name: 'Marquer prête à retirer' });
     expect(button).toBeDisabled();
+    // JB-WEB-029 : un texte explique pourquoi le bouton est grisé.
+    expect(within(decision()).getByText(/cochez.*pour activer ce bouton/i)).toBeInTheDocument();
     await user.click(within(decision()).getByRole('checkbox', { name: /signé par le curé et scellé/i }));
     expect(button).toBeEnabled();
+    expect(within(decision()).queryByText(/pour activer ce bouton/i)).not.toBeInTheDocument();
+  });
+
+  it('indique qui a traité la demande rejetée, non la personne assignée (JB-WEB-029)', async () => {
+    render(ACTE_IDS.rejected);
+    const attribution = await screen.findByRole('region', { name: 'Attribution' });
+    expect(within(attribution).getByText(/Traitée par Germaine Faye/)).toBeInTheDocument();
   });
 
   it.each([

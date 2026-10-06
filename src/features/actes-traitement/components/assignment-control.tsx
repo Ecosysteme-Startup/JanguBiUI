@@ -51,6 +51,10 @@ export const AssignmentControl = ({ nodeId, request }: { nodeId: string; request
   });
   const closed = isClosed(request.status);
   const current = request.assigned_to_id ? request.assigned_to_name || 'une personne de l’équipe' : null;
+  // Qui a RÉELLEMENT traité la demande (dernière transition d'un membre de l'équipe), et non la
+  // personne simplement assignée (JB-WEB-029).
+  const processedBy =
+    [...request.history].reverse().find((log) => !log.by_requester && log.changed_by_name)?.changed_by_name || null;
   const chosenName = (assignees.data ?? []).find((a) => a.id === choice)?.full_name ?? (choice === request.assigned_to_id ? current : null);
   const mine = me?.id && (assignees.data ?? []).some((a) => a.id === me.id) && request.assigned_to_id !== me.id;
   const error = assign.error?.message ?? (assignees.isError ? 'L’équipe n’a pas pu être chargée.' : undefined);
@@ -61,7 +65,9 @@ export const AssignmentControl = ({ nodeId, request }: { nodeId: string; request
         Attribution
       </h2>
       {closed ? (
-        <p className="m-0 mt-3 text-14 text-ink-2">{current ? `Traitée par ${current}.` : 'Demande close.'}</p>
+        <p className="m-0 mt-3 text-14 text-ink-2">
+          {processedBy ? `Traitée par ${processedBy}.` : current ? `Assignée à ${current}.` : 'Demande close.'}
+        </p>
       ) : (
         <form
           className="mt-3 flex flex-col gap-3"
