@@ -255,7 +255,9 @@ export const ParishSheet = ({
               delayDays={parish.acts.delay_days}
             />
           )}
-          {support}
+          {/* Séparation nette entre les démarches (dont le rendez-vous de confession) et le don,
+              pour que « Faire un don » ne soit pas collé au rendez-vous de confession (JB-WEB-005). */}
+          {support && <div className="mt-2 border-t border-line pt-6">{support}</div>}
           <ParishEvents nodeId={parish.id} />
         </aside>
       </div>
