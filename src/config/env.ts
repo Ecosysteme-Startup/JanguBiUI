@@ -9,6 +9,11 @@ const PublicEnv = z.object({
   /** Fiches de l'application mobile dans les stores ; absentes : « Bientôt disponible ». */
   APP_STORE_URL: z.string().url().optional(),
   PLAY_STORE_URL: z.string().url().optional(),
+  /**
+   * Édition de la Bible réellement servie (ex. « Bible Crampon (1923) »). Absente : aucune mention
+   * d'édition affichée (en recette, seul le texte AELF est servi — on ne revendique pas Crampon).
+   */
+  BIBLE_EDITION: z.string().optional(),
 });
 
 /** Variables publiques (intégrées au bundle au build). Aucun secret ici. */
@@ -19,4 +24,5 @@ export const env = PublicEnv.parse({
   KEYCLOAK_CONSOLE_URL: process.env.NEXT_PUBLIC_KEYCLOAK_CONSOLE_URL || undefined,
   APP_STORE_URL: process.env.NEXT_PUBLIC_APP_STORE_URL || undefined,
   PLAY_STORE_URL: process.env.NEXT_PUBLIC_PLAY_STORE_URL || undefined,
+  BIBLE_EDITION: process.env.NEXT_PUBLIC_BIBLE_EDITION || undefined,
 });
