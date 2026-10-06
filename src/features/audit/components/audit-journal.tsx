@@ -353,8 +353,8 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
                           )}
                         </Td>
                         <Td className="py-2.5">
-                          <span className="block max-w-40 truncate text-14" title={nodeName(event.node_id)}>
-                            {nodeName(event.node_id)}
+                          <span className="block max-w-40 truncate text-14" title={event.node_name ?? nodeName(event.node_id)}>
+                            {event.node_name ?? nodeName(event.node_id)}
                           </span>
                           <span className="tnum block text-13 text-ink-3">{event.ip ?? '—'}</span>
                         </Td>
@@ -372,7 +372,7 @@ export const AuditJournal = ({ filters, scopeNodeId }: AuditJournalProps) => {
         </div>
         {selected && (
           <div className="min-w-0">
-            <EventPanel event={selected} nodeName={nodeName(selected.node_id)} onClose={() => setClosed(true)} />
+            <EventPanel event={selected} nodeName={selected.node_name ?? nodeName(selected.node_id)} onClose={() => setClosed(true)} />
           </div>
         )}
       </div>

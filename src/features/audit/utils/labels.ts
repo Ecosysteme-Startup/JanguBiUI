@@ -37,9 +37,14 @@ const ACTIONS: Record<string, string> = {
   'compte.deverrouillage': 'Compte déverrouillé',
   'compte.fermeture_sessions': 'Sessions du compte fermées',
   'compte.mfa_exigee': 'Double authentification exigée',
+  'dons.quete_validation': 'Quête validée',
+  'dons.quete_saisie': 'Quête saisie',
+  'dons.quete_refus': 'Quête refusée',
+  'dons.fonds_creation': 'Fonds créé',
+  'dons.fonds_modification': 'Fonds modifié',
+  'dons.quete_imperee': 'Quête impérée définie',
+  'dons.export': 'Dons exportés',
 };
-
-export const actionLabel = (code: string) => ACTIONS[code] ?? code;
 
 /** Familles filtrables (préfixe d'action, filtre `action` de l'API). */
 export const ACTION_FAMILIES = [
@@ -48,11 +53,24 @@ export const ACTION_FAMILIES = [
   { prefix: 'annonce.', label: 'Annonces' },
   { prefix: 'evenement.', label: 'Agenda' },
   { prefix: 'confessions.', label: 'Confessions' },
+  { prefix: 'dons.', label: 'Dons et quêtes' },
   { prefix: 'personne.', label: 'Vérifications de clergé' },
   { prefix: 'capacite.', label: 'Référentiels' },
   { prefix: 'conformite.', label: 'Conformité' },
   { prefix: 'compte.', label: 'Comptes' },
 ];
+
+/** Rend lisible un code d'action inconnu (« dons.quete_validation » → « Dons et quêtes : quête validation »). */
+const humanizeAction = (code: string): string => {
+  const dot = code.indexOf('.');
+  if (dot < 0) return code.replace(/[._]/g, ' ');
+  const prefix = `${code.slice(0, dot)}.`;
+  const family = ACTION_FAMILIES.find((f) => f.prefix === prefix)?.label ?? code.slice(0, dot).replace(/[._]/g, ' ');
+  const rest = code.slice(dot + 1).replace(/[._]/g, ' ').trim();
+  return rest ? `${family} : ${rest}` : family;
+};
+
+export const actionLabel = (code: string) => ACTIONS[code] ?? humanizeAction(code);
 
 const TARGETS: Record<string, string> = {
   'hierarchy.OfficeAssignment': 'Nomination',
