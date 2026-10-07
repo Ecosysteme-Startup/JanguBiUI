@@ -26,8 +26,8 @@ describe('Parole du jour publique', () => {
     expect(tabs.getByRole('tab', { name: 'Psaume' })).toBeInTheDocument();
     expect(tabs.getByRole('tab', { name: 'Évangile' })).toBeInTheDocument();
 
-    expect(screen.getByRole('heading', { level: 2, name: /première lecture : ecclésiaste/i })).toBeInTheDocument();
-    expect(screen.getByText('Ecclésiaste 1, 2-11')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Première lecture : Ec 1, 2-11' })).toBeInTheDocument();
+    expect(screen.getAllByText('Ec 1, 2-11').length).toBeGreaterThan(0);
     expect(screen.getByText(/une génération s’en va/i)).toBeInTheDocument();
     expect(screen.getAllByText('Parole du Seigneur.')).toHaveLength(1);
   });
@@ -36,7 +36,7 @@ describe('Parole du jour publique', () => {
     const user = userEvent.setup();
     renderApp(<ParoleDuJour date="2026-09-24" />);
 
-    await user.click(await screen.findByRole('button', { name: /ensuite.*psaume/i }));
+    await user.click(await screen.findByRole('button', { name: /ensuite.*ps 89/i }));
     expect(screen.getByRole('tab', { name: 'Psaume' })).toHaveAttribute('aria-selected', 'true');
     expect(window.location.hash).toBe('#psaume');
 

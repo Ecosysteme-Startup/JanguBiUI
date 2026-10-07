@@ -72,11 +72,11 @@ describe('utilitaires de la Parole', () => {
         { book: 'Luc', chapter: 9, number: 8, text: 'Car les uns disaient.' },
       ],
     };
-    expect(readingShortTitle(reading)).toBe('Luc 9');
-    expect(readingShortTitle({ ...reading, verses: [{ ...reading.verses[0], book: 'Psaumes', chapter: 89 }] })).toBe('Psaume 89');
-    expect(readingTitle(reading)).toBe('Évangile de Jésus Christ selon saint Luc');
-    expect(readingTitle({ ...reading, type: 'psaume', verses: [{ ...reading.verses[0], book: 'Psaumes', chapter: 90 }] })).toBe('Psaume 90');
-    expect(readingTitle({ ...reading, type: 'lecture_1', verses: [{ ...reading.verses[0], book: 'Ecclésiaste' }] })).toBe('Ecclésiaste');
+    // Aucun titre composé : titre AELF s'il existe, sinon la référence de l'API.
+    expect(readingShortTitle(reading)).toBe('Lc 9, 7-9');
+    expect(readingTitle(reading)).toBeNull();
+    expect(readingTitle({ ...reading, aelf: { titre: 'Évangile selon saint Luc (AELF)' } })).toBe('Évangile selon saint Luc (AELF)');
+    expect(readingShortTitle({ ...reading, aelf: { titre: 'Titre AELF' } })).toBe('Titre AELF');
     expect(readingPlainText(reading)).toBe('Évangile · Lc 9, 7-9\n\n7 Hérode entendit parler.\n8 Car les uns disaient.');
     expect(readingShortTitle({ ...reading, verses: [] })).toBe('Lc 9, 7-9');
     expect(readingPlainText({ ...reading, verses: [], text: '<p>Hérode <em>entendit</em>.</p>' })).toBe('Évangile · Lc 9, 7-9\n\nHérode entendit.');

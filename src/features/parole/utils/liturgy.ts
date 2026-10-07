@@ -1,4 +1,5 @@
 import type { LiturgyDay, Reading } from '@/features/parole/api/get-liturgy-day';
+import { aelfField } from '@/utils/aelf';
 import { dayjs } from '@/utils/dates';
 
 const ORDINALS = ['Première', 'Deuxième', 'Troisième', 'Quatrième', 'Cinquième', 'Sixième', 'Septième'];
@@ -30,19 +31,8 @@ export const closingFormula = (type: string): string | null => {
   return '— Parole du Seigneur.';
 };
 
-const EVANGELISTS = ['Matthieu', 'Marc', 'Luc', 'Jean'];
-
-/**
- * Titre de la lecture : « Évangile de Jésus Christ selon saint Luc », « Psaume 90 », sinon le livre
- * (texte de la Bible locale) ; à défaut de versets, la référence.
- */
-export const readingTitle = (reading: Reading): string => {
-  const first = reading.verses[0];
-  if (!first) return reading.citation;
-  if (isGospel(reading.type) && EVANGELISTS.includes(first.book)) return `Évangile de Jésus Christ selon saint ${first.book}`;
-  if (isPsalmLike(reading.type) && /^psaume/i.test(first.book)) return `Psaume ${first.chapter}`;
-  return first.book;
-};
+/** Titre AELF de la lecture (`aelf.titre`), sinon rien : aucun titre n'est composé côté client. */
+export const readingTitle = (reading: Reading): string | null => aelfField(reading.aelf, 'titre');
 
 /** Premier livre et chapitre d'une lecture, pour « Ouvrir dans la Bible ». */
 export const readingChapter = (reading: Reading): { book: string; chapter: number } | null => {
@@ -90,12 +80,8 @@ export const readingTabLabel = (readings: Pick<Reading, 'type'>[], index: number
   return lecture[1] === '1' ? '1re lecture' : `${lecture[1]}e lecture`;
 };
 
-/** « Psaume 90 », « Luc 9 » ; à défaut de versets (texte AELF), la référence. */
-export const readingShortTitle = (reading: Reading): string => {
-  const first = reading.verses[0];
-  if (!first) return reading.citation;
-  return /^psaumes?$/i.test(first.book) ? `Psaume ${first.chapter}` : `${first.book} ${first.chapter}`;
-};
+/** Intitulé court (pagination) : titre AELF s'il existe, sinon la référence servie par l'API. */
+export const readingShortTitle = (reading: Reading): string => readingTitle(reading) ?? reading.citation;
 
 /** Texte brut d'une lecture (copie) : référence, puis versets numérotés. */
 export const readingPlainText = (reading: Reading): string => {

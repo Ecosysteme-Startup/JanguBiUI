@@ -21,7 +21,7 @@ describe('ParoleView — lectures du jour', () => {
     renderApp(<ParoleView />);
 
     const panel = await screen.findByRole('tabpanel');
-    expect(within(panel).getByRole('heading', { name: 'Évangile de Jésus Christ selon saint Luc' })).toBeInTheDocument();
+    expect(within(panel).getByRole('heading', { name: 'Lc 9, 7-9' })).toBeInTheDocument();
     expect(within(panel).getByText(/hérode le tétrarque/i)).toBeInTheDocument();
     expect(within(panel).getByText('Acclamons la Parole de Dieu.')).toBeInTheDocument();
     expect(within(panel).getByText(/texte de la Bible Crampon \(1923\), domaine public/i)).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('ParoleView — lectures du jour', () => {
     const autres = screen.getByRole('region', { name: /les autres lectures du jour/i });
     await user.click(within(autres).getByRole('button', { name: /première lecture · ec 1, 2-11/i }));
     const panel = screen.getByRole('tabpanel');
-    expect(within(panel).getByRole('heading', { name: 'Ecclésiaste' })).toBeInTheDocument();
+    expect(within(panel).getByRole('heading', { name: 'Ec 1, 2-11' })).toBeInTheDocument();
     expect(within(panel).getByText('Parole du Seigneur.')).toBeInTheDocument();
   });
 
@@ -103,7 +103,7 @@ describe('ParoleView — lectures du jour', () => {
     gospel.focus();
     await user.keyboard('{Home}');
     expect(within(tabs).getByRole('tab', { name: 'Lecture' })).toHaveAttribute('aria-selected', 'true');
-    expect(within(screen.getByRole('tabpanel')).getByRole('heading', { name: 'Ecclésiaste' })).toBeInTheDocument();
+    expect(within(screen.getByRole('tabpanel')).getByRole('heading', { name: 'Ec 1, 2-11' })).toBeInTheDocument();
   });
 
   it('assainit le texte AELF avant de l’afficher', async () => {
