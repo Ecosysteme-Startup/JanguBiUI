@@ -34,7 +34,7 @@ describe('Dons et quêtes, paroisse (WEB-PAR-Dons)', () => {
       name: 'Synthèse du mois',
     });
     expect(synthese).toHaveTextContent(
-      /1\s214\s830\sFCFA affectés en septembre, dont 356\s330 en ligne et 858\s500 en espèces\./,
+      /1\s214\s830\sFCFA affectés en septembre \(par date de messe\), dont 356\s330 en ligne et 858\s500 en espèces\./,
     );
     expect(synthese).toHaveTextContent(/Frais de paiement\s:\s7\s120\sFCFA/);
     expect(
@@ -87,7 +87,7 @@ describe('Dons et quêtes, paroisse (WEB-PAR-Dons)', () => {
     ).toBeInTheDocument();
 
     expect(
-      await screen.findByText(/Montant affecté à la paroisse en septembre/),
+      await screen.findByText(/Montant net des paiements en ligne validés en septembre \(par date de validation\)/),
     ).toHaveTextContent(/349\s210\sFCFA, dont 301\s480 déjà reversés/);
   });
 

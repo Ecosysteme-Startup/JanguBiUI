@@ -9,6 +9,8 @@ describe('Page d’erreur de connexion (/connexion/erreur)', () => {
     await renderPage({ error: 'Configuration', redirectTo: '/app/demandes' });
 
     expect(screen.getByRole('heading', { level: 1, name: /votre connexion a expiré/i })).toBeInTheDocument();
+    // JB-WEB-007 : le cas « e-mail confirmé dans un autre onglet » est explicité.
+    expect(screen.getByText(/confirmer votre adresse e-mail dans un autre onglet/i)).toBeInTheDocument();
     expect(screen.queryByText(/server error/i)).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Recommencer la connexion' })).toHaveAttribute(
       'href',

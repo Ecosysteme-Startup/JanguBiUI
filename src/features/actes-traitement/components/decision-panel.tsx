@@ -83,10 +83,12 @@ export const DecisionPanel = ({ nodeId, request }: { nodeId: string; request: Pr
           <legend className="p-0 text-14 font-medium text-ink">Changer le statut</legend>
           <div className="mt-2 overflow-hidden rounded-12 border border-line">
             {choices.map((option, index) => (
-              <div key={option.transition} className={cn('px-3.5 py-3 has-[:checked]:bg-tint-50', index > 0 && 'border-t border-line')}>
+              <div key={option.transition} className={cn('has-[:checked]:bg-tint-50', index > 0 && 'border-t border-line')}>
                 <Choice
                   type="radio"
                   name="statut-suivant"
+                  // Toute la rangée (libellé compris) est cliquable, pas seulement le rond (JB-WEB-029).
+                  className="px-3.5 py-3"
                   value={option.transition}
                   checked={current === option.transition}
                   onChange={() => setChosen(option.transition)}
@@ -120,10 +122,17 @@ export const DecisionPanel = ({ nodeId, request }: { nodeId: string; request: Pr
           variant={current === 'reject' ? 'danger' : 'primary'}
           onClick={() => run(current)}
           disabled={transition.isPending || (needsSignature && !signed)}
+          aria-describedby={needsSignature && !signed ? 'd-mark-ready-aide' : undefined}
           aria-haspopup={current === 'start-verification' ? undefined : 'dialog'}
         >
           {LABELS[current]}
         </Button>
+      )}
+      {needsSignature && !signed && (
+        // Explique pourquoi le bouton est grisé (JB-WEB-029), au lieu d'un bouton grisé muet.
+        <p id="d-mark-ready-aide" className="m-0 mt-2 text-13 text-ink-3">
+          Cochez « L’original papier est signé par le curé et scellé » ci-dessus pour activer ce bouton.
+        </p>
       )}
       {choices.length > 1 && <p className="m-0 mt-3 text-13 text-ink-3">Complément et rejet exigent un motif, transmis au fidèle par notification.</p>}
       {!open && transition.error && (

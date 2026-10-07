@@ -212,6 +212,8 @@ export const cashCollectionSchema = z.object({
   observation: z.string().optional(),
   status: z.enum(['saisie', 'validee', 'rejetee']).optional(),
   entered_by: z.string(),
+  /** Identifiant de la personne qui a saisi (quand le backend le fournit) : sert à masquer « Valider » à l'auteur. */
+  entered_by_id: z.string().nullish(),
   validated_by: z.string().nullable(),
   validated_at: z.string().nullable().optional(),
   rejection_reason: z.string().optional(),

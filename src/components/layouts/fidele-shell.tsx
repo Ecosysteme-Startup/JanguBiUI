@@ -2,13 +2,12 @@
 
 import type { ReactNode } from 'react';
 
-import { AppFrame, TopbarText } from '@/components/layouts/app-frame';
+import { AppFrame, TodayDate } from '@/components/layouts/app-frame';
 import { BottomNav } from '@/components/layouts/bottom-nav';
 import { FideleSidebar } from '@/components/layouts/fidele-sidebar';
 import { OnboardingGate } from '@/components/layouts/onboarding-gate';
 import { PlayerRoot, PlayerSpacer } from '@/components/player/player-root';
 import { paths } from '@/config/paths';
-import { longDate } from '@/utils/dates';
 
 /**
  * Coquille de l'espace fidèle (WEB-FID-*) : barre latérale 264 px, barre supérieure (date du jour,
@@ -18,7 +17,7 @@ import { longDate } from '@/utils/dates';
 export const FideleShell = ({ children }: { children: ReactNode }) => (
   <>
     <OnboardingGate />
-    <AppFrame sidebar={<FideleSidebar />} topbarFallback={<TopbarText>{longDate(new Date())}</TopbarText>} bottomNav={<BottomNav />} homeHref={paths.app.root.getHref()}>
+    <AppFrame sidebar={<FideleSidebar />} topbarFallback={<TodayDate />} bottomNav={<BottomNav />} homeHref={paths.app.root.getHref()}>
       {children}
       <PlayerSpacer />
     </AppFrame>

@@ -28,9 +28,16 @@ const DirectoryPage = ({ initial = '' }: { initial?: string }) => {
 const list = () => within(screen.getByRole('region', { name: 'Liste des paroisses' }));
 
 beforeEach(() => {
+  // Horloge figée avant la dernière messe de la semaine type (2026-09-30) : la « prochaine messe » existe.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-27T12:00:00Z'));
   server.use(directoryHandler);
   navigation.pathname = '/paroisses';
   navigation.replace.mockReset();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('Annuaire des paroisses', () => {
@@ -47,6 +54,12 @@ describe('Annuaire des paroisses', () => {
   });
 
   it('affiche le lieu, le doyenné et la prochaine messe (ou les messes du dimanche)', async () => {
+    // Date figée : la dernière messe à venir du jeu de test est le 30/09/2026 à 19 h 15. Sur l'horloge
+    // réelle, le test échouait à partir de ce moment-là (plus de « prochaine messe », repli sur le dimanche).
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-09-29T10:00:00Z') });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
     renderApp(<DirectoryPage />);
 
     expect(await screen.findByText('12 paroisses')).toBeInTheDocument();

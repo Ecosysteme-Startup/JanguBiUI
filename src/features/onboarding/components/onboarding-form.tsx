@@ -31,6 +31,8 @@ const schema = z.object({
   conditions: z.boolean().refine((v) => v, { message: 'Acceptez les conditions d’utilisation pour continuer.' }),
   appartenance: z.boolean().refine((v) => v, { message: 'Cet accord est nécessaire pour suivre une paroisse.' }),
   annonces: z.boolean(),
+  /** Accord d'un parent ou tuteur, exigé uniquement pour un mineur (validé côté composant). */
+  accordParental: z.boolean(),
 });
 type OnboardingValues = z.input<typeof schema>;
 
@@ -89,10 +91,9 @@ export const OnboardingForm = () => {
   const complete = useCompleteOnboarding({ onSuccess: () => router.replace(paths.app.root.getHref()) });
   const { control, register, handleSubmit, watch, trigger, formState } = useForm<OnboardingValues>({
     resolver: zodResolver(schema),
-    defaultValues: { conditions: false, appartenance: false, annonces: false },
+    defaultValues: { conditions: false, appartenance: false, annonces: false, accordParental: false },
   });
   const parish = (watch('parish') as DirectoryParish | undefined) ?? null;
-  const ready = watch('conditions') && watch('appartenance');
 
   if (consent.isPending) return <LoadingBlock label="Préparation de votre inscription…" />;
   // Sans version courante des conditions, le consentement serait refusé par l'API :
@@ -127,6 +128,9 @@ export const OnboardingForm = () => {
   const name = displayName(me);
   const phone = typeof me?.profile.phone === 'string' ? me.profile.phone : '';
   const birth = typeof me?.profile.date_of_birth === 'string' ? me.profile.date_of_birth : '';
+  // Mineur : l'accord d'un parent ou tuteur est requis, et messagerie et dons restent fermés.
+  const isMinor = birth !== '' && dayjs().diff(dayjs(birth), 'year') < 18;
+  const ready = watch('conditions') && watch('appartenance') && (!isMinor || watch('accordParental'));
 
   return (
     <form onSubmit={onSubmit} noValidate>
@@ -216,6 +220,28 @@ export const OnboardingForm = () => {
                     </span>
                   }
                 />
+                {isMinor && (
+                  <>
+                    <Notice tone="warn" className="mt-1" title="Vous avez moins de 18 ans">
+                      La messagerie avec un prêtre et les dons en ligne ne sont pas accessibles aux mineurs. Votre inscription nécessite l&apos;accord
+                      d&apos;un parent ou tuteur.
+                    </Notice>
+                    <Choice
+                      {...register('accordParental')}
+                      className={consentCard}
+                      label="J’ai l’accord de mon parent ou de mon tuteur pour créer ce compte."
+                      description={
+                        <span className="mt-1 block text-13 text-ink-3">
+                          Un parent ou tuteur peut nous écrire à{' '}
+                          <a href="mailto:donnees@jangubi.sn" className="font-semibold">
+                            donnees@jangubi.sn
+                          </a>{' '}
+                          pour toute question.
+                        </span>
+                      }
+                    />
+                  </>
+                )}
               </div>
             </fieldset>
             <fieldset className="m-0 mt-6 border-0 p-0">
@@ -241,7 +267,11 @@ export const OnboardingForm = () => {
               </Button>
             </div>
             <p id="terminer-aide" className="m-0 mt-2.5 text-right text-13 text-ink-3">
-              {ready ? 'Vous pourrez retirer ces accords à tout moment.' : 'Cochez les 2 accords requis pour terminer votre inscription.'}
+              {ready
+                ? 'Vous pourrez retirer ces accords à tout moment.'
+                : isMinor
+                  ? 'Cochez les accords requis, dont l’accord d’un parent ou tuteur, pour terminer votre inscription.'
+                  : 'Cochez les 2 accords requis pour terminer votre inscription.'}
             </p>
             {formState.errors.parish && <p className="sr-only">{formState.errors.parish.message}</p>}
           </div>

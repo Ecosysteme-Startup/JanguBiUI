@@ -4,8 +4,9 @@ import NextLink from 'next/link';
 import { Fragment } from 'react';
 
 import { Brand } from '@/components/layouts/brand';
-import { hrefOfContext, NodeContextSwitcher } from '@/components/layouts/node-context-switcher';
+import { NodeContextSwitcher } from '@/components/layouts/node-context-switcher';
 import { SidebarFrame, SidebarLink, SidebarSeparator } from '@/components/layouts/sidebar-nav';
+import { preferFideleSpace } from '@/components/layouts/staff-home-redirect';
 import { UserMenu } from '@/components/layouts/user-menu';
 import { Avatar } from '@/components/ui/avatar';
 import { Icon } from '@/components/ui/icon';
@@ -13,7 +14,8 @@ import { BACKOFFICE_LABEL, type BackofficeGroup, type BackofficeKind, backoffice
 import { paths } from '@/config/paths';
 import { displayName, useMe } from '@/hooks/use-me';
 import { useOfficeLabel } from '@/hooks/use-office-types';
-import { type NodeContext, officeTitle } from '@/lib/can';
+import { hrefOfContextForUser, type NodeContext, officeTitle } from '@/lib/can';
+import { useCapacites } from '@/lib/capacites';
 import { cn } from '@/utils/cn';
 
 const KIND_TAB: Record<BackofficeKind, string> = { paroisse: 'Paroisse', diocese: 'Diocèse', plateforme: 'Plateforme' };
@@ -34,6 +36,7 @@ type Props = {
  */
 export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups, homeHref }: Props) => {
   const { data: me } = useMe();
+  const { data: grants = [] } = useCapacites();
   const catalogueLabel = useOfficeLabel(context.offices[0]);
   const office = officeTitle(context, context.offices[0], catalogueLabel);
   const name = displayName(me);
@@ -54,7 +57,7 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups,
           {kinds.map(({ kind: k, first }) => (
             <a
               key={k}
-              href={hrefOfContext(first!)}
+              href={hrefOfContextForUser(grants, first!)}
               aria-current={k === kind ? 'true' : undefined}
               className={cn(
                 'flex h-8 flex-1 items-center justify-center rounded-8 text-13',
@@ -88,6 +91,7 @@ export const BackofficeSidebar = ({ kind, context, parentName, contexts, groups,
         </div>
         <NextLink
           href={paths.app.root.getHref()}
+          onClick={preferFideleSpace}
           className="flex min-h-9 items-center gap-2 rounded-10 px-3 text-14 text-ink-2 hover:bg-surface-2 hover:text-ink"
         >
           <Icon name="fleche-gauche" size={18} className="text-ink-3" />

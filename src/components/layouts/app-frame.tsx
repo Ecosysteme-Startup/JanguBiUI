@@ -1,7 +1,7 @@
 'use client';
 
 import NextLink from 'next/link';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import { NavDrawer } from '@/components/layouts/nav-drawer';
 import { RealtimeBridge } from '@/components/layouts/realtime-bridge';
@@ -12,6 +12,7 @@ import { Logo } from '@/components/ui/logo';
 import { paths } from '@/config/paths';
 import { useUnreadNotifications } from '@/hooks/use-unread-notifications';
 import { cn } from '@/utils/cn';
+import { longDate } from '@/utils/dates';
 
 const SkipLink = () => (
   <a
@@ -112,3 +113,15 @@ export const TopbarText = ({ children }: { children: ReactNode }) => (
     {children}
   </span>
 );
+
+/**
+ * Date du jour recalculée côté client après montage : le segment fidèle est servi en cache
+ * statique (x-nextjs-cache HIT), figeant la date du rendu serveur. On repart de la valeur rendue
+ * côté serveur (hydratation sans saut), puis on la remplace par la date réelle du navigateur.
+ * Aucune donnée personnelle ici : le cache reste partageable.
+ */
+export const TodayDate = () => {
+  const [date, setDate] = useState(() => longDate(new Date()));
+  useEffect(() => setDate(longDate(new Date())), []);
+  return <TopbarText>{date}</TopbarText>;
+};

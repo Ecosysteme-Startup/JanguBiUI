@@ -2,6 +2,7 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
+import { dayjs } from '@/utils/dates';
 
 // /me/ ne renvoie que `id` et `name` (users.NodeRefSerializer) ; le schéma OpenAPI confond
 // deux sérialiseurs homonymes et annonce aussi `code` et `type` : on les tolère absents.
@@ -21,6 +22,12 @@ export const getMe = async (): Promise<Me> => meSchema.parse(await api.get('/me/
 export const meQueryOptions = () => queryOptions({ queryKey: ['me'], queryFn: getMe, staleTime: 5 * 60 * 1000 });
 
 export const useMe = () => useQuery(meQueryOptions());
+
+/** Vrai si la date de naissance du profil indique moins de 18 ans (messagerie et dons fermés). */
+export const isMinor = (me: Me | undefined): boolean => {
+  const birth = typeof me?.profile.date_of_birth === 'string' ? me.profile.date_of_birth : '';
+  return birth !== '' && dayjs().diff(dayjs(birth), 'year') < 18;
+};
 
 /** Prénom et nom affichables, à partir du profil (champs libres côté backend). */
 export const displayName = (me: Me | undefined): { first: string; full: string } => {

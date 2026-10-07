@@ -16,10 +16,18 @@ import { SettingsCard, SettingsRow } from './settings-card';
 
 const str = (v: unknown) => (typeof v === 'string' ? v : '');
 
-/** Confidentialité : consentement et export (JSON) des données (loi 2008-12). */
-export const PrivacySection = ({ me }: { me: Me }) => {
+const leaveAfterWithdrawal = () => {
+  window.location.href = '/';
+};
+
+/**
+ * Confidentialité : consentement aux conditions, consentement exprès aux données religieuses
+ * (donnée sensible, loi 2008-12 — son retrait ferme le compte) et export (JSON) des données.
+ */
+export const PrivacySection = ({ me, onAccountDeleted = leaveAfterWithdrawal }: { me: Me; onAccountDeleted?: () => void }) => {
   const exporter = useExportMyData();
   const consent = useGiveConsent();
+  const [withdrawing, setWithdrawing] = useState(false);
   const current = str(me.consent.current_version);
   const givenAt = str(me.consent.given_at);
   const required = me.consent.required === true;
@@ -42,6 +50,23 @@ export const PrivacySection = ({ me }: { me: Me }) => {
           : `Conditions acceptées${givenAt ? ` le ${dayjs(givenAt).format('D MMMM YYYY')}` : ''} (version ${str(me.consent.given_version) || current}).`}
       </SettingsRow>
       <SettingsRow
+        title="Données révélant mon appartenance religieuse"
+        className="mt-5 border-t border-line pt-5"
+        action={
+          <Button
+            variant="outline"
+            className="min-h-11 border-err-line text-err hover:border-err-line hover:bg-err-bg hover:text-err"
+            onClick={() => setWithdrawing(true)}
+          >
+            Retirer mon accord
+          </Button>
+        }
+      >
+        Vous avez donné votre consentement exprès au traitement des données révélant votre appartenance religieuse (paroisse suivie, demandes
+        d’actes de sacrements, rendez-vous avec un prêtre). Ce traitement est au cœur du service : si vous retirez cet accord, votre compte sera
+        fermé.
+      </SettingsRow>
+      <SettingsRow
         title="Exporter mes données"
         className="mt-5 border-t border-line pt-5"
         action={
@@ -62,6 +87,8 @@ export const PrivacySection = ({ me }: { me: Me }) => {
       >
         Un fichier JSON avec tout ce que Jàngu Bi conserve sur vous.
       </SettingsRow>
+      {/* Retirer l'accord aux données religieuses revient à fermer le compte : même confirmation forte. */}
+      <DeleteAccountDialog open={withdrawing} onOpenChange={setWithdrawing} onDeleted={onAccountDeleted} />
     </SettingsCard>
   );
 };

@@ -27,11 +27,18 @@ export const textToHtml = (text: string): string =>
     .map((block) => `<p>${escapeHtml(block).replace(/\n/g, '<br>')}</p>`)
     .join('');
 
-/** Texte visible d'un HTML (compte de mots, contenu vide). */
+const NAMED_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+/** Décode les entités HTML (sinon l'aperçu affichait « d&#39;annonce » ou « &amp; » — double échappement). */
+const decodeEntities = (text: string): string =>
+  text
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (_, name: string) => NAMED_ENTITIES[name]!);
+
+/** Texte visible d'un HTML (aperçu, compte de mots, contenu vide) : balises retirées, entités décodées. */
 export const htmlToText = (html: string): string =>
-  html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
+  decodeEntities(html.replace(/<[^>]*>/g, ' '))
     .replace(/\s+/g, ' ')
     .trim();
 

@@ -13,7 +13,16 @@ import { FeuilleIntentions } from '../feuille-intentions';
 import { IntentionsFidele } from '../intentions-fidele';
 import { IntentionsParoisse } from '../intentions-paroisse';
 
-beforeEach(() => reinitialiserV1Complements());
+beforeEach(() => {
+  // « Aujourd'hui » = 2026-10-04 : la planification vers cette date reste permise (min du champ).
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-04T12:00:00Z'));
+  reinitialiserV1Complements();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 /** Secrétariat de Saint-Dominique : capacité `intentions.gerer` sur la paroisse. */
 const SECRETARIAT: Grant[] = [
@@ -103,6 +112,26 @@ describe('Intentions de messe — demande sans date', () => {
     await vi.waitFor(() =>
       expect(corps).toMatchObject({ requested_date: null }),
     );
+  });
+
+  test('affiche un message d’erreur accessible si l’on envoie sans date ni « Pas de date précise » (JB-WEB-027)', async () => {
+    const user = userEvent.setup();
+    renderApp(<IntentionsFidele />);
+    const form = await screen.findByRole('form', { name: 'Nouvelle demande' });
+    await within(form).findByRole('option', { name: 'Saint-Dominique' });
+    await user.type(within(form).getByLabelText('Texte de l’intention'), 'Pour les défunts de la famille');
+    await user.click(within(form).getByRole('button', { name: 'Envoyer la demande' }));
+
+    expect(await within(form).findByRole('alert')).toHaveTextContent(/Choisissez une date de messe/i);
+  });
+
+  test('demande confirmation avant d’annuler une intention (JB-WEB-027)', async () => {
+    const user = userEvent.setup();
+    renderApp(<IntentionsFidele />);
+    await user.click((await screen.findAllByRole('button', { name: 'Annuler la demande' }))[0]!);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/Annuler cette intention/i)).toBeInTheDocument();
   });
 });
 

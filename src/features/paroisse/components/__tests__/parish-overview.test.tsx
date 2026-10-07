@@ -45,6 +45,21 @@ describe('Ma paroisse (/app/paroisse)', () => {
     expect(within(actes).getByRole('link', { name: 'Demander un extrait' })).toHaveAttribute('href', '/app/demandes/nouvelle');
   });
 
+  it('pour un mineur, oriente vers un rendez-vous au lieu de « Écrire » (JB-WEB-019)', async () => {
+    const minorBirth = new Date();
+    minorBirth.setFullYear(minorBirth.getFullYear() - 15);
+    server.use(
+      http.get(apiUrl('/me/'), () =>
+        HttpResponse.json({ ...me, profile: { ...me.profile, date_of_birth: minorBirth.toISOString().slice(0, 10) } }),
+      ),
+    );
+    renderApp(<ParishOverview />);
+
+    const clerge = await screen.findByRole('region', { name: /clergé et secrétariat/i });
+    expect(within(clerge).queryByRole('link', { name: /écrire à/i })).not.toBeInTheDocument();
+    expect(within(clerge).getByText(/messagerie est réservée aux majeurs/i)).toBeInTheDocument();
+  });
+
   it('ouvre l’onglet Horaires depuis « Tous les horaires » et l’inscrit dans l’ancre', async () => {
     const user = userEvent.setup();
     renderApp(<ParishOverview />);

@@ -30,6 +30,12 @@ describe('outils de texte', () => {
     expect(readingStats('<p>Un deux trois</p>')).toBe('3 mots · 1 min de lecture');
   });
 
+  it('décode les entités HTML de l’aperçu (JB-WEB-030, pas de double échappement)', () => {
+    expect(htmlToText('<p>Messe &amp; vêpres</p>')).toBe('Messe & vêpres');
+    expect(htmlToText("<p>Inscriptions d&#39;annonce</p>")).toBe("Inscriptions d'annonce");
+    expect(htmlToText('<p>caf&#xe9;</p>')).toBe('café');
+  });
+
   it('propose les prochains dimanches', () => {
     expect(nextSundays('2026-09-24', 3)).toEqual(['2026-09-27', '2026-10-04', '2026-10-11']);
     expect(nextSundays('2026-09-27', 1)).toEqual(['2026-09-27']);

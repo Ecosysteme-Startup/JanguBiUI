@@ -6,7 +6,8 @@ import NextLink from 'next/link';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { type BackofficeKind, backofficeKindOf } from '@/config/nav';
 import { paths } from '@/config/paths';
-import type { NodeContext } from '@/lib/can';
+import { hrefOfContextForUser, type NodeContext } from '@/lib/can';
+import { useCapacites } from '@/lib/capacites';
 
 const KIND_LABEL: Record<BackofficeKind, string> = { paroisse: 'Paroisses', diocese: 'Diocèses et doyennés', plateforme: 'Plateforme' };
 const KIND_ICON: Record<BackofficeKind, IconName> = { paroisse: 'paroisse', diocese: 'diocese', plateforme: 'globe' };
@@ -28,6 +29,7 @@ type Props = {
  * 15/600 et espace 13 ink3, chevron ; ouvre la liste des nœuds où l'on détient une capacité.
  */
 export const NodeContextSwitcher = ({ kind, current, contexts, currentId }: Props) => {
+  const { data: grants = [] } = useCapacites();
   const groups = ORDER.map((k) => ({ kind: k, items: contexts.filter((c) => backofficeKindOf(c.type) === k) })).filter((g) => g.items.length);
   return (
     <DropdownMenu.Root>
@@ -59,7 +61,7 @@ export const NodeContextSwitcher = ({ kind, current, contexts, currentId }: Prop
               {group.items.map((context) => (
                 <DropdownMenu.Item key={context.nodeId ?? 'plateforme'} asChild>
                   <NextLink
-                    href={hrefOfContext(context)}
+                    href={hrefOfContextForUser(grants, context)}
                     aria-current={context.nodeId === currentId ? 'true' : undefined}
                     className="flex min-h-9 items-center justify-between gap-2 rounded-8 px-2.5 text-14 text-ink outline-none hover:text-ink data-[highlighted]:bg-surface-2"
                   >
