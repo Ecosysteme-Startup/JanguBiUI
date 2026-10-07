@@ -1,3 +1,5 @@
+import { aelfField } from '@/utils/aelf';
+
 import type { Reading } from '../api/get-liturgy-day';
 
 const LABELS: [RegExp, string][] = [
@@ -51,23 +53,8 @@ export const readingExcerpt = (reading: Reading, maxLength = 180): { text: strin
   return { text, verse: first?.number };
 };
 
-const GOSPELS = /^(Matthieu|Marc|Luc|Jean)$/;
-
-/** Nom du livre au singulier (« Psaumes » → « Psaume »). */
-const bookName = (book: string) => (book === 'Psaumes' ? 'Psaume' : book);
-
-/**
- * Titre d'une lecture : livre en toutes lettres et versets de la référence
- * (« Ecclésiaste 11, 9 – 12, 8 », « Évangile selon saint Luc 9, 43b-45 »).
- * Sans verset (texte AELF seul), la référence abrégée est gardée telle quelle.
- */
-export const readingTitle = (reading: Reading) => {
-  const book = reading.verses[0]?.book;
-  const numbers = reading.citation.replace(/^\S+\s+/, '');
-  if (!book || numbers === reading.citation) return reading.citation;
-  if (GOSPELS.test(book) && readingLabel(reading.type) === 'Évangile') return `Évangile selon saint ${book} ${numbers}`;
-  return `${bookName(book)} ${numbers}`;
-};
+/** Titre AELF (`aelf.titre`), sinon la référence servie par l'API : aucun titre composé côté client. */
+export const readingTitle = (reading: Reading) => aelfField(reading.aelf, 'titre') ?? reading.citation;
 
 /** Référence courte pour une grille : le psaume sans ses versets (« Ps 89 (90) »). */
 export const shortCitation = (citation: string) => (/^Ps\b/.test(citation) ? citation.replace(/,.*$/, '') : citation);
@@ -97,7 +84,10 @@ export const readingTabs = (readings: Reading[]): ReadingTab[] =>
     ] satisfies ReadingTab[]
   ).filter((tab) => tab.readings.length > 0);
 
-/** Référence du premier verset (« Ecclésiaste 11, 8 ») ; `null` sans verset. */
+/** Nom du livre au singulier (« Psaumes » → « Psaume »). */
+const bookName = (book: string) => (book === 'Psaumes' ? 'Psaume' : book);
+
+/** Référence du premier verset (« Ecclésiaste 11, 8 ») en mode versets ; `null` sans verset. */
 export const firstVerseReference = (reading: Reading) => {
   const verse = reading.verses[0];
   return verse ? `${bookName(verse.book)} ${verse.chapter}, ${verse.number}` : null;
@@ -107,12 +97,4 @@ export const firstVerseReference = (reading: Reading) => {
 export const readingTabKey = (reading: Reading): ReadingTab['key'] => {
   const kind = kindOf(reading);
   return kind === 'lecture' ? 'lectures' : kind;
-};
-
-/** Intitulé d'une lecture : le livre (« Ecclésiaste »), « Psaume » ou « Évangile selon saint Luc ». */
-export const readingHeading = (reading: Reading) => {
-  const book = reading.verses[0]?.book;
-  if (!book) return readingLabel(reading.type);
-  if (GOSPELS.test(book) && readingLabel(reading.type) === 'Évangile') return `Évangile selon saint ${book}`;
-  return bookName(book);
 };

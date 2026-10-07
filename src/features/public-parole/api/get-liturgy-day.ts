@@ -2,6 +2,7 @@ import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import { z } from 'zod';
 
 import { api } from '@/lib/api-client';
+import { aelfLectureSchema } from '@/utils/aelf';
 
 const verseSchema = z.object({ book: z.string(), chapter: z.number(), number: z.number(), text: z.string() });
 
@@ -11,6 +12,8 @@ const readingSchema = z.object({
   // Texte AELF (HTML) servi seulement en source « aelf » ; sinon versets de la Bible locale.
   text: z.string().nullable().optional(),
   verses: z.array(verseSchema).default([]),
+  // Lecture AELF brute (titre, intro_lue, refrain_psalmique…), telle que servie par l'API.
+  aelf: aelfLectureSchema,
 });
 export type Reading = z.infer<typeof readingSchema>;
 
