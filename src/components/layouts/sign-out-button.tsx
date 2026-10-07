@@ -1,16 +1,22 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
+import { broadcastLogout } from '@/lib/logout-channel';
 import { cn } from '@/utils/cn';
 
 /** Déconnexion globale : session Auth.js supprimée côté serveur, puis fin de session Keycloak. */
 export const useSignOut = () => {
   const [pending, setPending] = useState(false);
+  const queryClient = useQueryClient();
   const signOut = async () => {
     setPending(true);
+    // Prévenir les autres onglets et purger le cache local : plus aucune donnée de la session close.
+    broadcastLogout();
+    queryClient.clear();
     try {
       const response = await fetch('/deconnexion', { method: 'POST' });
       const { redirectTo } = (await response.json()) as { redirectTo?: string };

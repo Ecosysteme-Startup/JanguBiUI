@@ -1,4 +1,4 @@
-import { bookGroups, chapterShortName, chapterTitle, filterBooks, findBook, neighbours } from '@/features/bible/utils/bible';
+import { bookGroups, chapterShortName, chapterTitle, filterBooks, findBook, neighbours, parseReference, resolveBook } from '@/features/bible/utils/bible';
 import { testaments } from '@/testing/mocks/db-parole';
 import { paroleHandlers } from '@/testing/mocks/handlers/parole';
 import { server } from '@/testing/mocks/server';
@@ -42,5 +42,29 @@ describe('utilitaires de la Bible', () => {
     expect(chapterTitle(ecc, 1)).toBe('Ecclésiaste, chapitre 1');
     expect(chapterTitle({ ...ecc, slug: 'psaumes', name: 'Psaumes' }, 23)).toBe('Psaume 23');
     expect(chapterShortName(luc, 8)).toBe('Luc 8');
+  });
+
+  it('analyse une référence : livre + chapitre + verset, abréviations comprises (JB-WEB-023)', () => {
+    const books = testaments.flatMap((t) => t.books);
+
+    expect(parseReference('Jean 3, 16', books)).toMatchObject({ book: { slug: 'jean' }, chapter: 3, verse: 16 });
+    expect(parseReference('Jean 3,16', books)).toMatchObject({ book: { slug: 'jean' }, chapter: 3, verse: 16 });
+    expect(parseReference('Jn 3, 16', books)).toMatchObject({ book: { slug: 'jean' }, chapter: 3, verse: 16 });
+    expect(parseReference('Jean 3', books)).toMatchObject({ book: { slug: 'jean' }, chapter: 3 });
+    expect(parseReference('Jean 3', books)?.verse).toBeUndefined();
+    expect(parseReference('Lc 9 7', books)).toMatchObject({ book: { slug: 'luc' }, chapter: 9, verse: 7 });
+
+    // Un nom seul n'est pas une référence (reste traité par la recherche de livre).
+    expect(parseReference('Jean', books)).toBeUndefined();
+    // Un livre inconnu dans ce corpus ne produit pas de référence.
+    expect(parseReference('Maccabées 3', books)).toBeUndefined();
+  });
+
+  it('résout nom et abréviation d’un livre', () => {
+    const books = testaments.flatMap((t) => t.books);
+    expect(resolveBook(books, 'Jn')?.slug).toBe('jean');
+    expect(resolveBook(books, 'Jean')?.slug).toBe('jean');
+    expect(resolveBook(books, 'Lc')?.slug).toBe('luc');
+    expect(resolveBook(books, 'eccl')?.slug).toBe('ecclesiaste');
   });
 });

@@ -57,10 +57,12 @@ export const BackofficeShell = ({ nodeId, children }: { nodeId: string | null; c
   }
 
   const kind = backofficeKindOf(context.type);
-  const homeHref = nodeId ? paths.espace.root.getHref(nodeId) : paths.plateforme.root.getHref();
   const groups = backofficeNav(kind, nodeId ?? '')
     .map((g) => ({ ...g, items: g.items.filter((i) => i.capacites.some((c) => can(grants, c, nodeId))) }))
     .filter((g) => g.items.length > 0);
+  // Accueil de l'espace = première rubrique ouverte (le tableau de bord est refusé à un vicaire).
+  const dashboardHref = nodeId ? paths.espace.root.getHref(nodeId) : paths.plateforme.root.getHref();
+  const homeHref = groups[0]?.items[0]?.href ?? dashboardHref;
 
   const sidebar = (
     <BackofficeSidebar kind={kind} context={context} parentName={parentName} contexts={contexts} groups={groups} homeHref={homeHref} />

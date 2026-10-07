@@ -2,6 +2,8 @@
 
 import type { ReactNode } from 'react';
 
+import { backofficeKindOf, firstAllowedBackofficeHref } from '@/config/nav';
+import { paths } from '@/config/paths';
 import { type Capacite, type Grant, useCapacites } from '@/lib/capacites';
 
 /** `nodeId` absent : la capacité sur au moins un nœud suffit. `null` : hors arbre (plateforme). */
@@ -47,6 +49,17 @@ export const contextsOf = (grants: readonly Grant[]): NodeContext[] => {
 /** Titre de la personne pour un office du contexte ; à défaut, `fallback` (libellé du catalogue). */
 export const officeTitle = (context: Pick<NodeContext, 'officeLabels'>, office: string | undefined, fallback = ''): string =>
   (office && context.officeLabels?.[office]) || fallback;
+
+/**
+ * Lien d'entrée dans l'espace d'un contexte, calculé selon les capacités : la première rubrique
+ * ouverte (et non le tableau de bord, refusé à un vicaire). À défaut, la racine du contexte.
+ */
+export const hrefOfContextForUser = (grants: readonly Grant[], context: NodeContext): string => {
+  const kind = backofficeKindOf(context.type);
+  const nodeId = context.nodeId ?? '';
+  const allowed = firstAllowedBackofficeHref(kind, nodeId, (c) => can(grants, c, context.nodeId));
+  return allowed ?? (context.nodeId ? paths.espace.root.getHref(context.nodeId) : paths.plateforme.root.getHref());
+};
 
 /**
  * Autorisation d'AFFICHAGE : masque ce que l'utilisateur ne peut pas faire.

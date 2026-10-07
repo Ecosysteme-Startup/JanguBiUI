@@ -12,6 +12,7 @@ import {
 import { server } from '@/testing/mocks/server';
 
 import { resetDeviceIdForTests } from '../device';
+import { onTrackLikeChanged } from '../like-events';
 import {
   pendingListenEvents,
   resetListenEventsForTests,
@@ -263,6 +264,17 @@ describe('événements d’écoute', () => {
     const e = pendingListenEvents()[0];
     expect(e.device_id).toMatch(/^web-/);
     expect(e.client_event_id).toMatch(/^[0-9a-f-]{36}$/);
+  });
+});
+
+describe('« j’aime » depuis le lecteur (JB-WEB-032)', () => {
+  it('émet un événement pour rafraîchir la bibliothèque de la sonothèque', async () => {
+    await store().playTracks(messeTracks, 0);
+    const listener = vi.fn();
+    const off = onTrackLikeChanged(listener);
+    store().toggleLike();
+    expect(listener).toHaveBeenCalled();
+    off();
   });
 });
 

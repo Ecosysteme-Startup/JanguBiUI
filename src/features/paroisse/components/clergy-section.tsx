@@ -6,6 +6,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
+import { isMinor, useMe } from '@/hooks/use-me';
 
 import { useParishPriests } from '../api/get-parish-priests';
 import type { ParishSheet } from '../api/get-parish-sheet';
@@ -20,6 +21,9 @@ const normalize = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '
  */
 export const ClergySection = ({ nodeId, sheet, className }: { nodeId: string; sheet: ParishSheet | undefined; className?: string }) => {
   const { data } = useParishPriests();
+  const { data: me } = useMe();
+  // La messagerie est réservée aux majeurs (RG-13) : un mineur reçoit une orientation, pas « Écrire ».
+  const minor = isMinor(me);
   const reachable = (data ?? []).filter((p) => p.nodes.some((n) => n.id === nodeId));
   const accepts = (p: (typeof reachable)[number]) => p.availability?.accepts_new_conversations !== false;
 
@@ -53,7 +57,7 @@ export const ClergySection = ({ nodeId, sheet, className }: { nodeId: string; sh
               <span className="text-15 font-semibold text-ink">{person.name}</span>
               <span className="text-13 text-ink-3">{person.role}</span>
             </span>
-            {person.reachable && (
+            {person.reachable && !minor && (
               <NextLink href={paths.app.pretres.list.getHref()} className="hit text-14 font-semibold" aria-label={`Écrire à ${person.name}`}>
                 Écrire
               </NextLink>
@@ -61,10 +65,18 @@ export const ClergySection = ({ nodeId, sheet, className }: { nodeId: string; sh
           </li>
         ))}
       </ul>
-      <p className="m-0 mt-3 flex items-center gap-1.5 text-13 text-ink-3">
-        <Icon name="cadenas" size={14} className="shrink-0" />
-        Messages chiffrés, aucun administrateur n’y a accès.
-      </p>
+      {minor ? (
+        <p className="m-0 mt-3 flex items-start gap-1.5 text-13 text-ink-3">
+          <Icon name="info" size={14} className="mt-px shrink-0" />
+          La messagerie est réservée aux majeurs. Si tu as moins de 18 ans, demande un rendez-vous ou passe au secrétariat de ta paroisse
+          pour être accompagné par un prêtre.
+        </p>
+      ) : (
+        <p className="m-0 mt-3 flex items-center gap-1.5 text-13 text-ink-3">
+          <Icon name="cadenas" size={14} className="shrink-0" />
+          Messages chiffrés, aucun administrateur n’y a accès.
+        </p>
+      )}
     </Card>
   );
 };

@@ -20,10 +20,17 @@ const mass = (id: number, weekday: number, start_time: string, note = '') => ({ 
 const schedule = [mass(1, 6, '07:30:00'), mass(2, 6, '09:30:00', 'étudiants'), mass(3, 6, '11:30:00'), mass(4, 6, '18:30:00'), mass(5, 5, '18:30:00', 'messe anticipée')];
 
 beforeEach(() => {
+  // Horloge figée à un dimanche : lastSunday() === 2026-09-27, stable quelle que soit la date réelle.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-27T12:00:00Z'));
   server.use(
     http.get(apiUrl('/hierarchy/nodes/:nodeId/places/'), () => HttpResponse.json(places)),
     http.get(apiUrl('/hierarchy/places/:placeId/schedule/'), ({ params }) => HttpResponse.json(Number(params.placeId) === 21 ? schedule : [])),
   );
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const renderPage = async (capacites = grantsEconome) => renderApp(await QuetesPage({ params: Promise.resolve({ nodeId }) }), { capacites });
@@ -103,6 +110,9 @@ describe('Saisie d’une quête en espèces (WEB-PAR-Quete-Saisie)', () => {
     expect(within(hist).getByText('1 à valider')).toBeInTheDocument();
 
     await user.click(within(hist).getByRole('button', { name: /^Valider la saisie/ }));
+    // JB-WEB-034 : une confirmation précède la validation.
+    const dialog = await screen.findByRole('dialog', { name: /valider cette saisie/i });
+    await user.click(within(dialog).getByRole('button', { name: 'Valider la saisie' }));
 
     await vi.waitFor(() => expect(donsState.validated).toEqual([5]));
   });
@@ -121,9 +131,25 @@ describe('Saisie d’une quête en espèces (WEB-PAR-Quete-Saisie)', () => {
 
     const hist = await screen.findByRole('region', { name: 'Saisies récentes' });
     await user.click(await within(hist).findByRole('button', { name: /^Valider la saisie/ }));
+    const dialog = await screen.findByRole('dialog', { name: /valider cette saisie/i });
+    await user.click(within(dialog).getByRole('button', { name: 'Valider la saisie' }));
 
     const alert = await within(hist).findByRole('alert');
     expect(alert).toHaveTextContent('Vous ne pouvez pas valider une saisie que vous avez faite ou comptée.');
+  });
+
+  it('masque la validation pour l’auteur de la saisie (JB-WEB-034)', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    const hist = await screen.findByRole('region', { name: 'Saisies récentes' });
+    // La saisie en attente (id 5) a été faite par une autre personne : sa validation reste possible.
+    expect(await within(hist).findByRole('button', { name: /^Valider la saisie/ })).toBeEnabled();
+    expect(within(hist).getByText(/vous ne pouvez pas valider une saisie que vous avez faite/i)).toBeInTheDocument();
+    // La confirmation peut être annulée sans valider.
+    await user.click(within(hist).getByRole('button', { name: /^Valider la saisie/ }));
+    const dialog = await screen.findByRole('dialog', { name: /valider cette saisie/i });
+    await user.click(within(dialog).getByRole('button', { name: 'Annuler' }));
+    expect(donsState.validated).toEqual([]);
   });
 
   it('rejette une saisie avec un motif obligatoire', async () => {

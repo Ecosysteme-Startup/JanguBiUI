@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/toast';
 import { paths } from '@/config/paths';
 import { useMe } from '@/hooks/use-me';
 import { cn } from '@/utils/cn';
+import { dayjs } from '@/utils/dates';
 
 import { useCreateRequest } from '../api/create-request';
 import { useRequestOptions } from '../api/get-request-options';
@@ -91,9 +92,14 @@ export const RequestWizard = () => {
   const { getValues, setValue } = form;
   useEffect(() => {
     if (!me) return;
-    const { first_name: first, last_name: last } = me.profile;
+    const { first_name: first, last_name: last, date_of_birth: dob, phone } = me.profile;
     if (!getValues('last_name') && typeof last === 'string') setValue('last_name', last);
     if (!getValues('first_names') && typeof first === 'string') setValue('first_names', first);
+    // Préremplir la date de naissance (profil en ISO → champ JJ/MM/AAAA) et le téléphone (JB-WEB-028).
+    if (!getValues('date_of_birth') && typeof dob === 'string' && dayjs(dob).isValid()) {
+      setValue('date_of_birth', dayjs(dob).format('DD/MM/YYYY'));
+    }
+    if (!getValues('contact_phone') && typeof phone === 'string') setValue('contact_phone', phone);
     if (!getValues('contact_email')) setValue('contact_email', me.email);
   }, [me, getValues, setValue]);
 
@@ -123,7 +129,16 @@ export const RequestWizard = () => {
   const goTo = async (next: number) => {
     if (next > step) {
       const valid = await form.trigger(STEP_FIELDS[step], { shouldFocus: true });
-      if (!valid) return;
+      if (!valid) {
+        // Repli : certains champs (choix de la paroisse) sont des composants sans ref focusable,
+        // que `shouldFocus` ne peut pas atteindre — le focus restait alors sur le bouton. On place
+        // le focus sur le premier champ marqué invalide (JB-WEB-028).
+        requestAnimationFrame(() => {
+          const invalid = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+          if (invalid && invalid !== document.activeElement) invalid.focus?.();
+        });
+        return;
+      }
     }
     setStep(next);
   };

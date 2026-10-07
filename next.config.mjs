@@ -53,6 +53,8 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  // Ne pas annoncer la pile technique (JB-WEB-044) : retire l'en-tête `X-Powered-By: Next.js`.
+  poweredByHeader: false,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
