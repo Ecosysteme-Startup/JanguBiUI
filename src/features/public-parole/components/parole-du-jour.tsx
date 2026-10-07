@@ -11,6 +11,7 @@ import { LoadingBlock } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { paths } from '@/config/paths';
 import { ApiError } from '@/lib/api-client';
+import { sourceLine } from '@/utils/aelf';
 import { cn } from '@/utils/cn';
 import { dayjs, longDate } from '@/utils/dates';
 
@@ -124,7 +125,7 @@ const ReadingTabs = ({ data }: { data: LiturgyDayFull }) => {
         </TabsContent>
       ))}
       <p className="m-0 mt-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-t border-line pt-4 text-13 text-ink-3">
-        <span>{data.notice || 'Textes liturgiques du jour.'}</span>
+        <span>{data.notice || sourceLine(data.source, data.edition)}</span>
         <NextLink prefetch={false} href={paths.auth.inscription.getHref()} className="font-semibold">
           Recevoir la Parole chaque matin
         </NextLink>
@@ -210,7 +211,9 @@ export const ParoleDuJour = ({ date }: { date?: string }) => {
               <EmptyState icon="calendrier" title="Les lectures de ce jour ne sont pas encore disponibles.">
                 Le calendrier liturgique est à jour ; les textes seront publiés dès leur réception. Revenez un peu plus tard.
               </EmptyState>
-              {data.notice && <p className="m-0 mt-8 border-t border-line pt-4 text-13 text-ink-3">{data.notice}</p>}
+              {(data.notice || sourceLine(data.source, data.edition)) && (
+                <p className="m-0 mt-8 border-t border-line pt-4 text-13 text-ink-3">{data.notice || sourceLine(data.source, data.edition)}</p>
+              )}
             </>
           )}
         </article>

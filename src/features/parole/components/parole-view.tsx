@@ -21,6 +21,7 @@ import { ReadingsAside } from '@/features/parole/components/readings-aside';
 import type { TextSize } from '@/features/parole/components/text-size-control';
 import { isGospel, ISO, readingTabLabel, weekOf } from '@/features/parole/utils/liturgy';
 import { ApiError } from '@/lib/api-client';
+import { sourceLine } from '@/utils/aelf';
 import { cn } from '@/utils/cn';
 import { dayjs, longDate } from '@/utils/dates';
 
@@ -83,7 +84,7 @@ const LiturgyContent = ({ day, busy }: { day: LiturgyDay; busy: boolean }) => {
               </TabsList>
               {day.readings.map((r, i) => (
                 <TabsContent key={`${r.type}-${i}`} value={String(i)}>
-                  <ReadingSection reading={r} date={day.date} notice={day.notice} size={size} onSize={setSize} />
+                  <ReadingSection reading={r} date={day.date} notice={day.notice || sourceLine(day.source, day.edition) || ''} size={size} onSize={setSize} />
                 </TabsContent>
               ))}
             </Tabs>

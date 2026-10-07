@@ -1,5 +1,5 @@
 import { nextSunday, parseDateParam, shiftDay, weekOf } from '@/features/public-parole/utils/days';
-import { findReading, readingAnchor, readingExcerpt, readingHeading, readingLabel, readingTitle, readingTabs, shortCitation } from '@/features/public-parole/utils/readings';
+import { findReading, readingAnchor, readingExcerpt, readingLabel, readingTitle, readingTabs, shortCitation } from '@/features/public-parole/utils/readings';
 import { sanitizeReadingHtml } from '@/features/public-parole/utils/sanitize-reading';
 import { f4PublicHandlers } from '@/testing/mocks/handlers/f4-public';
 import { server } from '@/testing/mocks/server';
@@ -57,12 +57,10 @@ describe('lectures', () => {
 
   const verse = (book: string) => [{ book, chapter: 1, number: 2, text: 'x' }];
 
-  it('titre une lecture par son livre et ses versets', () => {
-    expect(readingTitle({ type: 'lecture_1', citation: 'Qo 11, 9 – 12, 8', verses: verse('Ecclésiaste') })).toBe('Ecclésiaste 11, 9 – 12, 8');
-    expect(readingTitle({ type: 'psaume', citation: 'Ps 89 (90), 3-4, 12-13', verses: verse('Psaumes') })).toBe('Psaume 89 (90), 3-4, 12-13');
-    expect(readingTitle({ type: 'evangile', citation: 'Lc 9, 43b-45', verses: verse('Luc') })).toBe('Évangile selon saint Luc 9, 43b-45');
-    // Sans verset (texte AELF seul), la référence reste telle quelle.
-    expect(readingTitle({ type: 'evangile', citation: 'Lc 9, 7-9', verses: [] })).toBe('Lc 9, 7-9');
+  it('titre une lecture par le titre AELF, sinon par sa référence (rien de composé)', () => {
+    expect(readingTitle({ type: 'lecture_1', citation: 'Qo 11, 9 – 12, 8', verses: verse('Ecclésiaste') })).toBe('Qo 11, 9 – 12, 8');
+    expect(readingTitle({ type: 'evangile', citation: 'Lc 9, 43b-45', verses: verse('Luc') })).toBe('Lc 9, 43b-45');
+    expect(readingTitle({ type: 'lecture_1', citation: 'Qo 11', verses: [], aelf: { titre: 'Lecture du livre de Qohèleth' } })).toBe('Lecture du livre de Qohèleth');
   });
 
   it('abrège une référence de psaume pour une grille', () => {
@@ -95,12 +93,5 @@ describe('lectures', () => {
       ['psaume', ['B']],
       ['evangile', ['E', 'D']],
     ]);
-  });
-
-  it('donne l’intitulé d’une lecture : livre, psaume ou évangéliste', () => {
-    expect(readingHeading({ type: 'lecture_1', citation: 'Qo 11, 9', verses: verse('Ecclésiaste') })).toBe('Ecclésiaste');
-    expect(readingHeading({ type: 'psaume', citation: 'Ps 89', verses: verse('Psaumes') })).toBe('Psaume');
-    expect(readingHeading({ type: 'evangile', citation: 'Lc 9', verses: verse('Luc') })).toBe('Évangile selon saint Luc');
-    expect(readingHeading({ type: 'lecture_2', citation: 'Rm 8', verses: [] })).toBe('Deuxième lecture');
   });
 });
