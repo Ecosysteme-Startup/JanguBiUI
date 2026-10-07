@@ -28,9 +28,16 @@ const DirectoryPage = ({ initial = '' }: { initial?: string }) => {
 const list = () => within(screen.getByRole('region', { name: 'Liste des paroisses' }));
 
 beforeEach(() => {
+  // Horloge figée avant la dernière messe de la semaine type (2026-09-30) : la « prochaine messe » existe.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-27T12:00:00Z'));
   server.use(directoryHandler);
   navigation.pathname = '/paroisses';
   navigation.replace.mockReset();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('Annuaire des paroisses', () => {

@@ -13,7 +13,16 @@ import { FeuilleIntentions } from '../feuille-intentions';
 import { IntentionsFidele } from '../intentions-fidele';
 import { IntentionsParoisse } from '../intentions-paroisse';
 
-beforeEach(() => reinitialiserV1Complements());
+beforeEach(() => {
+  // « Aujourd'hui » = 2026-10-04 : la planification vers cette date reste permise (min du champ).
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-04T12:00:00Z'));
+  reinitialiserV1Complements();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 /** Secrétariat de Saint-Dominique : capacité `intentions.gerer` sur la paroisse. */
 const SECRETARIAT: Grant[] = [

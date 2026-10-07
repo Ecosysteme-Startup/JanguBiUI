@@ -35,11 +35,18 @@ const FLUX_URL = `${env.API_URL}/staff/dons/flux/`;
 // Économe de Saint-Dominique et économe diocésain : les écrans trouvent leur
 // nœud d'analyse dans /v1/me/capacites/.
 beforeEach(() => {
+  // Mois en cours = septembre 2026 : « mois précédent » → 2026-08, « trimestre » → 2026-T3.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-27T12:00:00Z'));
   server.use(
     http.get(`${env.API_URL}/me/capacites/`, () =>
       HttpResponse.json(mesCapacitesDemo),
     ),
   );
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 // Garde les espaces insécables (le normaliseur par défaut les réduit en espaces).

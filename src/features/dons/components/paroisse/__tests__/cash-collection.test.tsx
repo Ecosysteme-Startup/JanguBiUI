@@ -20,10 +20,17 @@ const mass = (id: number, weekday: number, start_time: string, note = '') => ({ 
 const schedule = [mass(1, 6, '07:30:00'), mass(2, 6, '09:30:00', 'étudiants'), mass(3, 6, '11:30:00'), mass(4, 6, '18:30:00'), mass(5, 5, '18:30:00', 'messe anticipée')];
 
 beforeEach(() => {
+  // Horloge figée à un dimanche : lastSunday() === 2026-09-27, stable quelle que soit la date réelle.
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-27T12:00:00Z'));
   server.use(
     http.get(apiUrl('/hierarchy/nodes/:nodeId/places/'), () => HttpResponse.json(places)),
     http.get(apiUrl('/hierarchy/places/:placeId/schedule/'), ({ params }) => HttpResponse.json(Number(params.placeId) === 21 ? schedule : [])),
   );
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const renderPage = async (capacites = grantsEconome) => renderApp(await QuetesPage({ params: Promise.resolve({ nodeId }) }), { capacites });
