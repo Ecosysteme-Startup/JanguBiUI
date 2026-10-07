@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Icon } from '@/components/ui/icon';
 import { paths } from '@/config/paths';
 import { ApiError } from '@/lib/api-client';
+import { useCan } from '@/lib/can';
 
 import {
   type AnalyseDons,
@@ -655,6 +656,9 @@ const exporter = (data: AnalyseDons) => {
 };
 
 export function AnalyseParoisseVue({ nodeId }: { nodeId: string }) {
+  // Export réservé à la capacité `dons.exporter` (cohérent avec la page Dons) : masqué sinon,
+  // pour que le secrétariat ne puisse pas exporter depuis l'Analyse (JB-WEB-035).
+  const canExport = useCan('dons.exporter', nodeId);
   const [periode, setPeriode] = React.useState<Periode>('mois');
   // Mois du jour à Dakar, figé au montage : mois par défaut et borne haute du sélecteur.
   const [moisDuJour] = React.useState(moisCourant);
@@ -718,15 +722,17 @@ export function AnalyseParoisseVue({ nodeId }: { nodeId: string }) {
         moisMax={moisDuJour}
         filtres={[]}
         fin={
-          <button
-            type="button"
-            disabled={!data}
-            onClick={() => data && exporter(data)}
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-3.5 text-14 font-semibold text-ink hover:bg-surface-2 disabled:opacity-50"
-          >
-            <Icon name="import" className="size-4" aria-hidden="true" />
-            Exporter
-          </button>
+          canExport ? (
+            <button
+              type="button"
+              disabled={!data}
+              onClick={() => data && exporter(data)}
+              className="inline-flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-3.5 text-14 font-semibold text-ink hover:bg-surface-2 disabled:opacity-50"
+            >
+              <Icon name="import" className="size-4" aria-hidden="true" />
+              Exporter
+            </button>
+          ) : undefined
         }
       />
 

@@ -31,7 +31,8 @@ const resolveParish = cache(async (code: string): Promise<Resolution> => {
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const { code } = await params;
   const { parish } = await resolveParish(decodeURIComponent(code));
-  if (!parish) return { title: 'Fiche paroisse' };
+  // Paroisse inconnue : la page appelle `notFound()`. On aligne le titre sur la 404 générale.
+  if (!parish) return { title: 'Page introuvable', robots: { index: false } };
   const place = [parish.address, parish.city].filter(Boolean).join(', ');
   return {
     title: parish.name,

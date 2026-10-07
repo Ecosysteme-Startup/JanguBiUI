@@ -13,6 +13,8 @@ const eventSchema = z.object({
   target_type: z.string(),
   target_id: z.string(),
   node_id: z.string().nullable(),
+  /** Nom lisible du nœud, quand le backend le fournit (sinon résolu côté front, cf. JB-WEB-039). */
+  node_name: z.string().nullish(),
   metadata: z.unknown().optional(),
   // Tronquée par le backend (IPv4 /24, IPv6 /48) ; null pour une action du système.
   ip: z.string().nullable(),

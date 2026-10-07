@@ -3,6 +3,7 @@ import { getToken } from 'next-auth/jwt';
 
 import { signOut } from '@/lib/auth';
 import { keycloakClientId, keycloakIssuer } from '@/lib/keycloak-token';
+import { publicUrl } from '@/lib/public-url';
 
 /**
  * Déconnexion globale (POST) : supprime la session Auth.js, puis renvoie l'adresse de fin de
@@ -14,7 +15,9 @@ export const POST = async (request: NextRequest) => {
   const token = await getToken({ req: request, secret: process.env.AUTH_SECRET, secureCookie });
   await signOut({ redirect: false });
 
-  const home = new URL('/', request.nextUrl.origin).toString();
+  // Adresse publique (derrière Traefik, `request.nextUrl.origin` vaut l'origine interne du
+  // conteneur, refusée par Keycloak comme URI de redirection).
+  const home = publicUrl(request, '/');
   const logout = new URL(`${keycloakIssuer()}/protocol/openid-connect/logout`);
   logout.searchParams.set('post_logout_redirect_uri', home);
   logout.searchParams.set('client_id', keycloakClientId());

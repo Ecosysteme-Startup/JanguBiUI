@@ -71,7 +71,7 @@ export const FideleSidebar = () => {
             <span className="truncate text-14 font-semibold text-ink">{name.full}</span>
             <span className="truncate text-12 text-ink-3">{me.email}</span>
           </span>
-          <UserMenu />
+          <UserMenu backofficeEntry />
         </div>
       )}
     </SidebarFrame>

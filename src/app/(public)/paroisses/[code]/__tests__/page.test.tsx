@@ -23,6 +23,14 @@ describe('Fiche paroisse : bloc « Soutenir la paroisse »', () => {
     expect(bloc).toHaveTextContent(/décision du 1er juin 2026/);
   });
 
+  it('déclenche la 404 du segment pour une paroisse inconnue (JB-WEB-003)', async () => {
+    const { notFound } = await import('next/navigation');
+    vi.mocked(notFound).mockClear();
+    server.use(http.get(apiUrl('/public/nodes/by-code/:code/'), () => HttpResponse.json({ detail: 'introuvable' }, { status: 404 })));
+    await FicheParoissePage({ params: Promise.resolve({ code: 'CODE-INEXISTANT' }) });
+    expect(notFound).toHaveBeenCalled();
+  });
+
   it('est absent quand la collecte n’est pas ouverte', async () => {
     server.use(http.get(apiUrl('/public/dons/paroisses/:nodeId/'), () => HttpResponse.json({ ...publicParish(), enabled: false })));
     await renderPage();

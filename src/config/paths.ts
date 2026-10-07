@@ -104,6 +104,8 @@ export const paths = {
   },
 
   espace: {
+    /** Entrée de l'espace responsable : ouvre le premier contexte/rubrique autorisé. */
+    index: { getHref: () => '/espace' },
     root: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}` },
     demandes: {
       list: { getHref: (nodeId: string) => `/espace/${enc(nodeId)}/demandes` },

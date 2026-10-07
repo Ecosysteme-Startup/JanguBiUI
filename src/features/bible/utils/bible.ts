@@ -75,6 +75,54 @@ export const filterBooks = (books: Book[], query: string): Book[] => {
   return wanted ? books.filter((b) => normalize(b.name).includes(wanted)) : books;
 };
 
+/** Abréviations usuelles → slug du livre (AELF/usage francophone). */
+const BOOK_ABBREV: Record<string, string> = {
+  gn: 'genese', ex: 'exode', lv: 'levitique', nb: 'nombres', dt: 'deuteronome',
+  jos: 'josue', jg: 'juges', rt: 'ruth', esd: 'esdras', ne: 'nehemie', tb: 'tobie', jdt: 'judith', est: 'esther',
+  jb: 'job', ps: 'psaumes', pr: 'proverbes', qo: 'ecclesiaste', ct: 'cantique-des-cantiques', sg: 'sagesse', si: 'siracide',
+  is: 'isaie', jr: 'jeremie', lm: 'lamentations', ba: 'baruch', ez: 'ezechiel', dn: 'daniel',
+  os: 'osee', jl: 'joel', am: 'amos', ab: 'abdias', jon: 'jonas', mi: 'michee', na: 'nahum', ha: 'habacuc', so: 'sophonie', ag: 'aggee', za: 'zacharie', ml: 'malachie',
+  mt: 'matthieu', mc: 'marc', mk: 'marc', lc: 'luc', jn: 'jean', ac: 'actes',
+  rm: 'romains', ga: 'galates', ep: 'ephesiens', ph: 'philippiens', col: 'colossiens', tt: 'tite', phm: 'philemon', he: 'hebreux', jc: 'jacques', jude: 'jude', ap: 'apocalypse',
+  '1 co': '1-corinthiens', '2 co': '2-corinthiens', '1 th': '1-thessaloniciens', '2 th': '2-thessaloniciens',
+  '1 tm': '1-timothee', '2 tm': '2-timothee', '1 p': '1-pierre', '2 p': '2-pierre', '1 jn': '1-jean', '2 jn': '2-jean', '3 jn': '3-jean',
+  '1 r': '1-rois', '2 r': '2-rois', '1 s': '1-samuel', '2 s': '2-samuel', '1 ch': '1-chroniques', '2 ch': '2-chroniques', '1 m': '1-maccabees', '2 m': '2-maccabees',
+};
+
+/** Résout un nom ou une abréviation de livre (« Jn », « Jean », « 1 Co », « matth »). */
+export const resolveBook = (books: Book[], name: string): Book | undefined => {
+  const wanted = normalize(name);
+  if (!wanted) return undefined;
+  const slug = BOOK_ABBREV[wanted];
+  if (slug) {
+    const bySlug = books.find((b) => b.slug === slug);
+    if (bySlug) return bySlug;
+  }
+  return (
+    books.find((b) => b.slug === name || normalize(b.slug) === wanted || normalize(b.name) === wanted) ??
+    books.find((b) => normalize(b.name).startsWith(wanted))
+  );
+};
+
+export type Reference = { book: Book; chapter: number; verse?: number };
+
+/**
+ * Analyse une référence (« Jn 3, 16 », « Jean 3, 16 », « Jean 3 », « 1 Co 13 ») : livre + chapitre
+ * (+ verset). `undefined` si la saisie n'est pas une référence avec chapitre (un nom seul reste
+ * traité par la recherche de livre).
+ */
+export const parseReference = (query: string, books: Book[]): Reference | undefined => {
+  const m = /^\s*(\d*\s*\p{L}[\p{L}\s.'’-]*?)\s*(\d+)(?:\s*[.,:]\s*(\d+)|\s+(\d+))?\s*$/u.exec(query);
+  if (!m) return undefined;
+  const book = resolveBook(books, m[1]!);
+  if (!book) return undefined;
+  const chapter = Number(m[2]);
+  if (!Number.isFinite(chapter) || chapter < 1) return undefined;
+  const verseStr = m[3] ?? m[4];
+  const verse = verseStr ? Number(verseStr) : undefined;
+  return { book, chapter, verse: verse && verse >= 1 ? verse : undefined };
+};
+
 const EVANGELISTS = ['matthieu', 'marc', 'luc', 'jean'];
 
 /** « Évangile selon saint Luc, chapitre 9 », « Psaume 23 », « Ecclésiaste, chapitre 1 ». */

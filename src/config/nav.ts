@@ -197,3 +197,13 @@ export const backofficeNav = (kind: BackofficeKind, nodeId: string): BackofficeG
     },
   ];
 };
+
+/**
+ * Première rubrique du back-office réellement ouverte à l'utilisateur (selon ses capacités). Sert
+ * à ne pas déposer un vicaire sur « Aujourd'hui » (tableau de bord) qu'il n'a pas le droit de voir,
+ * mais sur sa première rubrique autorisée (Demandes, Messagerie…).
+ */
+export const firstAllowedBackofficeHref = (kind: BackofficeKind, nodeId: string, canDo: (capacite: Capacite) => boolean): string | undefined =>
+  backofficeNav(kind, nodeId)
+    .flatMap((group) => group.items)
+    .find((item) => item.capacites.some(canDo))?.href;

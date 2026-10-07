@@ -1,3 +1,4 @@
+import { StaffHomeRedirect } from '@/components/layouts/staff-home-redirect';
 import { ConfessionCard } from '@/features/accueil/components/confession-card';
 import { CurrentRequestCard } from '@/features/accueil/components/current-request-card';
 import { HomeGreeting } from '@/features/accueil/components/home-greeting';
@@ -14,6 +15,8 @@ const row = 'mt-8 grid grid-cols-[minmax(0,1fr)] gap-8 xl:grid-cols-[minmax(0,1f
 /** Accueil de l'espace fidèle (FID-Accueil) : Parole, messes, demande, confession, annonces, intentions, prêtre. */
 const FideleHomePage = () => (
   <div className="jb-cascade min-w-0 overflow-x-clip [overflow-clip-margin:16px]">
+    {/* Un responsable est renvoyé vers son espace (JB-WEB-033/037/043). */}
+    <StaffHomeRedirect />
     <HomeGreeting />
     <div className={row}>
       <WordOfTheDay />

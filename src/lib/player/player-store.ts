@@ -5,6 +5,7 @@ import { ApiError } from '@/lib/api-client';
 
 import { fetchLecture, fetchNextUp, setTrackLiked } from './api';
 import type { AudioEngine, EngineListener } from './engine';
+import { emitTrackLikeChanged } from './like-events';
 import { recordListenEvent } from './listen-events';
 import { reportPlaybackState } from './state-sync';
 import {
@@ -798,9 +799,13 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
       const liked = !get().liked[t.id];
       set({ liked: { ...get().liked, [t.id]: liked } });
       if (liked) recordListenEvent('like', t.id, get().position);
-      setTrackLiked(t.id, liked).catch(() => {
-        set({ liked: { ...get().liked, [t.id]: !liked } });
-      });
+      // Rafraîchir la bibliothèque de la sonothèque (titres aimés), comme le fait `useToggleLike`.
+      emitTrackLikeChanged();
+      setTrackLiked(t.id, liked)
+        .catch(() => {
+          set({ liked: { ...get().liked, [t.id]: !liked } });
+        })
+        .finally(() => emitTrackLikeChanged());
     },
 
     expand: () => {

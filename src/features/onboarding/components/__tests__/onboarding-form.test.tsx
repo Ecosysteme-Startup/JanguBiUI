@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 import userEvent from '@testing-library/user-event';
 
 import { OnboardingForm } from '@/features/onboarding/components/onboarding-form';
-import { ids, onboardingState } from '@/testing/mocks/db';
+import { ids, me, onboardingState } from '@/testing/mocks/db';
 import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
 import { onboardingHandlers } from '@/testing/mocks/handlers/onboarding';
@@ -88,5 +88,31 @@ describe('OnboardingForm', () => {
 
     expect(await screen.findByRole('radio', { name: /saint-dominique.*sur jàngu bi/i })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /cathédrale.*pas encore sur jàngu bi/i })).toBeInTheDocument();
+  });
+
+  it('pour un mineur, exige l’accord d’un parent ou tuteur et avertit sur messagerie et dons (JB-WEB-013)', async () => {
+    const minorBirth = new Date();
+    minorBirth.setFullYear(minorBirth.getFullYear() - 15);
+    const minorMe = { ...me, profile: { ...me.profile, date_of_birth: minorBirth.toISOString().slice(0, 10) } };
+    server.use(http.get(apiUrl('/me/'), () => HttpResponse.json(minorMe)));
+
+    const user = userEvent.setup();
+    renderApp(<OnboardingForm />);
+
+    await user.click(await screen.findByRole('radio', { name: /saint-dominique/i }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await screen.findByRole('heading', { level: 1, name: 'Avant de terminer' });
+
+    expect(screen.getByText(/moins de 18 ans/i)).toBeInTheDocument();
+    expect(screen.getByText(/messagerie.*dons.*ne sont pas accessibles aux mineurs/i)).toBeInTheDocument();
+
+    const submit = screen.getByRole('button', { name: /terminer mon inscription/i });
+    await user.click(screen.getByRole('checkbox', { name: /appartenance religieuse/i }));
+    await user.click(screen.getByRole('checkbox', { name: /conditions d.utilisation/i }));
+    // Les deux accords majeurs ne suffisent pas : l'accord parental reste requis.
+    expect(submit).toBeDisabled();
+
+    await user.click(screen.getByRole('checkbox', { name: /accord de mon parent ou de mon tuteur/i }));
+    expect(submit).toBeEnabled();
   });
 });

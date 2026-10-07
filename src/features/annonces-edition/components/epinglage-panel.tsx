@@ -27,6 +27,7 @@ export const EpinglagePanel = ({ articleId }: { articleId: string }) => {
   const epingler = useEpingler(articleId);
   const desepingler = useDesepingler(articleId);
   const erreur = epingler.error ?? desepingler.error;
+  const lancerEpinglage = () => jour && epingler.mutate(finDeJournee(jour));
   if (!data || (data.status !== 'published' && data.status !== 'scheduled'))
     return null;
 
@@ -57,13 +58,10 @@ export const EpinglagePanel = ({ articleId }: { articleId: string }) => {
           </Button>
         </div>
       ) : (
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            epingler.mutate(finDeJournee(jour));
-          }}
-        >
+        // Pas de <form> ici : l'éditeur d'annonce en enveloppe déjà un. Un form imbriqué est du
+        // HTML invalide — le bouton déclenchait la soumission native de l'éditeur (rechargement
+        // de la page, aucun enregistrement). On passe par un bouton `type="button"`.
+        <div className="flex flex-col gap-3">
           <Field
             id={`${id}-jour`}
             label="Jusqu’au"
@@ -77,18 +75,25 @@ export const EpinglagePanel = ({ articleId }: { articleId: string }) => {
               max={dayjs().add(60, 'day').format('YYYY-MM-DD')}
               value={jour}
               onChange={(e) => setJour(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  lancerEpinglage();
+                }
+              }}
             />
           </Field>
           <Button
-            type="submit"
+            type="button"
             size="sm"
             variant="outline"
             loading={epingler.isPending}
             className="self-start"
+            onClick={lancerEpinglage}
           >
             Épingler
           </Button>
-        </form>
+        </div>
       )}
       {erreur && (
         <p role="alert" className="m-0 text-14 text-err">

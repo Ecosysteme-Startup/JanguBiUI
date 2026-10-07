@@ -1,7 +1,10 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
 
 import { RequestWizard } from '@/features/actes/components/request-wizard';
+import { apiUrl } from '@/testing/mocks/api-url';
+import { me } from '@/testing/mocks/db';
 import { actesState, resetActes } from '@/testing/mocks/db-f6-actes';
 import { navigation } from '@/testing/navigation';
 import { renderApp } from '@/testing/test-utils';
@@ -132,5 +135,35 @@ describe('FID-Demande-Nouvelle', () => {
     expect(await screen.findByRole('radio', { name: /au secrétariat de la paroisse du sacrement/i })).toBeChecked();
     expect(screen.getByRole('radio', { name: /transmission à ma paroisse, saint-dominique/i })).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/pdf/i);
+  });
+
+  it('préremplit la date de naissance (et le téléphone) depuis le profil (JB-WEB-028)', async () => {
+    server.use(
+      http.get(apiUrl('/me/'), () =>
+        HttpResponse.json({ ...me, profile: { ...me.profile, date_of_birth: '1992-03-14', phone: '+221 77 418 26 90' } }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp(<RequestWizard />);
+    await user.click(await screen.findByRole('radio', { name: 'Certificat de baptême' }));
+    await user.click(screen.getByRole('button', { name: /continuer/i }));
+    await user.type(await screen.findByLabelText(/nom de la paroisse/i), 'Grand');
+    await user.click(await screen.findByRole('radio', { name: /sainte-thérèse/i }));
+    await user.click(screen.getByRole('button', { name: /continuer/i }));
+
+    expect(await screen.findByLabelText(/date de naissance/i)).toHaveValue('14/03/1992');
+    expect(screen.getByLabelText(/téléphone/i)).toHaveValue('+221 77 418 26 90');
+  });
+
+  it('déplace le focus sur le champ en erreur, pas sur le bouton (JB-WEB-028)', async () => {
+    const user = userEvent.setup();
+    renderApp(<RequestWizard />);
+    await user.click(await screen.findByRole('radio', { name: 'Certificat de baptême' }));
+    await user.click(screen.getByRole('button', { name: /continuer/i }));
+    // Étape Paroisse : « Continuer » sans choix → le focus doit aller au champ de recherche invalide.
+    await user.click(await screen.findByRole('button', { name: /continuer/i }));
+
+    const search = await screen.findByLabelText(/nom de la paroisse/i);
+    await waitFor(() => expect(search).toHaveFocus());
   });
 });

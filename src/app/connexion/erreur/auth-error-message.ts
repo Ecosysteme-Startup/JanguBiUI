@@ -8,7 +8,7 @@ export type AuthErrorMessage = { title: string; body: string };
 const MESSAGES: Record<string, AuthErrorMessage> = {
   Configuration: {
     title: 'Votre connexion a expiré.',
-    body: 'La page de connexion est restée ouverte trop longtemps, ou la connexion a été interrompue. Recommencez : cela ne prend que quelques secondes.',
+    body: 'La page de connexion est restée ouverte trop longtemps, ou la connexion a été interrompue — par exemple si vous venez de confirmer votre adresse e-mail dans un autre onglet. Si c’est le cas, votre compte est bien créé : recommencez la connexion, cela ne prend que quelques secondes.',
   },
   AccessDenied: {
     title: 'La connexion a été refusée.',
