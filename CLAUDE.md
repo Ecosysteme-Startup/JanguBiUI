@@ -13,7 +13,7 @@ Frontend de **Jàngu Bi** : Next.js 16 (App Router), TanStack Query, Zod, react-
 - **Briques** : Parole · Ma paroisse · Demandes d'actes · Parler à un prêtre (+ rendez-vous de confession) · Dons et quêtes · tableaux de bord.
 - **Dons et quêtes** (ADR-F12, 27/09/2026) : feature `dons` dégelée et reconstruite sur le contrat V1 (collecte par paroisse autorisée, paiement chez l'agrégateur, confirmation serveur, jamais d'appel au don dans actes, messagerie ou confession).
 - **Features gelées** (ADR-F07) : `transfert-paroissial`, `tv`, `assistant`, `reflexion-pastorale`, `analytics`, chapelet communautaire, Offices des Heures, messagerie entre clercs. Ne pas les modifier ni les réactiver. La déclaration d'état de vie (`clergy-declaration`) est dégelée le 26/09/2026 : section « Mon état de vie » de la feature `profil` (ADR-F07 amendée).
-- **Fusion avec la V1 de `main` (29/09/2026)** : modules branchés sur les vraies routes V1 et portés sur cette architecture — sonothèque et lecteur audio global (`sonotheque`, `src/lib/player`, `src/components/player`), `intentions` et `clergy-accounts` (dégelées), `recherche`, `dons-analyse`, `admin-comptes` (comptes synchronisés avec Keycloak), `paroissiens`, paroisses multiples (`src/lib/paroisses`), « Pour vous aujourd'hui » et personnalisation (`src/lib/personnalisation`), présence dans la messagerie. Livraison en recette : `.github/workflows/livraison-recette.yml` (push `stage`) et `Dockerfile`.
+- **Fusion avec la V1 de `main` (29/09/2026)** : modules branchés sur les vraies routes V1 et portés sur cette architecture — sonothèque et lecteur audio global (`sonotheque`, `src/lib/player`, `src/components/player`), `intentions` et `clergy-accounts` (dégelées), `recherche`, `dons-analyse`, `admin-comptes` (comptes synchronisés avec Keycloak), `paroissiens`, paroisses multiples (`src/lib/paroisses`), « Pour vous aujourd'hui » et personnalisation (`src/lib/personnalisation`), présence dans la messagerie. Plus de livraison en recette : Jàngu Bi est sorti de l'infrastructure CEAC (13/10/2026).
 
 ## 2. Maquettes = spécification (« Ciel produit »)
 
@@ -69,7 +69,7 @@ src/testing/      MSW (handlers conformes au contrat), factories, renderApp
 
 ## 7. Vérification AVANT push — CI locale OBLIGATOIRE (ADR-F09)
 
-> **Aucun push ni PR vers `develop`, `stage` ou `main` sans `make act` vert.** Un push sur `stage` livre en recette.
+> **Aucun push ni PR vers `develop`, `stage` ou `main` sans `make act` vert.**
 
 ```bash
 make act          # act push --job lint-and-typecheck : lint + types + tests + build
@@ -77,7 +77,7 @@ make ci-docker    # build local de l'image de prod, SANS push
 make hooks        # hook pre-push qui lance make act vers develop/stage/main
 ```
 
-- **Jamais via act** : `livraison-recette.yml` (push DockerHub et livraison en recette, sur push `stage` seulement).
+- **Aucune livraison automatique** : `livraison-recette.yml` supprimé le 13/10/2026.
 - Plan B : `yarn lint && yarn check-types && yarn test --run && yarn build`, à mentionner dans la PR.
 - Claude Code travaille sur `feat/v1-fX-…`, ouvre une PR et **ne merge jamais** lui-même.
 

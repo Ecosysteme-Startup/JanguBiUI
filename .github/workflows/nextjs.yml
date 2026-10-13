@@ -2,8 +2,7 @@ name: CI JanguBi Frontend
 
 on:
   push:
-    # Qualité seule. Livraison : push `stage` → .github/workflows/livraison-recette.yml
-    # (runner ceac, contrat de l'Infrastructure Ecosysteme-Startup).
+    # Qualité seule : aucune livraison (Jàngu Bi est sorti de l'infrastructure CEAC).
     branches: [main, develop]
     paths-ignore: ['docs/**', '**/*.md']
   pull_request:
